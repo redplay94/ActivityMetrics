@@ -1977,6 +1977,101 @@ select.vo2-input { cursor:pointer; }
 .vo2-norm-table tr.vo2-hl td { background:rgba(239,68,68,.06); }
 .vo2-chart-wrap { height:220px; position:relative; margin-top:16px; }
 .vo2-proj-chart-wrap { height:180px; position:relative; margin-top:8px; }
+
+/* ══════════════════════════════════════════════════════════════
+   HEART RATE SECTION
+══════════════════════════════════════════════════════════════ */
+@keyframes heartbeat {
+  0%,100%{transform:scale(1);}14%{transform:scale(1.25);}28%{transform:scale(1);}42%{transform:scale(1.22);}70%{transform:scale(1);}
+}
+.hr-pulse-icon{display:inline-block;animation:heartbeat 1.4s ease infinite;color:#ef4444;}
+.hr-section-hdr{display:flex;align-items:center;gap:10px;}
+.hr-tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:20px;flex-wrap:wrap;}
+.hr-tab{flex:1;min-width:100px;padding:9px 16px;border-radius:9px;font-size:.85rem;font-weight:600;color:var(--text-muted);transition:all var(--transition);text-align:center;border:none;background:none;cursor:pointer;}
+.hr-tab.active{background:#ef4444;color:#fff;box-shadow:0 2px 10px rgba(239,68,68,.35);}
+.hr-tab:hover:not(.active){color:var(--text);background:var(--bg3);}
+.hr-tab-panel{display:none;}
+.hr-tab-panel.active{display:block;}
+.hr-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;box-shadow:var(--card-shadow);}
+.hr-card-title{font-size:.88rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.hr-card-title-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;}
+.hr-maxhr-display{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.04));border:1.5px solid rgba(239,68,68,.3);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.hr-maxhr-num{font-size:2.8rem;font-weight:800;color:#ef4444;line-height:1;}
+.hr-maxhr-label{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+.hr-maxhr-note{font-size:.7rem;color:var(--text-dim);font-style:italic;margin-top:6px;border-left:2px solid rgba(239,68,68,.4);padding-left:8px;line-height:1.5;}
+.hr-formula-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.hr-formula-btn{padding:5px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-muted);cursor:pointer;transition:all var(--transition);}
+.hr-formula-btn.active{border-color:#ef4444;background:rgba(239,68,68,.1);color:#ef4444;}
+.hr-model-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+.hr-model-btn{padding:5px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-muted);cursor:pointer;transition:all var(--transition);}
+.hr-model-btn.active{border-color:#ef4444;background:rgba(239,68,68,.1);color:#ef4444;}
+.hr-zone-bar-wrap{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.hr-zone-bar-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;}
+@media(max-width:600px){.hr-zone-bar-row{grid-template-columns:90px 1fr;}}
+.hr-zone-bar-label{font-size:.75rem;font-weight:700;}
+.hr-zone-bpm{font-size:.65rem;color:var(--text-muted);font-weight:500;}
+.hr-zone-bar-outer{height:36px;background:var(--bg3);border-radius:var(--radius-sm);overflow:hidden;position:relative;}
+.hr-zone-bar-fill{height:100%;border-radius:var(--radius-sm);display:flex;align-items:center;padding:0 10px;font-size:.73rem;font-weight:700;color:#fff;white-space:nowrap;transition:width .5s ease;}
+.hr-zone-desc-row{margin-top:4px;font-size:.68rem;color:var(--text-muted);line-height:1.4;padding-left:140px;}
+@media(max-width:600px){.hr-zone-desc-row{padding-left:100px;}}
+.hr-zone-feel{color:var(--text-dim);font-style:italic;}
+.rhr-display{display:flex;align-items:baseline;gap:6px;margin:8px 0;}
+.rhr-value{font-size:2rem;font-weight:800;color:#ef4444;line-height:1;}
+.rhr-trend.up{color:#ef4444;}.rhr-trend.down{color:#22c55e;}
+.rhr-athlete  {background:rgba(168,85,247,.15);color:#a855f7;}
+.rhr-excellent{background:rgba(59,130,246,.15); color:#3b82f6;}
+.rhr-good     {background:rgba(34,197,94,.15);  color:#22c55e;}
+.rhr-average  {background:rgba(234,179,8,.15);  color:#eab308;}
+.rhr-below    {background:rgba(249,115,22,.15); color:#f97316;}
+.rhr-poor     {background:rgba(239,68,68,.15);  color:#ef4444;}
+.rhr-cat-badge{padding:3px 10px;border-radius:99px;font-size:.7rem;font-weight:700;display:inline-block;}
+.hr-stacked-bar{height:28px;border-radius:var(--radius-sm);overflow:hidden;display:flex;margin:10px 0;}
+.hr-stacked-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:.63rem;font-weight:700;color:#fff;min-width:0;overflow:hidden;transition:width .5s ease;}
+.hr-zone-breakdown{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.hr-zone-bdown-row{display:flex;align-items:center;gap:8px;font-size:.78rem;}
+.hr-zone-bdown-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.hr-zone-bdown-name{min-width:120px;font-weight:600;}
+.hr-zone-bdown-bar-wrap{flex:1;height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.hr-zone-bdown-bar{height:100%;border-radius:99px;transition:width .5s ease;}
+.hr-zone-bdown-val{min-width:70px;text-align:right;color:var(--text-muted);font-size:.72rem;}
+.trimp-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius-sm);font-size:.85rem;font-weight:700;margin-top:8px;}
+.trimp-easy    {background:rgba(34,197,94,.1); color:#22c55e;border:1px solid rgba(34,197,94,.3);}
+.trimp-moderate{background:rgba(234,179,8,.1); color:#eab308;border:1px solid rgba(234,179,8,.3);}
+.trimp-hard    {background:rgba(249,115,22,.1);color:#f97316;border:1px solid rgba(249,115,22,.3);}
+.trimp-veryhard{background:rgba(239,68,68,.1); color:#ef4444;border:1px solid rgba(239,68,68,.3);}
+.eighty20-check{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;margin:8px 0;}
+.eighty20-great  {background:rgba(34,197,94,.08); color:#22c55e;border:1px solid rgba(34,197,94,.25);}
+.eighty20-toohard{background:rgba(249,115,22,.08);color:#f97316;border:1px solid rgba(249,115,22,.25);}
+.eighty20-tooeasy{background:rgba(59,130,246,.08);color:#3b82f6;border:1px solid rgba(59,130,246,.25);}
+.hr-zone-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.hr-zone-legend-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--text-muted);}
+.hr-zone-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.hr-weekly-totals{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.hr-weekly-total-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid transparent;}
+.hr-tsb-display{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.hr-tsb-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:110px;text-align:center;}
+.hr-tsb-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:4px;}
+.hr-tsb-value{font-size:1.4rem;font-weight:800;line-height:1;}
+.hr-tsb-sub{font-size:.65rem;color:var(--text-muted);margin-top:3px;}
+.hr-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0;}
+.hr-summary-item{background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;}
+.hr-summary-icon{font-size:1.2rem;margin-bottom:5px;}
+.hr-summary-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:3px;}
+.hr-summary-value{font-size:1.05rem;font-weight:800;color:#ef4444;line-height:1;}
+.hr-summary-sub{font-size:.63rem;color:var(--text-muted);margin-top:2px;}
+.hr-insight{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:.78rem;color:var(--text-muted);margin:10px 0;line-height:1.6;}
+.hr-insight strong{color:var(--text);}
+.hr-chart-wrap{height:220px;position:relative;margin-top:12px;}
+.hr-chart-sm{height:160px;position:relative;margin-top:10px;}
+.hr-efficiency-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:10px;}
+.hr-efficiency-table th{padding:6px 10px;border-bottom:1px solid var(--border);font-size:.65rem;color:var(--text-muted);text-transform:uppercase;text-align:left;}
+.hr-efficiency-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);}
+.hr-efficiency-table tr:last-child td{border-bottom:none;}
+.hr-recovery-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:6px;font-size:.78rem;}
+.hr-rec-good  {background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.2);}
+.hr-rec-avg   {background:rgba(234,179,8,.07); border:1px solid rgba(234,179,8,.2);}
+.hr-rec-poor  {background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.2);}
+.tsb-fresh   {color:#22c55e;}.tsb-maintain{color:#eab308;}.tsb-fatigued{color:#f97316;}.tsb-over{color:#ef4444;}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -2274,6 +2369,232 @@ select.vo2-input { cursor:pointer; }
       </div>
     </div>
   </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HEART RATE ANALYSIS
+  ═══════════════════════════════════════════════════════════ -->
+  <section id="hrSection" aria-label="Heart Rate Analysis">
+    <div class="section-header">
+      <div class="hr-section-hdr">
+        <span class="hr-pulse-icon" style="font-size:1.5rem">❤️</span>
+        <div>
+          <div class="section-title">Heart Rate</div>
+          <div class="section-sub">Zones, training load and aerobic analytics</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="hr-tabs">
+      <button class="hr-tab active" onclick="hrTab('zones')" id="hrTabBtn_zones">HR Zones</button>
+      <button class="hr-tab" onclick="hrTab('time')"  id="hrTabBtn_time">Time in Zones</button>
+      <button class="hr-tab" onclick="hrTab('analytics')" id="hrTabBtn_analytics">HR Analytics</button>
+    </div>
+
+    <!-- ── Tab 1: HR Zones ─────────────────────────────────── -->
+    <div class="hr-tab-panel active" id="hrPanel_zones">
+
+      <!-- Max HR Calculator -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Max Heart Rate Calculator</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div class="form-group">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-input" id="hrAge" placeholder="e.g. 30" min="10" max="100" oninput="hrRecalcMax()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resting HR (bpm)</label>
+            <input type="number" class="form-input" id="hrRestInput" placeholder="e.g. 60" min="30" max="110" oninput="hrRecalcMax()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select class="form-select" id="hrGender" onchange="hrRecalcMax()">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div class="form-label" style="margin-bottom:6px">Formula</div>
+          <div class="hr-formula-btns">
+            <button class="hr-formula-btn active" data-f="standard" onclick="hrSetFormula('standard')">Standard (220−age)</button>
+            <button class="hr-formula-btn"        data-f="tanaka"   onclick="hrSetFormula('tanaka')">Tanaka (208−0.7×age)</button>
+            <button class="hr-formula-btn"        data-f="gulati"   onclick="hrSetFormula('gulati')">Gulati ♀ (206−0.88×age)</button>
+            <button class="hr-formula-btn"        data-f="karvonen" onclick="hrSetFormula('karvonen')">Karvonen (needs RHR)</button>
+            <button class="hr-formula-btn"        data-f="manual"   onclick="hrSetFormula('manual')">Manual Entry</button>
+          </div>
+          <div id="hrManualWrap" style="display:none;margin-top:8px">
+            <input type="number" class="form-input" id="hrManualMax" placeholder="Enter your tested max HR (e.g. 192)" min="100" max="250" oninput="hrRecalcMax()" style="max-width:280px">
+          </div>
+        </div>
+        <div class="hr-maxhr-display">
+          <div>
+            <div class="hr-maxhr-num" id="hrMaxNum">—</div>
+            <div class="hr-maxhr-label">Estimated Max HR (bpm)</div>
+          </div>
+          <div style="flex:1">
+            <div id="hrMaxFormula" style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px"></div>
+            <div class="hr-maxhr-note">The most accurate way to know your max HR is a lab test or supervised field test. Formulas are estimates.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resting HR Tracking -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Resting Heart Rate</div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">BPM</label>
+            <input type="number" class="form-input" id="hrRhrInput" placeholder="e.g. 58" min="30" max="120" style="max-width:130px">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-input" id="hrRhrDate" style="max-width:170px">
+          </div>
+          <button class="btn btn-primary" onclick="hrAddRhr()" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 3px 12px rgba(239,68,68,.3);border:none">Add Resting HR</button>
+        </div>
+        <div id="hrRhrSummary"></div>
+        <div class="hr-chart-sm"><canvas id="hrRhrChart"></canvas></div>
+      </div>
+
+      <!-- Zone Model -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Zone Model</div>
+        <div class="hr-model-btns">
+          <button class="hr-model-btn active" data-m="standard5" onclick="hrSetModel('standard5')">Standard 5-Zone</button>
+          <button class="hr-model-btn" data-m="coggan"    onclick="hrSetModel('coggan')">Coggan Cycling (7-Zone)</button>
+          <button class="hr-model-btn" data-m="polar"     onclick="hrSetModel('polar')">Polar 5-Zone</button>
+          <button class="hr-model-btn" data-m="8020"      onclick="hrSetModel('8020')">80/20 Running</button>
+        </div>
+      </div>
+
+      <!-- HR Zone Bars -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Heart Rate Zones</div>
+        <div id="hrZoneBars"><div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.85rem">Enter your age above to see your personalised zones.</div></div>
+      </div>
+
+    </div><!-- /hrPanel_zones -->
+
+    <!-- ── Tab 2: Time in Zones ────────────────────────────── -->
+    <div class="hr-tab-panel" id="hrPanel_time">
+
+      <!-- Activity Zone View -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Activity Zone Breakdown</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+          <select class="form-select" id="hrActivitySelect" onchange="hrLoadActivityZone()" style="max-width:340px;flex:1">
+            <option value="">Select an activity to view its zones…</option>
+          </select>
+          <button class="btn btn-ghost" onclick="hrOpenAddHRModal()" style="font-size:.78rem;flex-shrink:0">+ Add / Edit HR Data</button>
+        </div>
+        <div id="hrActivityZoneView">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:.85rem">Select an activity above to see its heart rate zone breakdown.</div>
+        </div>
+      </div>
+
+      <!-- Weekly Zone Summary -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Weekly Zone Summary</div>
+        <div class="hr-chart-wrap"><canvas id="hrWeeklyChart"></canvas></div>
+        <div id="hrWeeklyZoneTotals" style="margin-top:12px"></div>
+        <div id="hr8020Check"></div>
+      </div>
+
+      <!-- Monthly Zone Trends -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Monthly Zone Trends (last 8 weeks)</div>
+        <div class="hr-chart-wrap"><canvas id="hrMonthlyChart"></canvas></div>
+        <div id="hrMonthlyInsight" style="margin-top:10px"></div>
+      </div>
+
+    </div><!-- /hrPanel_time -->
+
+    <!-- ── Tab 3: HR Analytics ─────────────────────────────── -->
+    <div class="hr-tab-panel" id="hrPanel_analytics">
+
+      <!-- HR vs Pace -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Heart Rate vs Pace</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:10px">Activities with avg HR and pace data — each dot is one run. Lower HR at same pace = improved aerobic fitness.</div>
+        <div class="hr-chart-wrap"><canvas id="hrPaceChart"></canvas></div>
+        <div id="hrPaceInsight"></div>
+      </div>
+
+      <!-- Aerobic Efficiency -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Aerobic Efficiency Tracker</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:10px">Tracks your pace at a target heart rate (145 bpm) over time. Improving pace at the same HR = better aerobic fitness.</div>
+        <div id="hrAerobicEfficiency"></div>
+        <div class="hr-chart-sm"><canvas id="hrEfficiencyChart"></canvas></div>
+      </div>
+
+      <!-- HR Recovery Guidelines -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>HR Recovery Guidelines</div>
+        <div class="hr-recovery-row hr-rec-good"><span style="font-size:1.2rem">💚</span><div><strong>Good recovery:</strong> HR drops 20+ bpm in the first minute after stopping</div></div>
+        <div class="hr-recovery-row hr-rec-avg"><span style="font-size:1.2rem">💛</span><div><strong>Average recovery:</strong> HR drops 12–20 bpm in the first minute</div></div>
+        <div class="hr-recovery-row hr-rec-poor"><span style="font-size:1.2rem">❤️</span><div><strong>Poor recovery:</strong> HR drops less than 12 bpm — may indicate overtraining or low fitness</div></div>
+        <div style="margin-top:12px;font-size:.75rem;color:var(--text-muted)">You can log your 1-minute post-activity HR when adding HR data to an activity. This enables more accurate recovery tracking.</div>
+      </div>
+
+      <!-- Training Load Monitor -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Training Load Monitor (ATL / CTL / TSB)</div>
+        <div id="hrTSBDisplay" class="hr-tsb-display"></div>
+        <div class="hr-chart-wrap"><canvas id="hrLoadChart"></canvas></div>
+        <div id="hrTSBInsight" style="margin-top:10px"></div>
+      </div>
+
+      <!-- HR Summary Dashboard -->
+      <div class="hr-card">
+        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Heart Rate Summary Dashboard</div>
+        <div class="hr-summary-grid" id="hrSummaryDashboard"></div>
+      </div>
+
+    </div><!-- /hrPanel_analytics -->
+
+  </section>
+
+  <!-- Add HR Data to Activity Modal -->
+  <div class="modal-overlay" id="hrDataModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add / Edit HR Data for Activity</div>
+        <button class="modal-close" onclick="closeHRModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Activity</label>
+          <select class="form-select" id="hrModalActivity" onchange="hrModalActivityChanged()"></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Avg HR (bpm)</label>
+            <input type="number" class="form-input" id="hrModalAvg" placeholder="e.g. 148" min="40" max="220">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max HR (bpm)</label>
+            <input type="number" class="form-input" id="hrModalMax" placeholder="e.g. 172" min="40" max="220">
+          </div>
+          <div class="form-group">
+            <label class="form-label">HR 1 min post</label>
+            <input type="number" class="form-input" id="hrModalRecovery" placeholder="optional" min="40" max="220">
+          </div>
+        </div>
+        <div>
+          <label class="form-label" style="margin-bottom:8px;display:block">Time in Zones (minutes) <span style="font-weight:400;font-style:italic">— leave blank to auto-estimate</span></label>
+          <div style="display:flex;flex-direction:column;gap:6px" id="hrModalZoneInputs"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeHRModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="hrSaveModalData()" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 3px 12px rgba(239,68,68,.3);border:none">Save HR Data</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        ACTIVITY LOG
@@ -4320,6 +4641,7 @@ function init() {
   setupChartObserver();
   lastPRs = computePRs();
   initAuth();
+  hrInit();
 }
 
 function renderAll() {
@@ -5741,6 +6063,13 @@ const BADGE_DEFS = [
   { id:'race_dreamer',  cat:'special',     tier:'gold',     icon:'⭐', name:'Dream Chaser',        desc:'Move a race from Bucket List to Completed',         target:1     },
   { id:'race_pbcollect',cat:'special',     tier:'gold',     icon:'🥇', name:'PB Collector',        desc:'Set 5 personal bests across any distances',         target:5     },
   { id:'race_5star',    cat:'special',     tier:'bronze',   icon:'⭐', name:'Five Star Racer',     desc:'Give a race a 5-star rating',                       target:1     },
+  // Heart Rate badges
+  { id:'hr_first',      cat:'special',     tier:'bronze',   icon:'💓', name:'Heart Monitor',       desc:'Log heart rate data for the first time',                target:1     },
+  { id:'hr_zone20',     cat:'special',     tier:'silver',   icon:'📊', name:'Zone Master',         desc:'Log HR data for 20 activities',                         target:20    },
+  { id:'hr_8020_4w',    cat:'special',     tier:'gold',     icon:'⚖️', name:'80/20 Champion',      desc:'Maintain 80/20 easy/hard zone ratio for 4 weeks',       target:4     },
+  { id:'hr_rhr55',      cat:'special',     tier:'gold',     icon:'🧘', name:'Aerobic Beast',       desc:'Achieve a resting HR below 55 bpm',                     target:55    },
+  { id:'hr_efficiency', cat:'special',     tier:'platinum', icon:'📈', name:'Efficiency Expert',   desc:'Improve aerobic efficiency by 10% over 3 months',       target:10    },
+  { id:'hr_trimp1000',  cat:'special',     tier:'silver',   icon:'⚡', name:'TRIMP Tracker',       desc:'Accumulate 1,000 total TRIMP points',                   target:1000  },
 ];
 const BADGE_COLORS = { bronze:'#b4733c', silver:'#a0a0af', gold:'#d4a800', platinum:'#64c8dc', diamond:'#82aaff', legendary:'#f97316' };
 let badgeFilter = 'all';
@@ -9864,6 +10193,1042 @@ function vo2CheckVo2Badges(hist) {
     if(cat.cat==='superior')award('vo2_superior');
     if(hist.length>1&&lat.value-hist[0].value>=5)award('vo2_climber');
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HEART RATE MODULE
+══════════════════════════════════════════════════════════════ */
+
+/* ── HR localStorage helpers ──────────────────────────────── */
+const HR_SETTINGS_KEY = 'actmtr_hr_zones';
+const HR_RHR_KEY      = 'actmtr_resting_hr';
+
+function hrGetSettings() {
+  try { return JSON.parse(localStorage.getItem(HR_SETTINGS_KEY)) || {}; } catch { return {}; }
+}
+function hrSaveSettings(s) {
+  localStorage.setItem(HR_SETTINGS_KEY, JSON.stringify(s));
+}
+function hrGetRHR() {
+  try { return JSON.parse(localStorage.getItem(HR_RHR_KEY)) || []; } catch { return []; }
+}
+function hrSaveRHR(arr) {
+  localStorage.setItem(HR_RHR_KEY, JSON.stringify(arr));
+}
+
+/* ── State ────────────────────────────────────────────────── */
+let hrCurrentFormula = 'standard';
+let hrCurrentModel   = 'standard5';
+let hrRhrChartInst   = null;
+let hrWeeklyChartInst = null;
+let hrMonthlyChartInst = null;
+let hrPaceChartInst  = null;
+let hrEffChartInst   = null;
+let hrLoadChartInst  = null;
+
+/* ── Zone model definitions ───────────────────────────────── */
+const HR_ZONE_MODELS = {
+  standard5: [
+    { name:'Zone 1 — Recovery',   pct:[50,60], color:'#94a3b8', desc:'Very easy effort. Walking or very light jogging. Active recovery. Burns fat, promotes blood flow.', feel:'You can sing while exercising' },
+    { name:'Zone 2 — Aerobic Base', pct:[60,70], color:'#3b82f6', desc:'Easy effort. Comfortable conversational pace. Builds aerobic base, improves fat-burning efficiency. The zone where most of your training should be.', feel:'You can speak in full sentences comfortably' },
+    { name:'Zone 3 — Tempo',      pct:[70,80], color:'#22c55e', desc:'Moderate effort. Comfortably hard. Improves aerobic capacity and lactate threshold. Tempo runs and steady-state efforts.', feel:'You can speak in short sentences but prefer not to' },
+    { name:'Zone 4 — Threshold',  pct:[80,90], color:'#f97316', desc:'Hard effort. Interval training, hill repeats. Improves VO₂ Max and speed. Sustainable for 10–30 minutes.', feel:'You can only say a few words at a time' },
+    { name:'Zone 5 — Max Effort', pct:[90,100],color:'#ef4444', desc:'All-out effort. Sprints, short intervals. Improves maximum speed and power. Sustainable for 1–3 minutes only.', feel:'You cannot speak at all' },
+  ],
+  coggan: [
+    { name:'Z1 Active Recovery', pct:[0,55],   color:'#94a3b8', desc:'Very light, recovery rides/runs.', feel:'Easy breathing, can talk freely' },
+    { name:'Z2 Endurance',       pct:[55,65],  color:'#3b82f6', desc:'Long steady endurance. Builds aerobic base.', feel:'Comfortable, can hold a conversation' },
+    { name:'Z3 Tempo',           pct:[65,75],  color:'#22c55e', desc:'Sustained moderate effort. Improves threshold.', feel:'Slightly laboured breathing' },
+    { name:'Z4 Lactate Threshold',pct:[75,85], color:'#eab308', desc:'Hard, near-threshold effort. Race pace for ~1 hr.', feel:'Breathing hard, short sentences' },
+    { name:'Z5 VO₂ Max',         pct:[85,92],  color:'#f97316', desc:'Very hard intervals. 3–8 min repeats.', feel:'Very hard, can barely speak' },
+    { name:'Z6 Anaerobic',       pct:[92,100], color:'#ef4444', desc:'All-out short efforts. 30 sec–2 min.', feel:'Maximum, cannot speak' },
+    { name:'Z7 Neuromuscular',   pct:[100,110],color:'#a855f7', desc:'Sprint, max power efforts under 10 sec.', feel:'Absolute maximum' },
+  ],
+  polar: [
+    { name:'Zone 1 — Very Light', pct:[50,60], color:'#94a3b8', desc:'Light activity, warm-up and cool-down.', feel:'Very easy, can sing' },
+    { name:'Zone 2 — Light',      pct:[60,70], color:'#3b82f6', desc:'Improves basic endurance and fat burning.', feel:'Easy, full sentences' },
+    { name:'Zone 3 — Moderate',   pct:[70,80], color:'#22c55e', desc:'Aerobic training, improves fitness level.', feel:'Moderate, shorter sentences' },
+    { name:'Zone 4 — Hard',       pct:[80,90], color:'#f97316', desc:'High-intensity, improves maximum performance.', feel:'Hard, few words' },
+    { name:'Zone 5 — Maximum',    pct:[90,100],color:'#ef4444', desc:'Maximum performance, top-end speed.', feel:'Maximum, no talking' },
+  ],
+  '8020': [
+    { name:'Easy (Zone 1)',       pct:[50,70], color:'#22c55e', desc:'80% of training here. Conversational pace. Builds aerobic base without accumulating fatigue.', feel:'You can hold a full conversation' },
+    { name:'Moderate (Zone 2)',   pct:[70,80], color:'#eab308', desc:'Transition zone. Avoid spending too much time here — neither easy nor hard enough to produce optimal adaptations.', feel:'Slightly laboured, short sentences' },
+    { name:'Hard (Zone 3)',       pct:[80,100],color:'#ef4444', desc:'20% of training here. High-intensity intervals, tempo, threshold and race efforts.', feel:'Breathing hard, 1–2 words only' },
+  ],
+};
+
+/* ── Max HR calculation ───────────────────────────────────── */
+function hrCalcMax(formula, age, rhr) {
+  age = parseInt(age) || 0;
+  rhr = parseInt(rhr) || 60;
+  if (!age) return null;
+  switch (formula) {
+    case 'standard':  return Math.round(220 - age);
+    case 'tanaka':    return Math.round(208 - 0.7 * age);
+    case 'gulati':    return Math.round(206 - 0.88 * age);
+    case 'karvonen':  return Math.round(220 - age); // max HR same; Karvonen adjusts target using RHR
+    case 'manual': {
+      const v = parseInt(document.getElementById('hrManualMax').value);
+      return v >= 100 ? v : null;
+    }
+    default: return null;
+  }
+}
+
+function hrFormulaLabel(formula, age, rhr, max) {
+  const a = parseInt(age)||0, r = parseInt(rhr)||60;
+  switch(formula) {
+    case 'standard':  return `220 − ${a} = ${max} bpm`;
+    case 'tanaka':    return `208 − (0.7 × ${a}) = ${max} bpm`;
+    case 'gulati':    return `206 − (0.88 × ${a}) = ${max} bpm  (female formula)`;
+    case 'karvonen':  return `Max HR: ${max} bpm  |  Reserve: ${max} − ${r} = ${max-r} bpm  (Karvonen method uses reserve to set target HR)`;
+    case 'manual':    return `User-entered max HR from field/lab test`;
+    default: return '';
+  }
+}
+
+function hrSetFormula(f) {
+  hrCurrentFormula = f;
+  document.querySelectorAll('.hr-formula-btn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+  document.getElementById('hrManualWrap').style.display = f === 'manual' ? 'block' : 'none';
+  const s = hrGetSettings(); s.formula = f; hrSaveSettings(s);
+  hrRecalcMax();
+}
+
+function hrRecalcMax() {
+  const age    = document.getElementById('hrAge').value;
+  const rhr    = document.getElementById('hrRestInput').value;
+  const gender = document.getElementById('hrGender').value;
+  const max    = hrCalcMax(hrCurrentFormula, age, rhr);
+
+  const numEl = document.getElementById('hrMaxNum');
+  const fmEl  = document.getElementById('hrMaxFormula');
+  if (max) {
+    numEl.textContent = max;
+    fmEl.textContent  = hrFormulaLabel(hrCurrentFormula, age, rhr, max);
+  } else {
+    numEl.textContent = '—';
+    fmEl.textContent  = age ? 'Enter your age and select a formula.' : 'Enter your age above.';
+  }
+  const s = hrGetSettings();
+  s.age = age; s.rhr = rhr; s.gender = gender; s.formula = hrCurrentFormula;
+  if (max) s.maxHR = max;
+  hrSaveSettings(s);
+  hrRenderZones();
+}
+
+/* ── Zone bars rendering ──────────────────────────────────── */
+function hrGetMaxHR() {
+  const el = document.getElementById('hrMaxNum');
+  const v  = parseInt(el ? el.textContent : 0);
+  return (v && v > 100) ? v : null;
+}
+
+function hrSetModel(m) {
+  hrCurrentModel = m;
+  document.querySelectorAll('.hr-model-btn').forEach(b => b.classList.toggle('active', b.dataset.m === m));
+  const s = hrGetSettings(); s.model = m; hrSaveSettings(s);
+  hrRenderZones();
+}
+
+function hrRenderZones() {
+  const maxHR  = hrGetMaxHR();
+  const zones  = HR_ZONE_MODELS[hrCurrentModel];
+  const wrap   = document.getElementById('hrZoneBars');
+  if (!wrap) return;
+  if (!maxHR) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.85rem">Enter your age above to see your personalised zones.</div>';
+    return;
+  }
+  let html = '<div class="hr-zone-bar-wrap">';
+  zones.forEach((z, i) => {
+    const lo = Math.round(maxHR * z.pct[0] / 100);
+    const hi = Math.min(Math.round(maxHR * z.pct[1] / 100), maxHR);
+    const width = Math.min(100, z.pct[1]) - z.pct[0];
+    const barW  = (width / 60) * 100; // normalise to 60% range for visual
+    html += `
+      <div class="hr-zone-bar-row">
+        <div>
+          <div class="hr-zone-bar-label" style="color:${z.color}">${z.name}</div>
+          <div class="hr-zone-bpm">${lo}–${hi} bpm &nbsp;(${z.pct[0]}–${Math.min(z.pct[1],100)}%)</div>
+        </div>
+        <div>
+          <div class="hr-zone-bar-outer">
+            <div class="hr-zone-bar-fill" style="width:${Math.max(20,barW)}%;background:${z.color}">${lo}–${hi} bpm</div>
+          </div>
+        </div>
+      </div>
+      <div class="hr-zone-desc-row">${z.desc} <span class="hr-zone-feel">— "${z.feel}"</span></div>`;
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+/* ── Resting HR ───────────────────────────────────────────── */
+function hrAddRhr() {
+  const bpm  = parseInt(document.getElementById('hrRhrInput').value);
+  const date = document.getElementById('hrRhrDate').value;
+  if (!bpm || bpm < 30 || bpm > 120) { showToast('Enter a valid resting HR (30–120 bpm)', 'error'); return; }
+  if (!date) { showToast('Select a date', 'error'); return; }
+  const arr = hrGetRHR();
+  const idx = arr.findIndex(e => e.date === date);
+  if (idx >= 0) arr[idx].bpm = bpm; else arr.push({ date, bpm });
+  arr.sort((a,b) => a.date.localeCompare(b.date));
+  hrSaveRHR(arr);
+  document.getElementById('hrRhrInput').value = '';
+  showToast('Resting HR saved! ❤️', 'success');
+  hrRenderRhrSummary();
+  hrRenderRhrChart();
+  hrCheckHRBadges();
+}
+
+function hrRhrCat(bpm) {
+  if (bpm < 50) return { cls:'rhr-athlete',   label:'Athlete',       emoji:'💜' };
+  if (bpm < 60) return { cls:'rhr-excellent', label:'Excellent',     emoji:'💙' };
+  if (bpm < 70) return { cls:'rhr-good',      label:'Good',          emoji:'💚' };
+  if (bpm < 80) return { cls:'rhr-average',   label:'Average',       emoji:'💛' };
+  if (bpm < 90) return { cls:'rhr-below',     label:'Below Average', emoji:'🧡' };
+  return            { cls:'rhr-poor',      label:'Poor',          emoji:'❤️' };
+}
+
+function hrRenderRhrSummary() {
+  const el = document.getElementById('hrRhrSummary');
+  if (!el) return;
+  const arr = hrGetRHR();
+  if (!arr.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:.8rem">No resting HR data yet. Add your first entry above.</div>'; return; }
+  const latest = arr[arr.length - 1];
+  const cat    = hrRhrCat(latest.bpm);
+  let trend = '';
+  if (arr.length >= 2) {
+    const prev = arr.length >= 5 ? arr.slice(-5)[0] : arr[0];
+    const diff = latest.bpm - prev.bpm;
+    if (diff < 0) trend = `<span class="rhr-trend down">↓${Math.abs(diff)} from ${arr.length >= 5 ? 'last 5 entries' : 'first entry'}</span>`;
+    else if (diff > 0) trend = `<span class="rhr-trend up">↑${diff} from ${arr.length >= 5 ? 'last 5 entries' : 'first entry'}</span>`;
+    else trend = `<span style="color:var(--text-muted)">— no change</span>`;
+  }
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="rhr-display"><span class="rhr-value">${latest.bpm}</span><span style="font-size:.85rem;color:var(--text-muted)">bpm ${trend}</span></div>
+      <span class="rhr-cat-badge ${cat.cls}">${cat.emoji} ${cat.label}</span>
+      <span style="font-size:.72rem;color:var(--text-muted)">${arr.length} entr${arr.length===1?'y':'ies'} logged</span>
+    </div>`;
+}
+
+function hrRenderRhrChart() {
+  const arr  = hrGetRHR();
+  const ctx  = document.getElementById('hrRhrChart');
+  if (!ctx) return;
+  if (hrRhrChartInst) { hrRhrChartInst.destroy(); hrRhrChartInst = null; }
+  if (arr.length < 2) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = '';
+  hrRhrChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: arr.map(e => e.date),
+      datasets: [{
+        label: 'Resting HR',
+        data: arr.map(e => e.bpm),
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239,68,68,.15)',
+        pointBackgroundColor: '#ef4444',
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw} bpm` } } },
+      scales: {
+        x: { ticks: { color:'#8896a8', font:{size:11}, maxTicksLimit:8 }, grid: { color:'rgba(255,255,255,.05)' } },
+        y: { ticks: { color:'#8896a8', font:{size:11} }, grid: { color:'rgba(255,255,255,.05)' }, reverse: true, title: { display:true, text:'bpm (lower = better)', color:'#8896a8', font:{size:10} } },
+      }
+    }
+  });
+}
+
+/* ── Time in Zones helpers ────────────────────────────────── */
+function hrGetActivityZones(act) {
+  /* returns array of minutes per zone for current model */
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  if (act.hrZones && act.hrZones.length === zones.length) return act.hrZones;
+  // auto-estimate from avgHR / difficulty / type
+  if (!act.avgHR && !act.difficulty) return null;
+  const dur = (act.duration || 0) / 60; // total minutes
+  const n   = zones.length;
+  let dist;
+  const diff = act.difficulty || 'easy';
+  const type = act.type || 'run';
+  if (n === 3) { // 80/20
+    if (diff==='easy')   dist = [0.80,0.10,0.10];
+    else if (diff==='medium') dist = [0.50,0.20,0.30];
+    else                 dist = [0.15,0.10,0.75];
+  } else { // 5 or 7 zone
+    if (diff==='easy')   dist = n===5?[0.25,0.60,0.10,0.04,0.01]:[0.15,0.50,0.15,0.10,0.05,0.04,0.01];
+    else if (diff==='medium') dist = n===5?[0.10,0.30,0.35,0.20,0.05]:[0.08,0.20,0.28,0.25,0.12,0.05,0.02];
+    else                 dist = n===5?[0.05,0.10,0.20,0.40,0.25]:[0.03,0.07,0.15,0.28,0.28,0.13,0.06];
+    if (type === 'walk') {
+      if (diff==='easy') dist = n===5?[0.60,0.35,0.05,0,0]:[0.50,0.35,0.10,0.04,0.01,0,0];
+      else               dist = n===5?[0.30,0.45,0.20,0.04,0.01]:[0.25,0.40,0.22,0.08,0.04,0.01,0];
+    }
+  }
+  return dist.map(p => Math.round(dur * p * 10) / 10);
+}
+
+function hrCalcTRIMP(zones) {
+  const w = [1,2,3,4,5,5,5]; // weights per zone (up to 7)
+  return zones.reduce((s,m,i) => s + m * (w[i]||5), 0);
+}
+
+function hrFmtMin(m) {
+  if (m < 1) return `${Math.round(m*60)}s`;
+  const h = Math.floor(m/60), min = Math.round(m%60);
+  if (h) return `${h}h ${min}m`;
+  return `${min}m`;
+}
+
+/* ── Activity selector population ────────────────────────── */
+function hrPopulateActivitySelect(selId) {
+  const acts = (db?.activities || []).slice().sort((a,b) => b.date.localeCompare(a.date));
+  const el   = document.getElementById(selId);
+  if (!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">Select an activity…</option>' +
+    acts.map(a => {
+      const hrs = a.avgHR ? ` | ❤️ ${a.avgHR} bpm` : ' | (no HR)';
+      return `<option value="${a.id}">${a.date} — ${a.type} ${a.distance}km${hrs}</option>`;
+    }).join('');
+  if (cur) el.value = cur;
+}
+
+/* ── Activity Zone View ───────────────────────────────────── */
+function hrLoadActivityZone() {
+  const id  = document.getElementById('hrActivitySelect').value;
+  const act = (db?.activities||[]).find(a => a.id === id);
+  const el  = document.getElementById('hrActivityZoneView');
+  if (!act || !el) return;
+
+  const zones     = HR_ZONE_MODELS[hrCurrentModel];
+  const zonesMins = hrGetActivityZones(act);
+  const totalMins = (act.duration||0)/60;
+
+  if (!zonesMins) {
+    el.innerHTML = `<div class="hr-insight">No HR data for this activity. <button class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;margin-left:8px" onclick="hrOpenAddHRModal('${act.id}')">Add HR Data</button></div>`;
+    return;
+  }
+
+  const total = zonesMins.reduce((s,v)=>s+v,0) || 1;
+  const trimp = hrCalcTRIMP(zonesMins);
+  let trimpCls='trimp-easy', trimpLabel='Easy session';
+  if (trimp>=200){trimpCls='trimp-veryhard';trimpLabel='Very hard session';}
+  else if(trimp>=100){trimpCls='trimp-hard';trimpLabel='Hard session';}
+  else if(trimp>=50){trimpCls='trimp-moderate';trimpLabel='Moderate session';}
+
+  // Stacked bar
+  let stackedHTML = '<div class="hr-stacked-bar">';
+  zonesMins.forEach((m,i) => {
+    const pct = (m/total*100).toFixed(1);
+    if (pct < 1) return;
+    stackedHTML += `<div class="hr-stacked-seg" style="width:${pct}%;background:${zones[i].color}" title="${zones[i].name}: ${hrFmtMin(m)}">${pct>5?Math.round(pct)+'%':''}</div>`;
+  });
+  stackedHTML += '</div>';
+
+  // Breakdown
+  let breakdownHTML = '<div class="hr-zone-breakdown">';
+  zonesMins.forEach((m,i) => {
+    const pct = (m/total*100).toFixed(1);
+    const z   = zones[i];
+    breakdownHTML += `
+      <div class="hr-zone-bdown-row">
+        <div class="hr-zone-bdown-dot" style="background:${z.color}"></div>
+        <div class="hr-zone-bdown-name">${z.name}</div>
+        <div class="hr-zone-bdown-bar-wrap"><div class="hr-zone-bdown-bar" style="width:${pct}%;background:${z.color}"></div></div>
+        <div class="hr-zone-bdown-val">${hrFmtMin(m)} (${pct}%)</div>
+      </div>`;
+  });
+  breakdownHTML += '</div>';
+
+  // Dominant zone
+  const maxIdx  = zonesMins.indexOf(Math.max(...zonesMins));
+  const domZone = zones[maxIdx];
+
+  el.innerHTML = `
+    <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:6px">
+      <strong style="color:var(--text)">${act.date} — ${act.type} ${act.distance}km</strong>
+      ${act.avgHR ? `| Avg HR: <strong>${act.avgHR} bpm</strong>` : ''}
+      ${act.maxHR ? `| Max HR: <strong>${act.maxHR} bpm</strong>` : ''}
+    </div>
+    ${stackedHTML}
+    ${breakdownHTML}
+    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted)">
+      Primary effort: <strong style="color:${domZone.color}">${domZone.name}</strong>
+    </div>
+    <div class="trimp-badge ${trimpCls}">⚡ Training Load: ${Math.round(trimp)} TRIMP — ${trimpLabel}</div>`;
+}
+
+/* ── Weekly Zone Summary ──────────────────────────────────── */
+function hrRenderWeekly() {
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  const acts  = db?.activities || [];
+  const n     = zones.length;
+
+  // Build last 7 days
+  const days = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    days.push(fmtDate(d));
+  }
+
+  const dayLabels = days.map(d => {
+    const dt = new Date(d+'T00:00:00');
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()];
+  });
+
+  // Per-day zone totals
+  const zoneData = Array.from({length:n}, () => Array(7).fill(0));
+  days.forEach((day, di) => {
+    const dayActs = acts.filter(a => a.date === day);
+    dayActs.forEach(act => {
+      const zm = hrGetActivityZones(act);
+      if (!zm) return;
+      zm.forEach((m,zi) => { if(zi<n) zoneData[zi][di] += m; });
+    });
+  });
+
+  // Weekly totals per zone
+  const weekTotals = zoneData.map(arr => arr.reduce((s,v)=>s+v,0));
+  const grandTotal = weekTotals.reduce((s,v)=>s+v,0);
+
+  // 80/20 calc (Z1+Z2 vs Z3+Z4+Z5)
+  const easy = (weekTotals[0]||0)+(weekTotals[1]||0);
+  const hard = weekTotals.slice(2).reduce((s,v)=>s+v,0);
+  const tot8020 = easy+hard||1;
+  const easyPct = Math.round(easy/tot8020*100);
+
+  const el = document.getElementById('hrWeeklyZoneTotals');
+  if (el) {
+    let chips = '<div class="hr-weekly-totals">';
+    weekTotals.forEach((m,i) => {
+      if (m < 0.5) return;
+      const z = zones[i];
+      chips += `<div class="hr-weekly-total-chip" style="background:${z.color}22;border-color:${z.color}66;color:${z.color}"><span style="width:8px;height:8px;border-radius:50%;background:${z.color};display:inline-block"></span>&nbsp;${z.name.split('—')[0].trim()}: <strong>${hrFmtMin(m)}</strong></div>`;
+    });
+    chips += '</div>';
+    el.innerHTML = grandTotal > 0.5 ? chips : '<div style="color:var(--text-muted);font-size:.8rem">No activities with HR data this week. Add HR data to your activities to see zone totals.</div>';
+  }
+
+  const check = document.getElementById('hr8020Check');
+  if (check && grandTotal > 0.5) {
+    let cls='eighty20-great', msg='✅ Great balance! Your easy/hard split is near the optimal 80/20 ratio.';
+    if (easyPct < 65) { cls='eighty20-toohard'; msg='⚠️ You\'re training too hard too often. Add more easy/Zone 2 runs to this week.'; }
+    else if (easyPct > 90) { cls='eighty20-tooeasy'; msg='ℹ️ Consider adding one tempo or interval session this week for balance.'; }
+    check.innerHTML = `<div class="eighty20-check ${cls}">Your easy (Z1+Z2) vs hard (Z3+) ratio this week: <strong>${easyPct}%</strong> / <strong>${100-easyPct}%</strong> — ${msg}</div>`;
+  } else if (check) { check.innerHTML = ''; }
+
+  // Chart
+  const ctx = document.getElementById('hrWeeklyChart');
+  if (!ctx) return;
+  if (hrWeeklyChartInst) { hrWeeklyChartInst.destroy(); hrWeeklyChartInst = null; }
+  hrWeeklyChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: dayLabels,
+      datasets: zones.map((z,i) => ({
+        label: z.name.split('—')[0].trim(),
+        data: zoneData[i],
+        backgroundColor: z.color,
+        stack: 'zones',
+      }))
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ position:'bottom', labels:{color:'#8896a8',font:{size:10},boxWidth:10,padding:8} } },
+      scales: {
+        x: { stacked:true, ticks:{color:'#8896a8',font:{size:11}}, grid:{color:'rgba(255,255,255,.05)'} },
+        y: { stacked:true, ticks:{color:'#8896a8',font:{size:11}}, grid:{color:'rgba(255,255,255,.05)'}, title:{display:true,text:'Minutes',color:'#8896a8',font:{size:10}} }
+      }
+    }
+  });
+}
+
+/* ── Monthly Zone Trends ──────────────────────────────────── */
+function hrRenderMonthly() {
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  const acts  = db?.activities || [];
+  const n     = zones.length;
+
+  // Build 8 weekly buckets
+  const weeks = [];
+  for (let w=7; w>=0; w--) {
+    const end   = new Date(); end.setDate(end.getDate() - w*7);
+    const start = new Date(end); start.setDate(start.getDate()-6);
+    weeks.push({ label:`W${8-w}`, start:fmtDate(start), end:fmtDate(end) });
+  }
+
+  const zoneData = Array.from({length:n}, ()=>Array(8).fill(0));
+  weeks.forEach((wk,wi)=>{
+    acts.filter(a=>a.date>=wk.start&&a.date<=wk.end).forEach(act=>{
+      const zm=hrGetActivityZones(act); if(!zm)return;
+      zm.forEach((m,zi)=>{ if(zi<n) zoneData[zi][wi]+=m; });
+    });
+  });
+
+  // Insight: zone 4+5 trend
+  const highIntensity = zoneData.slice(3).map(arr=>arr.reduce((s,v)=>s+v,0));
+  const hiFirst4 = highIntensity.slice(0,4).reduce((s,v)=>s+v,0);
+  const hiLast4  = highIntensity.slice(4).reduce((s,v)=>s+v,0);
+  const insEl    = document.getElementById('hrMonthlyInsight');
+  if (insEl) {
+    if (hiFirst4 > 0 && hiLast4 > hiFirst4) {
+      const pct = Math.round((hiLast4-hiFirst4)/hiFirst4*100);
+      insEl.innerHTML = `<div class="hr-insight">📈 Your Zone 4+ time increased <strong>${pct}%</strong> over the past 4 weeks — you're building speed and intensity.</div>`;
+    } else if (hiFirst4 > hiLast4 && hiFirst4 > 0) {
+      insEl.innerHTML = `<div class="hr-insight">📉 Your high-intensity training decreased recently. Consider adding a tempo or interval session if you're not in a recovery phase.</div>`;
+    } else {
+      insEl.innerHTML = '';
+    }
+  }
+
+  const ctx = document.getElementById('hrMonthlyChart');
+  if (!ctx) return;
+  if (hrMonthlyChartInst) { hrMonthlyChartInst.destroy(); hrMonthlyChartInst = null; }
+  hrMonthlyChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: weeks.map(w=>w.label),
+      datasets: zones.map((z,i)=>({
+        label: z.name.split('—')[0].trim(),
+        data: zoneData[i],
+        backgroundColor: z.color+'cc',
+        stack:'zones'
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#8896a8',font:{size:10},boxWidth:10,padding:8}}},
+      scales:{
+        x:{stacked:true,ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'}},
+        y:{stacked:true,ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Minutes',color:'#8896a8',font:{size:10}}}
+      }
+    }
+  });
+}
+
+/* ── HR vs Pace scatter ───────────────────────────────────── */
+function hrRenderPaceScatter() {
+  const acts = (db?.activities||[]).filter(a=>a.avgHR && a.distance > 0.5 && a.duration > 60);
+  const ctx  = document.getElementById('hrPaceChart');
+  if (!ctx) return;
+  if (hrPaceChartInst) { hrPaceChartInst.destroy(); hrPaceChartInst = null; }
+
+  const typeColors = { run:'#f97316', walk:'#22c55e', cycle:'#3b82f6' };
+  const byType = {};
+  acts.forEach(a => {
+    const pace = a.duration / 60 / a.distance; // min/km
+    if (pace > 20 || pace < 1) return;
+    const t = a.type||'run';
+    if (!byType[t]) byType[t]=[];
+    byType[t].push({ x: pace, y: a.avgHR, date: a.date, dist: a.distance });
+  });
+
+  if (!Object.keys(byType).length) {
+    const insEl = document.getElementById('hrPaceInsight');
+    if(insEl) insEl.innerHTML='<div class="hr-insight">No activities with both HR and pace data yet. Add avg HR to your activities to see this chart.</div>';
+    return;
+  }
+
+  hrPaceChartInst = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: Object.entries(byType).map(([type,pts])=>({
+        label: type.charAt(0).toUpperCase()+type.slice(1),
+        data: pts,
+        backgroundColor: (typeColors[type]||'#8896a8')+'bb',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#8896a8',font:{size:11},boxWidth:10}},
+        tooltip:{callbacks:{
+          label:c=>{
+            const mm=Math.floor(c.raw.x),ss=Math.round((c.raw.x-mm)*60).toString().padStart(2,'0');
+            return ` ${mm}:${ss}/km — ${c.raw.y} bpm (${c.raw.date})`;
+          }
+        }}
+      },
+      scales:{
+        x:{ticks:{color:'#8896a8',font:{size:11},callback:v=>{const m=Math.floor(v),s=Math.round((v-m)*60).toString().padStart(2,'0');return`${m}:${s}`;}},
+           grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Pace (min/km)',color:'#8896a8',font:{size:10}}},
+        y:{ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'},
+           title:{display:true,text:'Avg Heart Rate (bpm)',color:'#8896a8',font:{size:10}}}
+      }
+    }
+  });
+
+  // Insight: trend over time
+  const runsWithHR = acts.filter(a=>a.type==='run').sort((a,b)=>a.date.localeCompare(b.date));
+  const insEl = document.getElementById('hrPaceInsight');
+  if(insEl && runsWithHR.length >= 4) {
+    const first = runsWithHR.slice(0,3);
+    const last  = runsWithHR.slice(-3);
+    const avgPaceFirst = first.reduce((s,a)=>s+a.duration/60/a.distance,0)/first.length;
+    const avgHRFirst   = first.reduce((s,a)=>s+a.avgHR,0)/first.length;
+    const avgPaceLast  = last.reduce((s,a)=>s+a.duration/60/a.distance,0)/last.length;
+    const avgHRLast    = last.reduce((s,a)=>s+a.avgHR,0)/last.length;
+    const paceImproved = avgPaceLast < avgPaceFirst;
+    const hrLower      = avgHRLast < avgHRFirst;
+    if (hrLower && avgHRFirst > 0) {
+      const drop = Math.round(avgHRFirst-avgHRLast);
+      const pf   = avgPaceFirst.toFixed(2).replace('.',':');
+      const pl   = avgPaceLast.toFixed(2).replace('.',':');
+      insEl.innerHTML=`<div class="hr-insight">📊 <strong>Aerobic fitness is improving!</strong> At similar paces, your HR dropped by ~${drop} bpm since your earliest recorded runs. This is called cardiac drift improvement — your heart is becoming more efficient.</div>`;
+    } else if (paceImproved) {
+      insEl.innerHTML=`<div class="hr-insight">⚡ Your pace is improving! Keep logging HR data to track cardiac efficiency over time.</div>`;
+    } else {
+      insEl.innerHTML='';
+    }
+  }
+}
+
+/* ── Aerobic Efficiency ───────────────────────────────────── */
+function hrRenderAerobicEfficiency() {
+  const TARGET_HR = 145;
+  const acts = (db?.activities||[]).filter(a=>a.type==='run'&&a.avgHR&&a.distance>1&&a.duration>60)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  const el  = document.getElementById('hrAerobicEfficiency');
+  const ctx = document.getElementById('hrEfficiencyChart');
+  if (!el) return;
+
+  if (acts.length < 3) {
+    el.innerHTML='<div style="color:var(--text-muted);font-size:.8rem">Log at least 3 runs with avg HR to see aerobic efficiency trends.</div>';
+    if(ctx) ctx.style.display='none';
+    return;
+  }
+
+  // Group by month, estimate pace at 145 bpm using linear interpolation
+  const monthly = {};
+  acts.forEach(a=>{
+    const mo = a.date.slice(0,7);
+    if (!monthly[mo]) monthly[mo]=[];
+    monthly[mo].push(a);
+  });
+
+  const effPoints = Object.entries(monthly).map(([mo,arr])=>{
+    const avgPace = arr.reduce((s,a)=>s+a.duration/60/a.distance,0)/arr.length;
+    const avgHR   = arr.reduce((s,a)=>s+a.avgHR,0)/arr.length;
+    // estimate pace at TARGET_HR: assume linear relationship with HR
+    const sorted = arr.sort((a,b)=>a.avgHR-b.avgHR);
+    const below  = sorted.filter(a=>a.avgHR<=TARGET_HR);
+    const above  = sorted.filter(a=>a.avgHR> TARGET_HR);
+    let paceAt145 = avgPace;
+    if (below.length && above.length) {
+      const b1=below[below.length-1], a1=above[0];
+      const t=(TARGET_HR-b1.avgHR)/(a1.avgHR-b1.avgHR);
+      const pb=b1.duration/60/b1.distance, pa=a1.duration/60/a1.distance;
+      paceAt145 = pb + t*(pa-pb);
+    } else {
+      // scale: if all runs are at lower HR, pace will be faster; scale proportionally
+      paceAt145 = avgPace * (avgHR / TARGET_HR);
+    }
+    return { mo, paceAt145, runs:arr.length };
+  }).filter(p=>p.paceAt145>2&&p.paceAt145<20);
+
+  if (effPoints.length < 2) {
+    el.innerHTML='<div style="color:var(--text-muted);font-size:.8rem">Need more data across multiple months for efficiency tracking.</div>';
+    if(ctx) ctx.style.display='none';
+    return;
+  }
+
+  const fmt = p => {
+    const m=Math.floor(p), s=Math.round((p-m)*60).toString().padStart(2,'0');
+    return `${m}:${s}/km`;
+  };
+
+  let tableHTML = `<div style="margin-bottom:8px;font-size:.78rem;color:var(--text-muted)">Estimated pace at ${TARGET_HR} bpm:</div>
+    <table class="hr-efficiency-table"><thead><tr><th>Month</th><th>Pace at ${TARGET_HR} bpm</th><th>Runs</th><th>Trend</th></tr></thead><tbody>`;
+  effPoints.forEach((p,i)=>{
+    const prev  = i>0?effPoints[i-1]:null;
+    const delta = prev?p.paceAt145-prev.paceAt145:0;
+    const trend = delta<-0.1?'<span style="color:#22c55e">↑ Faster</span>':delta>0.1?'<span style="color:#ef4444">↓ Slower</span>':'<span style="color:var(--text-muted)">→ Same</span>';
+    tableHTML += `<tr><td>${p.mo}</td><td style="font-weight:700;color:#ef4444">${fmt(p.paceAt145)}</td><td>${p.runs}</td><td>${i>0?trend:'—'}</td></tr>`;
+  });
+  tableHTML += '</tbody></table>';
+
+  const first = effPoints[0], last = effPoints[effPoints.length-1];
+  const improvement = (first.paceAt145 - last.paceAt145) / first.paceAt145 * 100;
+  if (improvement > 2) {
+    tableHTML += `<div class="hr-insight">📈 <strong>Your aerobic efficiency improved ${improvement.toFixed(1)}% over ${effPoints.length} months</strong> — from ${fmt(first.paceAt145)} to ${fmt(last.paceAt145)} at ${TARGET_HR} bpm. Excellent progress!</div>`;
+  }
+  el.innerHTML = tableHTML;
+
+  if (ctx) {
+    ctx.style.display='';
+    if (hrEffChartInst) { hrEffChartInst.destroy(); hrEffChartInst=null; }
+    hrEffChartInst = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels: effPoints.map(p=>p.mo),
+        datasets:[{
+          label:`Pace at ${TARGET_HR} bpm`,
+          data: effPoints.map(p=>p.paceAt145),
+          borderColor:'#ef4444',
+          backgroundColor:'rgba(239,68,68,.12)',
+          tension:.35, fill:true,
+          pointBackgroundColor:'#ef4444',
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const m=Math.floor(c.raw),s=Math.round((c.raw-m)*60).toString().padStart(2,'0');return` ${m}:${s}/km`;} }}},
+        scales:{
+          x:{ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{reverse:true,ticks:{color:'#8896a8',font:{size:11},callback:v=>{const m=Math.floor(v),s=Math.round((v-m)*60).toString().padStart(2,'0');return`${m}:${s}`;}},
+             grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'min/km (lower = faster)',color:'#8896a8',font:{size:10}}}
+        }
+      }
+    });
+  }
+}
+
+/* ── Training Load (ATL/CTL/TSB) ─────────────────────────── */
+function hrRenderLoadChart() {
+  const acts  = db?.activities || [];
+  const today = new Date();
+  const days  = 56; // 8 weeks
+
+  const dailyTRIMP = {};
+  acts.forEach(act => {
+    const zm = hrGetActivityZones(act);
+    if (!zm) return;
+    const t = hrCalcTRIMP(zm);
+    dailyTRIMP[act.date] = (dailyTRIMP[act.date]||0) + t;
+  });
+
+  const labels=[], atl=[], ctl=[], tsb=[];
+  let atlVal=0, ctlVal=0;
+  for (let i=days-1; i>=0; i--) {
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    const dateStr = fmtDate(d);
+    const t = dailyTRIMP[dateStr]||0;
+    atlVal = atlVal*Math.exp(-1/7)  + t*(1-Math.exp(-1/7));
+    ctlVal = ctlVal*Math.exp(-1/42) + t*(1-Math.exp(-1/42));
+    labels.push(dateStr.slice(5));
+    atl.push(Math.round(atlVal*10)/10);
+    ctl.push(Math.round(ctlVal*10)/10);
+    tsb.push(Math.round((ctlVal-atlVal)*10)/10);
+  }
+
+  const curATL = atl[atl.length-1];
+  const curCTL = ctl[ctl.length-1];
+  const curTSB = tsb[tsb.length-1];
+  let tsbCls='tsb-maintain', tsbLabel='Maintaining', tsbDesc='Good training balance.';
+  if      (curTSB >  10) { tsbCls='tsb-fresh';    tsbLabel='Fresh';        tsbDesc='Ready to race or do a hard workout.'; }
+  else if (curTSB > 0)   { tsbCls='tsb-maintain'; tsbLabel='Maintaining';  tsbDesc='Good balance — ideal pre-competition.'; }
+  else if (curTSB > -15) { tsbCls='tsb-fatigued'; tsbLabel='Fatigued';     tsbDesc='Consider a recovery session or rest day.'; }
+  else                   { tsbCls='tsb-over';      tsbLabel='Overreaching'; tsbDesc='High injury risk — rest is needed.'; }
+
+  // Weekly TRIMP total
+  let weeklyTRIMP = 0;
+  for (let i=0; i<7; i++) {
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    weeklyTRIMP += dailyTRIMP[fmtDate(d)]||0;
+  }
+
+  const dispEl = document.getElementById('hrTSBDisplay');
+  if (dispEl) {
+    dispEl.innerHTML = `
+      <div class="hr-tsb-card">
+        <div class="hr-tsb-label">ATL (Fatigue)</div>
+        <div class="hr-tsb-value" style="color:#f97316">${curATL}</div>
+        <div class="hr-tsb-sub">7-day avg TRIMP</div>
+      </div>
+      <div class="hr-tsb-card">
+        <div class="hr-tsb-label">CTL (Fitness)</div>
+        <div class="hr-tsb-value" style="color:#3b82f6">${curCTL}</div>
+        <div class="hr-tsb-sub">42-day avg TRIMP</div>
+      </div>
+      <div class="hr-tsb-card">
+        <div class="hr-tsb-label">TSB (Form)</div>
+        <div class="hr-tsb-value ${tsbCls}">${curTSB>0?'+':''}${curTSB}</div>
+        <div class="hr-tsb-sub ${tsbCls}">${tsbLabel}</div>
+      </div>
+      <div class="hr-tsb-card">
+        <div class="hr-tsb-label">Weekly TRIMP</div>
+        <div class="hr-tsb-value" style="color:#a855f7">${Math.round(weeklyTRIMP)}</div>
+        <div class="hr-tsb-sub">This week</div>
+      </div>`;
+  }
+
+  const insEl = document.getElementById('hrTSBInsight');
+  if (insEl) {
+    insEl.innerHTML = `<div class="hr-insight"><strong class="${tsbCls}">${tsbLabel}:</strong> ${tsbDesc} Peak form for racing is a slight positive TSB (0–10).</div>`;
+  }
+
+  const ctx = document.getElementById('hrLoadChart');
+  if (!ctx) return;
+  if (hrLoadChartInst) { hrLoadChartInst.destroy(); hrLoadChartInst=null; }
+  hrLoadChartInst = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'ATL (Fatigue)', data:atl, borderColor:'#f97316', backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:1.5},
+        {label:'CTL (Fitness)', data:ctl, borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:2},
+        {label:'TSB (Form)',    data:tsb, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.07)', tension:.3, pointRadius:0, fill:true, borderWidth:1.5},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#8896a8',font:{size:10},boxWidth:10,padding:8}}},
+      scales:{
+        x:{ticks:{color:'#8896a8',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'},
+           title:{display:true,text:'TRIMP score',color:'#8896a8',font:{size:10}}}
+      }
+    }
+  });
+}
+
+/* ── HR Summary Dashboard ─────────────────────────────────── */
+function hrRenderSummaryDashboard() {
+  const el   = document.getElementById('hrSummaryDashboard');
+  if (!el) return;
+  const acts = db?.activities || [];
+  const rhr  = hrGetRHR();
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+
+  // This month
+  const now = new Date(), mo = fmtDate(now).slice(0,7);
+  const thisMonthActs = acts.filter(a=>a.date.startsWith(mo)&&a.avgHR);
+  const allHRActs     = acts.filter(a=>a.avgHR);
+
+  const avgExHR  = thisMonthActs.length ? Math.round(thisMonthActs.reduce((s,a)=>s+a.avgHR,0)/thisMonthActs.length) : null;
+  const highestHR = allHRActs.length ? Math.max(...allHRActs.map(a=>a.maxHR||a.avgHR)) : null;
+  const highestAct = highestHR ? allHRActs.find(a=>(a.maxHR||a.avgHR)===highestHR) : null;
+  const rhrCur   = rhr.length ? rhr[rhr.length-1] : null;
+  const rhrLow   = rhr.length ? rhr.reduce((l,e)=>e.bpm<l.bpm?e:l,rhr[0]) : null;
+
+  // Monthly zone totals
+  const monthZones = Array(zones.length).fill(0);
+  thisMonthActs.forEach(a=>{ const zm=hrGetActivityZones(a); if(zm) zm.forEach((m,i)=>{ if(i<zones.length) monthZones[i]+=m; }); });
+  const totalMonthMin = monthZones.reduce((s,v)=>s+v,0);
+  const domZoneIdx    = monthZones.indexOf(Math.max(...monthZones));
+  const domZone       = totalMonthMin>0 ? zones[domZoneIdx] : null;
+
+  const easy8020 = (monthZones[0]||0)+(monthZones[1]||0);
+  const hardAll  = monthZones.slice(2).reduce((s,v)=>s+v,0);
+  const easyPct  = totalMonthMin>0 ? Math.round(easy8020/(easy8020+hardAll)*100) : null;
+
+  // Total TRIMP
+  let totalTRIMP=0;
+  acts.forEach(a=>{ const zm=hrGetActivityZones(a); if(zm) totalTRIMP+=hrCalcTRIMP(zm); });
+
+  el.innerHTML = `
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">💓</div>
+      <div class="hr-summary-label">Avg Resting HR</div>
+      <div class="hr-summary-value">${rhrCur?rhrCur.bpm+' bpm':'—'}</div>
+      <div class="hr-summary-sub">${rhrCur?`Logged ${rhrCur.date}`:'No data yet'}</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">🏃</div>
+      <div class="hr-summary-label">Avg Exercise HR</div>
+      <div class="hr-summary-value">${avgExHR?avgExHR+' bpm':'—'}</div>
+      <div class="hr-summary-sub">${thisMonthActs.length} activities this month</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">🔺</div>
+      <div class="hr-summary-label">Highest Recorded</div>
+      <div class="hr-summary-value">${highestHR?highestHR+' bpm':'—'}</div>
+      <div class="hr-summary-sub">${highestAct?highestAct.date:''}</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">🏅</div>
+      <div class="hr-summary-label">Lowest Resting</div>
+      <div class="hr-summary-value">${rhrLow?rhrLow.bpm+' bpm':'—'}</div>
+      <div class="hr-summary-sub">${rhrLow?rhrLow.date:''}</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">📊</div>
+      <div class="hr-summary-label">Main Zone This Month</div>
+      <div class="hr-summary-value" style="color:${domZone?domZone.color:'#ef4444'}">${domZone?domZone.name.split('—')[0].trim():'—'}</div>
+      <div class="hr-summary-sub">${totalMonthMin>0?hrFmtMin(Math.max(...monthZones))+' in top zone':''}</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">⚖️</div>
+      <div class="hr-summary-label">80/20 Compliance</div>
+      <div class="hr-summary-value">${easyPct!==null?easyPct+'% easy':'—'}</div>
+      <div class="hr-summary-sub">${easyPct!==null?`${100-easyPct}% hard this month`:''}</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">⚡</div>
+      <div class="hr-summary-label">Total TRIMP</div>
+      <div class="hr-summary-value">${Math.round(totalTRIMP)}</div>
+      <div class="hr-summary-sub">All time</div>
+    </div>
+    <div class="hr-summary-item">
+      <div class="hr-summary-icon">🧮</div>
+      <div class="hr-summary-label">HR Activities</div>
+      <div class="hr-summary-value">${allHRActs.length}</div>
+      <div class="hr-summary-sub">With HR data logged</div>
+    </div>`;
+}
+
+/* ── Add HR Modal ─────────────────────────────────────────── */
+function hrOpenAddHRModal(preselect) {
+  hrPopulateActivitySelect('hrModalActivity');
+  if (preselect) document.getElementById('hrModalActivity').value = preselect;
+  hrModalActivityChanged();
+  hrBuildModalZoneInputs();
+  document.getElementById('hrDataModal').classList.add('open');
+}
+
+function closeHRModal() {
+  document.getElementById('hrDataModal').classList.remove('open');
+}
+
+function hrBuildModalZoneInputs() {
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  const el    = document.getElementById('hrModalZoneInputs');
+  if (!el) return;
+  el.innerHTML = zones.map((z,i)=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="width:10px;height:10px;border-radius:50%;background:${z.color};flex-shrink:0;display:inline-block"></span>
+      <label style="min-width:160px;font-size:.78rem;font-weight:600">${z.name.split('—')[0].trim()}</label>
+      <input type="number" class="form-input" id="hrModalZone_${i}" placeholder="min" min="0" max="600" style="max-width:90px">
+    </div>`).join('');
+}
+
+function hrModalActivityChanged() {
+  const id  = document.getElementById('hrModalActivity').value;
+  const act = (db?.activities||[]).find(a=>a.id===id);
+  if (!act) return;
+  // Pre-fill existing HR data if present
+  if (act.avgHR) document.getElementById('hrModalAvg').value = act.avgHR;
+  else document.getElementById('hrModalAvg').value = '';
+  if (act.maxHR) document.getElementById('hrModalMax').value = act.maxHR;
+  else document.getElementById('hrModalMax').value = '';
+  if (act.recoveryHR) document.getElementById('hrModalRecovery').value = act.recoveryHR;
+  else document.getElementById('hrModalRecovery').value = '';
+  // Pre-fill zones
+  hrBuildModalZoneInputs();
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  if (act.hrZones && act.hrZones.length === zones.length) {
+    act.hrZones.forEach((m,i)=>{
+      const el=document.getElementById(`hrModalZone_${i}`);
+      if(el) el.value=m||'';
+    });
+  }
+}
+
+function hrSaveModalData() {
+  const id     = document.getElementById('hrModalActivity').value;
+  const avgHR  = parseInt(document.getElementById('hrModalAvg').value)||0;
+  const maxHR  = parseInt(document.getElementById('hrModalMax').value)||0;
+  const recHR  = parseInt(document.getElementById('hrModalRecovery').value)||0;
+  if (!id) { showToast('Select an activity first', 'error'); return; }
+  const act = (db?.activities||[]).find(a=>a.id===id);
+  if (!act) { showToast('Activity not found', 'error'); return; }
+
+  if (avgHR) act.avgHR = avgHR;
+  if (maxHR) act.maxHR = maxHR;
+  if (recHR) act.recoveryHR = recHR;
+
+  // Read zone inputs
+  const zones = HR_ZONE_MODELS[hrCurrentModel];
+  const zm    = zones.map((_,i)=>parseFloat(document.getElementById(`hrModalZone_${i}`)?.value)||0);
+  if (zm.some(v=>v>0)) act.hrZones = zm;
+  else delete act.hrZones; // let auto-estimate handle it
+
+  saveData(db);
+  showToast('HR data saved! ❤️', 'success');
+  closeHRModal();
+  hrPopulateActivitySelect('hrActivitySelect');
+  hrCheckHRBadges();
+  if (document.getElementById('hrActivitySelect').value === id) hrLoadActivityZone();
+  hrRenderWeekly();
+  hrRenderMonthly();
+  hrRenderLoadChart();
+  hrRenderSummaryDashboard();
+  hrRenderPaceScatter();
+}
+
+/* ── Tab switcher ─────────────────────────────────────────── */
+function hrTab(t) {
+  document.querySelectorAll('.hr-tab').forEach(b => b.classList.toggle('active', b.id===`hrTabBtn_${t}`));
+  document.querySelectorAll('.hr-tab-panel').forEach(p => p.classList.toggle('active', p.id===`hrPanel_${t}`));
+  if (t==='time') { hrPopulateActivitySelect('hrActivitySelect'); hrRenderWeekly(); hrRenderMonthly(); }
+  if (t==='analytics') { hrRenderPaceScatter(); hrRenderAerobicEfficiency(); hrRenderLoadChart(); hrRenderSummaryDashboard(); }
+}
+
+/* ── Badge checker ────────────────────────────────────────── */
+function hrCheckHRBadges() {
+  if (!db?.badges) db.badges = [];
+  const acts    = db?.activities || [];
+  const hrActs  = acts.filter(a=>a.avgHR);
+  const rhrArr  = hrGetRHR();
+  const totalTRIMP = acts.reduce((s,a)=>{ const zm=hrGetActivityZones(a); return zm?s+hrCalcTRIMP(zm):s; }, 0);
+
+  const award = (id, name, desc, icon, tier) => {
+    if (!db.badges.find(b=>b.id===id)) {
+      db.badges.push({id,name,desc,icon,tier,earned:new Date().toISOString().slice(0,10)});
+      showBadgePopup({id,name,desc,icon,tier});
+    }
+  };
+
+  if (hrActs.length >= 1)  award('hr_first',     'Heart Monitor',    'Log heart rate data for the first time',      '💓','bronze');
+  if (hrActs.length >= 20) award('hr_zone20',     'Zone Master',      'Log HR data for 20 activities',               '📊','silver');
+  if (rhrArr.some(e=>e.bpm<55)) award('hr_rhr55', 'Aerobic Beast',   'Achieve a resting HR below 55 bpm',           '🧘','gold');
+  if (totalTRIMP >= 1000)  award('hr_trimp1000',  'TRIMP Tracker',   'Accumulate 1,000 total TRIMP points',         '⚡','silver');
+
+  // 80/20 for 4 weeks
+  const weeks4check = [];
+  for (let w=3; w>=0; w--) {
+    const end=new Date(); end.setDate(end.getDate()-w*7);
+    const start=new Date(end); start.setDate(start.getDate()-6);
+    const wActs=acts.filter(a=>a.date>=fmtDate(start)&&a.date<=fmtDate(end));
+    let easy=0,hard=0;
+    wActs.forEach(a=>{ const zm=hrGetActivityZones(a); if(!zm)return; easy+=zm[0]||0+zm[1]||0; hard+=zm.slice(2).reduce((s,v)=>s+v,0); });
+    const t=easy+hard; if(!t) continue;
+    weeks4check.push(easy/t >= 0.70);
+  }
+  if (weeks4check.length===4 && weeks4check.every(Boolean)) award('hr_8020_4w','80/20 Champion','Maintain 80/20 easy/hard zone ratio for 4 weeks','⚖️','gold');
+
+  saveData(db);
+}
+
+/* ── Init ─────────────────────────────────────────────────── */
+function hrInit() {
+  const s = hrGetSettings();
+
+  // Restore settings
+  if (s.formula) { hrCurrentFormula = s.formula; hrSetFormula(s.formula); }
+  if (s.model)   { hrCurrentModel   = s.model;   hrSetModel(s.model); }
+  if (s.age)     { const el=document.getElementById('hrAge'); if(el) el.value=s.age; }
+  if (s.rhr)     { const el=document.getElementById('hrRestInput'); if(el) el.value=s.rhr; }
+  if (s.gender)  { const el=document.getElementById('hrGender'); if(el) el.value=s.gender; }
+  if (s.formula==='manual') {
+    const el=document.getElementById('hrManualMax');
+    if(el && s.maxHR) el.value=s.maxHR;
+  }
+
+  // Set today's date for RHR input
+  const rhrDate = document.getElementById('hrRhrDate');
+  if (rhrDate) rhrDate.value = fmtDate(new Date());
+
+  hrRecalcMax();
+  hrRenderRhrSummary();
+  hrRenderRhrChart();
+  hrPopulateActivitySelect('hrActivitySelect');
+  hrPopulateActivitySelect('hrModalActivity');
+  hrBuildModalZoneInputs();
 }
 
 /* ══════════════════════════════════════════════════════════════
