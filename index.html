@@ -2599,6 +2599,28 @@ select.vo2-input { cursor:pointer; }
 /* ── Update Stats ── */
 .update-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 @media(max-width:480px){.update-form-grid{grid-template-columns:1fr}}
+/* ── Friend Last Activity Preview on Card ── */
+.friend-last-act{font-size:.72rem;color:var(--text-muted);padding:5px 0;border-top:1px solid var(--border);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.friend-last-act.muted{color:var(--text-dim)}
+/* ── Add Activity Form ── */
+.fa-type-row,.fa-diff-row{display:flex;gap:8px;flex-wrap:wrap}
+.fa-type-btn,.fa-diff-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;font-size:.82rem;background:var(--bg3);transition:all var(--transition);user-select:none}
+.fa-type-btn input,.fa-diff-btn input{display:none}
+.fa-type-btn:has(input:checked){border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.fa-diff-btn.diff-easy:has(input:checked){border-color:#22c55e;background:rgba(34,197,94,.12);color:#22c55e}
+.fa-diff-btn.diff-medium:has(input:checked){border-color:#f59e0b;background:rgba(245,158,11,.12);color:#f59e0b}
+.fa-diff-btn.diff-hard:has(input:checked){border-color:#ef4444;background:rgba(239,68,68,.12);color:#ef4444}
+/* ── Full Activity Row in Profile ── */
+.fp-act-full{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.fp-act-full-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fp-act-full-title{font-size:.8rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp-act-full-stats{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--text-muted)}
+.fp-act-full-stats strong{color:var(--text)}
+/* ── Difficulty Badges ── */
+.fp-diff-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.diff-easy{background:rgba(34,197,94,.15);color:#22c55e}
+.diff-medium{background:rgba(245,158,11,.15);color:#f59e0b}
+.diff-hard{background:rgba(239,68,68,.15);color:#ef4444}
 /* ── Friend Modal Overlay Fixes ─────────────────────────────── */
 /* Raise all modal overlays above the profile overlay (z-index:400) */
 .modal-overlay{z-index:500!important}
@@ -4298,59 +4320,48 @@ select.vo2-input { cursor:pointer; }
   </div>
 </div>
 
-<!-- ─── Friends: Update Stats Modal ───────────────────────── -->
+<!-- ─── Friends: Add Activity Modal ───────────────────────── -->
 <div class="modal-overlay" id="friendUpdateModal" onclick="if(event.target===this)closeUpdateModal()">
-  <div class="modal" style="max-width:480px">
+  <div class="modal" style="max-width:460px">
     <div class="modal-header">
-      <div class="modal-title">Update Stats — <span id="updFriendName"></span></div>
+      <div class="modal-title">Add Activity — <span id="updFriendName"></span></div>
       <button class="modal-close" onclick="closeUpdateModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Activity Type</label>
+        <div class="fa-type-row">
+          <label class="fa-type-btn"><input type="radio" name="faType" value="run" checked /><span>🏃 Run</span></label>
+          <label class="fa-type-btn"><input type="radio" name="faType" value="hike" /><span>🥾 Hike</span></label>
+          <label class="fa-type-btn"><input type="radio" name="faType" value="cycle" /><span>🚴 Cycle</span></label>
+        </div>
+      </div>
       <div class="update-form-grid">
         <div class="form-group">
-          <label class="form-label">Weekly km</label>
-          <input class="form-input" type="number" id="updWeeklyKm" min="0" step="0.1" />
+          <label class="form-label">Date *</label>
+          <input class="form-input" type="date" id="faDate" />
         </div>
         <div class="form-group">
-          <label class="form-label">Weekly Activities</label>
-          <input class="form-input" type="number" id="updWeeklyActs" min="0" />
+          <label class="form-label">Distance (km) *</label>
+          <input class="form-input" type="number" id="faDistance" min="0" step="0.01" placeholder="0.0" />
         </div>
         <div class="form-group">
-          <label class="form-label">Monthly km</label>
-          <input class="form-input" type="number" id="updMonthlyKm" min="0" step="0.1" />
+          <label class="form-label">Duration (h:mm:ss)</label>
+          <input class="form-input" type="text" id="faDuration" placeholder="0:30:00" />
         </div>
         <div class="form-group">
-          <label class="form-label">Total km (all time)</label>
-          <input class="form-input" type="number" id="updTotalKm" min="0" step="0.1" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total Activities</label>
-          <input class="form-input" type="number" id="updTotalActs" min="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Current Streak (days)</label>
-          <input class="form-input" type="number" id="updStreak" min="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Longest Streak (days)</label>
-          <input class="form-input" type="number" id="updLongestStreak" min="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Year km</label>
-          <input class="form-input" type="number" id="updYearKm" min="0" step="0.1" />
+          <label class="form-label">Calories</label>
+          <input class="form-input" type="number" id="faCalories" min="0" placeholder="0" />
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Last Active</label>
-        <input class="form-input" type="date" id="updLastActive" />
-      </div>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-        <div class="form-label" style="margin-bottom:8px">Recent Activities (optional)</div>
-        <div id="updRecentActsContainer">
-          <div id="updRecentActsList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-          <button class="btn btn-ghost" style="font-size:.75rem;padding:5px 10px" onclick="addUpdRecentAct()">+ Add Activity</button>
+        <label class="form-label">Difficulty</label>
+        <div class="fa-diff-row">
+          <label class="fa-diff-btn diff-easy"><input type="radio" name="faDiff" value="Easy" checked /><span>Easy</span></label>
+          <label class="fa-diff-btn diff-medium"><input type="radio" name="faDiff" value="Medium" /><span>Medium</span></label>
+          <label class="fa-diff-btn diff-hard"><input type="radio" name="faDiff" value="Hard" /><span>Hard</span></label>
         </div>
       </div>
     </div>
@@ -4358,7 +4369,7 @@ select.vo2-input { cursor:pointer; }
       <button class="btn btn-ghost" onclick="closeUpdateModal()">Cancel</button>
       <button class="btn btn-teal" onclick="saveUpdateStats()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Save Stats
+        Add Activity
       </button>
     </div>
   </div>
@@ -13970,16 +13981,19 @@ BADGE_DEFS.push(
     let friends=loadFriends();
     const q=(document.getElementById('friendsSearch')?.value||'').toLowerCase();
     if(q)friends=friends.filter(f=>f.name.toLowerCase().includes(q)||f.username.toLowerCase().includes(q));
+    // Pre-compute stats for filtering/sorting
+    const withStats=friends.map(f=>({f,cs:calcFriendStats(f)}));
     const filter=document.getElementById('friendsFilterSel')?.value||'all';
-    if(filter==='activeWeek')friends=friends.filter(f=>isActiveThisWeek(f.stats?.lastActive));
+    const filtered=filter==='activeWeek'?withStats.filter(({cs})=>isActiveThisWeek(cs.lastActive)):withStats;
     const sort=document.getElementById('friendsSortSel')?.value||'name';
-    friends.sort((a,b)=>{
-      if(sort==='name')return a.name.localeCompare(b.name);
-      if(sort==='active')return (b.stats?.weeklyActivities||0)-(a.stats?.weeklyActivities||0);
-      if(sort==='streak')return (b.stats?.streak||0)-(a.stats?.streak||0);
-      if(sort==='km')return (b.stats?.weeklyKm||0)-(a.stats?.weeklyKm||0);
+    filtered.sort((a,b)=>{
+      if(sort==='name')return a.f.name.localeCompare(b.f.name);
+      if(sort==='active')return b.cs.weeklyActivities-a.cs.weeklyActivities;
+      if(sort==='streak')return b.cs.streak-a.cs.streak;
+      if(sort==='km')return b.cs.weeklyKm-a.cs.weeklyKm;
       return 0;
     });
+    friends=filtered.map(({f})=>f);
     if(!friends.length){
       el.innerHTML=`<div class="friends-empty" style="grid-column:1/-1">
         <div class="friends-empty-icon">👥</div>
@@ -13994,9 +14008,9 @@ BADGE_DEFS.push(
   };
 
   function buildFriendCard(f,myWkKm){
-    const s=f.stats||{};
-    const wkKm=s.weeklyKm||0, wkActs=s.weeklyActivities||0;
-    const streak=s.streak||0, lastActive=s.lastActive||'';
+    const cs=calcFriendStats(f);
+    const wkKm=cs.weeklyKm, wkActs=cs.weeklyActivities;
+    const streak=cs.streak, lastActive=cs.lastActive||'';
     const isActive=isActiveThisWeek(lastActive);
     const diff=wkKm-myWkKm;
     const favIcon=f.favoriteType==='run'?'🏃':f.favoriteType==='hike'?'🥾':'🚴';
@@ -14007,6 +14021,13 @@ BADGE_DEFS.push(
       const cls=diff>0?'behind':'ahead';
       comp=`<div class="friend-comparison ${cls}">${diff>0?`${f.name.split(' ')[0]} ran ${diff.toFixed(1)} km more this week`:`You're ahead by ${Math.abs(diff).toFixed(1)} km this week`}</div>`;
     }
+    // Last activity preview line
+    const acts=f.activities||[];
+    const lastAct=acts.length?[...acts].sort((a,b)=>b.date.localeCompare(a.date))[0]:null;
+    const typeLabel={run:'run',hike:'hike',walk:'hike',cycle:'ride'};
+    const lastActHtml=lastAct
+      ?`<div class="friend-last-act">Last: ${(lastAct.distance||0).toFixed(1)} km ${typeLabel[lastAct.type]||'run'}${lastAct.date?' — '+relTime(lastAct.date):''}</div>`
+      :`<div class="friend-last-act muted">No recent activities</div>`;
     return `<div class="friend-card" id="fcard_${f.id}" onclick="openFriendProfile('${f.id}')">
       ${unread?`<div class="friend-msg-badge">💬 ${unread}</div>`:''}
       <div class="friend-dropdown" onclick="event.stopPropagation()">
@@ -14024,7 +14045,7 @@ BADGE_DEFS.push(
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Send Motivation
           </div>
           <div class="friend-menu-item" onclick="openUpdateStatsModal('${f.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Update Stats
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Activity
           </div>
           <div class="friend-menu-item danger" onclick="confirmRemoveFriend('${f.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Remove Friend
@@ -14044,6 +14065,7 @@ BADGE_DEFS.push(
         <span>${isActive?'Active this week':(lastActive?relTime(lastActive):'No data')}</span>
       </div>
       ${streak?`<div class="friend-streak">🔥 ${streak}-day streak</div>`:''}
+      ${lastActHtml}
       <div class="friend-week-stats">
         <div class="friend-stat-mini"><div class="friend-stat-mini-label">This week km</div><div class="friend-stat-mini-value">${wkKm.toFixed(1)}</div></div>
         <div class="friend-stat-mini"><div class="friend-stat-mini-label">Activities</div><div class="friend-stat-mini-value">${wkActs}</div></div>
@@ -14084,33 +14106,39 @@ BADGE_DEFS.push(
   };
 
   function buildFriendProfileHtml(f,my){
-    const s=f.stats||{};
+    const cs=calcFriendStats(f);
     const since=f.memberSince?new Date(f.memberSince+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'Unknown';
     const fav=f.favoriteType==='run'?'🏃 Running':f.favoriteType==='hike'?'🥾 Hiking':'🚴 Cycling';
-    const theirTot=s.totalKm||0, myTot=my.totalKm;
+    const theirTot=cs.totalKm, myTot=my.totalKm;
     const iWin=myTot>=theirTot;
-    // Recent acts
-    const rActs=(s.recentActivities||[]).slice(0,5);
-    const rHtml=rActs.length?rActs.map(a=>{
-      const tl=a.type==='run'?'Run':a.type==='hike'?'Hike':'Ride';
-      const ds=a.date?new Date(a.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-      return `<div class="fp-act-row"><span class="fp-act-type ${a.type==='hike'?'hike':a.type}">${tl}</span><span>${(a.distance||0).toFixed(1)} km</span>${a.duration?`<span style="color:var(--text-muted)">${a.duration}</span>`:''}<span style="margin-left:auto;color:var(--text-muted);font-size:.68rem">${ds}</span></div>`;
-    }).join(''):`<div style="color:var(--text-muted);font-size:.78rem;padding:6px 0">No recent activities logged</div>`;
-    // PRs
-    const prs=s.personalRecords||{};
-    const prHtml=Object.keys(prs).length?`
-      <div class="fp-section-title">Personal Records</div>
-      <div class="fp-prs">
-        ${prs.longestRun?`<div class="fp-pr-box"><div class="fp-pr-label">Longest Run</div><div class="fp-pr-value">${prs.longestRun} km</div></div>`:''}
-        ${prs.fastestPace?`<div class="fp-pr-box"><div class="fp-pr-label">Fastest Pace</div><div class="fp-pr-value">${prs.fastestPace}</div></div>`:''}
-        ${prs.longestHike?`<div class="fp-pr-box"><div class="fp-pr-label">Longest Hike</div><div class="fp-pr-value">${prs.longestHike} km</div></div>`:''}
-        ${prs.longestRide?`<div class="fp-pr-box"><div class="fp-pr-label">Longest Ride</div><div class="fp-pr-value">${prs.longestRide} km</div></div>`:''}
-      </div>`:'' ;
+    // Latest activities (last 10, newest first)
+    const tLabel={run:'Run',hike:'Hike',walk:'Hike',cycle:'Ride'};
+    const tClass={run:'run',hike:'hike',walk:'hike',cycle:'cycle'};
+    const dClass={Easy:'diff-easy',Medium:'diff-medium',Hard:'diff-hard'};
+    const acts=[...(f.activities||[])].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+    const actsHtml=acts.length?acts.map(a=>{
+      const ds=a.date?new Date(a.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+      const paceStr=a.type==='cycle'?calcSpeed(a.distance,a.duration):calcPace(a.distance,a.duration);
+      return `<div class="fp-act-full">
+        <div class="fp-act-full-top">
+          <span class="fp-act-type ${tClass[a.type]||'run'}">${tLabel[a.type]||'Run'}</span>
+          ${a.title?`<span class="fp-act-full-title">${escHtml(a.title)}</span>`:''}
+          ${a.difficulty?`<span class="fp-diff-badge ${dClass[a.difficulty]||'diff-medium'}">${a.difficulty}</span>`:''}
+          <span style="margin-left:auto;font-size:.68rem;color:var(--text-muted);flex-shrink:0">${ds}</span>
+        </div>
+        <div class="fp-act-full-stats">
+          <span><strong>${(a.distance||0).toFixed(2)}</strong> km</span>
+          ${a.duration?`<span>${a.duration}</span>`:''}
+          ${paceStr?`<span>${paceStr}</span>`:''}
+          ${a.calories?`<span>${a.calories} kcal</span>`:''}
+        </div>
+      </div>`;
+    }).join(''):`<div style="color:var(--text-muted);font-size:.78rem;padding:10px 0">No activities logged yet — use Add Activity to log their workouts.</div>`;
     // H2H bars — last 6 months
     const now=new Date();
     const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const last6=[];
-    for(let i=5;i>=0;i--){const mi=(now.getMonth()-i+12)%12;last6.push({label:MN[mi],me:(my.monthlyDistances||[])[mi]||0,them:(s.monthlyDistances||[])[mi]||0});}
+    for(let i=5;i>=0;i--){const mi=(now.getMonth()-i+12)%12;last6.push({label:MN[mi],me:(my.monthlyDistances||[])[mi]||0,them:(cs.monthlyDistances||[])[mi]||0});}
     const maxB=Math.max(...last6.map(m=>Math.max(m.me,m.them)),1);
     const barsHtml=last6.map(m=>`<div class="fp-h2h-month-group"><div class="fp-h2h-bar you" style="height:${Math.round(m.me/maxB*70)}px"></div><div class="fp-h2h-bar them" style="height:${Math.round(m.them/maxB*70)}px"></div></div>`).join('');
     const labsHtml=last6.map(m=>`<span style="flex:1;text-align:center;font-size:.55rem;color:var(--text-dim)">${m.label}</span>`).join('');
@@ -14123,19 +14151,23 @@ BADGE_DEFS.push(
           <div class="fp-username">@${escHtml(f.username)}</div>
           <div class="fp-since">Member since ${since} · ${fav}</div>
         </div>
-        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px;flex-shrink:0" onclick="openUpdateStatsModal('${f.id}')">Update Stats</button>
       </div>
       <div class="fp-stats-grid">
-        <div class="fp-stat-box"><div class="fp-stat-label">Year km</div><div class="fp-stat-value">${(s.yearKm||0).toFixed(1)}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Year Activities</div><div class="fp-stat-value">${s.yearActivities||0}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Current Streak</div><div class="fp-stat-value">${s.streak||0} 🔥</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Longest Streak</div><div class="fp-stat-value">${s.longestStreak||0} days</div></div>
+        <div class="fp-stat-box"><div class="fp-stat-label">Year km</div><div class="fp-stat-value">${cs.yearKm.toFixed(1)}</div></div>
+        <div class="fp-stat-box"><div class="fp-stat-label">Year Activities</div><div class="fp-stat-value">${cs.yearActivities}</div></div>
+        <div class="fp-stat-box"><div class="fp-stat-label">Current Streak</div><div class="fp-stat-value">${cs.streak} 🔥</div></div>
+        <div class="fp-stat-box"><div class="fp-stat-label">Longest Streak</div><div class="fp-stat-value">${cs.longestStreak} days</div></div>
         <div class="fp-stat-box"><div class="fp-stat-label">Total km</div><div class="fp-stat-value">${theirTot.toFixed(0)}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Avg Weekly km</div><div class="fp-stat-value">${(s.avgWeeklyKm||0).toFixed(1)}</div></div>
+        <div class="fp-stat-box"><div class="fp-stat-label">Avg Weekly km</div><div class="fp-stat-value">${cs.avgWeeklyKm.toFixed(1)}</div></div>
       </div>
-      <div class="fp-section-title">Recent Activities</div>
-      <div class="fp-activities">${rHtml}</div>
-      ${prHtml}
+      <div class="fp-section-title" style="display:flex;align-items:center;justify-content:space-between;padding-right:20px">
+        Latest Activities
+        <button class="btn btn-teal" style="font-size:.72rem;padding:5px 12px" onclick="openUpdateStatsModal('${f.id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Activity for ${escHtml(fname)}
+        </button>
+      </div>
+      <div class="fp-activities" style="display:flex;flex-direction:column;gap:6px;padding:0 20px 12px">${actsHtml}</div>
       <div id="fpH2HSection" class="fp-h2h">
         <div class="fp-h2h-title">
           You vs ${escHtml(fname)}
@@ -14149,12 +14181,12 @@ BADGE_DEFS.push(
         <div class="fp-h2h-row">
           <div class="fp-h2h-you">${my.streak} 🔥</div>
           <div class="fp-h2h-label">Streak</div>
-          <div class="fp-h2h-them">${s.streak||0} 🔥</div>
+          <div class="fp-h2h-them">${cs.streak} 🔥</div>
         </div>
         <div class="fp-h2h-row">
           <div class="fp-h2h-you">${my.totalActivities} acts</div>
           <div class="fp-h2h-label">Activities</div>
-          <div class="fp-h2h-them">${s.totalActivities||0} acts</div>
+          <div class="fp-h2h-them">${cs.totalActivities} acts</div>
         </div>
         <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:2px">Monthly km — last 6 months</div>
         <div class="fp-h2h-bars">${barsHtml}</div>
@@ -14164,6 +14196,76 @@ BADGE_DEFS.push(
           <span><span class="fp-h2h-legend-dot" style="background:#f97316"></span>${escHtml(fname)}</span>
         </div>
       </div>`;
+  }
+
+  /* ── Compute friend stats dynamically from activities array ── */
+  function calcFriendStats(f){
+    const acts=f.activities||[];
+    const now=new Date();
+    const sow=new Date(now);sow.setDate(now.getDate()-now.getDay());sow.setHours(0,0,0,0);
+    const som=new Date(now.getFullYear(),now.getMonth(),1);
+    const soy=new Date(now.getFullYear(),0,1);
+    let wKm=0,wActs=0,mKm=0,mActs=0,tKm=0,yKm=0,yActs=0,rKm=0,hKm=0,cKm=0;
+    const mDist=new Array(12).fill(0);
+    const days=new Set();
+    acts.forEach(a=>{
+      const d=new Date(a.date+'T00:00:00'),km=a.distance||0;
+      tKm+=km; days.add(a.date);
+      if(d>=sow){wKm+=km;wActs++;}
+      if(d>=som){mKm+=km;mActs++;}
+      if(d>=soy){yKm+=km;yActs++;mDist[d.getMonth()]+=km;}
+      if(a.type==='run')rKm+=km;
+      else if(a.type==='hike'||a.type==='walk')hKm+=km;
+      else if(a.type==='cycle')cKm+=km;
+    });
+    // Current streak
+    let streak=0;
+    const today=fmtDate(now);
+    let cd=new Date(now);
+    if(!days.has(today))cd.setDate(cd.getDate()-1);
+    while(days.has(fmtDate(cd))){streak++;cd.setDate(cd.getDate()-1);}
+    // Longest streak
+    let longest=0,cur=0,prev=null;
+    [...days].sort().forEach(ds=>{
+      if(!prev){cur=1;}else{
+        const diff=(new Date(ds+'T00:00:00')-new Date(prev+'T00:00:00'))/86400000;
+        cur=diff===1?cur+1:1;
+      }
+      longest=Math.max(longest,cur);prev=ds;
+    });
+    // Avg weekly km (total / weeks since first activity)
+    let avgWeeklyKm=0;
+    if(acts.length){
+      const sorted=[...acts].sort((a,b)=>a.date.localeCompare(b.date));
+      const firstDate=new Date(sorted[0].date+'T00:00:00');
+      const weeks=Math.max(1,Math.ceil((now-firstDate)/604800000));
+      avgWeeklyKm=tKm/weeks;
+    }
+    const lastActive=acts.length?[...acts].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'';
+    return {
+      weeklyKm:wKm,weeklyActivities:wActs,monthlyKm:mKm,monthlyActivities:mActs,
+      totalKm:tKm,totalActivities:acts.length,streak,longestStreak:longest,
+      yearKm:yKm,yearActivities:yActs,runKm:rKm,hikeKm:hKm,cycleKm:cKm,
+      monthlyDistances:mDist,lastActive,avgWeeklyKm
+    };
+  }
+
+  /* ── Pace / Speed helpers ── */
+  function calcPace(distKm,dur){
+    if(!distKm||!dur)return'';
+    const p=dur.split(':').map(Number);
+    const s=p.length===3?p[0]*3600+p[1]*60+(p[2]||0):p.length===2?p[0]*60+p[1]:0;
+    if(!s||!distKm)return'';
+    const mpk=s/60/distKm;
+    const m=Math.floor(mpk),sec=Math.round((mpk-m)*60);
+    return`${m}:${sec.toString().padStart(2,'0')} /km`;
+  }
+  function calcSpeed(distKm,dur){
+    if(!distKm||!dur)return'';
+    const p=dur.split(':').map(Number);
+    const s=p.length===3?p[0]*3600+p[1]*60+(p[2]||0):p.length===2?p[0]*60+p[1]:0;
+    if(!s||!distKm)return'';
+    return`${(distKm/(s/3600)).toFixed(1)} km/h`;
   }
 
   /* ── Add Friend ── */
@@ -14233,7 +14335,7 @@ BADGE_DEFS.push(
       id:genId(),name,username,
       avatar:addFriendPhoto||addFriendSelAv||'🏃',
       memberSince:since,dateAdded:fmtDate(new Date()),
-      favoriteType:fav,messages:[],_compareCount:0,
+      favoriteType:fav,messages:[],_compareCount:0,activities:[],
       stats:{
         weeklyKm:wkKm,weeklyActivities:Math.max(1,Math.round(wkKm/8)),
         monthlyKm:wkKm*4,monthlyActivities:Math.max(1,Math.round(wkKm/8))*4,
@@ -14278,80 +14380,52 @@ BADGE_DEFS.push(
     document.getElementById('friendRemoveModal')?.classList.remove('open');
   };
 
-  /* ── Update Stats Modal ── */
+  /* ── Add Activity Modal (replaces old Update Stats) ── */
   window.openUpdateStatsModal = function(id){
     document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-    document.getElementById('friendProfileModal')?.classList.remove('open');
     activeFriendId=id;
     const f=loadFriends().find(x=>x.id===id);
     if(!f)return;
-    const s=f.stats||{};
     const modal=document.getElementById('friendUpdateModal');
     if(!modal)return;
     document.getElementById('updFriendName').textContent=f.name;
-    document.getElementById('updWeeklyKm').value=s.weeklyKm||0;
-    document.getElementById('updWeeklyActs').value=s.weeklyActivities||0;
-    document.getElementById('updMonthlyKm').value=s.monthlyKm||0;
-    document.getElementById('updTotalKm').value=s.totalKm||0;
-    document.getElementById('updTotalActs').value=s.totalActivities||0;
-    document.getElementById('updStreak').value=s.streak||0;
-    document.getElementById('updLongestStreak').value=s.longestStreak||0;
-    document.getElementById('updYearKm').value=s.yearKm||0;
-    document.getElementById('updLastActive').value=s.lastActive||fmtDate(new Date());
-    updRecentActs=JSON.parse(JSON.stringify(s.recentActivities||[]));
-    renderUpdRecentActs();
+    // Reset form to defaults
+    const typeRun=document.querySelector('input[name="faType"][value="run"]');
+    if(typeRun)typeRun.checked=true;
+    const diffEasy=document.querySelector('input[name="faDiff"][value="Easy"]');
+    if(diffEasy)diffEasy.checked=true;
+    const faDate=document.getElementById('faDate');
+    if(faDate)faDate.value=fmtDate(new Date());
+    const faDistance=document.getElementById('faDistance');
+    if(faDistance)faDistance.value='';
+    const faDuration=document.getElementById('faDuration');
+    if(faDuration)faDuration.value='';
+    const faCalories=document.getElementById('faCalories');
+    if(faCalories)faCalories.value='';
     modal.classList.add('open');
   };
   window.saveUpdateStats = function(){
     if(!activeFriendId)return;
+    const dist=parseFloat(document.getElementById('faDistance')?.value)||0;
+    if(!dist){alert('Please enter a distance.');return;}
+    const date=document.getElementById('faDate')?.value||fmtDate(new Date());
+    const type=document.querySelector('input[name="faType"]:checked')?.value||'run';
+    const duration=(document.getElementById('faDuration')?.value||'').trim();
+    const calories=parseInt(document.getElementById('faCalories')?.value)||0;
+    const difficulty=document.querySelector('input[name="faDiff"]:checked')?.value||'Medium';
     const friends=loadFriends();
     const f=friends.find(x=>x.id===activeFriendId);
     if(!f)return;
-    f.stats=f.stats||{};
-    const g=id=>parseFloat(document.getElementById(id)?.value)||0;
-    const gi=id=>parseInt(document.getElementById(id)?.value)||0;
-    f.stats.weeklyKm=g('updWeeklyKm');
-    f.stats.weeklyActivities=gi('updWeeklyActs');
-    f.stats.monthlyKm=g('updMonthlyKm');
-    f.stats.totalKm=g('updTotalKm');
-    f.stats.totalActivities=gi('updTotalActs');
-    f.stats.streak=gi('updStreak');
-    f.stats.longestStreak=gi('updLongestStreak');
-    f.stats.yearKm=g('updYearKm');
-    f.stats.lastActive=document.getElementById('updLastActive')?.value||fmtDate(new Date());
-    f.stats.recentActivities=updRecentActs;
-    const tot=f.stats.totalKm;
-    f.stats.runKm=f.favoriteType==='run'?tot*.7:tot*.1;
-    f.stats.hikeKm=f.favoriteType==='hike'?tot*.7:tot*.1;
-    f.stats.cycleKm=f.favoriteType==='cycle'?tot*.7:tot*.1;
+    if(!f.activities)f.activities=[];
+    f.activities.push({
+      id:(typeof genId==='function'?genId():'act_'+Date.now()),
+      type,date,distance:dist,duration,calories,difficulty,title:''
+    });
     saveFriends(friends);
     document.getElementById('friendUpdateModal')?.classList.remove('open');
     renderFriendsGrid();renderLeaderboard();renderFriendFeed();
   };
   window.closeUpdateModal = function(){document.getElementById('friendUpdateModal')?.classList.remove('open');};
-
-  function renderUpdRecentActs(){
-    const el=document.getElementById('updRecentActsList');
-    if(!el)return;
-    el.innerHTML=updRecentActs.map((a,i)=>`
-      <div style="display:flex;gap:6px;align-items:center;background:var(--bg2);border-radius:6px;padding:6px 8px;font-size:.75rem">
-        <select style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.72rem;color:var(--text)" onchange="updActChange(${i},'type',this.value)">
-          <option value="run" ${a.type==='run'?'selected':''}>Run</option>
-          <option value="hike" ${a.type==='hike'?'selected':''}>Hike</option>
-          <option value="cycle" ${a.type==='cycle'?'selected':''}>Cycle</option>
-        </select>
-        <input type="number" placeholder="km" value="${a.distance||''}" style="width:55px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.72rem;color:var(--text)" onchange="updActChange(${i},'distance',parseFloat(this.value)||0)" />
-        <input type="text" placeholder="h:mm:ss" value="${a.duration||''}" style="width:65px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.72rem;color:var(--text)" onchange="updActChange(${i},'duration',this.value)" />
-        <input type="date" value="${a.date||''}" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.72rem;color:var(--text)" onchange="updActChange(${i},'date',this.value)" />
-        <button onclick="updActRemove(${i})" style="color:#ef4444;font-size:.75rem;background:none;border:none;cursor:pointer;padding:2px 4px">✕</button>
-      </div>`).join('');
-  }
-  window.updActChange = function(i,field,val){updRecentActs[i][field]=val;};
-  window.updActRemove = function(i){updRecentActs.splice(i,1);renderUpdRecentActs();};
-  window.addUpdRecentAct = function(){
-    updRecentActs.push({type:'run',distance:0,duration:'',date:fmtDate(new Date())});
-    renderUpdRecentActs();
-  };
 
   /* ── Motivation ── */
   const MOTIV_PRESETS=[
@@ -14513,9 +14587,9 @@ BADGE_DEFS.push(
     const myActs=lbPeriod==='weekly'?my.weeklyActivities:lbPeriod==='monthly'?my.monthlyActivities:my.totalActivities;
     entries.push({id:'me',name:myName,avatar:myAv,km:myKm,acts:myActs,isMe:true});
     friends.forEach(f=>{
-      const km=getKmForPeriod(f.stats,lbPeriod,lbCat);
-      const s=f.stats||{};
-      const acts=lbPeriod==='weekly'?s.weeklyActivities||0:lbPeriod==='monthly'?s.monthlyActivities||0:s.totalActivities||0;
+      const cs=calcFriendStats(f);
+      const km=getKmForPeriod(cs,lbPeriod,lbCat);
+      const acts=lbPeriod==='weekly'?cs.weeklyActivities:lbPeriod==='monthly'?cs.monthlyActivities:cs.totalActivities;
       entries.push({id:f.id,name:f.name,avatar:f.avatar,km,acts,isMe:false});
     });
     entries.sort((a,b)=>b.km-a.km);
@@ -14558,7 +14632,7 @@ BADGE_DEFS.push(
     if(!friends.length){if(sec)sec.style.display='none';return;}
     const feedItems=[];
     friends.forEach(f=>{
-      (f.stats?.recentActivities||[]).forEach((a,i)=>feedItems.push({f,a,key:f.id+'_'+i}));
+      (f.activities||[]).forEach((a,i)=>feedItems.push({f,a,key:f.id+'_'+i}));
     });
     feedItems.sort((a,b)=>(b.a.date||'0').localeCompare(a.a.date||'0'));
     const shown=feedItems.slice(0,20);
@@ -14579,6 +14653,7 @@ BADGE_DEFS.push(
           <div class="feed-meta">
             <span>${ds}</span>
             <span class="activity-type-badge ${a.type==='hike'?'walk':a.type||'run'}" style="font-size:.6rem">${a.type||'run'}</span>
+            ${a.difficulty?`<span class="fp-diff-badge ${a.difficulty==='Easy'?'diff-easy':a.difficulty==='Hard'?'diff-hard':'diff-medium'}">${a.difficulty}</span>`:''}
             <button class="feed-kudos-btn ${liked?'liked':''}" onclick="feedToggleLike('${key}',this)">❤️${likes>0?' '+likes:''} Kudos</button>
           </div>
         </div>
@@ -14638,6 +14713,30 @@ BADGE_DEFS.push(
   }
 
   function checkSocialBadges(){renderSocialBadges();updateFriendsCount();}
+
+  /* ── Migrate existing friends: move recentActivities → activities ── */
+  (function migrateFriendActivities(){
+    let friends=loadFriends();
+    let changed=false;
+    friends.forEach(f=>{
+      if(!f.activities){
+        // Seed from stats.recentActivities if present, otherwise empty
+        const legacy=(f.stats&&f.stats.recentActivities)||[];
+        f.activities=legacy.map(function(a,i){return{
+          id:'leg_'+f.id+'_'+i,
+          type:a.type||'run',
+          date:a.date||fmtDate(new Date()),
+          distance:a.distance||0,
+          duration:a.duration||'',
+          calories:0,
+          difficulty:'Medium',
+          title:''
+        };});
+        changed=true;
+      }
+    });
+    if(changed)saveFriends(friends);
+  })();
 
   /* ── Hook into profile open ── */
   const _origOpenProfile=window.openProfile;
