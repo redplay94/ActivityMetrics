@@ -2072,6 +2072,145 @@ select.vo2-input { cursor:pointer; }
 .hr-rec-avg   {background:rgba(234,179,8,.07); border:1px solid rgba(234,179,8,.2);}
 .hr-rec-poor  {background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.2);}
 .tsb-fresh   {color:#22c55e;}.tsb-maintain{color:#eab308;}.tsb-fatigued{color:#f97316;}.tsb-over{color:#ef4444;}
+
+/* ══════════════════════════════════════════════════════════════
+   BEST ACTIVITIES
+══════════════════════════════════════════════════════════════ */
+.ba-stats-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.ba-stat-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:8px;flex:1;min-width:120px;}
+.ba-stat-icon{font-size:1.1rem;}
+.ba-stat-info{display:flex;flex-direction:column;gap:1px;}
+.ba-stat-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);}
+.ba-stat-value{font-size:.95rem;font-weight:800;}
+.ba-featured-wrap{margin-bottom:20px;}
+.ba-featured-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#d4a800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ba-featured-card{border:2px solid #d4a800;box-shadow:0 0 0 1px rgba(212,168,0,.3),var(--card-shadow);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform var(--transition);position:relative;}
+.ba-featured-card:hover{transform:translateY(-2px);}
+.ba-featured-badge{position:absolute;top:12px;left:12px;z-index:3;background:#d4a800;color:#000;font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;}
+.ba-activity-tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:16px;}
+.ba-tab-btn{flex:1;padding:9px 16px;border-radius:9px;font-size:.82rem;font-weight:600;color:var(--text-muted);transition:all var(--transition);text-align:center;cursor:pointer;}
+.ba-tab-btn.active-run{background:var(--run);color:#fff;box-shadow:0 2px 10px rgba(249,115,22,.3);}
+.ba-tab-btn.active-hike{background:var(--walk);color:#fff;box-shadow:0 2px 10px rgba(34,197,94,.3);}
+.ba-tab-btn.active-ride{background:var(--cycle);color:#fff;box-shadow:0 2px 10px rgba(59,130,246,.3);}
+.ba-tab-btn:hover:not(.active-run):not(.active-hike):not(.active-ride){color:var(--text);background:var(--bg3);}
+.ba-tab-panel{display:none;}
+.ba-tab-panel.active{display:block;}
+.ba-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.ba-add-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;color:#fff;border:none;cursor:pointer;transition:all var(--transition);}
+.ba-add-btn.run-add{background:linear-gradient(135deg,var(--run),#fb923c);box-shadow:0 2px 10px rgba(249,115,22,.3);}
+.ba-add-btn.hike-add{background:linear-gradient(135deg,var(--walk),#4ade80);box-shadow:0 2px 10px rgba(34,197,94,.3);}
+.ba-add-btn.ride-add{background:linear-gradient(135deg,var(--cycle),#60a5fa);box-shadow:0 2px 10px rgba(59,130,246,.3);}
+.ba-add-btn:hover{transform:translateY(-1px);opacity:.9;}
+.ba-view-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px;}
+.ba-view-btn{padding:5px 9px;border-radius:5px;color:var(--text-muted);transition:all var(--transition);display:flex;align-items:center;cursor:pointer;}
+.ba-view-btn.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.ba-view-btn svg{width:14px;height:14px;}
+.ba-sort-select,.ba-filter-select{background:var(--bg3);border:1.5px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:6px 10px;font-size:.75rem;outline:none;cursor:pointer;}
+.ba-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media(max-width:640px){.ba-cards-grid{grid-template-columns:1fr;}}
+.ba-card{border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform var(--transition),box-shadow var(--transition);box-shadow:var(--card-shadow);position:relative;border:1px solid var(--border);background:var(--bg2);}
+.ba-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.45);}
+.ba-card-photo-header{position:relative;height:160px;overflow:hidden;background:var(--bg3);}
+.ba-card-photo-header img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease;}
+.ba-card:hover .ba-card-photo-header img{transform:scale(1.04);}
+.ba-card-gradient{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.05) 0%,rgba(0,0,0,.65) 100%);pointer-events:none;}
+.ba-card-overlay-text{position:absolute;bottom:10px;left:12px;right:12px;pointer-events:none;}
+.ba-card-title-overlay{font-size:.95rem;font-weight:800;color:#fff;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.6);}
+.ba-card-date-overlay{font-size:.65rem;color:rgba(255,255,255,.8);margin-top:2px;}
+.ba-card-no-photo{height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;}
+.photo-count-badge{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.62rem;padding:2px 7px;border-radius:99px;backdrop-filter:blur(4px);}
+.ba-card-body{padding:12px 14px;}
+.ba-card-stats-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.ba-card-stat{display:flex;flex-direction:column;gap:2px;}
+.ba-card-stat-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text-muted);}
+.ba-card-stat-value{font-size:.82rem;font-weight:700;}
+.ba-card-tags-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.ba-tag{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:99px;}
+.ba-tag.run-tag{background:rgba(249,115,22,.15);color:var(--run);border:1px solid rgba(249,115,22,.3);}
+.ba-tag.hike-tag{background:rgba(34,197,94,.15);color:var(--walk);border:1px solid rgba(34,197,94,.3);}
+.ba-tag.ride-tag{background:rgba(59,130,246,.15);color:var(--cycle);border:1px solid rgba(59,130,246,.3);}
+.ba-card-why{font-size:.72rem;color:var(--text-muted);font-style:italic;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:8px;}
+.ba-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:8px;border-top:1px solid var(--border);}
+.ba-star-display{display:flex;gap:1px;font-size:.85rem;}
+.ba-star-filled{color:gold;}
+.ba-star-empty{color:var(--border);}
+.ba-card-actions{display:flex;gap:5px;align-items:center;}
+.ba-pin-btn{width:26px;height:26px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--bg3);color:var(--text-muted);transition:all var(--transition);font-size:.85rem;cursor:pointer;}
+.ba-pin-btn:hover{border-color:#d4a800;color:#d4a800;}
+.ba-pin-btn.pinned{background:rgba(212,168,0,.15);border-color:#d4a800;color:#d4a800;}
+.ba-edit-btn,.ba-del-btn{width:26px;height:26px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;transition:all var(--transition);cursor:pointer;}
+.ba-edit-btn{background:rgba(59,130,246,.1);color:var(--cycle);border:1.5px solid rgba(59,130,246,.2);}
+.ba-edit-btn:hover{background:rgba(59,130,246,.25);}
+.ba-edit-btn svg,.ba-del-btn svg{width:11px;height:11px;}
+.ba-del-btn{background:rgba(239,68,68,.1);color:#ef4444;border:1.5px solid rgba(239,68,68,.2);}
+.ba-del-btn:hover{background:rgba(239,68,68,.25);}
+.ba-list-view{display:flex;flex-direction:column;gap:8px;}
+.ba-list-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all var(--transition);}
+.ba-list-item:hover{border-color:var(--text-muted);background:var(--bg3);}
+.ba-list-thumb{width:48px;height:48px;border-radius:var(--radius-sm);flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;}
+.ba-list-thumb img{width:100%;height:100%;object-fit:cover;}
+.ba-list-info{flex:1;min-width:0;}
+.ba-list-name{font-weight:700;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ba-list-meta{font-size:.68rem;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;align-items:center;}
+.ba-list-actions{display:flex;gap:5px;flex-shrink:0;}
+.ba-empty-state{padding:40px 20px;text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);}
+.ba-empty-icon{font-size:2.5rem;margin-bottom:10px;}
+.ba-empty-title{font-weight:700;font-size:.95rem;margin-bottom:6px;}
+.ba-empty-sub{font-size:.82rem;color:var(--text-muted);}
+.ba-modal{max-width:620px;}
+.ba-photo-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg3);}
+.ba-photo-upload-area:hover,.ba-photo-upload-area.drag-over{border-color:var(--cycle);background:rgba(59,130,246,.06);}
+.ba-photo-upload-icon{font-size:1.8rem;margin-bottom:6px;}
+.ba-photo-upload-text{font-size:.78rem;color:var(--text-muted);}
+.ba-photo-upload-text span{color:var(--cycle);font-weight:600;}
+.ba-photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.ba-photo-preview-wrap{position:relative;}
+.ba-photo-preview{width:64px;height:64px;border-radius:var(--radius-sm);object-fit:cover;border:2px solid var(--border);}
+.ba-photo-preview-del{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:#ef4444;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;border:1.5px solid var(--bg2);font-weight:800;line-height:1;}
+.ba-photo-storage-warn{font-size:.7rem;color:#eab308;margin-top:6px;display:flex;align-items:center;gap:4px;}
+.ba-tags-select{display:flex;flex-wrap:wrap;gap:6px;}
+.ba-tag-opt{padding:4px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-muted);cursor:pointer;transition:all var(--transition);}
+.ba-tag-opt:hover{color:var(--text);border-color:var(--text-muted);}
+.ba-tag-opt.selected.run-opt{border-color:var(--run);background:rgba(249,115,22,.12);color:var(--run);}
+.ba-tag-opt.selected.hike-opt{border-color:var(--walk);background:rgba(34,197,94,.12);color:var(--walk);}
+.ba-tag-opt.selected.ride-opt{border-color:var(--cycle);background:rgba(59,130,246,.12);color:var(--cycle);}
+.ba-detail-overlay{position:fixed;inset:0;z-index:600;background:var(--bg);overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.ba-detail-overlay.open{transform:none;}
+.ba-detail-page{max-width:900px;margin:0 auto;padding:0 16px 80px;}
+.ba-detail-back{display:flex;align-items:center;gap:8px;padding:16px 0 12px;font-size:.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:color var(--transition);background:none;border:none;}
+.ba-detail-back:hover{color:var(--text);}
+.ba-detail-back svg{width:18px;height:18px;}
+.ba-detail-title{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+.ba-detail-subtitle{font-size:.78rem;color:var(--text-muted);margin-bottom:16px;}
+.ba-carousel{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--bg3);margin-bottom:16px;}
+.ba-carousel-track{display:flex;transition:transform .35s ease;}
+.ba-carousel-slide{flex-shrink:0;width:100%;}
+.ba-carousel-slide img{width:100%;max-height:420px;object-fit:cover;display:block;cursor:zoom-in;}
+.ba-carousel-no-photo{height:200px;display:flex;align-items:center;justify-content:center;font-size:4rem;}
+.ba-carousel-prev,.ba-carousel-next{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .15s;backdrop-filter:blur(4px);}
+.ba-carousel-prev:hover,.ba-carousel-next:hover{background:rgba(0,0,0,.75);}
+.ba-carousel-prev{left:12px;}
+.ba-carousel-next{right:12px;}
+.ba-carousel-prev svg,.ba-carousel-next svg{width:18px;height:18px;}
+.ba-carousel-counter{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:99px;backdrop-filter:blur(4px);}
+.ba-detail-stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px;}
+.ba-detail-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;}
+.ba-detail-stat-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text-muted);margin-bottom:3px;}
+.ba-detail-stat-value{font-size:1rem;font-weight:800;}
+.ba-detail-why-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;border-left:3px solid var(--ba-accent,var(--run));}
+.ba-detail-why-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:6px;}
+.ba-detail-why-text{font-size:.85rem;color:var(--text);line-height:1.7;}
+.ba-photo-manage-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center;}
+.ba-photo-manage-item{position:relative;}
+.ba-photo-manage-thumb{width:56px;height:56px;border-radius:var(--radius-sm);object-fit:cover;border:2px solid var(--border);cursor:grab;}
+.ba-photo-manage-del{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:#ef4444;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;border:1.5px solid var(--bg2);font-weight:800;line-height:1;}
+.ba-photo-manage-first-badge{position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);font-size:.48rem;background:#d4a800;color:#000;padding:1px 4px;border-radius:99px;font-weight:800;white-space:nowrap;}
+.ba-zoom-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease;padding:20px;}
+.ba-zoom-overlay.open{opacity:1;pointer-events:all;}
+.ba-zoom-img{max-width:100%;max-height:90vh;border-radius:var(--radius);box-shadow:0 0 60px rgba(0,0,0,.6);touch-action:pinch-zoom;}
+.ba-zoom-close{position:absolute;top:16px;right:16px;width:38px;height:38px;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:1.1rem;transition:background .15s;}
+.ba-zoom-close:hover{background:rgba(255,255,255,.25);}
+@media(max-width:480px){.ba-activity-tabs{flex-direction:column;gap:4px;}.ba-tab-btn{padding:8px 12px;}.ba-cards-grid{grid-template-columns:1fr;}}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -3376,6 +3515,24 @@ select.vo2-input { cursor:pointer; }
       <div class="profile-pr-grid" id="profilePRGrid"></div>
     </div>
 
+    <!-- Best Activities -->
+    <div class="profile-section" id="bestActivitiesSection">
+      <div class="profile-section-title">
+        <svg style="width:18px;height:18px;color:#d4a800;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        My Best Activities
+      </div>
+      <div class="ba-stats-bar" id="baStatsBar"></div>
+      <div class="ba-featured-wrap" id="baFeaturedWrap" style="display:none"></div>
+      <div class="ba-activity-tabs">
+        <button class="ba-tab-btn active-run" id="baTabBtnRun" onclick="baSwitchTab('run')">🏃 Best Runs</button>
+        <button class="ba-tab-btn" id="baTabBtnHike" onclick="baSwitchTab('hike')">🥾 Best Hikes</button>
+        <button class="ba-tab-btn" id="baTabBtnRide" onclick="baSwitchTab('ride')">🚴 Best Rides</button>
+      </div>
+      <div class="ba-tab-panel active" id="baTabRun"></div>
+      <div class="ba-tab-panel" id="baTabHike"></div>
+      <div class="ba-tab-panel" id="baTabRide"></div>
+    </div>
+
     <!-- Badges Showcase -->
     <div class="profile-section">
       <div class="profile-section-title">Badges</div>
@@ -4427,6 +4584,37 @@ select.vo2-input { cursor:pointer; }
 
 <!-- ─── Toast Container ───────────────────────────────────────── -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- ─── Best Activity Add/Edit Modal ─────────────────────────── -->
+<div class="modal-overlay" id="baModalOverlay" onclick="if(event.target===this)baCloseModal()">
+  <div class="modal ba-modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-title" id="baModalTitle">Add Best Run</div>
+      <button class="modal-close" onclick="baCloseModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="baModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="baCloseModal()">Cancel</button>
+      <button class="btn btn-primary" id="baModalSaveBtn" onclick="baSaveActivity()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Best Activity Detail Overlay ──────────────────────────── -->
+<div class="ba-detail-overlay" id="baDetailOverlay">
+  <div class="ba-detail-page" id="baDetailPage"></div>
+</div>
+
+<!-- ─── Photo Zoom Overlay ────────────────────────────────────── -->
+<div class="ba-zoom-overlay" id="baZoomOverlay" onclick="baCloseZoom()">
+  <img class="ba-zoom-img" id="baZoomImg" src="" alt="">
+  <button class="ba-zoom-close" onclick="baCloseZoom()">✕</button>
+</div>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -11230,6 +11418,860 @@ function hrInit() {
   hrPopulateActivitySelect('hrModalActivity');
   hrBuildModalZoneInputs();
 }
+
+/* ══════════════════════════════════════════════════════════════
+   BEST ACTIVITIES
+══════════════════════════════════════════════════════════════ */
+
+/* ── Storage keys ── */
+const BA_RUNS_KEY  = 'actmtr_best_runs';
+const BA_HIKES_KEY = 'actmtr_best_hikes';
+const BA_RIDES_KEY = 'actmtr_best_rides';
+const BA_MAX_PHOTOS   = 50;
+const BA_MAX_SIZE_PX  = 1200;
+const BA_JPEG_QUALITY = 0.7;
+
+/* ── State ── */
+let baCurrentTab   = 'run';
+let baViewMode     = 'grid';
+let baSortState    = {run:'date', hike:'date', ride:'date'};
+let baFilterYrSt   = {run:'all',  hike:'all',  ride:'all'};
+let baFilterTagSt  = {run:'all',  hike:'all',  ride:'all'};
+let baEditingId    = null;
+let baEditingType  = null;
+let baPhotoQueue   = [];
+let baDetailId     = null;
+let baDetailType   = null;
+let baCarouselIdx  = 0;
+let baDragSrcIdx   = null;
+let baTouchStartX  = 0;
+
+/* ── Storage helpers ── */
+function baGetAll(type) {
+  const key = type==='run' ? BA_RUNS_KEY : type==='hike' ? BA_HIKES_KEY : BA_RIDES_KEY;
+  try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
+}
+function baSaveAll(type, items) {
+  const key = type==='run' ? BA_RUNS_KEY : type==='hike' ? BA_HIKES_KEY : BA_RIDES_KEY;
+  try { localStorage.setItem(key, JSON.stringify(items)); return true; }
+  catch(e) { showToast('Storage full. Delete some photos or activities to add more.', 'error'); return false; }
+}
+function baTotalPhotos() {
+  return ['run','hike','ride'].reduce((s,t) => s + baGetAll(t).reduce((ss,a) => ss+(a.photos||[]).length, 0), 0);
+}
+
+/* ── Image compression ── */
+function baCompressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > BA_MAX_SIZE_PX) { height = Math.round(height * BA_MAX_SIZE_PX / width); width = BA_MAX_SIZE_PX; }
+        if (height > BA_MAX_SIZE_PX) { width = Math.round(width * BA_MAX_SIZE_PX / height); height = BA_MAX_SIZE_PX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', BA_JPEG_QUALITY));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ── Helpers ── */
+function baUUID() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function baPace(distKm, durationSec) {
+  if (!distKm || !durationSec) return '--';
+  const spk = durationSec / distKm;
+  return Math.floor(spk/60) + ':' + String(Math.round(spk%60)).padStart(2,'0') + ' /km';
+}
+function baSpeed(distKm, durationSec) {
+  if (!distKm || !durationSec) return '--';
+  return (distKm / (durationSec/3600)).toFixed(1) + ' km/h';
+}
+function baDurToSec(str) {
+  if (!str) return 0;
+  const p = str.split(':').map(Number);
+  if (p.length === 3) return (p[0]||0)*3600 + (p[1]||0)*60 + (p[2]||0);
+  if (p.length === 2) return (p[0]||0)*60 + (p[1]||0);
+  return 0;
+}
+function baSecToDur(sec) {
+  if (!sec) return '--';
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function baStarHTML(rating) {
+  let h = '';
+  for (let i=1; i<=5; i++) h += `<span class="${i<=rating?'ba-star-filled':'ba-star-empty'}">★</span>`;
+  return h;
+}
+function baTypeEmoji(type) { return type==='run'?'🏃':type==='hike'?'🥾':'🚴'; }
+
+/* ── Tab switching ── */
+function baSwitchTab(tab) {
+  baCurrentTab = tab;
+  ['run','hike','ride'].forEach(t => {
+    const btn = document.getElementById('baTabBtn'+t.charAt(0).toUpperCase()+t.slice(1));
+    if (btn) btn.className = 'ba-tab-btn' + (t===tab ? ' active-'+t : '');
+    const panel = document.getElementById('baTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if (panel) panel.classList.toggle('active', t===tab);
+  });
+  baRenderTab(tab);
+}
+
+/* ── Stats bar ── */
+function baRenderStatsBar() {
+  const el = document.getElementById('baStatsBar');
+  if (!el) return;
+  const runs=baGetAll('run'), hikes=baGetAll('hike'), rides=baGetAll('ride');
+  const all = [...runs,...hikes,...rides];
+  const totalPhotos = all.reduce((s,a)=>s+(a.photos||[]).length, 0);
+  const locCounts = {};
+  all.forEach(a => { if (a.location) locCounts[a.location] = (locCounts[a.location]||0)+1; });
+  const topLoc = Object.entries(locCounts).sort((a,b)=>b[1]-a[1])[0];
+  el.innerHTML =
+    `<div class="ba-stat-item"><span class="ba-stat-icon">🏃</span><div class="ba-stat-info"><div class="ba-stat-label">Best Runs</div><div class="ba-stat-value">${runs.length}</div></div></div>`+
+    `<div class="ba-stat-item"><span class="ba-stat-icon">🥾</span><div class="ba-stat-info"><div class="ba-stat-label">Best Hikes</div><div class="ba-stat-value">${hikes.length}</div></div></div>`+
+    `<div class="ba-stat-item"><span class="ba-stat-icon">🚴</span><div class="ba-stat-info"><div class="ba-stat-label">Best Rides</div><div class="ba-stat-value">${rides.length}</div></div></div>`+
+    `<div class="ba-stat-item"><span class="ba-stat-icon">📸</span><div class="ba-stat-info"><div class="ba-stat-label">Photos</div><div class="ba-stat-value">${totalPhotos}</div></div></div>`+
+    (topLoc ? `<div class="ba-stat-item"><span class="ba-stat-icon">📍</span><div class="ba-stat-info"><div class="ba-stat-label">Top Location</div><div class="ba-stat-value" style="font-size:.78rem">${escHtml(topLoc[0])}</div></div></div>` : '');
+}
+
+/* ── Featured activity ── */
+function baRenderFeatured() {
+  const wrap = document.getElementById('baFeaturedWrap');
+  if (!wrap) return;
+  const all = [
+    ...baGetAll('run').map(a=>({...a,_type:'run'})),
+    ...baGetAll('hike').map(a=>({...a,_type:'hike'})),
+    ...baGetAll('ride').map(a=>({...a,_type:'ride'}))
+  ];
+  if (!all.length) { wrap.style.display='none'; return; }
+  let feat = all.find(a=>a.featured) || [...all].sort((a,b)=>(b.rating||0)-(a.rating||0))[0];
+  if (!feat) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  const photo = (feat.photos||[])[0];
+  const accentColor = feat._type==='run'?'var(--run)':feat._type==='hike'?'var(--walk)':'var(--cycle)';
+  wrap.innerHTML = `
+    <div class="ba-featured-label">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Featured Activity
+    </div>
+    <div class="ba-featured-card" onclick="baOpenDetail('${feat._type}','${feat.id}')">
+      <div class="ba-featured-badge">⭐ Featured</div>
+      <div class="ba-card-photo-header" style="height:220px">
+        ${photo ? `<img src="${photo}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">` : `<div class="ba-card-no-photo">${baTypeEmoji(feat._type)}</div>`}
+        <div class="ba-card-gradient"></div>
+        <div class="ba-card-overlay-text">
+          <div class="ba-card-title-overlay" style="font-size:1.2rem">${escHtml(feat.name||'Unnamed')}</div>
+          <div class="ba-card-date-overlay">${feat.date||''}${feat.location?' · 📍'+escHtml(feat.location):''}</div>
+        </div>
+      </div>
+      <div class="ba-card-body">
+        <div class="ba-card-stats-row">
+          ${feat.distance?`<div class="ba-card-stat"><div class="ba-card-stat-label">Distance</div><div class="ba-card-stat-value">${feat.distance} km</div></div>`:''}
+          ${feat.duration?`<div class="ba-card-stat"><div class="ba-card-stat-label">Duration</div><div class="ba-card-stat-value">${baSecToDur(feat.duration)}</div></div>`:''}
+          ${feat.distance&&feat.duration?`<div class="ba-card-stat"><div class="ba-card-stat-label">${feat._type==='ride'?'Speed':'Pace'}</div><div class="ba-card-stat-value" style="color:${accentColor}">${feat._type==='ride'?baSpeed(feat.distance,feat.duration):baPace(feat.distance,feat.duration)}</div></div>`:''}
+        </div>
+        <div class="ba-card-footer">
+          <div class="ba-star-display">${baStarHTML(feat.rating||0)}</div>
+          <span class="difficulty-badge ${feat.difficulty||'easy'}">${feat.difficulty||'easy'}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── Render tab panel ── */
+function baRenderTab(type) {
+  const panelId = 'baTab'+type.charAt(0).toUpperCase()+type.slice(1);
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const items = baGetAll(type);
+  const years = [...new Set(items.map(a=>a.date?a.date.slice(0,4):null).filter(Boolean))].sort().reverse();
+  const tags  = [...new Set(items.flatMap(a=>a.tags||[]))].sort();
+  panel.innerHTML = `
+    <div class="ba-toolbar">
+      <button class="ba-add-btn ${type}-add" onclick="baOpenModal('${type}',null)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Best ${type.charAt(0).toUpperCase()+type.slice(1)}
+      </button>
+      <div class="ba-view-toggle">
+        <button class="ba-view-btn ${baViewMode==='grid'?'active':''}" onclick="baSetView('grid')" title="Grid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="ba-view-btn ${baViewMode==='list'?'active':''}" onclick="baSetView('list')" title="List">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <select class="ba-sort-select" onchange="baSortActivities('${type}',this.value)">
+        <option value="date" ${baSortState[type]==='date'?'selected':''}>Sort: Date</option>
+        <option value="distance" ${baSortState[type]==='distance'?'selected':''}>Sort: Distance</option>
+        <option value="pace" ${baSortState[type]==='pace'?'selected':''}>Sort: Pace</option>
+        <option value="rating" ${baSortState[type]==='rating'?'selected':''}>Sort: Rating</option>
+      </select>
+      ${years.length?`<select class="ba-filter-select" onchange="baFilterYear('${type}',this.value)"><option value="all">All Years</option>${years.map(y=>`<option value="${y}" ${baFilterYrSt[type]===y?'selected':''}>${y}</option>`).join('')}</select>`:''}
+      ${tags.length?`<select class="ba-filter-select" onchange="baFilterByTag('${type}',this.value)"><option value="all">All Tags</option>${tags.map(t=>`<option value="${t}" ${baFilterTagSt[type]===t?'selected':''}>${t}</option>`).join('')}</select>`:''}
+    </div>
+    <div id="baCardContainer_${type}"></div>`;
+  baRenderCards(type);
+}
+
+function baSortActivities(type, val) { baSortState[type]=val; baRenderCards(type); }
+function baFilterYear(type, val)     { baFilterYrSt[type]=val; baRenderCards(type); }
+function baFilterByTag(type, val)    { baFilterTagSt[type]=val; baRenderCards(type); }
+
+function baSetView(mode) {
+  baViewMode = mode;
+  ['run','hike','ride'].forEach(t => {
+    const p = document.getElementById('baTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if (p && p.classList.contains('active')) baRenderTab(t);
+  });
+}
+
+/* ── Render cards ── */
+function baRenderCards(type) {
+  const container = document.getElementById('baCardContainer_'+type);
+  if (!container) return;
+  let items = baGetAll(type);
+  if (baFilterYrSt[type] !== 'all')  items = items.filter(a=>a.date&&a.date.startsWith(baFilterYrSt[type]));
+  if (baFilterTagSt[type] !== 'all') items = items.filter(a=>(a.tags||[]).includes(baFilterTagSt[type]));
+  items = [...items].sort((a,b)=>{
+    const s = baSortState[type]||'date';
+    if (s==='date')     return (b.date||'').localeCompare(a.date||'');
+    if (s==='distance') return (b.distance||0)-(a.distance||0);
+    if (s==='rating')   return (b.rating||0)-(a.rating||0);
+    if (s==='pace') {
+      const pA = a.distance&&a.duration?a.duration/a.distance:99999;
+      const pB = b.distance&&b.duration?b.duration/b.distance:99999;
+      return pA-pB;
+    }
+    return 0;
+  });
+  if (!items.length) {
+    container.innerHTML = `<div class="ba-empty-state"><div class="ba-empty-icon">${baTypeEmoji(type)}</div><div class="ba-empty-title">No best ${type}s yet</div><div class="ba-empty-sub">Add your most memorable ${type}s to cherish forever!</div></div>`;
+    return;
+  }
+  if (baViewMode==='grid') {
+    container.innerHTML = `<div class="ba-cards-grid">${items.map(a=>baCardHTML(a,type)).join('')}</div>`;
+  } else {
+    container.innerHTML = `<div class="ba-list-view">${items.map(a=>baListItemHTML(a,type)).join('')}</div>`;
+  }
+}
+
+/* ── Card HTML ── */
+function baCardHTML(a, type) {
+  const photo = (a.photos||[])[0];
+  const photoCnt = (a.photos||[]).length;
+  const tagCls = type+'-tag';
+  const accentColor = type==='run'?'var(--run)':type==='hike'?'var(--walk)':'var(--cycle)';
+  return `<div class="ba-card" id="baCard_${a.id}">
+    <div class="ba-card-photo-header" onclick="baOpenDetail('${type}','${a.id}')">
+      ${photo?`<img src="${photo}" alt="" loading="lazy"><div class="ba-card-gradient"></div>`:`<div class="ba-card-no-photo">${baTypeEmoji(type)}</div>`}
+      ${photoCnt>1?`<div class="photo-count-badge">📷 ${photoCnt}</div>`:''}
+      <div class="ba-card-overlay-text">
+        <div class="ba-card-title-overlay">${escHtml(a.name||'Unnamed')}</div>
+        <div class="ba-card-date-overlay">${a.date||''}${a.location?' · '+escHtml(a.location):''}</div>
+      </div>
+    </div>
+    <div class="ba-card-body">
+      <div class="ba-card-stats-row">
+        ${a.distance?`<div class="ba-card-stat"><div class="ba-card-stat-label">Distance</div><div class="ba-card-stat-value">${a.distance} km</div></div>`:''}
+        ${a.duration?`<div class="ba-card-stat"><div class="ba-card-stat-label">Duration</div><div class="ba-card-stat-value">${baSecToDur(a.duration)}</div></div>`:''}
+        ${a.distance&&a.duration?`<div class="ba-card-stat"><div class="ba-card-stat-label">${type==='ride'?'Speed':'Pace'}</div><div class="ba-card-stat-value" style="color:${accentColor}">${type==='ride'?baSpeed(a.distance,a.duration):baPace(a.distance,a.duration)}</div></div>`:''}
+        ${a.elevationGain?`<div class="ba-card-stat"><div class="ba-card-stat-label">Elevation</div><div class="ba-card-stat-value">${a.elevationGain}m</div></div>`:''}
+      </div>
+      ${(a.tags||[]).length?`<div class="ba-card-tags-row">${a.tags.map(t=>`<span class="ba-tag ${tagCls}">${escHtml(t)}</span>`).join('')}</div>`:''}
+      ${a.why?`<div class="ba-card-why">${escHtml(a.why)}</div>`:''}
+      <div class="ba-card-footer">
+        <div class="ba-star-display">${baStarHTML(a.rating||0)}</div>
+        <div class="ba-card-actions" onclick="event.stopPropagation()">
+          ${a.avgHR?`<span style="font-size:.63rem;color:var(--text-muted)">💓${a.avgHR}</span>`:''}
+          <span class="difficulty-badge ${a.difficulty||'easy'}">${a.difficulty||'easy'}</span>
+          <button class="ba-pin-btn${a.featured?' pinned':''}" onclick="baToggleFeatured('${type}','${a.id}')" title="${a.featured?'Unfeature':'Feature'}">📌</button>
+          <button class="ba-edit-btn" onclick="baOpenModal('${type}','${a.id}')" title="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="ba-del-btn" onclick="baConfirmDelete('${type}','${a.id}')" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── List item HTML ── */
+function baListItemHTML(a, type) {
+  const photo = (a.photos||[])[0];
+  const accentColor = type==='run'?'var(--run)':type==='hike'?'var(--walk)':'var(--cycle)';
+  return `<div class="ba-list-item" onclick="baOpenDetail('${type}','${a.id}')">
+    <div class="ba-list-thumb">${photo?`<img src="${photo}" alt="" loading="lazy">`:baTypeEmoji(type)}</div>
+    <div class="ba-list-info">
+      <div class="ba-list-name">${escHtml(a.name||'Unnamed')}</div>
+      <div class="ba-list-meta">
+        ${a.date?`<span>${a.date}</span>`:''}
+        ${a.location?`<span>📍 ${escHtml(a.location)}</span>`:''}
+        ${a.distance?`<span>${a.distance} km</span>`:''}
+        ${a.duration?`<span>${baSecToDur(a.duration)}</span>`:''}
+        ${a.distance&&a.duration?`<span style="color:${accentColor}">${type==='ride'?baSpeed(a.distance,a.duration):baPace(a.distance,a.duration)}</span>`:''}
+        <span class="difficulty-badge ${a.difficulty||'easy'}">${a.difficulty||'easy'}</span>
+        <span>${baStarHTML(a.rating||0)}</span>
+      </div>
+    </div>
+    <div class="ba-list-actions" onclick="event.stopPropagation()">
+      <button class="ba-pin-btn${a.featured?' pinned':''}" onclick="baToggleFeatured('${type}','${a.id}')" title="${a.featured?'Unfeature':'Feature'}">📌</button>
+      <button class="ba-edit-btn" onclick="baOpenModal('${type}','${a.id}')" title="Edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="ba-del-btn" onclick="baConfirmDelete('${type}','${a.id}')" title="Delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ── Toggle featured ── */
+function baToggleFeatured(type, id) {
+  const items = baGetAll(type);
+  const act = items.find(a=>a.id===id);
+  if (!act) return;
+  const willFeature = !act.featured;
+  if (willFeature) {
+    ['run','hike','ride'].forEach(t => {
+      const its = baGetAll(t).map(a => ({...a, featured: t===type && a.id===id}));
+      baSaveAll(t, its);
+    });
+  } else {
+    act.featured = false;
+    baSaveAll(type, items);
+  }
+  baRenderFeatured();
+  baRenderCards(type);
+  if (willFeature) { showToast('Activity set as Featured!','success'); baCheckBadges(); }
+}
+
+/* ── Delete ── */
+function baConfirmDelete(type, id) {
+  if (!window.confirm('Delete this activity? This cannot be undone.')) return;
+  baSaveAll(type, baGetAll(type).filter(a=>a.id!==id));
+  baRenderAll();
+  baCheckBadges();
+  showToast('Activity deleted','success');
+}
+
+/* ── Detail view ── */
+function baOpenDetail(type, id) {
+  baDetailType = type; baDetailId = id; baCarouselIdx = 0;
+  const overlay = document.getElementById('baDetailOverlay');
+  const page    = document.getElementById('baDetailPage');
+  if (!overlay||!page) return;
+  const a = baGetAll(type).find(a=>a.id===id);
+  if (!a) return;
+  page.innerHTML = baDetailHTML(a, type);
+  overlay.classList.add('open');
+  baUpdateCarousel();
+}
+function baCloseDetail() {
+  document.getElementById('baDetailOverlay')?.classList.remove('open');
+  baDetailId = null; baDetailType = null;
+}
+
+function baDetailHTML(a, type) {
+  const accentVar = type==='run'?'var(--run)':type==='hike'?'var(--walk)':'var(--cycle)';
+  const tagCls    = type+'-tag';
+  const photos    = a.photos||[];
+  let extraStats = '';
+  if (type==='hike') {
+    if (a.trailName)    extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Trail</div><div class="ba-detail-stat-value" style="font-size:.82rem">${escHtml(a.trailName)}</div></div>`;
+    if (a.highestPoint) extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Highest Point</div><div class="ba-detail-stat-value">${a.highestPoint} m</div></div>`;
+    if (a.terrain)      extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Terrain</div><div class="ba-detail-stat-value" style="font-size:.82rem">${escHtml(a.terrain)}</div></div>`;
+    if (a.wildlife)     extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">🌿 Wildlife</div><div class="ba-detail-stat-value" style="font-size:.78rem">${escHtml(a.wildlife)}</div></div>`;
+  }
+  if (type==='ride') {
+    if (a.distance&&a.duration) extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Avg Speed</div><div class="ba-detail-stat-value">${baSpeed(a.distance,a.duration)}</div></div>`;
+    if (a.maxSpeed)  extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Max Speed</div><div class="ba-detail-stat-value">${a.maxSpeed} km/h</div></div>`;
+    if (a.bikeType)  extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Bike Type</div><div class="ba-detail-stat-value" style="font-size:.82rem">${escHtml(a.bikeType)}</div></div>`;
+    if (a.routeType) extraStats += `<div class="ba-detail-stat"><div class="ba-detail-stat-label">Route</div><div class="ba-detail-stat-value" style="font-size:.82rem">${escHtml(a.routeType)}</div></div>`;
+  }
+  const weatherHTML = (a.weather||[]).length ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">${a.weather.map(w=>`<span class="weather-chip-small">${w}</span>`).join('')}</div>` : '';
+  const managePhotosHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Photos${photos.length?` (drag to reorder)`:''}</div>
+      <div class="ba-photo-manage-row" id="baPhotoManageRow">
+        ${photos.map((p,i)=>`<div class="ba-photo-manage-item" draggable="true" data-idx="${i}" ondragstart="baDragStart(event,${i})" ondragover="baDragOver(event)" ondrop="baDrop(event,'${type}','${a.id}')"><img class="ba-photo-manage-thumb" src="${p}" alt="" loading="lazy">${i===0?'<div class="ba-photo-manage-first-badge">Cover</div>':''}<div class="ba-photo-manage-del" onclick="baDeletePhoto('${type}','${a.id}',${i})">✕</div></div>`).join('')}
+        ${photos.length<5?`<label style="cursor:pointer;width:56px;height:56px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);font-size:.65rem;gap:2px" title="Add photo"><input type="file" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="baAddPhotosToExisting('${type}','${a.id}',this)"><span style="font-size:1.1rem">+</span><span>Add</span></label>`:''}
+      </div>
+    </div>`;
+  return `
+    <button class="ba-detail-back" onclick="baCloseDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Profile
+    </button>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <div>
+        <div class="ba-detail-title">${escHtml(a.name||'Unnamed')}</div>
+        <div class="ba-detail-subtitle">${a.date||''}${a.location?' · 📍 '+escHtml(a.location):''} · <span style="color:${accentVar}">${type.charAt(0).toUpperCase()+type.slice(1)}</span></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" style="font-size:.75rem;padding:7px 12px" onclick="baOpenModal('${type}','${a.id}');baCloseDetail()">✏️ Edit</button>
+        <button class="btn btn-danger" style="font-size:.75rem;padding:7px 12px" onclick="if(confirm('Delete this activity?')){baConfirmDelete('${type}','${a.id}');baCloseDetail()}">🗑 Delete</button>
+      </div>
+    </div>
+    <div class="ba-star-display" style="margin-bottom:14px;font-size:1.1rem">${baStarHTML(a.rating||0)}</div>
+    <div class="ba-carousel" id="baCarousel">
+      ${photos.length?`
+        <div class="ba-carousel-track" id="baCarouselTrack">
+          ${photos.map(p=>`<div class="ba-carousel-slide"><img src="${p}" alt="" onclick="baOpenZoom('${p}')"></div>`).join('')}
+        </div>
+        ${photos.length>1?`
+          <button class="ba-carousel-prev" onclick="baCarouselPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="ba-carousel-next" onclick="baCarouselNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="ba-carousel-counter" id="baCarouselCounter">1/${photos.length}</div>
+        `:''}
+      `:`<div class="ba-carousel-no-photo">${baTypeEmoji(type)}</div>`}
+    </div>
+    ${managePhotosHTML}
+    <div class="ba-detail-stats-grid">
+      ${a.distance?`<div class="ba-detail-stat"><div class="ba-detail-stat-label">Distance</div><div class="ba-detail-stat-value">${a.distance} km</div></div>`:''}
+      ${a.duration?`<div class="ba-detail-stat"><div class="ba-detail-stat-label">Duration</div><div class="ba-detail-stat-value">${baSecToDur(a.duration)}</div></div>`:''}
+      ${a.distance&&a.duration&&type!=='ride'?`<div class="ba-detail-stat"><div class="ba-detail-stat-label">Avg Pace</div><div class="ba-detail-stat-value" style="color:${accentVar}">${baPace(a.distance,a.duration)}</div></div>`:''}
+      ${a.elevationGain?`<div class="ba-detail-stat"><div class="ba-detail-stat-label">Elevation</div><div class="ba-detail-stat-value">${a.elevationGain} m</div></div>`:''}
+      ${a.avgHR?`<div class="ba-detail-stat"><div class="ba-detail-stat-label">Avg Heart Rate</div><div class="ba-detail-stat-value">${a.avgHR} bpm</div></div>`:''}
+      <div class="ba-detail-stat"><div class="ba-detail-stat-label">Difficulty</div><div class="ba-detail-stat-value"><span class="difficulty-badge ${a.difficulty||'easy'}">${a.difficulty||'easy'}</span></div></div>
+      ${extraStats}
+    </div>
+    ${weatherHTML}
+    ${(a.tags||[]).length?`<div class="ba-card-tags-row" style="margin-bottom:14px">${a.tags.map(t=>`<span class="ba-tag ${tagCls}">${escHtml(t)}</span>`).join('')}</div>`:''}
+    ${a.why?`<div class="ba-detail-why-box" style="--ba-accent:${accentVar}"><div class="ba-detail-why-label">✨ Why it was special</div><div class="ba-detail-why-text">${escHtml(a.why).replace(/\n/g,'<br>')}</div></div>`:''}`;
+}
+
+/* ── Carousel ── */
+function baCarouselPrev() {
+  const a = baDetailId ? baGetAll(baDetailType).find(a=>a.id===baDetailId) : null;
+  if (!a) return;
+  const len = (a.photos||[]).length;
+  baCarouselIdx = (baCarouselIdx - 1 + len) % len;
+  baUpdateCarousel();
+}
+function baCarouselNext() {
+  const a = baDetailId ? baGetAll(baDetailType).find(a=>a.id===baDetailId) : null;
+  if (!a) return;
+  const len = (a.photos||[]).length;
+  baCarouselIdx = (baCarouselIdx + 1) % len;
+  baUpdateCarousel();
+}
+function baUpdateCarousel() {
+  const track   = document.getElementById('baCarouselTrack');
+  const counter = document.getElementById('baCarouselCounter');
+  if (track) track.style.transform = `translateX(-${baCarouselIdx*100}%)`;
+  if (counter && baDetailId) {
+    const a = baGetAll(baDetailType).find(a=>a.id===baDetailId);
+    counter.textContent = `${baCarouselIdx+1}/${(a?.photos||[]).length}`;
+  }
+}
+
+/* Swipe support */
+document.addEventListener('touchstart', function(e) {
+  const c = document.getElementById('baCarousel');
+  if (c && c.contains(e.target)) baTouchStartX = e.touches[0].clientX;
+}, {passive:true});
+document.addEventListener('touchend', function(e) {
+  const c = document.getElementById('baCarousel');
+  if (!c || !c.contains(e.target)) return;
+  const diff = baTouchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? baCarouselNext() : baCarouselPrev(); }
+}, {passive:true});
+
+/* ── Photo zoom ── */
+function baOpenZoom(src) {
+  const overlay = document.getElementById('baZoomOverlay');
+  const img     = document.getElementById('baZoomImg');
+  if (!overlay||!img) return;
+  img.src = src;
+  overlay.classList.add('open');
+}
+function baCloseZoom() {
+  document.getElementById('baZoomOverlay')?.classList.remove('open');
+}
+
+/* ── Drag to reorder photos ── */
+function baDragStart(e, idx) { baDragSrcIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
+function baDragOver(e)        { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function baDrop(e, type, id) {
+  e.preventDefault();
+  const destIdx = parseInt(e.currentTarget.dataset.idx);
+  if (baDragSrcIdx === null || baDragSrcIdx === destIdx) return;
+  const items = baGetAll(type);
+  const act   = items.find(a=>a.id===id);
+  if (!act) return;
+  const photos = [...(act.photos||[])];
+  const [moved] = photos.splice(baDragSrcIdx, 1);
+  photos.splice(destIdx, 0, moved);
+  act.photos = photos;
+  baSaveAll(type, items);
+  baDragSrcIdx = null;
+  baOpenDetail(type, id);
+}
+
+/* ── Delete single photo ── */
+function baDeletePhoto(type, id, idx) {
+  if (!confirm('Delete this photo?')) return;
+  const items = baGetAll(type);
+  const act   = items.find(a=>a.id===id);
+  if (!act) return;
+  act.photos = (act.photos||[]).filter((_,i)=>i!==idx);
+  baSaveAll(type, items);
+  baRenderStatsBar();
+  baOpenDetail(type, id);
+}
+
+/* ── Add photos to existing activity ── */
+async function baAddPhotosToExisting(type, id, input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const items = baGetAll(type);
+  const act   = items.find(a=>a.id===id);
+  if (!act) return;
+  const current = act.photos||[];
+  const canAdd = Math.min(5 - current.length, files.length);
+  if (baTotalPhotos() - current.length + current.length + canAdd > BA_MAX_PHOTOS) {
+    showToast('Storage full. Delete some photos or activities to add more.','error'); return;
+  }
+  const newPhotos = [];
+  for (let i=0; i<canAdd; i++) {
+    try { newPhotos.push(await baCompressImage(files[i])); } catch(err) { /* skip */ }
+  }
+  act.photos = [...current, ...newPhotos];
+  baSaveAll(type, items);
+  baRenderStatsBar();
+  showToast(`${newPhotos.length} photo${newPhotos.length>1?'s':''} added!`,'success');
+  baOpenDetail(type, id);
+  input.value = '';
+}
+
+/* ── Modal open ── */
+function baOpenModal(type, id) {
+  baEditingType = type;
+  baEditingId   = id;
+  baPhotoQueue  = [];
+  const existing = id ? baGetAll(type).find(a=>a.id===id) : null;
+  const overlay  = document.getElementById('baModalOverlay');
+  const titleEl  = document.getElementById('baModalTitle');
+  const bodyEl   = document.getElementById('baModalBody');
+  if (!overlay||!titleEl||!bodyEl) return;
+  titleEl.textContent = (id?'Edit':'Add')+' Best '+type.charAt(0).toUpperCase()+type.slice(1);
+  const v = (f, def='') => existing != null ? (existing[f] != null ? existing[f] : def) : def;
+  const vDur = () => existing?.duration ? baSecToDur(existing.duration) : '';
+  const runTags  = ['PB','Race','Solo','Group Run','Trail','Road','Treadmill','Morning','Evening','Night'];
+  const hikeTags = ['Day Hike','Multi-Day','Solo','Group','Trail','Summit','Loop','Out-and-Back'];
+  const rideTags = ['PB','Race','Solo','Group Ride','Century','Commute','Tour','Indoor Trainer'];
+  const tagOpts  = type==='run'?runTags:type==='hike'?hikeTags:rideTags;
+  const tagCls   = type+'-opt';
+  const selTags  = v('tags',[]);
+  const starRating = v('rating',0);
+  let typeSpecific = '';
+  if (type==='hike') typeSpecific = `
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Trail Name</label><input class="form-input" id="baTrailName" value="${escHtml(v('trailName'))}" placeholder="Optional"></div>
+      <div class="form-group"><label class="form-label">Highest Point (m)</label><input class="form-input" type="number" id="baHighestPoint" value="${v('highestPoint','')||''}" placeholder="Optional"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Terrain</label><select class="form-select" id="baTerrain"><option value="">Select…</option>${['Forest','Mountain','Coastal','Desert','Mixed'].map(t=>`<option value="${t}" ${v('terrain')===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Wildlife Spotted</label><input class="form-input" id="baWildlife" value="${escHtml(v('wildlife'))}" placeholder="Optional fun field"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Weather</label>
+      <div class="weather-chips" id="baWeatherChips">${['Sunny','Cloudy','Rainy','Snowy','Windy'].map(w=>`<button type="button" class="weather-chip ${(v('weather',[])).includes(w)?'selected':''}" onclick="this.classList.toggle('selected')">${w}</button>`).join('')}</div>
+    </div>`;
+  if (type==='ride') typeSpecific = `
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Bike Type</label><select class="form-select" id="baBikeType"><option value="">Select…</option>${['Road','Mountain','Gravel','Hybrid','E-Bike'].map(t=>`<option value="${t}" ${v('bikeType')===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Route Type</label><select class="form-select" id="baRouteType"><option value="">Select…</option>${['Flat','Hilly','Mountainous'].map(t=>`<option value="${t}" ${v('routeType')===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Max Speed (km/h)</label><input class="form-input" type="number" step="0.1" id="baMaxSpeed" value="${v('maxSpeed','')||''}" placeholder="Optional"></div>
+    </div>`;
+  const existingPhotos = v('photos',[]);
+  baPhotoQueue = [...existingPhotos];
+  const photosWarnHTML = baTotalPhotos() >= BA_MAX_PHOTOS - 5 ?
+    `<div class="ba-photo-storage-warn">⚠️ Approaching photo limit (${baTotalPhotos()}/${BA_MAX_PHOTOS})</div>` : '';
+  bodyEl.innerHTML = `
+    <div class="form-group"><label class="form-label">Activity Name / Title *</label><input class="form-input" id="baActName" value="${escHtml(v('name'))}" placeholder="e.g. My First Half Marathon"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="baActDate" value="${v('date')}"></div>
+      <div class="form-group"><label class="form-label">Distance (km)</label><input class="form-input" type="number" step="0.01" min="0" id="baActDist" value="${v('distance','')||''}" oninput="baCalcPace()"></div>
+      <div class="form-group"><label class="form-label">Duration (hh:mm:ss)</label><input class="form-input" id="baActDur" value="${vDur()}" placeholder="00:30:00" oninput="baCalcPace()"></div>
+    </div>
+    <div class="form-group"><label class="form-label">${type==='ride'?'Avg Speed':'Avg Pace'} <span class="auto-badge">Auto</span></label><input class="form-input" id="baActPace" readonly style="background:var(--bg3)"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Elevation Gain (m)</label><input class="form-input" type="number" id="baActElev" value="${v('elevationGain','')||''}" placeholder="Optional"></div>
+      <div class="form-group"><label class="form-label">Avg Heart Rate (bpm)</label><input class="form-input" type="number" id="baActHR" value="${v('avgHR','')||''}" placeholder="Optional"></div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="baActLocation" value="${escHtml(v('location'))}" placeholder="e.g. Zagreb, Croatia"></div>
+    </div>
+    ${typeSpecific}
+    <div class="form-group"><label class="form-label">Difficulty</label>
+      <div class="diff-selector" id="baDiffSelector">
+        <div class="diff-opt easy ${v('difficulty','easy')==='easy'?'selected easy':''}" onclick="baSelectDiff(this,'easy')">Easy</div>
+        <div class="diff-opt medium ${v('difficulty','easy')==='medium'?'selected medium':''}" onclick="baSelectDiff(this,'medium')">Medium</div>
+        <div class="diff-opt hard ${v('difficulty','easy')==='hard'?'selected hard':''}" onclick="baSelectDiff(this,'hard')">Hard</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Why it was special</label><textarea class="form-textarea" id="baActWhy" rows="3" placeholder="Tell the story behind this activity…">${escHtml(v('why'))}</textarea></div>
+    <div class="form-group"><label class="form-label">Rating</label>
+      <div class="star-input" id="baStarInput">${[1,2,3,4,5].map(n=>`<button type="button" class="star-input-btn ${n<=starRating?'active':''}" data-val="${n}" onclick="baSetRating(${n})">★</button>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Tags</label>
+      <div class="ba-tags-select" id="baTagsSelect">${tagOpts.map(t=>`<button type="button" class="ba-tag-opt ${tagCls} ${selTags.includes(t)?'selected':''}" onclick="this.classList.toggle('selected')">${t}</button>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Photos (up to 5 · jpg/png/webp)</label>
+      <div class="ba-photo-upload-area" id="baUploadArea"
+           onclick="document.getElementById('baPhotoInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="baDragDropUpload(event)">
+        <div class="ba-photo-upload-icon">📷</div>
+        <div class="ba-photo-upload-text">Drag &amp; drop or <span>click to upload</span></div>
+        <div class="ba-photo-upload-text" style="font-size:.65rem;margin-top:4px">JPG · PNG · WebP — compressed to max 500 KB</div>
+        <input type="file" id="baPhotoInput" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="baHandlePhotoUpload(this.files)">
+      </div>
+      ${photosWarnHTML}
+      <div class="ba-photo-previews" id="baPhotoPreviews">${existingPhotos.map((p,i)=>`<div class="ba-photo-preview-wrap" data-idx="${i}"><img class="ba-photo-preview" src="${p}" alt=""><div class="ba-photo-preview-del" onclick="baRemovePreview(${i})">✕</div></div>`).join('')}</div>
+    </div>`;
+  if (existing?.distance && existing?.duration) baCalcPace();
+  overlay.classList.add('open');
+}
+
+function baCloseModal() {
+  document.getElementById('baModalOverlay')?.classList.remove('open');
+  baEditingId = null; baEditingType = null; baPhotoQueue = [];
+}
+
+function baSelectDiff(el, val) {
+  el.closest('#baDiffSelector').querySelectorAll('.diff-opt').forEach(o => {
+    o.className = `diff-opt ${o.textContent.toLowerCase()}`;
+  });
+  el.className = `diff-opt selected ${val}`;
+}
+function baSetRating(n) {
+  document.querySelectorAll('#baStarInput .star-input-btn').forEach((b,i) => b.classList.toggle('active', i<n));
+}
+function baCalcPace() {
+  const dist   = parseFloat(document.getElementById('baActDist')?.value);
+  const durSec = baDurToSec(document.getElementById('baActDur')?.value||'');
+  const el     = document.getElementById('baActPace');
+  if (!el) return;
+  el.value = (dist && durSec) ? (baEditingType==='ride' ? baSpeed(dist,durSec) : baPace(dist,durSec)) : '';
+}
+
+function baDragDropUpload(e) {
+  e.preventDefault();
+  document.getElementById('baUploadArea')?.classList.remove('drag-over');
+  baHandlePhotoUpload(e.dataTransfer.files);
+}
+async function baHandlePhotoUpload(files) {
+  const arr    = Array.from(files).filter(f=>f.type.match(/image\/(jpeg|png|webp)/));
+  const canAdd = Math.min(5 - baPhotoQueue.length, arr.length);
+  if (canAdd <= 0) { showToast('Maximum 5 photos per activity','error'); return; }
+  const existingCount = baEditingId ? (baGetAll(baEditingType).find(a=>a.id===baEditingId)?.photos||[]).length : 0;
+  const totalAfter = baTotalPhotos() - existingCount + baPhotoQueue.length + canAdd;
+  if (totalAfter > BA_MAX_PHOTOS) { showToast('Storage full. Delete some photos or activities to add more.','error'); return; }
+  for (let i=0; i<canAdd; i++) {
+    try { baPhotoQueue.push(await baCompressImage(arr[i])); } catch(err) { /* skip */ }
+  }
+  baRenderPhotoPreviews();
+}
+function baRenderPhotoPreviews() {
+  const c = document.getElementById('baPhotoPreviews');
+  if (!c) return;
+  c.innerHTML = baPhotoQueue.map((p,i)=>`<div class="ba-photo-preview-wrap" data-idx="${i}"><img class="ba-photo-preview" src="${p}" alt=""><div class="ba-photo-preview-del" onclick="baRemovePreview(${i})">✕</div></div>`).join('');
+}
+function baRemovePreview(idx) {
+  baPhotoQueue.splice(idx, 1);
+  baRenderPhotoPreviews();
+}
+
+/* ── Save activity ── */
+function baSaveActivity() {
+  const type   = baEditingType;
+  const isEdit = !!baEditingId;
+  const name   = document.getElementById('baActName')?.value.trim();
+  const date   = document.getElementById('baActDate')?.value;
+  if (!name) { showToast('Please enter an activity name','error'); return; }
+  if (!date) { showToast('Please select a date','error'); return; }
+  const dist   = parseFloat(document.getElementById('baActDist')?.value)||undefined;
+  const durSec = baDurToSec(document.getElementById('baActDur')?.value||'')||undefined;
+  const elev   = parseInt(document.getElementById('baActElev')?.value)||undefined;
+  const hr     = parseInt(document.getElementById('baActHR')?.value)||undefined;
+  const loc    = document.getElementById('baActLocation')?.value.trim()||undefined;
+  const why    = document.getElementById('baActWhy')?.value.trim()||undefined;
+  const rating = document.querySelectorAll('#baStarInput .star-input-btn.active').length||0;
+  const diff   = document.querySelector('#baDiffSelector .diff-opt.selected')?.textContent.toLowerCase()||'easy';
+  const tags   = [...document.querySelectorAll('#baTagsSelect .ba-tag-opt.selected')].map(b=>b.textContent);
+  const activity = { id: isEdit ? baEditingId : baUUID(), name, date, difficulty: diff, rating, photos: baPhotoQueue, tags, featured: isEdit ? (baGetAll(type).find(a=>a.id===baEditingId)?.featured||false) : false };
+  if (dist)    activity.distance      = dist;
+  if (durSec)  activity.duration      = durSec;
+  if (elev)    activity.elevationGain = elev;
+  if (hr)      activity.avgHR         = hr;
+  if (loc)     activity.location      = loc;
+  if (why)     activity.why           = why;
+  if (type==='hike') {
+    const tn = document.getElementById('baTrailName')?.value.trim();
+    const hp = parseInt(document.getElementById('baHighestPoint')?.value)||undefined;
+    const tr = document.getElementById('baTerrain')?.value||undefined;
+    const wi = document.getElementById('baWildlife')?.value.trim()||undefined;
+    const we = [...document.querySelectorAll('#baWeatherChips .weather-chip.selected')].map(b=>b.textContent);
+    if (tn) activity.trailName    = tn;
+    if (hp) activity.highestPoint = hp;
+    if (tr) activity.terrain      = tr;
+    if (wi) activity.wildlife     = wi;
+    if (we.length) activity.weather = we;
+  }
+  if (type==='ride') {
+    const bt = document.getElementById('baBikeType')?.value||undefined;
+    const rt = document.getElementById('baRouteType')?.value||undefined;
+    const ms = parseFloat(document.getElementById('baMaxSpeed')?.value)||undefined;
+    if (bt) activity.bikeType  = bt;
+    if (rt) activity.routeType = rt;
+    if (ms) activity.maxSpeed  = ms;
+  }
+  const items = baGetAll(type);
+  if (isEdit) { const idx=items.findIndex(a=>a.id===baEditingId); if(idx>=0)items[idx]=activity; else items.unshift(activity); }
+  else items.unshift(activity);
+  if (!baSaveAll(type, items)) return;
+  baCloseModal();
+  baRenderAll();
+  baCheckBadges();
+  showToast(`Best ${type} ${isEdit?'updated':'saved'}! 🎉`,'success');
+}
+
+/* ── Render all ── */
+function baRenderAll() {
+  baRenderStatsBar();
+  baRenderFeatured();
+  baRenderTab(baCurrentTab);
+}
+
+/* ── Badge checking ── */
+function baCheckBadges() {
+  if (!db) return;
+  const all = [
+    ...baGetAll('run').map(a=>({...a,_t:'run'})),
+    ...baGetAll('hike').map(a=>({...a,_t:'hike'})),
+    ...baGetAll('ride').map(a=>({...a,_t:'ride'}))
+  ];
+  const award = (id, name, desc, icon, tier) => {
+    if (!db.badges.find(b=>b.id===id)) {
+      db.badges.push({id,name,desc,icon,tier,earned:new Date().toISOString().slice(0,10)});
+      showBadgePopup({id,name,desc,icon,tier});
+      saveData(db);
+    }
+  };
+  if (all.some(a=>(a.photos||[]).length>0))                                      award('ba_memory_maker',    'Memory Maker',        'Add your first best activity with a photo',           '📸','bronze');
+  if (all.reduce((s,a)=>s+(a.photos||[]).length,0)>=10)                          award('ba_photographer',    'Photographer',        'Upload 10 total photos across best activities',       '📷','silver');
+  if (all.filter(a=>a.why&&a.why.trim()).length>=5)                               award('ba_storyteller',     'Storyteller',         'Fill in "Why it was special" for 5 activities',       '✍️','silver');
+  if (all.filter(a=>(a.rating||0)>=5).length>=5)                                  award('ba_five_star',       'Five Star Collection', 'Have 5 activities rated 5 stars',                    '⭐','gold');
+  if (baGetAll('run').length>=3&&baGetAll('hike').length>=3&&baGetAll('ride').length>=3) award('ba_well_rounded', 'Well Rounded', 'Have at least 3 best activities in each category','🎯','gold');
+  if (all.some(a=>a.featured))                                                    award('ba_featured_athlete','Featured Athlete',    'Mark an activity as featured',                        '📌','bronze');
+}
+
+/* ── Extend BADGE_DEFS ── */
+BADGE_DEFS.push(
+  { id:'ba_memory_maker',    cat:'special', tier:'bronze', icon:'📸', name:'Memory Maker',        desc:'Add your first best activity with a photo',              target:1  },
+  { id:'ba_photographer',    cat:'special', tier:'silver', icon:'📷', name:'Photographer',         desc:'Upload 10 total photos across best activities',           target:10 },
+  { id:'ba_storyteller',     cat:'special', tier:'silver', icon:'✍️',  name:'Storyteller',          desc:'Fill "Why it was special" for 5 activities',             target:5  },
+  { id:'ba_five_star',       cat:'special', tier:'gold',   icon:'⭐', name:'Five Star Collection', desc:'Have 5 best activities rated 5 stars',                    target:5  },
+  { id:'ba_well_rounded',    cat:'special', tier:'gold',   icon:'🎯', name:'Well Rounded',         desc:'3+ best activities in each of run, hike, ride',           target:3  },
+  { id:'ba_featured_athlete',cat:'special', tier:'bronze', icon:'📌', name:'Featured Athlete',     desc:'Mark an activity as featured',                            target:1  }
+);
+
+/* ── Extend computeBadges to include BA badges ── */
+(function() {
+  var _orig = window.computeBadges;
+  window.computeBadges = function() {
+    var earned = _orig();
+    try {
+      var all = [
+        ...baGetAll('run').map(function(a){return Object.assign({},a,{_t:'run'});}),
+        ...baGetAll('hike').map(function(a){return Object.assign({},a,{_t:'hike'});}),
+        ...baGetAll('ride').map(function(a){return Object.assign({},a,{_t:'ride'});})
+      ];
+      var now = new Date();
+      var baWithPhoto = all.find(function(a){return (a.photos||[]).length>0;});
+      earned['ba_memory_maker'] = baWithPhoto ? {date:baWithPhoto.date,progress:1,total:1} : null;
+      var totalPh = all.reduce(function(s,a){return s+(a.photos||[]).length;},0);
+      earned['ba_photographer'] = totalPh>=10 ? {date:fmtDate(now),progress:totalPh,total:10} : null;
+      var storyCount = all.filter(function(a){return a.why&&a.why.trim();}).length;
+      earned['ba_storyteller'] = storyCount>=5 ? {date:fmtDate(now),progress:storyCount,total:5} : null;
+      var fiveStarCnt = all.filter(function(a){return (a.rating||0)>=5;}).length;
+      earned['ba_five_star'] = fiveStarCnt>=5 ? {date:fmtDate(now),progress:fiveStarCnt,total:5} : null;
+      var r=baGetAll('run'),h=baGetAll('hike'),ri=baGetAll('ride');
+      earned['ba_well_rounded'] = (r.length>=3&&h.length>=3&&ri.length>=3) ? {date:fmtDate(now),progress:Math.min(r.length,h.length,ri.length),total:3} : null;
+      earned['ba_featured_athlete'] = all.some(function(a){return a.featured;}) ? {date:fmtDate(now),progress:1,total:1} : null;
+    } catch(e) { /* ignore */ }
+    return earned;
+  };
+})();
+
+/* ── Extend exportJSON to include BA data ── */
+(function() {
+  var _orig = window.exportJSON;
+  window.exportJSON = function() {
+    try {
+      var exportObj = Object.assign({}, db, {
+        bestRuns:  baGetAll('run'),
+        bestHikes: baGetAll('hike'),
+        bestRides: baGetAll('ride')
+      });
+      downloadFile('actmtr-backup.json', JSON.stringify(exportObj, null, 2), 'application/json');
+      showToast('JSON backup exported','success');
+    } catch(e) { _orig(); }
+  };
+})();
+
+/* ── Extend importJSON to restore BA data ── */
+(function() {
+  window.importJSON = function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = JSON.parse(e.target.result);
+        if (!data.activities || !Array.isArray(data.activities)) throw new Error('Invalid format');
+        if (!window.confirm('Import ' + data.activities.length + ' activities? This will REPLACE your current data.')) return;
+        if (Array.isArray(data.bestRuns))  localStorage.setItem(BA_RUNS_KEY,  JSON.stringify(data.bestRuns));
+        if (Array.isArray(data.bestHikes)) localStorage.setItem(BA_HIKES_KEY, JSON.stringify(data.bestHikes));
+        if (Array.isArray(data.bestRides)) localStorage.setItem(BA_RIDES_KEY, JSON.stringify(data.bestRides));
+        delete data.bestRuns; delete data.bestHikes; delete data.bestRides;
+        db = data;
+        if (!db.settings) db.settings = {};
+        if (!db.settings.goals) db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
+        saveData(db);
+        chartsRendered = false;
+        lastPRs = computePRs();
+        renderAll();
+        setupChartObserver();
+        showToast('Imported ' + db.activities.length + ' activities','success');
+      } catch(err) {
+        showToast('Import failed: invalid JSON file','error');
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+})();
+
+/* ── Extend renderProfilePage to init BA section ── */
+(function() {
+  var _orig = window.renderProfilePage;
+  window.renderProfilePage = function() {
+    _orig();
+    baRenderAll();
+  };
+})();
 
 /* ══════════════════════════════════════════════════════════════
    BOOT
