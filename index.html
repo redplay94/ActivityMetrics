@@ -2636,6 +2636,137 @@ select.vo2-input { cursor:pointer; }
 /* Leaderboard rows clickable */
 .lb-row:not(.you-row){cursor:pointer}
 .lb-row:not(.you-row):hover{background:var(--bg2);border-color:var(--border)}
+
+/* ─── Strava Import ────────────────────────────────────────── */
+.strava-nav-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 13px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; letter-spacing:.02em;
+  color:#fff; border:1px solid #fc4c02;
+  background:#fc4c02; cursor:pointer; transition:all var(--transition);
+  white-space:nowrap;
+}
+.strava-nav-btn:hover { background:#e04400; border-color:#e04400; }
+.strava-nav-btn svg { width:14px; height:14px; flex-shrink:0; }
+
+/* Strava import modal */
+.strava-modal { max-width:560px; }
+.strava-drop-zone {
+  border:2px dashed var(--border); border-radius:var(--radius);
+  padding:36px 20px; text-align:center; cursor:pointer;
+  transition:all var(--transition); background:var(--bg3);
+}
+.strava-drop-zone:hover, .strava-drop-zone.drag-over {
+  border-color:#fc4c02; background:rgba(252,76,2,.08);
+}
+.strava-drop-icon { font-size:2.2rem; margin-bottom:8px; }
+.strava-drop-title { font-size:.95rem; font-weight:700; margin-bottom:4px; }
+.strava-drop-sub { font-size:.78rem; color:var(--text-muted); }
+.strava-file-list {
+  display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;
+}
+.strava-file-item {
+  display:flex; align-items:center; gap:8px; padding:8px 12px;
+  background:var(--bg3); border-radius:var(--radius-sm);
+  font-size:.8rem; border:1px solid var(--border);
+}
+.strava-file-item svg { width:14px; height:14px; color:#fc4c02; flex-shrink:0; }
+.strava-file-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.strava-file-size { color:var(--text-muted); font-size:.72rem; }
+.strava-progress-wrap { display:none; }
+.strava-progress-wrap.active { display:block; }
+.strava-progress-bar-bg {
+  height:8px; background:var(--bg3); border-radius:99px; overflow:hidden; margin:10px 0 6px;
+}
+.strava-progress-bar-fill {
+  height:100%; background:#fc4c02; border-radius:99px;
+  transition:width .2s ease; width:0%;
+}
+.strava-progress-label { font-size:.78rem; color:var(--text-muted); text-align:center; }
+.strava-summary {
+  background:var(--bg3); border-radius:var(--radius); padding:14px 16px;
+  border:1px solid var(--border); display:none; font-size:.82rem; line-height:1.7;
+}
+.strava-summary.active { display:block; }
+.strava-summary-title { font-weight:700; margin-bottom:6px; font-size:.9rem; }
+.strava-summary-stat { display:flex; justify-content:space-between; }
+.strava-summary-val { font-weight:700; color:#fc4c02; }
+.strava-branding {
+  display:flex; align-items:center; gap:6px; font-size:.72rem; color:var(--text-muted);
+  margin-top:4px;
+}
+.strava-branding-logo {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#fc4c02; color:#fff; border-radius:4px; padding:2px 5px;
+  font-size:.65rem; font-weight:800; letter-spacing:.5px;
+}
+.strava-import-btn {
+  padding:9px 20px; border-radius:var(--radius-sm); font-size:.85rem; font-weight:700;
+  background:#fc4c02; color:#fff; border:none; cursor:pointer; transition:all var(--transition);
+}
+.strava-import-btn:hover { background:#e04400; }
+.strava-import-btn:disabled { opacity:.5; cursor:not-allowed; }
+.strava-clear-btn {
+  padding:9px 16px; border-radius:var(--radius-sm); font-size:.85rem; font-weight:600;
+  background:transparent; color:#ef4444; border:1px solid #ef4444; cursor:pointer;
+  transition:all var(--transition);
+}
+.strava-clear-btn:hover { background:rgba(239,68,68,.12); }
+.strava-autoload-btn {
+  padding:9px 16px; border-radius:var(--radius-sm); font-size:.85rem; font-weight:600;
+  background:var(--bg3); color:var(--text); border:1px solid var(--border); cursor:pointer;
+  transition:all var(--transition); display:flex; align-items:center; gap:6px;
+}
+.strava-autoload-btn:hover { border-color:var(--text-muted); }
+.strava-autoload-btn svg { width:14px; height:14px; }
+@media(max-width:480px){
+  .strava-nav-btn .strava-btn-label { display:none; }
+}
+.strava-log-wrap {
+  display:none; border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden;
+}
+.strava-log-wrap.active { display:block; }
+.strava-log-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 12px; background:var(--bg3); border-bottom:1px solid var(--border);
+  font-size:.78rem; font-weight:700; gap:8px; flex-wrap:wrap;
+}
+.strava-log-tabs { display:flex; gap:4px; }
+.strava-log-tab {
+  padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:600;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted);
+  cursor:pointer; transition:all var(--transition);
+}
+.strava-log-tab.active { background:#fc4c02; color:#fff; border-color:#fc4c02; }
+.strava-log-body {
+  max-height:220px; overflow-y:auto; font-size:.75rem;
+}
+.strava-log-row {
+  display:grid; grid-template-columns:88px 48px 52px 1fr;
+  gap:8px; padding:5px 12px; border-bottom:1px solid var(--border);
+  align-items:center;
+}
+.strava-log-row:last-child { border-bottom:none; }
+.strava-log-row.skip { opacity:.6; }
+.strava-log-row.head {
+  font-weight:700; background:var(--bg3); color:var(--text-muted);
+  font-size:.68rem; text-transform:uppercase; letter-spacing:.5px;
+  position:sticky; top:0; z-index:1;
+}
+.strava-log-type-dot {
+  width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:4px; flex-shrink:0;
+}
+.strava-log-type-dot.run   { background:var(--run); }
+.strava-log-type-dot.walk  { background:var(--walk); }
+.strava-log-type-dot.cycle { background:var(--cycle); }
+.strava-log-type-dot.skip  { background:var(--text-dim); }
+.strava-log-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted); }
+.strava-log-skip-row {
+  padding:5px 12px; border-bottom:1px solid var(--border);
+  font-size:.75rem; color:var(--text-muted); display:flex; gap:8px;
+}
+.strava-log-skip-reason { color:var(--text-dim); font-style:italic; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -2690,6 +2821,10 @@ select.vo2-input { cursor:pointer; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         VO2 Max
       </button>
+      <button class="strava-nav-btn" onclick="openStravaModal()" title="Import Strava Data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <span class="strava-btn-label">Strava</span>
+      </button>
       <div id="authHeaderSection"><!-- populated by renderAuthHeader() --></div>
       <div class="settings-wrap">
         <button class="icon-btn" onclick="toggleSettings()" title="Settings" id="settingsBtn">
@@ -2715,6 +2850,94 @@ select.vo2-input { cursor:pointer; }
     </div>
   </div>
 </header>
+
+<!-- ─── Strava Import Modal ────────────────────────────────────── -->
+<div class="modal-overlay" id="stravaModalOverlay" onclick="if(event.target===this)closeStravaModal()">
+  <div class="modal strava-modal" role="dialog" aria-modal="true" aria-labelledby="stravaModalTitle">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;background:#fc4c02;color:#fff;border-radius:6px;padding:5px 7px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        </span>
+        <span class="modal-title" id="stravaModalTitle">Strava Import</span>
+      </div>
+      <button class="modal-close" onclick="closeStravaModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="stravaModalBody">
+
+      <!-- Auto-load from files -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button class="strava-autoload-btn" id="stravaAutoloadBtn" onclick="stravaAutoLoad()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Load from files
+        </button>
+        <span style="font-size:.75rem;color:var(--text-muted)">Auto-load activities_page1–5.json from same folder</span>
+      </div>
+
+      <div style="text-align:center;font-size:.75rem;color:var(--text-dim);position:relative">
+        <span style="background:var(--bg2);padding:0 10px;position:relative;z-index:1">or upload manually</span>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)"></div>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="strava-drop-zone" id="stravaDropZone"
+           onclick="document.getElementById('stravaFileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="stravaHandleDrop(event)">
+        <div class="strava-drop-icon">📂</div>
+        <div class="strava-drop-title">Select your Strava JSON files</div>
+        <div class="strava-drop-sub">Click to browse or drag &amp; drop • Accepts multiple .json files</div>
+        <input type="file" id="stravaFileInput" accept=".json" multiple style="display:none" onchange="stravaHandleFiles(this.files)">
+      </div>
+
+      <!-- Selected file list -->
+      <div class="strava-file-list" id="stravaFileList" style="display:none"></div>
+
+      <!-- Progress -->
+      <div class="strava-progress-wrap" id="stravaProgressWrap">
+        <div class="strava-progress-bar-bg">
+          <div class="strava-progress-bar-fill" id="stravaProgressFill"></div>
+        </div>
+        <div class="strava-progress-label" id="stravaProgressLabel">Preparing…</div>
+      </div>
+
+      <!-- Summary -->
+      <div class="strava-summary" id="stravaSummary">
+        <div class="strava-summary-title">Import complete</div>
+        <div id="stravaSummaryContent"></div>
+      </div>
+
+      <!-- Detailed log -->
+      <div class="strava-log-wrap" id="stravaLogWrap">
+        <div class="strava-log-header">
+          <span>Activity log</span>
+          <div class="strava-log-tabs">
+            <button class="strava-log-tab active" id="stravaLogTabAll"   onclick="stravaShowLog('all')">All</button>
+            <button class="strava-log-tab"         id="stravaLogTabOk"    onclick="stravaShowLog('ok')">Imported</button>
+            <button class="strava-log-tab"         id="stravaLogTabSkip"  onclick="stravaShowLog('skip')">Skipped</button>
+          </div>
+        </div>
+        <div class="strava-log-body" id="stravaLogBody"></div>
+      </div>
+
+      <!-- Powered by Strava branding (required) -->
+      <div class="strava-branding">
+        <span class="strava-branding-logo">STRAVA</span>
+        <span>Powered by Strava</span>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="flex-wrap:wrap;gap:8px">
+      <button class="strava-clear-btn" onclick="stravaConfirmClear()" title="Remove all Strava-imported activities">Clear All Strava Data</button>
+      <div style="flex:1"></div>
+      <button class="icon-btn" style="width:auto;padding:0 12px;font-size:.82rem;font-weight:600" onclick="closeStravaModal()">Cancel</button>
+      <button class="strava-import-btn" id="stravaImportBtn" onclick="stravaStartImport()" disabled>Import</button>
+    </div>
+  </div>
+</div>
 
 <!-- ─── Main App ───────────────────────────────────────────────── -->
 <div class="app">
@@ -5508,7 +5731,8 @@ function generateSampleData() {
           type: s.type, date: dateStr,
           distance: s.dist, duration: totalSecs,
           elevation: s.elev, steps, calories: cals,
-          difficulty: s.diff, notes: s.note
+          difficulty: s.diff, notes: s.note,
+          source: 'demo'
         });
         break;
       }
@@ -5525,7 +5749,8 @@ function generateSampleData() {
       distance: 6.5, duration: 32*60+15,
       elevation: 78, steps: estimateSteps('run', 6.5),
       calories: estimateCals('run', 6.5, 32*60+15),
-      difficulty: 'easy', notes: 'Morning run — demo data'
+      difficulty: 'easy', notes: 'Morning run — demo data',
+      source: 'demo'
     });
   }
 
@@ -5620,9 +5845,15 @@ let lastPRs = {};
 
 function init() {
   db = loadData();
-  if (!db) {
+  if (!db || (db.activities && db.activities.length === 0)) {
     db = generateSampleData();
     saveData(db);
+  }
+  // If real Strava data exists, purge any demo/sample activities so they never mix
+  if (db.activities && db.activities.some(function(a){ return a.source === 'strava'; })) {
+    var beforeLen = db.activities.length;
+    db.activities = db.activities.filter(function(a){ return a.source !== 'demo'; });
+    if (db.activities.length !== beforeLen) saveData(db);
   }
   const now = new Date();
   calYear  = now.getFullYear();
@@ -14858,6 +15089,422 @@ BADGE_DEFS.push(
       if(f&&window.openFriendProfile)window.openFriendProfile(f.id);
     }catch(ex){}
   });
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   STRAVA IMPORT
+══════════════════════════════════════════════════════════════ */
+(function(){
+
+  /* ── Modal open / close ─────────────────────────────────── */
+  window.openStravaModal = function() {
+    document.getElementById('stravaModalOverlay').classList.add('open');
+  };
+  window.closeStravaModal = function() {
+    document.getElementById('stravaModalOverlay').classList.remove('open');
+  };
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var ov = document.getElementById('stravaModalOverlay');
+      if (ov && ov.classList.contains('open')) {
+        e.stopPropagation();
+        closeStravaModal();
+      }
+    }
+  }, true);
+
+  /* ── State ──────────────────────────────────────────────── */
+  var _pendingFiles = [];
+  var _logEntries   = []; // { ok, date, type, dist, name, reason }
+
+  /* ── File handling ──────────────────────────────────────── */
+  window.stravaHandleDrop = function(e) {
+    e.preventDefault();
+    document.getElementById('stravaDropZone').classList.remove('drag-over');
+    var files = Array.from(e.dataTransfer.files).filter(function(f){ return f.name.endsWith('.json'); });
+    if (files.length) stravaSetFiles(files);
+  };
+
+  window.stravaHandleFiles = function(fileList) {
+    var files = Array.from(fileList).filter(function(f){ return f.name.endsWith('.json'); });
+    if (files.length) stravaSetFiles(files);
+  };
+
+  function stravaSetFiles(files) {
+    _pendingFiles = files;
+    renderFileList(files);
+    document.getElementById('stravaImportBtn').disabled = false;
+    document.getElementById('stravaSummary').classList.remove('active');
+    document.getElementById('stravaProgressWrap').classList.remove('active');
+    document.getElementById('stravaLogWrap').classList.remove('active');
+    _logEntries = [];
+  }
+
+  function renderFileList(files) {
+    var list = document.getElementById('stravaFileList');
+    list.style.display = 'flex';
+    list.innerHTML = files.map(function(f) {
+      var kb = (f.size/1024).toFixed(0);
+      return '<div class="strava-file-item">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<span class="strava-file-name">' + escHtml(f.name) + '</span>' +
+        '<span class="strava-file-size">' + kb + ' KB</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ── Auto-load from same directory ──────────────────────── */
+  window.stravaAutoLoad = async function() {
+    var btn = document.getElementById('stravaAutoloadBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Loading…';
+
+    var fakeFiles = [];
+    for (var i = 1; i <= 5; i++) {
+      var url = 'activities_page' + i + '.json';
+      try {
+        var resp = await fetch(url);
+        if (!resp.ok) break;
+        var blob = await resp.blob();
+        fakeFiles.push(new File([blob], url, { type: 'application/json' }));
+      } catch(ex) {
+        break;
+      }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Load from files';
+
+    if (fakeFiles.length === 0) {
+      alert('No activities_page*.json files found in the same folder as index.html.\nPlease use the manual upload instead.');
+      return;
+    }
+    stravaSetFiles(fakeFiles);
+  };
+
+  /* ── Activity type mapping ───────────────────────────────── */
+  function mapType(stravaType) {
+    var t = (stravaType || '').toLowerCase().replace(/\s+/g,'');
+    if (t === 'run' || t === 'trailrun') return 'run';
+    if (t === 'hike' || t === 'walk') return 'walk';
+    if (t === 'ride' || t === 'mountainbikeride' || t === 'gravelride' ||
+        t === 'ebikeride' || t === 'virtualride') return 'cycle';
+    return null;
+  }
+
+  /* ── Safe date extraction from start_date_local ─────────── */
+  // Strava's start_date_local is the wall-clock local time stored as an
+  // ISO string (sometimes with a trailing Z that is misleading).
+  // The safest approach is to slice the date portion directly from the
+  // string — no timezone conversion, no Date() parsing surprises.
+  function extractDate(dateLocal) {
+    if (!dateLocal || typeof dateLocal !== 'string') return '';
+    // Works for both "2026-03-18T11:53:08Z" and "2026-03-18T11:53:08"
+    return dateLocal.substring(0, 10); // "YYYY-MM-DD"
+  }
+
+  function extractTime(dateLocal) {
+    if (!dateLocal || typeof dateLocal !== 'string' || dateLocal.length < 16) return '';
+    return dateLocal.substring(11, 16); // "HH:MM"
+  }
+
+  /* ── Convert a single Strava activity ───────────────────── */
+  function convertActivity(sa) {
+    // Prefer sport_type (newer field), fall back to type
+    var type = mapType(sa.sport_type || sa.type || '');
+    if (!type) return { ok: false, reason: 'unsupported type: ' + (sa.sport_type || sa.type || '?'), sa: sa };
+
+    // Distance: meters → km, rounded to 2 decimal places
+    var distKm = Math.round((sa.distance || 0) / 1000 * 100) / 100;
+
+    // Duration: prefer moving_time, fall back to elapsed_time
+    var durSecs = sa.moving_time || sa.elapsed_time || 0;
+
+    // Date: extract directly from the string — never parse through Date()
+    var dateStr = extractDate(sa.start_date_local);
+    var timeStr = extractTime(sa.start_date_local);
+    if (!dateStr || dateStr.length !== 10) {
+      return { ok: false, reason: 'bad date: ' + sa.start_date_local, sa: sa };
+    }
+
+    var elev  = Math.round(sa.total_elevation_gain || 0);
+    var steps = type === 'run'  ? Math.round(distKm * 1300)
+              : type === 'walk' ? Math.round(distKm * 1400) : 0;
+    var cals  = type === 'run'   ? Math.round(distKm * 60)
+              : type === 'walk'  ? Math.round(distKm * 45)
+              : /* cycle */        Math.round(distKm * 30);
+    var diff  = autoDifficulty(type, distKm, durSecs, elev);
+
+    // Strava ID — stored raw so duplicate checks are exact
+    var stravaId = sa.id ? String(sa.id) : '';
+
+    var act = {
+      id:        'strava_' + (stravaId || (dateStr + '_' + distKm + '_' + type)),
+      stravaId:  stravaId,
+      type:      type,
+      date:      dateStr,
+      timeOfDay: timeStr,
+      distance:  distKm,
+      duration:  durSecs,
+      elevation: elev,
+      steps:     steps,
+      calories:  cals,
+      difficulty:diff,
+      notes:     sa.name || '',
+      source:   'strava'
+    };
+
+    if (sa.has_heartrate && sa.average_heartrate) act.hrAvg = Math.round(sa.average_heartrate);
+    if (sa.has_heartrate && sa.max_heartrate)     act.hrMax = Math.round(sa.max_heartrate);
+    if (sa.average_cadence)                        act.cadence = Math.round(sa.average_cadence);
+
+    return { ok: true, act: act };
+  }
+
+  /* ── Main import ─────────────────────────────────────────── */
+  window.stravaStartImport = async function() {
+    if (!_pendingFiles.length) return;
+
+    var importBtn   = document.getElementById('stravaImportBtn');
+    var progressWrap= document.getElementById('stravaProgressWrap');
+    var progressFill= document.getElementById('stravaProgressFill');
+    var progressLabel=document.getElementById('stravaProgressLabel');
+    var summary     = document.getElementById('stravaSummary');
+    var logWrap     = document.getElementById('stravaLogWrap');
+
+    importBtn.disabled = true;
+    progressWrap.classList.add('active');
+    summary.classList.remove('active');
+    logWrap.classList.remove('active');
+    progressFill.style.width = '0%';
+    progressLabel.textContent = 'Reading files…';
+    _logEntries = [];
+
+    // ── Read all files ───────────────────────────────────────
+    var allRaw = [];
+    for (var fi = 0; fi < _pendingFiles.length; fi++) {
+      var file = _pendingFiles[fi];
+      try {
+        var text = await readFileAsText(file);
+        var data = JSON.parse(text);
+        var arr  = Array.isArray(data)                               ? data
+                 : (data.value     && Array.isArray(data.value))     ? data.value
+                 : (data.activities&& Array.isArray(data.activities)) ? data.activities
+                 : [];
+        allRaw = allRaw.concat(arr);
+      } catch(ex) {
+        console.warn('Strava import: could not parse', file.name, ex);
+      }
+      progressFill.style.width = ((fi + 1) / _pendingFiles.length * 10) + '%';
+    }
+
+    progressLabel.textContent = 'Processing ' + allRaw.length + ' raw activities…';
+
+    // ── Load existing data and strip demo activities first ────
+    // Demo activities are tagged source:'demo'. Remove them so they
+    // never appear alongside real Strava data.
+    var existing = loadData() || { activities: [], settings: {} };
+    if (!existing.activities) existing.activities = [];
+    existing.activities = existing.activities.filter(function(a){ return a.source !== 'demo'; });
+
+    var existingStravaIds = new Set();
+    existing.activities.forEach(function(a) {
+      if (a.stravaId)                  existingStravaIds.add(a.stravaId);
+      if (a.source === 'strava' && a.id) existingStravaIds.add(a.id);
+    });
+
+    // ── Deduplicate within this batch too (same file uploaded twice) ─
+    var seenInBatch = new Set();
+
+    // ── Process in batches of 50 ─────────────────────────────
+    var imported = [];
+    var counts   = { run: 0, walk: 0, cycle: 0 };
+    var BATCH    = 50;
+    var total    = allRaw.length;
+
+    for (var i = 0; i < total; i += BATCH) {
+      var batch = allRaw.slice(i, i + BATCH);
+
+      batch.forEach(function(sa) {
+        var result = convertActivity(sa);
+
+        if (!result.ok) {
+          _logEntries.push({ ok: false, date: extractDate(sa.start_date_local),
+                             name: escHtml(sa.name || ''), reason: result.reason });
+          return;
+        }
+
+        var act = result.act;
+        var sid = act.stravaId;
+
+        // Duplicate: already in localStorage
+        if (sid && existingStravaIds.has(sid)) {
+          _logEntries.push({ ok: false, date: act.date, type: act.type,
+                             dist: act.distance, name: escHtml(act.notes),
+                             reason: 'duplicate (already imported)' });
+          return;
+        }
+        // Duplicate: seen earlier in this same batch/file set
+        if (sid && seenInBatch.has(sid)) {
+          _logEntries.push({ ok: false, date: act.date, type: act.type,
+                             dist: act.distance, name: escHtml(act.notes),
+                             reason: 'duplicate (in same file set)' });
+          return;
+        }
+
+        if (sid) seenInBatch.add(sid);
+        existingStravaIds.add(sid);
+        imported.push(act);
+        counts[act.type] = (counts[act.type] || 0) + 1;
+        _logEntries.push({ ok: true, date: act.date, type: act.type,
+                           dist: act.distance, name: escHtml(act.notes) });
+      });
+
+      var pct = 10 + Math.round(((i + BATCH) / total) * 85);
+      progressFill.style.width = Math.min(pct, 95) + '%';
+      progressLabel.textContent = 'Importing activity ' + Math.min(i + BATCH, total) + ' of ' + total + '…';
+      await sleep(0);
+    }
+
+    // ── Save ─────────────────────────────────────────────────
+    existing.activities = existing.activities.concat(imported);
+    saveData(existing);
+    db = existing;
+
+    progressFill.style.width = '100%';
+    progressLabel.textContent = 'Done! ' + imported.length + ' imported, ' +
+      (_logEntries.length - imported.length) + ' skipped.';
+
+    // ── Summary card ─────────────────────────────────────────
+    var allDates  = imported.map(function(a){ return a.date; }).sort();
+    var dateRange = allDates.length
+      ? formatMonthYear(allDates[0]) + ' — ' + formatMonthYear(allDates[allDates.length-1])
+      : '—';
+    var skippedCount = _logEntries.filter(function(e){ return !e.ok; }).length;
+
+    document.getElementById('stravaSummaryContent').innerHTML =
+      '<div class="strava-summary-stat"><span>Runs imported</span>'       +'<span class="strava-summary-val">'+(counts.run||0)+'</span></div>' +
+      '<div class="strava-summary-stat"><span>Hikes / Walks imported</span>'+'<span class="strava-summary-val">'+(counts.walk||0)+'</span></div>' +
+      '<div class="strava-summary-stat"><span>Rides imported</span>'       +'<span class="strava-summary-val">'+(counts.cycle||0)+'</span></div>' +
+      '<div class="strava-summary-stat"><span>Total imported</span>'       +'<span class="strava-summary-val">'+imported.length+'</span></div>' +
+      '<div class="strava-summary-stat"><span>Skipped</span>'              +'<span class="strava-summary-val">'+skippedCount+'</span></div>' +
+      '<div class="strava-summary-stat" style="margin-top:6px"><span>Date range</span>'+'<span class="strava-summary-val" style="font-size:.8rem">'+escHtml(dateRange)+'</span></div>';
+
+    summary.classList.add('active');
+
+    // ── Activity log ─────────────────────────────────────────
+    stravaShowLog('all');
+    logWrap.classList.add('active');
+
+    importBtn.disabled = false;
+
+    // ── Refresh all UI sections ───────────────────────────────
+    try { renderAll(); }          catch(ex) {}
+    try { renderCalendar(); }     catch(ex) {}
+    try { renderStreakBanner(); } catch(ex) {}
+    try { renderPRs(); }          catch(ex) {}
+    try { refreshBadges(); }      catch(ex) {}
+  };
+
+  /* ── Render the log (filter: 'all' | 'ok' | 'skip') ───── */
+  var _activeLogTab = 'all';
+  window.stravaShowLog = function(tab) {
+    _activeLogTab = tab;
+    ['All','Ok','Skip'].forEach(function(t) {
+      var el = document.getElementById('stravaLogTab' + t);
+      if (el) el.classList.toggle('active', t.toLowerCase() === tab);
+    });
+
+    var entries = tab === 'ok'   ? _logEntries.filter(function(e){ return  e.ok; })
+                : tab === 'skip' ? _logEntries.filter(function(e){ return !e.ok; })
+                : _logEntries;
+
+    var TYPE_LABEL = { run: 'Run', walk: 'Hike', cycle: 'Ride' };
+    var rows = '<div class="strava-log-row head"><span>Date</span><span>Type</span><span>Dist</span><span>Name / Reason</span></div>';
+
+    entries.forEach(function(e) {
+      if (e.ok) {
+        rows += '<div class="strava-log-row">' +
+          '<span>' + escHtml(e.date) + '</span>' +
+          '<span><span class="strava-log-type-dot ' + e.type + '"></span>' + (TYPE_LABEL[e.type]||e.type) + '</span>' +
+          '<span>' + e.dist + ' km</span>' +
+          '<span class="strava-log-name">' + e.name + '</span>' +
+          '</div>';
+      } else {
+        rows += '<div class="strava-log-row skip">' +
+          '<span>' + escHtml(e.date||'') + '</span>' +
+          '<span><span class="strava-log-type-dot skip"></span>' + (e.type ? (TYPE_LABEL[e.type]||e.type) : '—') + '</span>' +
+          '<span>' + (e.dist != null ? e.dist + ' km' : '—') + '</span>' +
+          '<span class="strava-log-name strava-log-skip-reason">' + escHtml(e.reason||'skipped') + '</span>' +
+          '</div>';
+      }
+    });
+
+    if (!entries.length) {
+      rows += '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:.78rem">No entries</div>';
+    }
+
+    document.getElementById('stravaLogBody').innerHTML = rows;
+  };
+
+  /* ── Clear ALL Strava data ───────────────────────────────── */
+  window.stravaConfirmClear = function() {
+    var existing = loadData();
+    if (!existing || !existing.activities) {
+      alert('No data in localStorage.');
+      return;
+    }
+    var stravaCount = existing.activities.filter(function(a){ return a.source === 'strava'; }).length;
+    if (stravaCount === 0) {
+      alert('No Strava-imported activities found in localStorage.');
+      return;
+    }
+    if (!confirm('Remove ALL ' + stravaCount + ' Strava-imported activities?\n\nManual activities will be kept. This cannot be undone.')) return;
+
+    existing.activities = existing.activities.filter(function(a){ return a.source !== 'strava'; });
+    saveData(existing);
+    db = existing;
+
+    // Reset modal UI
+    document.getElementById('stravaSummary').classList.remove('active');
+    document.getElementById('stravaProgressWrap').classList.remove('active');
+    document.getElementById('stravaLogWrap').classList.remove('active');
+    document.getElementById('stravaProgressFill').style.width = '0%';
+    document.getElementById('stravaProgressLabel').textContent = 'Preparing…';
+    _logEntries = [];
+
+    try { renderAll(); }          catch(ex) {}
+    try { renderCalendar(); }     catch(ex) {}
+    try { renderStreakBanner(); } catch(ex) {}
+    try { renderPRs(); }          catch(ex) {}
+    try { refreshBadges(); }      catch(ex) {}
+
+    alert('Removed ' + stravaCount + ' Strava activities. You can now re-import clean data.');
+  };
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function readFileAsText(file) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload  = function(e){ resolve(e.target.result); };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  }
+
+  function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  function formatMonthYear(dateStr) {
+    try {
+      var d = new Date(dateStr + 'T12:00:00Z');
+      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    } catch(ex) { return dateStr; }
+  }
+
 })();
 
 /* ══════════════════════════════════════════════════════════════
