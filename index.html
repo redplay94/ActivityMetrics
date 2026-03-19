@@ -2211,6 +2211,202 @@ select.vo2-input { cursor:pointer; }
 .ba-zoom-close{position:absolute;top:16px;right:16px;width:38px;height:38px;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:1.1rem;transition:background .15s;}
 .ba-zoom-close:hover{background:rgba(255,255,255,.25);}
 @media(max-width:480px){.ba-activity-tabs{flex-direction:column;gap:4px;}.ba-tab-btn{padding:8px 12px;}.ba-cards-grid{grid-template-columns:1fr;}}
+
+/* ══════════════════════════════════════════════════════════════
+   ADVANCED HEATMAP SECTION
+══════════════════════════════════════════════════════════════ */
+#advHeatmapSection { margin-top: 24px; }
+
+/* Heatmap Tabs */
+.adv-hm-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.adv-hm-tab {
+  padding: 8px 20px; border-radius: 8px; font-size:.82rem; font-weight:600;
+  border: 1.5px solid var(--border); color: var(--text-muted);
+  transition: all var(--transition); background: var(--bg2);
+}
+.adv-hm-tab.active { border-color: var(--run); background: var(--run-dim); color: var(--run); }
+
+/* Year Selector */
+.adv-hm-year-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.adv-hm-year-btn {
+  width:30px; height:30px; border-radius:6px; border:1.5px solid var(--border);
+  background:var(--bg2); color:var(--text); font-size:1rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; transition:all var(--transition);
+}
+.adv-hm-year-btn:hover { border-color: var(--run); color:var(--run); }
+.adv-hm-year-label { font-size:1.05rem; font-weight:700; color:var(--text); min-width:48px; text-align:center; }
+
+/* Color Theme Toggle */
+.adv-hm-theme-row { display:flex; gap:6px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.adv-hm-theme-btn {
+  padding:4px 12px; border-radius:20px; font-size:.72rem; font-weight:600;
+  border:1.5px solid var(--border); background:var(--bg2); color:var(--text-muted);
+  transition:all var(--transition); cursor:pointer;
+}
+.adv-hm-theme-btn.active { border-color:#39d353; color:#39d353; }
+.adv-hm-theme-btn[data-theme-id="orange"].active { border-color:#ff7b00; color:#ff7b00; }
+.adv-hm-theme-btn[data-theme-id="blue"].active   { border-color:#42a5f5; color:#42a5f5; }
+.adv-hm-theme-btn[data-theme-id="rainbow"].active{ border-color:#a78bfa; color:#a78bfa; }
+
+/* Grid Wrapper */
+.adv-hm-grid-wrap { overflow-x:auto; padding-bottom:8px; }
+.adv-hm-grid-inner { display:inline-flex; gap:4px; }
+.adv-hm-day-col { display:flex; flex-direction:column; gap:3px; margin-right:4px; padding-top:22px; }
+.adv-hm-day-lbl { font-size:.58rem; color:var(--text-muted); height:14px; display:flex; align-items:center; }
+.adv-hm-months-row { display:flex; gap:3px; margin-bottom:3px; }
+.adv-hm-month-lbl { font-size:.6rem; color:var(--text-muted); font-weight:600; white-space:nowrap; overflow:visible; }
+.adv-hm-weeks { display:flex; gap:3px; }
+.adv-hm-week  { display:flex; flex-direction:column; gap:3px; }
+.adv-hm-cell {
+  width:14px; height:14px; border-radius:3px; cursor:pointer;
+  transition: transform .1s ease, opacity .3s ease;
+  position:relative; flex-shrink:0;
+}
+.adv-hm-cell:hover { transform:scale(1.5); z-index:5; }
+.adv-hm-cell.adv-empty { background:var(--bg3); border:1px solid var(--border); }
+.adv-hm-cell.adv-future { opacity:0; pointer-events:none; }
+@keyframes advCellWave { from { opacity:0; transform:scaleY(.3); } to { opacity:1; transform:scaleY(1); } }
+.adv-hm-cell.wave { animation: advCellWave .25s ease forwards; }
+
+/* Legend */
+.adv-hm-legend { display:flex; align-items:center; gap:5px; margin-top:10px; font-size:.65rem; color:var(--text-muted); flex-wrap:wrap; }
+.adv-hm-legend-cell { width:13px; height:13px; border-radius:3px; cursor:default; flex-shrink:0; }
+
+/* Tooltip */
+.adv-hm-tooltip {
+  position:fixed; z-index:9999; background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; padding:10px 14px; font-size:.78rem; box-shadow:0 8px 32px rgba(0,0,0,.4);
+  pointer-events:none; display:none; max-width:240px;
+}
+.adv-hm-tooltip .tt-date   { font-weight:700; color:var(--text); margin-bottom:5px; font-size:.8rem; }
+.adv-hm-tooltip .tt-row   { display:flex; align-items:center; gap:6px; margin-top:3px; color:var(--text-muted); }
+.adv-hm-tooltip .tt-hint  { font-size:.68rem; color:var(--text-dim); margin-top:6px; font-style:italic; }
+.adv-hm-tooltip .tt-goal-met  { color:#39d353; font-weight:600; }
+.adv-hm-tooltip .tt-goal-miss { color:#f97316; font-weight:600; }
+
+/* Day Detail Modal */
+.adv-hm-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:10000;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:16px;
+}
+.adv-hm-modal-overlay.open { display:flex; }
+.adv-hm-modal {
+  background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+  padding:24px; max-width:520px; width:100%; max-height:85vh; overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.6); position:relative;
+}
+.adv-hm-modal-close {
+  position:absolute; top:14px; right:14px; width:30px; height:30px;
+  border-radius:50%; background:var(--bg3); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--text-muted);
+  transition:all var(--transition); cursor:pointer;
+}
+.adv-hm-modal-close:hover { background:var(--border); color:var(--text); }
+.adv-hm-modal-date { font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:16px; padding-right:40px; }
+.adv-hm-act-card {
+  background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+  padding:14px; margin-bottom:10px;
+}
+.adv-hm-act-card-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.adv-hm-act-type-badge {
+  padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700;
+}
+.adv-hm-act-type-badge.run   { background:var(--run-dim);   color:var(--run);   border:1px solid var(--run); }
+.adv-hm-act-type-badge.walk  { background:var(--walk-dim);  color:var(--walk);  border:1px solid var(--walk); }
+.adv-hm-act-type-badge.cycle { background:var(--cycle-dim); color:var(--cycle); border:1px solid var(--cycle); }
+.adv-hm-act-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+.adv-hm-act-stat { }
+.adv-hm-act-stat-label { font-size:.63rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+.adv-hm-act-stat-val   { font-size:.88rem; font-weight:600; color:var(--text); }
+.adv-hm-daily-summary {
+  background:var(--bg); border:1px solid var(--border); border-radius:10px;
+  padding:14px; margin-top:12px;
+}
+.adv-hm-daily-summary-title { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.adv-hm-rest-msg { text-align:center; padding:30px 0; color:var(--text-muted); font-size:.92rem; }
+
+/* Step Detail Modal */
+.adv-hm-step-big { font-size:2.4rem; font-weight:800; color:var(--text); text-align:center; margin:10px 0 4px; }
+.adv-hm-step-goal-bar-wrap { margin:10px 0; }
+.adv-hm-step-goal-bar { height:10px; border-radius:99px; background:var(--bg3); overflow:hidden; }
+.adv-hm-step-goal-fill { height:100%; border-radius:99px; transition:width .4s ease; }
+.adv-hm-step-goal-label { font-size:.7rem; color:var(--text-muted); margin-top:4px; }
+
+/* Summary Stats */
+.adv-hm-stats-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:20px;
+}
+.adv-hm-stat-card {
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:14px;
+}
+.adv-hm-stat-card-label { font-size:.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.adv-hm-stat-card-val   { font-size:1.05rem; font-weight:700; color:var(--text); }
+.adv-hm-stat-card-sub   { font-size:.72rem; color:var(--text-muted); margin-top:2px; }
+
+/* Monthly Bar Chart */
+.adv-hm-monthly-wrap { margin-top:20px; }
+.adv-hm-monthly-title { font-size:.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+.adv-hm-monthly-bars { display:flex; align-items:flex-end; gap:4px; height:80px; }
+.adv-hm-monthly-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:3px; }
+.adv-hm-monthly-bar { width:100%; border-radius:4px 4px 0 0; min-height:2px; transition:height .4s ease; cursor:pointer; }
+.adv-hm-monthly-bar-lbl { font-size:.55rem; color:var(--text-muted); }
+
+/* Steps DOW chart */
+.adv-hm-dow-bars { display:flex; align-items:flex-end; gap:4px; height:60px; margin-top:8px; }
+.adv-hm-dow-col  { display:flex; flex-direction:column; align-items:center; flex:1; gap:3px; }
+.adv-hm-dow-bar  { width:100%; border-radius:4px 4px 0 0; min-height:2px; background:var(--steps); opacity:.7; }
+.adv-hm-dow-lbl  { font-size:.58rem; color:var(--text-muted); }
+
+/* Step Goal Row */
+.adv-hm-goal-row {
+  display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap;
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px;
+}
+.adv-hm-goal-label { font-size:.8rem; color:var(--text-muted); flex-shrink:0; }
+.adv-hm-goal-input-wrap { display:flex; align-items:center; gap:4px; }
+.adv-hm-goal-adj {
+  width:26px; height:26px; border-radius:6px; border:1px solid var(--border);
+  background:var(--bg3); color:var(--text); font-size:1rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; transition:all var(--transition);
+}
+.adv-hm-goal-adj:hover { border-color:var(--steps); color:var(--steps); }
+.adv-hm-goal-num {
+  width:80px; text-align:center; background:var(--bg3); border:1px solid var(--border);
+  border-radius:6px; padding:4px 8px; font-size:.85rem; color:var(--text);
+}
+.adv-hm-goal-save {
+  padding:6px 14px; border-radius:8px; background:var(--steps); color:#fff;
+  font-size:.78rem; font-weight:600; border:none; transition:opacity var(--transition);
+}
+.adv-hm-goal-save:hover { opacity:.85; }
+
+/* Export button */
+.adv-hm-export-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 16px; border-radius:8px; background:var(--bg2);
+  border:1.5px solid var(--border); color:var(--text-muted);
+  font-size:.78rem; font-weight:600; transition:all var(--transition);
+}
+.adv-hm-export-btn:hover { border-color:var(--run); color:var(--run); }
+
+/* Diff badge in modal */
+.adv-hm-diff {
+  padding:2px 8px; border-radius:20px; font-size:.65rem; font-weight:600; text-transform:capitalize;
+}
+.adv-hm-diff.easy   { background:rgba(34,197,94,.15);  color:#22c55e; }
+.adv-hm-diff.medium { background:rgba(249,115,22,.15); color:#f97316; }
+.adv-hm-diff.hard   { background:rgba(239,68,68,.15);  color:#ef4444; }
+
+@media(max-width:600px){
+  .adv-hm-cell { width:10px; height:10px; }
+  .adv-hm-stats-grid { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:400px){
+  .adv-hm-stats-grid { grid-template-columns:1fr; }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -2996,6 +3192,129 @@ select.vo2-input { cursor:pointer; }
     </div><!-- /coachTabTips -->
 
   </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       ADVANCED ACTIVITY HEATMAP SECTION
+  ═══════════════════════════════════════════════════════════════ -->
+  <section id="advHeatmapSection" aria-label="Advanced Activity Heatmap">
+    <div class="section-header">
+      <div>
+        <div class="section-title">
+          <svg style="display:inline;vertical-align:-.15em;margin-right:6px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
+          Activity Heatmap
+        </div>
+        <div class="section-sub">Full-year activity &amp; steps overview — GitHub style</div>
+      </div>
+      <button class="adv-hm-export-btn" onclick="advHmExport()" title="Download heatmap as image">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Heatmap
+      </button>
+    </div>
+
+    <!-- Main Tabs -->
+    <div class="adv-hm-tabs">
+      <button class="adv-hm-tab active" id="advHmTabAct"   onclick="advHmSetTab('activity')">
+        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
+        Activity Heatmap
+      </button>
+      <button class="adv-hm-tab" id="advHmTabSteps" onclick="advHmSetTab('steps')">
+        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
+        Steps Heatmap
+      </button>
+    </div>
+
+    <!-- Activity Heatmap Panel -->
+    <div id="advHmPanelActivity">
+      <!-- Controls Row -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+        <!-- Year Selector -->
+        <div class="adv-hm-year-row" style="margin-bottom:0">
+          <button class="adv-hm-year-btn" onclick="advHmYearStep(-1)">&#8249;</button>
+          <span class="adv-hm-year-label" id="advHmYearLabel">2026</span>
+          <button class="adv-hm-year-btn" onclick="advHmYearStep(1)">&#8250;</button>
+        </div>
+        <!-- Color Theme -->
+        <div class="adv-hm-theme-row" style="margin-bottom:0">
+          <span style="font-size:.72rem;color:var(--text-muted);">Theme:</span>
+          <button class="adv-hm-theme-btn active" data-theme-id="green"   onclick="advHmSetTheme('green')">Green</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="orange"  onclick="advHmSetTheme('orange')">Orange</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="blue"    onclick="advHmSetTheme('blue')">Blue</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="rainbow" onclick="advHmSetTheme('rainbow')">Rainbow</button>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="adv-hm-grid-wrap" id="advHmGridWrap">
+        <div id="advHmGrid"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="adv-hm-legend" id="advHmLegend"></div>
+
+      <!-- Summary Stats -->
+      <div class="adv-hm-stats-grid" id="advHmStats"></div>
+
+      <!-- Monthly Bar Chart -->
+      <div class="adv-hm-monthly-wrap">
+        <div class="adv-hm-monthly-title">Monthly Distance Breakdown</div>
+        <div class="adv-hm-monthly-bars" id="advHmMonthlyBars"></div>
+        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmMonthlyLabels"></div>
+      </div>
+    </div>
+
+    <!-- Steps Heatmap Panel -->
+    <div id="advHmPanelSteps" style="display:none">
+      <!-- Controls Row -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+        <div class="adv-hm-year-row" style="margin-bottom:0">
+          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(-1)">&#8249;</button>
+          <span class="adv-hm-year-label" id="advHmStepsYearLabel">2026</span>
+          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(1)">&#8250;</button>
+        </div>
+      </div>
+
+      <!-- Steps Grid -->
+      <div class="adv-hm-grid-wrap" id="advHmStepsGridWrap">
+        <div id="advHmStepsGrid"></div>
+      </div>
+      <div class="adv-hm-legend" id="advHmStepsLegend"></div>
+
+      <!-- Steps Summary Stats -->
+      <div class="adv-hm-stats-grid" id="advHmStepsStats"></div>
+
+      <!-- DOW Chart -->
+      <div class="adv-hm-monthly-wrap" style="margin-top:16px">
+        <div class="adv-hm-monthly-title">Average Steps by Day of Week</div>
+        <div class="adv-hm-dow-bars" id="advHmDowBars"></div>
+        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmDowLabels"></div>
+      </div>
+
+      <!-- Step Goal Setting -->
+      <div class="adv-hm-goal-row">
+        <span class="adv-hm-goal-label">Daily Step Goal:</span>
+        <div class="adv-hm-goal-input-wrap">
+          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(-500)">−</button>
+          <input type="number" class="adv-hm-goal-num" id="advHmGoalInput" value="10000" min="1000" max="50000" step="500">
+          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(500)">+</button>
+        </div>
+        <button class="adv-hm-goal-save" onclick="advHmSaveGoal()">Save Goal</button>
+        <span style="font-size:.72rem;color:var(--text-muted)" id="advHmGoalStatus"></span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Advanced Heatmap Tooltip -->
+  <div class="adv-hm-tooltip" id="advHmTooltip"></div>
+
+  <!-- Activity Detail Modal -->
+  <div class="adv-hm-modal-overlay" id="advHmModalOverlay" onclick="advHmCloseModal(event)">
+    <div class="adv-hm-modal" id="advHmModal" onclick="event.stopPropagation()">
+      <button class="adv-hm-modal-close" onclick="advHmCloseModal()">&times;</button>
+      <div class="adv-hm-modal-date" id="advHmModalDate"></div>
+      <div id="advHmModalBody"></div>
+    </div>
+  </div>
 
 </div><!-- /app -->
 
@@ -4846,6 +5165,7 @@ function renderAll() {
   renderRaces();
   renderCoach();
   renderRacesPreview();
+  if(typeof advHmInit === 'function') advHmInit();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -6258,6 +6578,13 @@ const BADGE_DEFS = [
   { id:'hr_rhr55',      cat:'special',     tier:'gold',     icon:'🧘', name:'Aerobic Beast',       desc:'Achieve a resting HR below 55 bpm',                     target:55    },
   { id:'hr_efficiency', cat:'special',     tier:'platinum', icon:'📈', name:'Efficiency Expert',   desc:'Improve aerobic efficiency by 10% over 3 months',       target:10    },
   { id:'hr_trimp1000',  cat:'special',     tier:'silver',   icon:'⚡', name:'TRIMP Tracker',       desc:'Accumulate 1,000 total TRIMP points',                   target:1000  },
+  // Advanced Heatmap Badges
+  { id:'hm_heat_seeker',    cat:'consistency', tier:'silver',   icon:'🔥', name:'Heat Seeker',         desc:'Fill 100 days on the activity heatmap in a year',        target:100   },
+  { id:'hm_year_round',     cat:'consistency', tier:'gold',     icon:'📅', name:'Year Round Athlete',  desc:'Have at least one activity in every month of the year',  target:12    },
+  { id:'hm_step_counter',   cat:'consistency', tier:'silver',   icon:'👟', name:'Step Counter',        desc:'Hit your daily step goal on 30 days',                    target:30    },
+  { id:'hm_step_legend',    cat:'consistency', tier:'platinum', icon:'🦵', name:'Step Legend',         desc:'Hit your daily step goal on 100 days in a year',         target:100   },
+  { id:'hm_30k_day',        cat:'personal',    tier:'gold',     icon:'🚶', name:'30K Steps Day',       desc:'Reach 30,000 steps in a single day',                     target:30000 },
+  { id:'hm_no_rest_year',   cat:'consistency', tier:'diamond',  icon:'💎', name:'No Rest Year',        desc:'Have 300+ active days in a year',                        target:300   },
 ];
 const BADGE_COLORS = { bronze:'#b4733c', silver:'#a0a0af', gold:'#d4a800', platinum:'#64c8dc', diamond:'#82aaff', legendary:'#f97316' };
 let badgeFilter = 'all';
@@ -12271,6 +12598,748 @@ BADGE_DEFS.push(
     _orig();
     baRenderAll();
   };
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   ADVANCED HEATMAP MODULE
+══════════════════════════════════════════════════════════════ */
+(function() {
+
+  /* ── State ── */
+  var ADV_HM_TAB    = 'activity';
+  var ADV_HM_YEAR   = new Date().getFullYear();
+  var ADV_HM_SYEAR  = new Date().getFullYear();
+  var ADV_HM_THEME  = localStorage.getItem('advHmTheme') || 'green';
+  var ADV_HM_GOAL   = parseInt(localStorage.getItem('advHmStepGoal')) || 10000;
+
+  var THEMES = {
+    green:   ['#1a1a2e','#0e4429','#006d32','#26a641','#39d353'],
+    orange:  ['#1a1a2e','#4a1a00','#8b3000','#d45500','#ff7b00'],
+    blue:    ['#1a1a2e','#0a1929','#0d3b66','#1976d2','#42a5f5'],
+    rainbow: null // handled dynamically
+  };
+
+  var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAY_FULL    = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var DOW_SHORT   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  /* ── Helpers ── */
+  function fmtDateAdv(d) {
+    var y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+dd;
+  }
+  function fmtDateLong(dateStr) {
+    var d = new Date(dateStr+'T00:00:00');
+    return DAY_FULL[d.getDay()]+', '+MONTH_NAMES[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+  }
+  function fmtDur(secs) {
+    var h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+    if(h) return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    return m+':'+String(s).padStart(2,'0');
+  }
+  function fmtPaceAdv(secs,km) {
+    if(!km||!secs) return '—';
+    var pps=secs/km, pm=Math.floor(pps/60), ps=Math.round(pps%60);
+    return pm+':'+String(ps).padStart(2,'0')+'/km';
+  }
+  function fmtSpeed(secs,km) {
+    if(!km||!secs) return '—';
+    return (km/(secs/3600)).toFixed(1)+' km/h';
+  }
+  function typeIcon(t) {
+    if(t==='run')   return '🏃';
+    if(t==='walk')  return '🚶';
+    if(t==='cycle') return '🚴';
+    return '⚡';
+  }
+  function typeLabel(t) {
+    if(t==='run')   return 'Run';
+    if(t==='walk')  return 'Walk / Hike';
+    if(t==='cycle') return 'Cycle';
+    return t;
+  }
+
+  /* ── Activity data helpers ── */
+  function getActsByYear(year) {
+    if(!window.db||!db.activities) return {};
+    var map = {};
+    db.activities.forEach(function(a) {
+      if(a.date && a.date.startsWith(String(year))) {
+        if(!map[a.date]) map[a.date]=[];
+        map[a.date].push(a);
+      }
+    });
+    return map;
+  }
+
+  function getStepsByYear(year) {
+    if(!window.db||!db.activities) return {};
+    var map = {};
+    db.activities.forEach(function(a) {
+      if(a.date && a.date.startsWith(String(year)) && a.steps) {
+        map[a.date] = (map[a.date]||0) + a.steps;
+      }
+    });
+    return map;
+  }
+
+  /* ── Year grid builder (Mon-start) ── */
+  function buildYearGrid(year) {
+    var jan1 = new Date(year, 0, 1);
+    var dec31 = new Date(year, 11, 31);
+    var today = new Date(); today.setHours(0,0,0,0);
+    // find Monday on or before Jan 1
+    var startDay = new Date(jan1);
+    var dow = startDay.getDay(); // 0=Sun
+    var offset = (dow === 0) ? -6 : 1 - dow; // shift to previous Monday
+    startDay.setDate(startDay.getDate() + offset);
+    var weeks = [];
+    var d = new Date(startDay);
+    while(d <= dec31 || d.getDay() !== 1) {
+      var week = [];
+      for(var i=0;i<7;i++) {
+        week.push({
+          date: fmtDateAdv(d),
+          dom: d.getDay(),
+          month: d.getMonth(),
+          isPast: d < jan1,
+          isFuture: d > today || d.getFullYear() > year,
+          isCurrentYear: d.getFullYear() === year
+        });
+        d.setDate(d.getDate()+1);
+      }
+      weeks.push(week);
+      if(d > dec31 && (d.getDay()===1||weeks.length>=54)) break;
+    }
+    return weeks;
+  }
+
+  /* ── Cell color for activity ── */
+  function actCellColor(acts, theme) {
+    if(!acts||!acts.length) return null;
+    var km = acts.reduce(function(s,a){return s+a.distance;},0);
+    var lvl = km<=0?0 : km<3?1 : km<7?2 : km<15?3 : 4;
+    if(lvl===0) return null;
+    if(theme==='rainbow') {
+      var rKm=acts.filter(function(a){return a.type==='run';}).reduce(function(s,a){return s+a.distance;},0);
+      var wKm=acts.filter(function(a){return a.type==='walk';}).reduce(function(s,a){return s+a.distance;},0);
+      var cKm=acts.filter(function(a){return a.type==='cycle';}).reduce(function(s,a){return s+a.distance;},0);
+      var dom = rKm>=wKm&&rKm>=cKm ? 'run' : wKm>=cKm ? 'walk' : 'cycle';
+      var alphas = [0,.25,.55,.8,1];
+      if(dom==='run')   return 'rgba(249,115,22,'+alphas[lvl]+')';
+      if(dom==='walk')  return 'rgba(34,197,94,'+alphas[lvl]+')';
+      return 'rgba(59,130,246,'+alphas[lvl]+')';
+    }
+    return THEMES[theme]?THEMES[theme][lvl]:THEMES.green[lvl];
+  }
+
+  /* ── Cell color for steps ── */
+  function stepCellColor(steps) {
+    var palette = ['#2d1b4e','#4a1d8e','#7c3aed','#a78bfa','#c4b5fd'];
+    if(!steps) return null;
+    var lvl = steps<3000?1 : steps<7000?2 : steps<10000?3 : steps<15000?4 : 5;
+    return palette[lvl-1];
+  }
+
+  /* ── Render activity grid ── */
+  function renderActGrid() {
+    var grid = document.getElementById('advHmGrid');
+    var legend = document.getElementById('advHmLegend');
+    if(!grid) return;
+    document.getElementById('advHmYearLabel').textContent = ADV_HM_YEAR;
+    var weeks = buildYearGrid(ADV_HM_YEAR);
+    var byDate = getActsByYear(ADV_HM_YEAR);
+
+    // Month labels - find first week index for each month
+    var monthMap = {};
+    weeks.forEach(function(wk, wi) {
+      wk.forEach(function(cell) {
+        if(cell.isCurrentYear && !(cell.month in monthMap)) monthMap[cell.month] = wi;
+      });
+    });
+
+    var monthRowHtml = weeks.map(function(_,wi) {
+      var entry = Object.keys(monthMap).find(function(m){return monthMap[m]===wi;});
+      return '<div style="width:14px;font-size:.55rem;color:var(--text-muted);white-space:nowrap;overflow:visible;font-weight:600">'+(entry!==undefined?MONTH_NAMES[entry]:'')+'</div>';
+    }).join('');
+
+    var weeksHtml = weeks.map(function(wk, wi) {
+      var cells = wk.map(function(cell, ci) {
+        if(!cell.isCurrentYear) {
+          return '<div class="adv-hm-cell adv-future"></div>';
+        }
+        if(cell.isFuture) {
+          return '<div class="adv-hm-cell adv-future"></div>';
+        }
+        var acts = byDate[cell.date]||[];
+        var color = actCellColor(acts, ADV_HM_THEME);
+        var delayMs = (wi*7+ci)*4;
+        var style = color ? 'background:'+color+';animation-delay:'+delayMs+'ms' : 'animation-delay:'+delayMs+'ms';
+        var cls = 'adv-hm-cell wave '+(color?'':'adv-empty');
+        var km = acts.reduce(function(s,a){return s+a.distance;},0).toFixed(1);
+        var cals = acts.reduce(function(s,a){return s+(a.calories||0);},0);
+        var types = [...new Set(acts.map(function(a){return a.type;}))].map(typeIcon).join('');
+        return '<div class="'+cls+'" style="'+style+'"'
+          +' onmouseenter="advHmShowTip(event,\''+cell.date+'\',\'act\','+km+','+acts.length+','+cals+',\''+types+'\')"'
+          +' onmouseleave="advHmHideTip()"'
+          +' onclick="advHmOpenDay(\''+cell.date+'\',\'act\')"></div>';
+      }).join('');
+      return '<div class="adv-hm-week">'+cells+'</div>';
+    }).join('');
+
+    grid.innerHTML = '<div style="display:flex;gap:4px">'
+      +'<div class="adv-hm-day-col">'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Mon</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Wed</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Fri</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'</div>'
+      +'<div>'
+      +'<div style="display:flex;gap:3px;margin-bottom:3px">'+monthRowHtml+'</div>'
+      +'<div class="adv-hm-weeks">'+weeksHtml+'</div>'
+      +'</div></div>';
+
+    // Legend
+    var themeColors = ADV_HM_THEME==='rainbow'
+      ? ['rgba(249,115,22,.25)','rgba(249,115,22,.55)','rgba(249,115,22,.8)','rgba(249,115,22,1)']
+      : (THEMES[ADV_HM_THEME]||THEMES.green).slice(1);
+    var lvlDescs = ['0–3 km','3–7 km','7–15 km','15+ km'];
+    legend.innerHTML = '<span>Less</span>'
+      +'<div class="adv-hm-legend-cell adv-empty" style="border:1px solid var(--border)"></div>'
+      +themeColors.map(function(c,i){return '<div class="adv-hm-legend-cell" title="'+lvlDescs[i]+'" style="background:'+c+'"></div>';}).join('')
+      +'<span>More</span>';
+    if(ADV_HM_THEME==='rainbow') {
+      legend.innerHTML += '<span style="margin-left:8px;color:#f97316">● Run</span>'
+        +'<span style="color:#22c55e">● Walk</span>'
+        +'<span style="color:#3b82f6">● Cycle</span>';
+    }
+
+    renderActStats();
+    renderMonthlyBars();
+  }
+
+  /* ── Activity stats ── */
+  function renderActStats() {
+    var el = document.getElementById('advHmStats');
+    if(!el) return;
+    var byDate = getActsByYear(ADV_HM_YEAR);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var daysInYear = (ADV_HM_YEAR % 4===0 && (ADV_HM_YEAR%100!==0||ADV_HM_YEAR%400===0))?366:365;
+    var activeDays = Object.keys(byDate).length;
+
+    // Streaks
+    var allDates = [];
+    if(window.db&&db.activities) db.activities.forEach(function(a){if(!allDates.includes(a.date))allDates.push(a.date);});
+    allDates.sort();
+    // Longest streak this year
+    var yearDates = Object.keys(byDate).sort();
+    var longest=0,cur=0,prevD=null,longestStart='',longestEnd='',curStart='';
+    yearDates.forEach(function(ds) {
+      var d = new Date(ds+'T00:00:00');
+      if(prevD) {
+        var diff = (d - prevD)/86400000;
+        if(diff===1) { cur++; longestEnd=ds; if(cur>longest){longest=cur;longestStart=curStart;longestEnd=ds;} }
+        else { cur=1; curStart=ds; }
+      } else { cur=1; curStart=ds; longestStart=ds; longestEnd=ds; }
+      prevD=d;
+    });
+    if(cur>longest){longest=cur;longestEnd=yearDates[yearDates.length-1]||'';}
+    // Current streak (all time)
+    var curStreak=0;
+    var adSet=new Set(allDates);
+    for(var i=0;i<365;i++){var td=new Date(today);td.setDate(td.getDate()-i);if(adSet.has(fmtDateAdv(td)))curStreak++;else break;}
+    // Most active month
+    var monthKm=[0,0,0,0,0,0,0,0,0,0,0,0];
+    Object.keys(byDate).forEach(function(ds){
+      var m=parseInt(ds.split('-')[1])-1;
+      byDate[ds].forEach(function(a){monthKm[m]+=a.distance;});
+    });
+    var bestMonth=monthKm.indexOf(Math.max.apply(null,monthKm));
+    // Most active DOW
+    var dowCounts=[0,0,0,0,0,0,0];
+    yearDates.forEach(function(ds){var d=new Date(ds+'T00:00:00');dowCounts[d.getDay()]++;});
+    var dowLabels=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var bestDow=dowCounts.indexOf(Math.max.apply(null,dowCounts));
+    // Total distance
+    var totalKm=0; Object.values(byDate).forEach(function(acts){acts.forEach(function(a){totalKm+=a.distance;});});
+    // Avg per week
+    var weeksActive = Math.max(1,Math.ceil(daysInYear/7));
+    var avgActsPerWeek = (Object.values(byDate).reduce(function(s,acts){return s+acts.length;},0)/weeksActive).toFixed(1);
+
+    var longestFmt = longest>1 ? (longestStart&&longestEnd ? longest+' consecutive days ('+fmtDateLong(longestStart).split(',')[1].trim()+' – '+fmtDateLong(longestEnd).split(',')[1].trim()+')' : longest+' days') : (longest+' day');
+    var pct = daysInYear>0 ? Math.round(activeDays/daysInYear*100) : 0;
+
+    el.innerHTML = [
+      {l:'Active Days',v:activeDays+' / '+daysInYear+' days',s:pct+'% of the year'},
+      {l:'Longest Streak',v:longestFmt,s:''},
+      {l:'Current Streak',v:curStreak+' day'+(curStreak!==1?'s':''),s:'Keep going!'},
+      {l:'Most Active Month',v:MONTH_NAMES[bestMonth],s:monthKm[bestMonth].toFixed(1)+' km total'},
+      {l:'You Train Most On',v:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][bestDow]+'s',s:''},
+      {l:'Total Distance '+ADV_HM_YEAR,v:totalKm.toFixed(1)+' km',s:''},
+      {l:'Avg Activities / Week',v:avgActsPerWeek,s:''}
+    ].map(function(item){
+      return '<div class="adv-hm-stat-card">'
+        +'<div class="adv-hm-stat-card-label">'+item.l+'</div>'
+        +'<div class="adv-hm-stat-card-val">'+item.v+'</div>'
+        +(item.s?'<div class="adv-hm-stat-card-sub">'+item.s+'</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
+  /* ── Monthly bars ── */
+  function renderMonthlyBars() {
+    var barsEl = document.getElementById('advHmMonthlyBars');
+    var lblEl  = document.getElementById('advHmMonthlyLabels');
+    if(!barsEl||!lblEl) return;
+    var byDate = getActsByYear(ADV_HM_YEAR);
+    var monthData = Array.from({length:12},function(){return {run:0,walk:0,cycle:0};});
+    Object.keys(byDate).forEach(function(ds){
+      var m=parseInt(ds.split('-')[1])-1;
+      byDate[ds].forEach(function(a){if(monthData[m][a.type]!==undefined)monthData[m][a.type]+=a.distance;});
+    });
+    var monthKm = monthData.map(function(m){return m.run+m.walk+m.cycle;});
+    var maxKm = Math.max.apply(null,monthKm)||1;
+    barsEl.innerHTML = monthData.map(function(m,i){
+      var km=monthKm[i];
+      var h=Math.max(2,Math.round((km/maxKm)*72));
+      var dom=m.run>=m.walk&&m.run>=m.cycle?'run':m.walk>=m.cycle?'walk':'cycle';
+      var colors={run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
+      return '<div class="adv-hm-monthly-bar-col">'
+        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:'+colors[dom]+';opacity:.8" title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km (Run: '+m.run.toFixed(1)+', Walk: '+m.walk.toFixed(1)+', Cycle: '+m.cycle.toFixed(1)+')"></div>'
+        +'</div>';
+    }).join('');
+    lblEl.innerHTML = MONTH_NAMES.map(function(n){
+      return '<div style="flex:1;text-align:center;font-size:.55rem;color:var(--text-muted)">'+n+'</div>';
+    }).join('');
+  }
+
+  /* ── Steps grid ── */
+  function renderStepsGrid() {
+    var grid   = document.getElementById('advHmStepsGrid');
+    var legend = document.getElementById('advHmStepsLegend');
+    if(!grid) return;
+    document.getElementById('advHmStepsYearLabel').textContent = ADV_HM_SYEAR;
+    var weeks  = buildYearGrid(ADV_HM_SYEAR);
+    var byDate = getStepsByYear(ADV_HM_SYEAR);
+
+    var monthMap = {};
+    weeks.forEach(function(wk, wi) {
+      wk.forEach(function(cell) {
+        if(cell.isCurrentYear && !(cell.month in monthMap)) monthMap[cell.month]=wi;
+      });
+    });
+
+    var monthRowHtml = weeks.map(function(_,wi) {
+      var entry = Object.keys(monthMap).find(function(m){return monthMap[m]===wi;});
+      return '<div style="width:14px;font-size:.55rem;color:var(--text-muted);white-space:nowrap;overflow:visible;font-weight:600">'+(entry!==undefined?MONTH_NAMES[entry]:'')+'</div>';
+    }).join('');
+
+    var weeksHtml = weeks.map(function(wk, wi) {
+      var cells = wk.map(function(cell, ci) {
+        if(!cell.isCurrentYear||cell.isFuture) return '<div class="adv-hm-cell adv-future"></div>';
+        var steps = byDate[cell.date]||0;
+        var color = stepCellColor(steps);
+        var delayMs = (wi*7+ci)*4;
+        var style = color ? 'background:'+color+';animation-delay:'+delayMs+'ms' : 'animation-delay:'+delayMs+'ms';
+        var cls = 'adv-hm-cell wave '+(color?'':'adv-empty');
+        var goalMet = steps>=ADV_HM_GOAL;
+        if(goalMet && color) style += ';box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.4)';
+        return '<div class="'+cls+'" style="'+style+'"'
+          +' onmouseenter="advHmShowTip(event,\''+cell.date+'\',\'steps\',0,0,0,\'\','+steps+')"'
+          +' onmouseleave="advHmHideTip()"'
+          +' onclick="advHmOpenDay(\''+cell.date+'\',\'steps\')"></div>';
+      }).join('');
+      return '<div class="adv-hm-week">'+cells+'</div>';
+    }).join('');
+
+    grid.innerHTML = '<div style="display:flex;gap:4px">'
+      +'<div class="adv-hm-day-col">'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Mon</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Wed</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'<div class="adv-hm-day-lbl">Fri</div>'
+      +'<div class="adv-hm-day-lbl" style="height:14px"></div>'
+      +'</div>'
+      +'<div>'
+      +'<div style="display:flex;gap:3px;margin-bottom:3px">'+monthRowHtml+'</div>'
+      +'<div class="adv-hm-weeks">'+weeksHtml+'</div>'
+      +'</div></div>';
+
+    // Legend
+    var stepPalette = ['#2d1b4e','#4a1d8e','#7c3aed','#a78bfa','#c4b5fd'];
+    var stepDescs   = ['Under 3K','3K–7K','7K–10K','10K–15K','15K+'];
+    legend.innerHTML = '<span>Sedentary</span>'
+      +'<div class="adv-hm-legend-cell adv-empty" style="border:1px solid var(--border)"></div>'
+      +stepPalette.map(function(c,i){return '<div class="adv-hm-legend-cell" title="'+stepDescs[i]+'" style="background:'+c+'"></div>';}).join('')
+      +'<span>Active</span>';
+
+    renderStepsStats();
+    renderDowBars();
+    // sync goal input
+    var inp = document.getElementById('advHmGoalInput');
+    if(inp) inp.value = ADV_HM_GOAL;
+  }
+
+  /* ── Steps stats ── */
+  function renderStepsStats() {
+    var el = document.getElementById('advHmStepsStats');
+    if(!el) return;
+    var byDate = getStepsByYear(ADV_HM_SYEAR);
+    var daysInYear = (ADV_HM_SYEAR%4===0&&(ADV_HM_SYEAR%100!==0||ADV_HM_SYEAR%400===0))?366:365;
+    var entries = Object.entries(byDate).filter(function(e){return e[1]>0;});
+    var totalSteps = entries.reduce(function(s,e){return s+e[1];},0);
+    var avgSteps = entries.length ? Math.round(totalSteps/entries.length) : 0;
+    var goalDays = entries.filter(function(e){return e[1]>=ADV_HM_GOAL;}).length;
+    var sorted = entries.slice().sort(function(a,b){return b[1]-a[1];});
+    var bestEntry = sorted[0]||null;
+    var worstEntry = sorted[sorted.length-1]||null;
+    // Current step streak (goal met)
+    var today = new Date(); today.setHours(0,0,0,0);
+    var curStepStreak=0;
+    for(var i=0;i<365;i++){var td=new Date(today);td.setDate(td.getDate()-i);var ds=fmtDateAdv(td);if((byDate[ds]||0)>=ADV_HM_GOAL)curStepStreak++;else break;}
+    // Longest step streak
+    var srtDates = entries.filter(function(e){return e[1]>=ADV_HM_GOAL;}).map(function(e){return e[0];}).sort();
+    var longestSS=0,curSS=0,prevSD=null;
+    srtDates.forEach(function(ds){
+      var d=new Date(ds+'T00:00:00');
+      if(prevSD&&(d-prevSD)/86400000===1){curSS++;if(curSS>longestSS)longestSS=curSS;}
+      else curSS=1;
+      prevSD=d;
+    });
+    if(curSS>longestSS)longestSS=curSS;
+    // Fun comparison Zagreb to Paris ~1700 km; 1 step ≈ 0.762 m
+    var km = (totalSteps*0.000762).toFixed(0);
+    var pct = daysInYear>0 ? Math.round(goalDays/daysInYear*100):0;
+
+    el.innerHTML = [
+      {l:'Average Daily Steps',v:avgSteps.toLocaleString(),s:ADV_HM_SYEAR+' (active days only)'},
+      {l:'Total Steps '+ADV_HM_SYEAR,v:totalSteps.toLocaleString(),s:'≈ '+km+' km walked'},
+      {l:'Goal Days ('+ADV_HM_GOAL.toLocaleString()+' steps)',v:goalDays+' / '+daysInYear+' days',s:pct+'% goal rate'},
+      {l:'Best Steps Day',v:bestEntry?bestEntry[1].toLocaleString()+' steps':'—',s:bestEntry?fmtDateLong(bestEntry[0]).split(',').slice(1).join(',').trim():''},
+      {l:'Lowest Active Day',v:worstEntry?worstEntry[1].toLocaleString()+' steps':'—',s:worstEntry?fmtDateLong(worstEntry[0]).split(',').slice(1).join(',').trim():''},
+      {l:'Current Step Streak',v:curStepStreak+' day'+(curStepStreak!==1?'s':''),s:'Goal: '+ADV_HM_GOAL.toLocaleString()},
+      {l:'Longest Step Streak',v:longestSS+' day'+(longestSS!==1?'s':''),s:ADV_HM_SYEAR}
+    ].map(function(item){
+      return '<div class="adv-hm-stat-card">'
+        +'<div class="adv-hm-stat-card-label">'+item.l+'</div>'
+        +'<div class="adv-hm-stat-card-val">'+item.v+'</div>'
+        +(item.s?'<div class="adv-hm-stat-card-sub">'+item.s+'</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
+  /* ── DOW bar chart for steps ── */
+  function renderDowBars() {
+    var barsEl = document.getElementById('advHmDowBars');
+    var lblEl  = document.getElementById('advHmDowLabels');
+    if(!barsEl||!lblEl) return;
+    var byDate = getStepsByYear(ADV_HM_SYEAR);
+    // Mon=0..Sun=6 (our grid is Mon-first)
+    var dowTotals=[0,0,0,0,0,0,0], dowCounts=[0,0,0,0,0,0,0];
+    Object.keys(byDate).forEach(function(ds){
+      var d=new Date(ds+'T00:00:00');
+      var dow=(d.getDay()+6)%7; // Mon=0
+      dowTotals[dow]+=(byDate[ds]||0);
+      dowCounts[dow]++;
+    });
+    var avgs=dowTotals.map(function(t,i){return dowCounts[i]?Math.round(t/dowCounts[i]):0;});
+    var maxAvg=Math.max.apply(null,avgs)||1;
+    barsEl.innerHTML=avgs.map(function(v){
+      var h=Math.max(2,Math.round((v/maxAvg)*52));
+      return '<div class="adv-hm-dow-col"><div class="adv-hm-dow-bar" style="height:'+h+'px" title="'+v.toLocaleString()+' steps avg"></div></div>';
+    }).join('');
+    lblEl.innerHTML=DOW_SHORT.map(function(n){
+      return '<div style="flex:1;text-align:center;font-size:.58rem;color:var(--text-muted)">'+n+'</div>';
+    }).join('');
+  }
+
+  /* ── Tooltip ── */
+  window.advHmShowTip = function(e, date, mode, km, count, cals, types, steps) {
+    var tip = document.getElementById('advHmTooltip');
+    if(!tip) return;
+    var html = '<div class="tt-date">'+fmtDateLong(date)+'</div>';
+    if(mode==='act') {
+      if(count>0) {
+        html += '<div class="tt-row">📏 '+parseFloat(km).toFixed(1)+' km total</div>';
+        html += '<div class="tt-row">🏃 '+count+' activit'+(count>1?'ies':'y')+'</div>';
+        if(types) html += '<div class="tt-row">'+types+'</div>';
+        if(cals>0) html += '<div class="tt-row">🔥 '+cals+' kcal</div>';
+      } else {
+        html += '<div class="tt-row" style="color:var(--text-dim)">No activities</div>';
+      }
+    } else {
+      var s = steps||0;
+      if(s>0) {
+        html += '<div class="tt-row">👟 '+s.toLocaleString()+' steps</div>';
+        var distEst = (s*0.000762).toFixed(2);
+        html += '<div class="tt-row">📏 ~'+distEst+' km</div>';
+        var goalStatus = s>=ADV_HM_GOAL
+          ? '<span class="tt-goal-met">Goal met! ✓</span>'
+          : '<span class="tt-goal-miss">'+(ADV_HM_GOAL-s).toLocaleString()+' short of goal</span>';
+        html += '<div class="tt-row">'+goalStatus+'</div>';
+      } else {
+        html += '<div class="tt-row" style="color:var(--text-dim)">No step data</div>';
+      }
+    }
+    html += '<div class="tt-hint">Click for details</div>';
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    var x = e.clientX+14, y = e.clientY-10;
+    if(x+240>window.innerWidth) x = e.clientX-250;
+    if(y+tip.offsetHeight>window.innerHeight) y = e.clientY-tip.offsetHeight-10;
+    tip.style.left = x+'px';
+    tip.style.top  = y+'px';
+  };
+  window.advHmHideTip = function() {
+    var tip = document.getElementById('advHmTooltip');
+    if(tip) tip.style.display='none';
+  };
+
+  /* ── Day detail modal ── */
+  window.advHmOpenDay = function(date, mode) {
+    advHmHideTip();
+    var overlay = document.getElementById('advHmModalOverlay');
+    var dateEl  = document.getElementById('advHmModalDate');
+    var bodyEl  = document.getElementById('advHmModalBody');
+    if(!overlay||!dateEl||!bodyEl) return;
+    dateEl.textContent = fmtDateLong(date);
+
+    if(mode==='act') {
+      var acts = [];
+      if(window.db&&db.activities) {
+        acts = db.activities.filter(function(a){return a.date===date;});
+      }
+      if(!acts.length) {
+        bodyEl.innerHTML = '<div class="adv-hm-rest-msg">😴 Rest day — no activities logged</div>';
+      } else {
+        var totalKm  = acts.reduce(function(s,a){return s+a.distance;},0);
+        var totalCal = acts.reduce(function(s,a){return s+(a.calories||0);},0);
+        var totalSec = acts.reduce(function(s,a){return s+(a.duration||0);},0);
+        bodyEl.innerHTML = acts.map(function(a){
+          var paceOrSpeed = a.type==='cycle' ? fmtSpeed(a.duration,a.distance) : fmtPaceAdv(a.duration,a.distance);
+          var paceLabel   = a.type==='cycle' ? 'Avg Speed' : 'Avg Pace';
+          var diffBadge   = a.difficulty ? '<span class="adv-hm-diff '+a.difficulty+'">'+a.difficulty+'</span>' : '';
+          return '<div class="adv-hm-act-card">'
+            +'<div class="adv-hm-act-card-header">'
+            +'<span class="adv-hm-act-type-badge '+a.type+'">'+typeIcon(a.type)+' '+typeLabel(a.type)+'</span>'
+            +diffBadge
+            +'</div>'
+            +'<div class="adv-hm-act-stats">'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Distance</div><div class="adv-hm-act-stat-val">'+a.distance.toFixed(2)+' km</div></div>'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Duration</div><div class="adv-hm-act-stat-val">'+fmtDur(a.duration||0)+'</div></div>'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">'+paceLabel+'</div><div class="adv-hm-act-stat-val">'+paceOrSpeed+'</div></div>'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(a.calories||0)+' kcal</div></div>'
+            +(a.steps ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Steps</div><div class="adv-hm-act-stat-val">'+a.steps.toLocaleString()+'</div></div>' : '')
+            +(a.hrAvg ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Heart Rate</div><div class="adv-hm-act-stat-val">'+a.hrAvg+' bpm</div></div>' : '')
+            +((a.elevation||0)>0 ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Elevation</div><div class="adv-hm-act-stat-val">'+a.elevation+' m</div></div>' : '')
+            +(a.notes ? '<div style="grid-column:1/-1"><div class="adv-hm-act-stat-label">Notes</div><div class="adv-hm-act-stat-val" style="font-size:.8rem;font-weight:400">'+a.notes+'</div></div>' : '')
+            +'</div></div>';
+        }).join('')
+        + (acts.length>1 ? '<div class="adv-hm-daily-summary">'
+          +'<div class="adv-hm-daily-summary-title">Daily Summary</div>'
+          +'<div class="adv-hm-act-stats">'
+          +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Total Distance</div><div class="adv-hm-act-stat-val">'+totalKm.toFixed(2)+' km</div></div>'
+          +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Total Calories</div><div class="adv-hm-act-stat-val">'+totalCal+' kcal</div></div>'
+          +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Total Time</div><div class="adv-hm-act-stat-val">'+fmtDur(totalSec)+'</div></div>'
+          +'</div></div>' : '');
+      }
+    } else {
+      // Steps mode
+      var stepMap = {};
+      if(window.db&&db.activities) {
+        db.activities.filter(function(a){return a.date===date;}).forEach(function(a){
+          if(a.steps) stepMap.fromActs = (stepMap.fromActs||0)+a.steps;
+        });
+      }
+      var totalSteps = getStepsByYear(ADV_HM_SYEAR)[date]||0;
+      if(!totalSteps) {
+        bodyEl.innerHTML = '<div class="adv-hm-rest-msg">👟 No step data logged for this day</div>';
+      } else {
+        var pct = Math.min(100,Math.round(totalSteps/ADV_HM_GOAL*100));
+        var distEst = (totalSteps*0.000762).toFixed(2);
+        var calEst  = Math.round(totalSteps*0.04);
+        // Avg steps for the year
+        var byDate2 = getStepsByYear(ADV_HM_SYEAR);
+        var vals2 = Object.values(byDate2).filter(function(v){return v>0;});
+        var avg = vals2.length ? Math.round(vals2.reduce(function(s,v){return s+v;},0)/vals2.length) : 0;
+        var cmpAvg = avg ? Math.round(((totalSteps-avg)/avg)*100) : 0;
+        bodyEl.innerHTML = '<div class="adv-hm-step-big">'+totalSteps.toLocaleString()+'</div>'
+          +'<div style="text-align:center;font-size:.78rem;color:var(--text-muted);margin-bottom:12px">steps</div>'
+          +'<div class="adv-hm-step-goal-bar-wrap">'
+          +'<div class="adv-hm-step-goal-bar"><div class="adv-hm-step-goal-fill" style="width:'+pct+'%;background:#7c3aed"></div></div>'
+          +'<div class="adv-hm-step-goal-label">'+totalSteps.toLocaleString()+' / '+ADV_HM_GOAL.toLocaleString()+' goal ('+pct+'%)'+(totalSteps>=ADV_HM_GOAL?' ✓ Goal met!':'')+' </div>'
+          +'</div>'
+          +'<div class="adv-hm-act-stats" style="margin-top:14px">'
+          +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Est. Distance</div><div class="adv-hm-act-stat-val">'+distEst+' km</div></div>'
+          +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Est. Calories</div><div class="adv-hm-act-stat-val">'+calEst+' kcal</div></div>'
+          +(stepMap.fromActs ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">From Activities</div><div class="adv-hm-act-stat-val">'+stepMap.fromActs.toLocaleString()+'</div></div>' : '')
+          +(avg ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">vs Daily Avg</div><div class="adv-hm-act-stat-val" style="color:'+(cmpAvg>=0?'#22c55e':'#f97316')+'">'+(cmpAvg>=0?'+':'')+cmpAvg+'%</div></div>' : '')
+          +'</div>';
+      }
+    }
+
+    overlay.classList.add('open');
+  };
+
+  window.advHmCloseModal = function(e) {
+    if(!e || e.target===document.getElementById('advHmModalOverlay') || !e.target) {
+      document.getElementById('advHmModalOverlay').classList.remove('open');
+    }
+  };
+
+  /* ── Tab switching ── */
+  window.advHmSetTab = function(tab) {
+    ADV_HM_TAB = tab;
+    document.getElementById('advHmTabAct').classList.toggle('active', tab==='activity');
+    document.getElementById('advHmTabSteps').classList.toggle('active', tab==='steps');
+    document.getElementById('advHmPanelActivity').style.display = tab==='activity' ? '' : 'none';
+    document.getElementById('advHmPanelSteps').style.display    = tab==='steps'    ? '' : 'none';
+    if(tab==='activity') renderActGrid();
+    else renderStepsGrid();
+  };
+
+  /* ── Year navigation ── */
+  window.advHmYearStep = function(dir) {
+    ADV_HM_YEAR = Math.min(new Date().getFullYear(), Math.max(2020, ADV_HM_YEAR+dir));
+    renderActGrid();
+  };
+  window.advHmStepsYearStep = function(dir) {
+    ADV_HM_SYEAR = Math.min(new Date().getFullYear(), Math.max(2020, ADV_HM_SYEAR+dir));
+    renderStepsGrid();
+  };
+
+  /* ── Color theme ── */
+  window.advHmSetTheme = function(theme) {
+    ADV_HM_THEME = theme;
+    localStorage.setItem('advHmTheme', theme);
+    document.querySelectorAll('.adv-hm-theme-btn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-id')===theme);
+    });
+    renderActGrid();
+  };
+
+  /* ── Step goal ── */
+  window.advHmAdjGoal = function(delta) {
+    var inp = document.getElementById('advHmGoalInput');
+    if(!inp) return;
+    inp.value = Math.max(1000, Math.min(50000, (parseInt(inp.value)||10000)+delta));
+  };
+  window.advHmSaveGoal = function() {
+    var inp = document.getElementById('advHmGoalInput');
+    if(!inp) return;
+    ADV_HM_GOAL = Math.max(1000, Math.min(50000, parseInt(inp.value)||10000));
+    localStorage.setItem('advHmStepGoal', ADV_HM_GOAL);
+    var st = document.getElementById('advHmGoalStatus');
+    if(st) { st.textContent='Saved!'; setTimeout(function(){st.textContent='';},2000); }
+    renderStepsGrid();
+  };
+
+  /* ── Export heatmap as PNG ── */
+  window.advHmExport = function() {
+    var wrap = ADV_HM_TAB==='activity' ? document.getElementById('advHmGridWrap') : document.getElementById('advHmStepsGridWrap');
+    if(!wrap) { showToast('Nothing to export','error'); return; }
+    // Use html2canvas if available, else canvas manual
+    if(typeof html2canvas !== 'undefined') {
+      html2canvas(wrap, {backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#0f1117'}).then(function(canvas){
+        var a=document.createElement('a');
+        a.download='actmtr-heatmap-'+ADV_HM_YEAR+'.png';
+        a.href=canvas.toDataURL();
+        a.click();
+      });
+    } else {
+      showToast('Export requires html2canvas library (not loaded)','error');
+    }
+  };
+
+  /* ── Extend computeBadges for heatmap badges ── */
+  (function(){
+    var _orig = window.computeBadges;
+    window.computeBadges = function() {
+      var earned = _orig ? _orig() : {};
+      try {
+        var now = new Date();
+        var year = now.getFullYear();
+        var acts = (window.db&&db.activities)||[];
+        var goal = ADV_HM_GOAL;
+
+        // Active days this year
+        var yearDates = new Set(acts.filter(function(a){return a.date&&a.date.startsWith(String(year));}).map(function(a){return a.date;}));
+        var activeDaysCount = yearDates.size;
+
+        // Has activity in every month?
+        var monthsWithAct = new Set(acts.filter(function(a){return a.date&&a.date.startsWith(String(year));}).map(function(a){return parseInt(a.date.split('-')[1]);}));
+        var allMonths = monthsWithAct.size===12;
+
+        // Step goal days this year
+        var stepsByDay = {};
+        acts.forEach(function(a){if(a.date&&a.date.startsWith(String(year))&&a.steps){stepsByDay[a.date]=(stepsByDay[a.date]||0)+a.steps;}});
+        var goalDaysCount = Object.values(stepsByDay).filter(function(s){return s>=goal;}).length;
+
+        // Best single-day steps
+        var maxDaySteps = 0, maxDayDate = null;
+        Object.entries(stepsByDay).forEach(function(e){if(e[1]>maxDaySteps){maxDaySteps=e[1];maxDayDate=e[0];}});
+
+        earned['hm_heat_seeker']  = activeDaysCount>=100  ? {date:fmtDate(now),progress:activeDaysCount,total:100}  : null;
+        earned['hm_year_round']   = allMonths              ? {date:fmtDate(now),progress:12,total:12}               : null;
+        earned['hm_step_counter'] = goalDaysCount>=30      ? {date:fmtDate(now),progress:goalDaysCount,total:30}    : null;
+        earned['hm_step_legend']  = goalDaysCount>=100     ? {date:fmtDate(now),progress:goalDaysCount,total:100}   : null;
+        earned['hm_30k_day']      = maxDaySteps>=30000     ? {date:maxDayDate||fmtDate(now),progress:maxDaySteps,total:30000} : null;
+        earned['hm_no_rest_year'] = activeDaysCount>=300   ? {date:fmtDate(now),progress:activeDaysCount,total:300} : null;
+      } catch(e){ /* ignore */ }
+      return earned;
+    };
+  })();
+
+  /* ── Extend getBadgeProgress for heatmap badges ── */
+  (function(){
+    var _orig = window.getBadgeProgress;
+    window.getBadgeProgress = function(def) {
+      var r = _orig ? _orig(def) : null;
+      if(r) return r;
+      try {
+        var now = new Date();
+        var year = now.getFullYear();
+        var acts = (window.db&&db.activities)||[];
+        var goal = ADV_HM_GOAL;
+        var yearActs = acts.filter(function(a){return a.date&&a.date.startsWith(String(year));});
+        switch(def.id) {
+          case 'hm_heat_seeker': case 'hm_no_rest_year': {
+            var cnt = new Set(yearActs.map(function(a){return a.date;})).size;
+            return {current:cnt, total:def.target, unit:'days'};
+          }
+          case 'hm_year_round': {
+            var months = new Set(yearActs.map(function(a){return a.date.split('-')[1];}));
+            return {current:months.size, total:12, unit:'months'};
+          }
+          case 'hm_step_counter': case 'hm_step_legend': {
+            var sd={};yearActs.forEach(function(a){if(a.steps)sd[a.date]=(sd[a.date]||0)+a.steps;});
+            var gc=Object.values(sd).filter(function(s){return s>=goal;}).length;
+            return {current:gc, total:def.target, unit:'days'};
+          }
+          case 'hm_30k_day': {
+            var sd2={};yearActs.forEach(function(a){if(a.steps)sd2[a.date]=(sd2[a.date]||0)+a.steps;});
+            var best=Math.max.apply(null,[0].concat(Object.values(sd2)));
+            return {current:best, total:30000, unit:'steps'};
+          }
+        }
+      } catch(e){}
+      return null;
+    };
+  })();
+
+  /* ── Init on page load ── */
+  document.addEventListener('DOMContentLoaded', function() {
+    renderActGrid();
+  });
+
+  // Also expose a manual init for after data loads
+  window.advHmInit = function() { renderActGrid(); };
+
 })();
 
 /* ══════════════════════════════════════════════════════════════
