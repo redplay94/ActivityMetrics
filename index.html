@@ -2599,6 +2599,21 @@ select.vo2-input { cursor:pointer; }
 /* ── Update Stats ── */
 .update-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 @media(max-width:480px){.update-form-grid{grid-template-columns:1fr}}
+/* ── Friend Modal Overlay Fixes ─────────────────────────────── */
+/* Raise all modal overlays above the profile overlay (z-index:400) */
+.modal-overlay{z-index:500!important}
+/* Desktop sizing per spec */
+.modal{max-width:700px;max-height:85vh}
+#friendProfileModal .modal{max-width:700px}
+/* Mobile: full-width slide-up panel */
+@media(max-width:700px){
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal-overlay .modal{border-radius:16px 16px 0 0;max-height:90vh;width:100%;max-width:100%!important;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  .modal-overlay.open .modal{transform:translateY(0)}
+}
+/* Leaderboard rows clickable */
+.lb-row:not(.you-row){cursor:pointer}
+.lb-row:not(.you-row):hover{background:var(--bg2);border-color:var(--border)}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -14635,6 +14650,115 @@ BADGE_DEFS.push(
   window.friendsInit=function(){renderFriendsSection();};
 
   document.addEventListener('DOMContentLoaded',function(){updateFriendsCount();});
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   FRIEND MODAL BEHAVIOR FIXES
+   - Modals open on top of profile overlay (z-index handled in CSS)
+   - Body scroll locked while any friend modal is open
+   - openUpdateStatsModal stacks on top of friendProfileModal
+   - Escape key closes topmost friend modal first
+   - Leaderboard rows open friend profile on click
+══════════════════════════════════════════════════════════════ */
+(function(){
+  /* Helper: sync body scroll based on open modals */
+  function _fmScroll(){
+    var ids=['friendProfileModal','friendMotivModal','friendRemoveModal','friendUpdateModal'];
+    var anyFm=ids.some(function(id){return document.getElementById(id)?.classList.contains('open');});
+    var profOpen=document.getElementById('profileOverlay')?.classList.contains('open');
+    document.body.style.overflow=(anyFm||profOpen)?'hidden':'';
+  }
+
+  /* Wrap openFriendProfile */
+  var _o_ofp=window.openFriendProfile;
+  window.openFriendProfile=function(){_o_ofp&&_o_ofp.apply(this,arguments);_fmScroll();};
+
+  /* Wrap closeFriendProfile */
+  var _o_cfp=window.closeFriendProfile;
+  window.closeFriendProfile=function(){_o_cfp&&_o_cfp.apply(this,arguments);_fmScroll();};
+
+  /* Wrap openMotivModal */
+  var _o_omm=window.openMotivModal;
+  window.openMotivModal=function(){_o_omm&&_o_omm.apply(this,arguments);_fmScroll();};
+
+  /* Wrap closeMotivModal */
+  var _o_cmm=window.closeMotivModal;
+  window.closeMotivModal=function(){_o_cmm&&_o_cmm.apply(this,arguments);_fmScroll();};
+
+  /* Wrap confirmRemoveFriend */
+  var _o_crf=window.confirmRemoveFriend;
+  window.confirmRemoveFriend=function(){_o_crf&&_o_crf.apply(this,arguments);_fmScroll();};
+
+  /* Wrap cancelRemoveFriend */
+  var _o_xrf=window.cancelRemoveFriend;
+  window.cancelRemoveFriend=function(){_o_xrf&&_o_xrf.apply(this,arguments);_fmScroll();};
+
+  /* Wrap doRemoveFriend */
+  var _o_drf=window.doRemoveFriend;
+  window.doRemoveFriend=function(){_o_drf&&_o_drf.apply(this,arguments);_fmScroll();};
+
+  /* Wrap closeUpdateModal */
+  var _o_cum=window.closeUpdateModal;
+  window.closeUpdateModal=function(){_o_cum&&_o_cum.apply(this,arguments);_fmScroll();};
+
+  /* Wrap openUpdateStatsModal:
+     Original closes friendProfileModal before opening updateModal.
+     Fix: restore profileModal after original runs so both stack. */
+  window._fmLastFriendId=null;
+  var _o_usm=window.openUpdateStatsModal;
+  window.openUpdateStatsModal=function(id){
+    window._fmLastFriendId=id;
+    var profWas=document.getElementById('friendProfileModal')?.classList.contains('open');
+    _o_usm&&_o_usm.call(this,id);
+    if(profWas)document.getElementById('friendProfileModal')?.classList.add('open');
+    _fmScroll();
+  };
+
+  /* Wrap saveUpdateStats: refresh profile content with updated stats after save */
+  var _o_sus=window.saveUpdateStats;
+  window.saveUpdateStats=function(){
+    var profOpen=document.getElementById('friendProfileModal')?.classList.contains('open');
+    var fid=window._fmLastFriendId;
+    _o_sus&&_o_sus.apply(this,arguments);
+    if(profOpen&&fid&&window.openFriendProfile)window.openFriendProfile(fid);
+    _fmScroll();
+  };
+
+  /* Escape key: close topmost friend modal first.
+     Uses capture phase so it runs before the existing bubble-phase handler
+     (which would otherwise close the profile overlay instead). */
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape')return;
+    var order=['friendUpdateModal','friendRemoveModal','friendMotivModal','friendProfileModal'];
+    for(var i=0;i<order.length;i++){
+      if(document.getElementById(order[i])?.classList.contains('open')){
+        e.stopPropagation();
+        if(order[i]==='friendUpdateModal')window.closeUpdateModal&&window.closeUpdateModal();
+        else if(order[i]==='friendRemoveModal')window.cancelRemoveFriend&&window.cancelRemoveFriend();
+        else if(order[i]==='friendMotivModal')window.closeMotivModal&&window.closeMotivModal();
+        else if(order[i]==='friendProfileModal')window.closeFriendProfile&&window.closeFriendProfile();
+        return;
+      }
+    }
+  },true);
+
+  /* Leaderboard rows: click any non-"You" row to open that friend's profile */
+  document.addEventListener('click',function(e){
+    var row=e.target.closest('.lb-row:not(.you-row)');
+    if(!row)return;
+    var nameNode=row.querySelector('.lb-name');
+    if(!nameNode)return;
+    /* lb-name contains text + optional "You" badge span; grab just the text node */
+    var nm='';
+    nameNode.childNodes.forEach(function(n){if(n.nodeType===3)nm+=n.textContent;});
+    nm=nm.trim();
+    if(!nm)return;
+    try{
+      var friends=JSON.parse(localStorage.getItem('actmtr_friends')||'[]');
+      var f=friends.find(function(fr){return fr.name===nm;});
+      if(f&&window.openFriendProfile)window.openFriendProfile(f.id);
+    }catch(ex){}
+  });
 })();
 
 /* ══════════════════════════════════════════════════════════════
