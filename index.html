@@ -1486,6 +1486,497 @@ header {
   100% { transform:scale(1);opacity:1; }
 }
 .celebration-anim { animation:celebrationPop .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+/* ─── Pace Calculator ─────────────────────────────────────── */
+.pace-nav-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 13px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; letter-spacing:.02em;
+  color:var(--text-muted); border:1px solid var(--border);
+  background:transparent; cursor:pointer;
+  transition:all var(--transition);
+}
+.pace-nav-btn:hover { background:rgba(249,115,22,.15); color:#f97316; border-color:#f97316; }
+.pace-nav-btn svg { width:14px; height:14px; }
+.pace-overlay {
+  position:fixed; inset:0; z-index:400;
+  background:var(--bg); overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.pace-overlay.open { transform:none; }
+.pace-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
+.pace-back-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:16px 0 12px; font-size:.85rem; font-weight:600;
+  color:var(--text-muted); transition:color var(--transition);
+  background:none; border:none; cursor:pointer;
+}
+.pace-back-btn:hover { color:var(--text); }
+.pace-back-btn svg { width:18px; height:18px; }
+.pace-page-title {
+  display:flex; align-items:center; gap:10px;
+  font-size:1.4rem; font-weight:800; margin-bottom:6px;
+}
+.pace-page-sub { font-size:.82rem; color:var(--text-muted); margin-bottom:20px; }
+.pace-unit-toggle {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:20px; padding:10px 14px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+.pace-unit-toggle-label { font-size:.8rem; color:var(--text-muted); font-weight:600; }
+.pace-unit-btns { display:flex; gap:4px; }
+.pace-unit-btn {
+  padding:4px 12px; border-radius:6px; font-size:.78rem; font-weight:600;
+  cursor:pointer; border:1px solid var(--border); background:transparent;
+  color:var(--text-muted); transition:all var(--transition);
+}
+.pace-unit-btn.active { background:#f97316; border-color:#f97316; color:#fff; }
+.pace-tabs {
+  display:flex; gap:4px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:4px; margin-bottom:24px;
+  flex-wrap:wrap;
+}
+.pace-tab {
+  flex:1; min-width:100px; padding:8px 10px; border-radius:8px;
+  font-size:.78rem; font-weight:600; text-align:center; cursor:pointer;
+  border:none; background:transparent; color:var(--text-muted);
+  transition:all var(--transition);
+}
+.pace-tab.active { background:#f97316; color:#fff; }
+.pace-tab-panel { display:none; }
+.pace-tab-panel.active { display:block; }
+.pace-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px; margin-bottom:16px;
+}
+.pace-card-title {
+  font-size:.9rem; font-weight:700; margin-bottom:16px;
+  display:flex; align-items:center; gap:8px; color:var(--text);
+}
+.pace-card-title svg { width:16px; height:16px; color:#f97316; }
+.pace-input-group {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;
+}
+@media(max-width:640px) { .pace-input-group { grid-template-columns:1fr; } }
+.pace-field { display:flex; flex-direction:column; gap:6px; }
+.pace-field-label {
+  font-size:.75rem; font-weight:600; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.pace-field-inputs { display:flex; gap:6px; align-items:center; }
+.pace-input {
+  flex:1; padding:9px 10px; background:var(--bg3);
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--text); font-size:.9rem; font-weight:600;
+  text-align:center; min-width:0; transition:border-color var(--transition);
+}
+.pace-input:focus { outline:none; border-color:#f97316; }
+.pace-input::placeholder { color:var(--text-dim); font-weight:400; }
+select.pace-input { text-align:left; cursor:pointer; }
+.pace-input-sep { color:var(--text-muted); font-weight:700; font-size:1rem; flex-shrink:0; }
+.pace-stepper { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+.pace-step-btn {
+  width:22px; height:18px; border-radius:4px; font-size:.65rem;
+  border:1px solid var(--border); background:var(--bg3);
+  color:var(--text-muted); cursor:pointer; display:flex;
+  align-items:center; justify-content:center; line-height:1;
+  transition:all var(--transition);
+}
+.pace-step-btn:hover { background:#f97316; border-color:#f97316; color:#fff; }
+.pace-presets { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.pace-preset-btn {
+  padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:600;
+  border:1px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  cursor:pointer; transition:all var(--transition);
+}
+.pace-preset-btn:hover, .pace-preset-btn.active-preset {
+  background:rgba(249,115,22,.15); border-color:#f97316; color:#f97316;
+}
+.pace-results-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;
+}
+.pace-result-item { display:flex; flex-direction:column; gap:4px; }
+.pace-result-label { font-size:.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+.pace-result-value { font-size:1.3rem; font-weight:800; color:#f97316; }
+.pace-result-sub { font-size:.7rem; color:var(--text-muted); }
+.pace-eq-times { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+.pace-eq-title { font-size:.75rem; font-weight:700; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; }
+.pace-eq-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+.pace-eq-item {
+  background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:8px 10px; text-align:center;
+}
+.pace-eq-dist { font-size:.7rem; color:var(--text-muted); margin-bottom:2px; }
+.pace-eq-time { font-size:.88rem; font-weight:700; color:var(--text); }
+.pace-clear-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; cursor:pointer;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted);
+  transition:all var(--transition); margin-top:12px;
+}
+.pace-clear-btn:hover { border-color:#ef4444; color:#ef4444; }
+.pace-predictor-table { width:100%; border-collapse:collapse; margin-top:12px; }
+.pace-predictor-table th, .pace-predictor-table td {
+  padding:9px 12px; text-align:left; border-bottom:1px solid var(--border); font-size:.82rem;
+}
+.pace-predictor-table th { color:var(--text-muted); font-weight:600; font-size:.72rem; text-transform:uppercase; }
+.pace-predictor-table td { color:var(--text); }
+.pace-predictor-table td:not(:first-child) { font-weight:600; }
+.pace-predictor-table tr:last-child td { border-bottom:none; }
+.pace-predictor-table tr:hover td { background:var(--bg3); }
+.pace-splits-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:.82rem; }
+.pace-splits-table th {
+  padding:8px 10px; text-align:right; border-bottom:1px solid var(--border);
+  color:var(--text-muted); font-weight:600; font-size:.7rem; text-transform:uppercase;
+}
+.pace-splits-table th:first-child { text-align:left; }
+.pace-splits-table td {
+  padding:7px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--text);
+}
+.pace-splits-table td:first-child { text-align:left; font-weight:600; }
+.pace-splits-table tr:last-child td { border-bottom:none; }
+.pace-splits-table tr:hover td { background:var(--bg3); }
+.pace-split-fast { color:#22c55e; }
+.pace-split-slow { color:#f97316; }
+.pace-export-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; cursor:pointer;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted);
+  transition:all var(--transition); margin-top:12px;
+}
+.pace-export-btn:hover { border-color:#f97316; color:#f97316; }
+.pace-chart-container { height:200px; margin-top:16px; position:relative; }
+.pace-note {
+  font-size:.75rem; color:var(--text-muted); margin-top:12px;
+  padding:10px 14px; background:var(--bg3); border-left:3px solid #f97316;
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0; line-height:1.5;
+}
+.pace-strategy-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.pace-strategy-btn {
+  flex:1; min-width:100px; padding:9px 12px; border-radius:var(--radius-sm);
+  font-size:.78rem; font-weight:600; cursor:pointer; text-align:center;
+  border:1px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  transition:all var(--transition);
+}
+.pace-strategy-btn.active { border-color:#f97316; background:rgba(249,115,22,.12); color:#f97316; }
+.gap-explanation {
+  font-size:.8rem; line-height:1.6; color:var(--text-muted);
+  padding:12px 16px; background:rgba(249,115,22,.06);
+  border:1px solid rgba(249,115,22,.2); border-radius:var(--radius-sm);
+  margin-bottom:16px;
+}
+.gap-explanation strong { color:var(--text); }
+.gap-slider-wrap { margin:16px 0; }
+.gap-gradient-label {
+  display:flex; justify-content:space-between;
+  font-size:.72rem; color:var(--text-muted); margin-bottom:8px;
+}
+.gap-slider {
+  width:100%; height:8px; border-radius:4px; appearance:none;
+  background:linear-gradient(to right,#22c55e 0%,#eab308 50%,#ef4444 100%);
+  cursor:pointer; outline:none;
+}
+.gap-slider::-webkit-slider-thumb {
+  appearance:none; width:20px; height:20px;
+  border-radius:50%; background:#f97316; border:3px solid var(--bg);
+  box-shadow:0 2px 6px rgba(0,0,0,.4); cursor:pointer;
+}
+.gap-slider::-moz-range-thumb {
+  width:20px; height:20px; border-radius:50%; background:#f97316;
+  border:3px solid var(--bg); box-shadow:0 2px 6px rgba(0,0,0,.4); cursor:pointer;
+}
+.gap-hill-visual {
+  height:80px; border-radius:var(--radius-sm); margin:12px 0;
+  position:relative; overflow:hidden; border:1px solid var(--border);
+  background:var(--bg3); display:flex; align-items:flex-end;
+  transition:background .3s ease;
+}
+.gap-hill-road { position:absolute; bottom:0; left:0; right:0; height:5px; background:var(--border); }
+.gap-hill-runner {
+  position:absolute; font-size:1.5rem;
+  transition:all .3s ease; bottom:8px; left:50%;
+  transform:translateX(-50%); z-index:1;
+}
+.gap-hill-arrow {
+  position:absolute; right:24px; font-size:1.2rem;
+  transition:all .3s ease; bottom:16px;
+}
+.gap-results-big {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;
+}
+@media(max-width:500px) { .gap-results-big { grid-template-columns:1fr; } }
+.gap-big-item {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:16px; text-align:center;
+}
+.gap-big-label { font-size:.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; margin-bottom:4px; }
+.gap-big-value { font-size:1.8rem; font-weight:900; color:#f97316; }
+.gap-big-sub { font-size:.72rem; color:var(--text-muted); margin-top:2px; }
+.pace-add-segment-btn {
+  display:flex; align-items:center; gap:6px; margin-top:12px;
+  padding:9px 16px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; cursor:pointer;
+  border:1px dashed var(--border); background:transparent; color:var(--text-muted);
+  transition:all var(--transition); width:100%; justify-content:center;
+}
+.pace-add-segment-btn:hover { border-color:#f97316; color:#f97316; }
+.pace-segment-num {
+  width:28px; height:28px; border-radius:50%; background:#f97316;
+  color:#fff; font-size:.75rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.pace-calories-row {
+  display:flex; align-items:center; gap:10px; margin-top:12px;
+  padding-top:12px; border-top:1px solid var(--border);
+}
+.pace-calories-label { font-size:.78rem; color:var(--text-muted); flex-shrink:0; }
+.pace-calories-input {
+  width:64px; padding:5px 8px; background:var(--bg3);
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--text); font-size:.82rem; text-align:center;
+}
+.pace-calories-unit { font-size:.75rem; color:var(--text-muted); }
+.pace-use-avg-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 12px; border-radius:var(--radius-sm);
+  font-size:.75rem; font-weight:600; cursor:pointer;
+  border:1px solid rgba(249,115,22,.4); background:rgba(249,115,22,.08);
+  color:#f97316; transition:all var(--transition); margin-top:8px;
+}
+.pace-use-avg-btn:hover { background:rgba(249,115,22,.18); }
+
+/* ─── VO2 Max Lab ─────────────────────────────────────────── */
+.vo2-nav-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 13px; border-radius:var(--radius-sm);
+  font-size:.8rem; font-weight:600; letter-spacing:.02em;
+  color:var(--text-muted); border:1px solid var(--border);
+  background:transparent; cursor:pointer; transition:all var(--transition);
+}
+.vo2-nav-btn:hover { background:rgba(239,68,68,.15); color:#ef4444; border-color:#ef4444; }
+.vo2-nav-btn svg { width:14px; height:14px; }
+.vo2-overlay {
+  position:fixed; inset:0; z-index:400;
+  background:var(--bg); overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.vo2-overlay.open { transform:none; }
+.vo2-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
+.vo2-back-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:16px 0 12px; font-size:.85rem; font-weight:600;
+  color:var(--text-muted); background:none; border:none; cursor:pointer;
+  transition:color var(--transition);
+}
+.vo2-back-btn:hover { color:var(--text); }
+.vo2-back-btn svg { width:18px; height:18px; }
+.vo2-page-title {
+  display:flex; align-items:center; gap:10px;
+  font-size:1.4rem; font-weight:800; margin-bottom:6px;
+}
+.vo2-page-sub { font-size:.82rem; color:var(--text-muted); margin-bottom:20px; }
+.vo2-tabs {
+  display:flex; gap:4px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:4px; margin-bottom:24px; flex-wrap:wrap;
+}
+.vo2-tab {
+  flex:1; min-width:80px; padding:8px 10px; border-radius:8px;
+  font-size:.78rem; font-weight:600; text-align:center; cursor:pointer;
+  border:none; background:transparent; color:var(--text-muted);
+  transition:all var(--transition);
+}
+.vo2-tab.active { background:#ef4444; color:#fff; }
+.vo2-tab-panel { display:none; }
+.vo2-tab-panel.active { display:block; }
+.vo2-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px; margin-bottom:16px;
+}
+.vo2-card-title {
+  font-size:.9rem; font-weight:700; margin-bottom:16px;
+  display:flex; align-items:center; gap:8px; color:var(--text);
+}
+.vo2-card-title svg { width:16px; height:16px; color:#ef4444; }
+.vo2-big-display {
+  text-align:center; padding:24px 20px;
+  background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius);
+  margin-bottom:16px;
+}
+.vo2-big-number { font-size:4rem; font-weight:900; color:#ef4444; line-height:1; }
+.vo2-big-unit { font-size:.9rem; color:var(--text-muted); margin-top:4px; }
+.vo2-big-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 16px; border-radius:20px; font-size:.82rem; font-weight:700;
+  margin-top:12px;
+}
+.vo2-method-pills { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.vo2-method-pill {
+  padding:6px 14px; border-radius:20px; font-size:.75rem; font-weight:600;
+  border:1px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  cursor:pointer; transition:all var(--transition);
+}
+.vo2-method-pill.active { background:#ef4444; border-color:#ef4444; color:#fff; }
+.vo2-method-pill:hover:not(.active) { border-color:#ef4444; color:#ef4444; }
+.vo2-method-panel { display:none; }
+.vo2-method-panel.active { display:block; }
+.vo2-input-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;
+}
+@media(max-width:500px) { .vo2-input-grid { grid-template-columns:1fr; } }
+.vo2-field { display:flex; flex-direction:column; gap:5px; }
+.vo2-field-label {
+  font-size:.72rem; font-weight:600; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.vo2-field-inputs { display:flex; gap:6px; align-items:center; }
+.vo2-input {
+  padding:9px 10px; background:var(--bg3);
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+  color:var(--text); font-size:.9rem; font-weight:600;
+  transition:border-color var(--transition); width:100%;
+}
+.vo2-input:focus { outline:none; border-color:#ef4444; }
+.vo2-input::placeholder { color:var(--text-dim); font-weight:400; }
+select.vo2-input { cursor:pointer; }
+.vo2-result-box {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:16px; margin-top:12px;
+}
+.vo2-result-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; border-bottom:1px solid var(--border);
+}
+.vo2-result-row:last-child { border-bottom:none; }
+.vo2-result-label { font-size:.8rem; color:var(--text-muted); }
+.vo2-result-value { font-size:.9rem; font-weight:700; color:var(--text); }
+.vo2-save-btn {
+  display:flex; align-items:center; gap:6px; justify-content:center;
+  padding:11px 24px; border-radius:var(--radius-sm); width:100%;
+  font-size:.85rem; font-weight:700; cursor:pointer; margin-top:14px;
+  border:none; background:#ef4444; color:#fff; transition:all var(--transition);
+}
+.vo2-save-btn:hover { background:#dc2626; }
+.vo2-note {
+  font-size:.75rem; color:var(--text-muted); margin-top:10px;
+  padding:8px 12px; background:rgba(239,68,68,.06);
+  border-left:3px solid #ef4444; border-radius:0 var(--radius-sm) var(--radius-sm) 0; line-height:1.5;
+}
+.vo2-warning {
+  font-size:.75rem; color:#eab308; margin-top:10px;
+  padding:8px 12px; background:rgba(234,179,8,.06);
+  border-left:3px solid #eab308; border-radius:0 var(--radius-sm) var(--radius-sm) 0; line-height:1.5;
+}
+.vo2-progress-bar-wrap { margin:12px 0; }
+.vo2-progress-label {
+  display:flex; justify-content:space-between;
+  font-size:.75rem; color:var(--text-muted); margin-bottom:4px;
+}
+.vo2-progress-track {
+  height:12px; border-radius:6px; background:var(--bg3);
+  border:1px solid var(--border); overflow:hidden;
+}
+.vo2-progress-fill {
+  height:100%; border-radius:6px; transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+.vo2-timeline-item {
+  display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);
+}
+.vo2-timeline-item:last-child { border-bottom:none; }
+.vo2-timeline-dot {
+  width:10px; height:10px; border-radius:50%; background:#ef4444;
+  flex-shrink:0; margin-top:5px;
+}
+.vo2-timeline-content { flex:1; min-width:0; }
+.vo2-timeline-value { font-size:1.1rem; font-weight:800; color:#ef4444; }
+.vo2-timeline-meta { font-size:.75rem; color:var(--text-muted); }
+.vo2-timeline-change { font-size:.75rem; margin-top:2px; font-weight:600; }
+.vo2-comp-bar-item { margin-bottom:10px; }
+.vo2-comp-bar-label {
+  display:flex; justify-content:space-between;
+  font-size:.75rem; color:var(--text-muted); margin-bottom:4px;
+}
+.vo2-comp-track {
+  height:20px; border-radius:4px; background:var(--bg3);
+  border:1px solid var(--border); overflow:hidden; position:relative;
+}
+.vo2-comp-fill {
+  height:100%; border-radius:4px; transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+.vo2-fitness-age-wrap {
+  display:flex; gap:20px; justify-content:center; align-items:center;
+  padding:20px; flex-wrap:wrap;
+}
+.vo2-age-card {
+  text-align:center; padding:16px 20px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--radius); flex:1; min-width:120px;
+}
+.vo2-age-icon { font-size:2rem; margin-bottom:8px; }
+.vo2-age-number { font-size:2rem; font-weight:900; color:#ef4444; }
+.vo2-age-label { font-size:.75rem; color:var(--text-muted); }
+.vo2-expand-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius-sm); margin-bottom:8px; overflow:hidden;
+}
+.vo2-expand-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; cursor:pointer; transition:background var(--transition);
+}
+.vo2-expand-header:hover { background:var(--bg3); }
+.vo2-expand-title { font-size:.85rem; font-weight:700; color:var(--text); }
+.vo2-expand-badge {
+  padding:2px 8px; border-radius:4px; font-size:.68rem; font-weight:700;
+  background:rgba(239,68,68,.12); color:#ef4444;
+}
+.vo2-expand-body {
+  display:none; padding:0 16px 14px;
+  font-size:.8rem; line-height:1.7; color:var(--text-muted);
+}
+.vo2-expand-body.open { display:block; }
+.vo2-expand-arrow { transition:transform .2s ease; color:var(--text-muted); font-size:.8rem; }
+.vo2-expand-arrow.open { transform:rotate(180deg); }
+.vo2-sport-item {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:var(--radius-sm);
+  margin-bottom:4px; background:var(--bg3);
+  border:1px solid var(--border); transition:all var(--transition);
+}
+.vo2-sport-item.qualified { border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.06); }
+.vo2-sport-name { flex:1; font-size:.82rem; font-weight:600; color:var(--text); }
+.vo2-sport-range { font-size:.75rem; color:var(--text-muted); }
+.vo2-sport-check { color:#22c55e; font-size:.95rem; font-weight:700; }
+.cat-poor { background:rgba(239,68,68,.15); color:#ef4444; }
+.cat-fair { background:rgba(249,115,22,.15); color:#f97316; }
+.cat-good { background:rgba(234,179,8,.15); color:#eab308; }
+.cat-excellent { background:rgba(34,197,94,.15); color:#22c55e; }
+.cat-superior { background:rgba(59,130,246,.15); color:#3b82f6; }
+.cat-elite { background:rgba(168,85,247,.15); color:#a855f7; }
+.vo2-presets { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.vo2-preset-btn {
+  padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:600;
+  border:1px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  cursor:pointer; transition:all var(--transition);
+}
+.vo2-preset-btn:hover, .vo2-preset-btn.vp-active {
+  background:rgba(239,68,68,.15); border-color:#ef4444; color:#ef4444;
+}
+.vo2-norm-table { width:100%; border-collapse:collapse; font-size:.78rem; margin-top:10px; }
+.vo2-norm-table th {
+  padding:7px 10px; background:var(--bg3); border-bottom:1px solid var(--border);
+  font-size:.68rem; color:var(--text-muted); text-transform:uppercase; text-align:left;
+}
+.vo2-norm-table td { padding:7px 10px; border-bottom:1px solid var(--border); color:var(--text); }
+.vo2-norm-table tr:last-child td { border-bottom:none; }
+.vo2-norm-table tr.vo2-hl td { background:rgba(239,68,68,.06); }
+.vo2-chart-wrap { height:220px; position:relative; margin-top:16px; }
+.vo2-proj-chart-wrap { height:180px; position:relative; margin-top:8px; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1531,6 +2022,14 @@ header {
       <button class="coach-nav-btn" onclick="document.getElementById('coachSection').scrollIntoView({behavior:'smooth'})" title="Running Coach">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M2 12h4M18 12h4M12 2v2"/></svg>
         Coach
+      </button>
+      <button class="pace-nav-btn" onclick="openPacePage()" title="Pace Calculator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M10 3h4"/></svg>
+        Pace Calc
+      </button>
+      <button class="vo2-nav-btn" onclick="openVo2Page()" title="VO2 Max Lab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        VO2 Max
       </button>
       <div id="authHeaderSection"><!-- populated by renderAuthHeader() --></div>
       <div class="settings-wrap">
@@ -2675,6 +3174,712 @@ header {
   </div>
 </div>
 
+<!-- ─── Pace Calculator Overlay ──────────────────────────── -->
+<div class="pace-overlay" id="paceOverlay">
+  <div class="pace-page">
+    <button class="pace-back-btn" onclick="closePacePage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </button>
+
+    <div class="pace-page-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" width="28" height="28"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M10 3h4"/></svg>
+      Pace Calculator
+    </div>
+    <div class="pace-page-sub">Calculate pace, predict race times, plan splits, and analyze grade adjusted effort</div>
+
+    <!-- Unit Toggle -->
+    <div class="pace-unit-toggle">
+      <span class="pace-unit-toggle-label">Units:</span>
+      <div class="pace-unit-btns">
+        <button class="pace-unit-btn active" id="paceUnitKm" onclick="setPaceUnit('km')">Metric (km)</button>
+        <button class="pace-unit-btn" id="paceUnitMi" onclick="setPaceUnit('mi')">Imperial (miles)</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="pace-tabs">
+      <button class="pace-tab active" id="paceTabBtnPace" onclick="setPaceTab('pace')">Pace</button>
+      <button class="pace-tab" id="paceTabBtnPredictor" onclick="setPaceTab('predictor')">Race Predictor</button>
+      <button class="pace-tab" id="paceTabBtnSplits" onclick="setPaceTab('splits')">Splits</button>
+      <button class="pace-tab" id="paceTabBtnGap" onclick="setPaceTab('gap')">Grade Adjusted</button>
+    </div>
+
+    <!-- ── Tab 1: Pace Calculator ─────────────────────────── -->
+    <div class="pace-tab-panel active" id="paceTabPace">
+      <div class="pace-card">
+        <div class="pace-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><path d="m15 9-3 3"/></svg>
+          Calculate Pace, Time or Distance
+        </div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Fill any two fields — the third is auto-calculated in real time</p>
+
+        <!-- Distance -->
+        <div class="pace-field" style="margin-bottom:16px">
+          <div class="pace-field-label">Distance</div>
+          <div class="pace-field-inputs">
+            <input class="pace-input" id="pcDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="pcCalculate('dist')" style="max-width:120px">
+            <span id="pcDistUnit" class="pace-input-sep" style="font-size:.8rem">km</span>
+            <div class="pace-stepper">
+              <button class="pace-step-btn" onclick="pcStep('pcDist',0.1)">▲</button>
+              <button class="pace-step-btn" onclick="pcStep('pcDist',-0.1)">▼</button>
+            </div>
+          </div>
+          <div class="pace-presets">
+            <button class="pace-preset-btn" onclick="pcSetDist(1,event)">1K</button>
+            <button class="pace-preset-btn" onclick="pcSetDist(5,event)">5K</button>
+            <button class="pace-preset-btn" onclick="pcSetDist(10,event)">10K</button>
+            <button class="pace-preset-btn" onclick="pcSetDist(21.0975,event)">Half Marathon</button>
+            <button class="pace-preset-btn" onclick="pcSetDist(42.195,event)">Marathon</button>
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div class="pace-field" style="margin-bottom:16px">
+          <div class="pace-field-label">Time</div>
+          <div class="pace-field-inputs">
+            <input class="pace-input" id="pcTimeH" type="number" min="0" max="99" placeholder="0" oninput="pcCalculate('time')" style="max-width:64px" title="Hours">
+            <span class="pace-input-sep">h</span>
+            <input class="pace-input" id="pcTimeM" type="number" min="0" max="59" placeholder="00" oninput="pcCalculate('time')" style="max-width:64px" title="Minutes">
+            <span class="pace-input-sep">m</span>
+            <input class="pace-input" id="pcTimeS" type="number" min="0" max="59" placeholder="00" oninput="pcCalculate('time')" style="max-width:64px" title="Seconds">
+            <span class="pace-input-sep">s</span>
+            <div class="pace-stepper">
+              <button class="pace-step-btn" onclick="pcStepTime(1)">▲</button>
+              <button class="pace-step-btn" onclick="pcStepTime(-1)">▼</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pace -->
+        <div class="pace-field" style="margin-bottom:16px">
+          <div class="pace-field-label">Pace</div>
+          <div class="pace-field-inputs">
+            <input class="pace-input" id="pcPaceM" type="number" min="0" max="99" placeholder="0" oninput="pcCalculate('pace')" style="max-width:64px" title="Minutes">
+            <span class="pace-input-sep">:</span>
+            <input class="pace-input" id="pcPaceS" type="number" min="0" max="59" placeholder="00" oninput="pcCalculate('pace')" style="max-width:64px" title="Seconds">
+            <span id="pcPaceUnit" class="pace-input-sep" style="font-size:.8rem">/km</span>
+            <div class="pace-stepper">
+              <button class="pace-step-btn" onclick="pcStepPace(5)">▲</button>
+              <button class="pace-step-btn" onclick="pcStepPace(-5)">▼</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calories weight -->
+        <div class="pace-calories-row">
+          <span class="pace-calories-label">Runner weight:</span>
+          <input class="pace-calories-input" id="pcWeight" type="number" min="30" max="200" value="70" oninput="pcUpdateResults()">
+          <span class="pace-calories-unit">kg</span>
+        </div>
+
+        <div id="pcUseAvgBtn" style="display:none">
+          <button class="pace-use-avg-btn" onclick="pcUseAvgPace()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Use my average pace
+          </button>
+        </div>
+
+        <button class="pace-clear-btn" onclick="pcClear()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          Clear All
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="pace-card" id="pcResultsCard" style="display:none">
+        <div class="pace-card-title">Results</div>
+        <div class="pace-results-grid" id="pcResultsGrid"></div>
+        <div id="pcEqTimes"></div>
+      </div>
+    </div>
+
+    <!-- ── Tab 2: Race Predictor ──────────────────────────── -->
+    <div class="pace-tab-panel" id="paceTabPredictor">
+      <div class="pace-card">
+        <div class="pace-card-title">Recent Race Result</div>
+
+        <div class="pace-field" style="margin-bottom:16px">
+          <div class="pace-field-label">Race Distance</div>
+          <div class="pace-field-inputs">
+            <input class="pace-input" id="rpDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="rpCalculate()" style="max-width:120px">
+            <span id="rpDistUnit" class="pace-input-sep" style="font-size:.8rem">km</span>
+            <div class="pace-stepper">
+              <button class="pace-step-btn" onclick="pcStep('rpDist',0.1);rpCalculate()">▲</button>
+              <button class="pace-step-btn" onclick="pcStep('rpDist',-0.1);rpCalculate()">▼</button>
+            </div>
+          </div>
+          <div class="pace-presets">
+            <button class="pace-preset-btn" onclick="rpSetDist(5,event)">5K</button>
+            <button class="pace-preset-btn" onclick="rpSetDist(10,event)">10K</button>
+            <button class="pace-preset-btn" onclick="rpSetDist(21.0975,event)">Half Marathon</button>
+            <button class="pace-preset-btn" onclick="rpSetDist(42.195,event)">Marathon</button>
+          </div>
+        </div>
+
+        <div class="pace-field" style="margin-bottom:16px">
+          <div class="pace-field-label">Finish Time</div>
+          <div class="pace-field-inputs">
+            <input class="pace-input" id="rpTimeH" type="number" min="0" max="99" placeholder="0" oninput="rpCalculate()" style="max-width:64px">
+            <span class="pace-input-sep">h</span>
+            <input class="pace-input" id="rpTimeM" type="number" min="0" max="59" placeholder="00" oninput="rpCalculate()" style="max-width:64px">
+            <span class="pace-input-sep">m</span>
+            <input class="pace-input" id="rpTimeS" type="number" min="0" max="59" placeholder="00" oninput="rpCalculate()" style="max-width:64px">
+            <span class="pace-input-sep">s</span>
+          </div>
+        </div>
+
+        <div id="rpUseBestBtn" style="display:none">
+          <button class="pace-use-avg-btn" onclick="rpUseBestRace()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Use my best recent race
+          </button>
+        </div>
+      </div>
+
+      <div class="pace-card" id="rpResultsCard" style="display:none">
+        <div class="pace-card-title">Predicted Race Times</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="pace-strategy-btn active" id="rpModelRiegel" onclick="rpSetModel('riegel')">Riegel Formula</button>
+          <button class="pace-strategy-btn" id="rpModelCameron" onclick="rpSetModel('cameron')">Cameron Formula</button>
+          <button class="pace-strategy-btn" id="rpModelVo2" onclick="rpSetModel('vo2')">VO2max Based</button>
+        </div>
+        <div id="rpVo2Info" style="display:none" class="pace-note">
+          Estimated VO2max: <strong id="rpVo2Value">—</strong> ml/kg/min
+        </div>
+        <div style="overflow-x:auto">
+          <table class="pace-predictor-table">
+            <thead>
+              <tr><th>Distance</th><th>Predicted Time</th><th>Pace</th></tr>
+            </thead>
+            <tbody id="rpTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pace-note" style="margin-top:12px">
+          Predictions assume proper training for the target distance. Longer races require specific endurance training.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab 3: Splits Calculator ───────────────────────── -->
+    <div class="pace-tab-panel" id="paceTabSplits">
+      <div class="pace-card">
+        <div class="pace-card-title">Target Race</div>
+        <div class="pace-input-group">
+          <div class="pace-field">
+            <div class="pace-field-label">Distance</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="spDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="spCalculate()">
+              <span id="spDistUnit" class="pace-input-sep" style="font-size:.8rem">km</span>
+            </div>
+            <div class="pace-presets">
+              <button class="pace-preset-btn" onclick="spSetDist(5,event)">5K</button>
+              <button class="pace-preset-btn" onclick="spSetDist(10,event)">10K</button>
+              <button class="pace-preset-btn" onclick="spSetDist(21.0975,event)">Half</button>
+              <button class="pace-preset-btn" onclick="spSetDist(42.195,event)">Marathon</button>
+            </div>
+          </div>
+          <div class="pace-field">
+            <div class="pace-field-label">Target Finish Time</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="spTimeH" type="number" min="0" max="99" placeholder="0" oninput="spCalculate()" style="max-width:52px">
+              <span class="pace-input-sep">h</span>
+              <input class="pace-input" id="spTimeM" type="number" min="0" max="59" placeholder="00" oninput="spCalculate()" style="max-width:52px">
+              <span class="pace-input-sep">m</span>
+              <input class="pace-input" id="spTimeS" type="number" min="0" max="59" placeholder="00" oninput="spCalculate()" style="max-width:52px">
+              <span class="pace-input-sep">s</span>
+            </div>
+          </div>
+          <div class="pace-field">
+            <div class="pace-field-label">Split every</div>
+            <select class="pace-input" id="spInterval" onchange="spCalculate()" style="text-align:left">
+              <option value="1">1 km</option>
+              <option value="5">5 km</option>
+              <option value="mi">1 mile</option>
+              <option value="half">Halfway</option>
+            </select>
+          </div>
+        </div>
+        <div class="pace-field-label" style="margin-bottom:8px">Split Strategy</div>
+        <div class="pace-strategy-btns">
+          <button class="pace-strategy-btn active" id="spStratEven" onclick="spSetStrategy('even')">Even Splits</button>
+          <button class="pace-strategy-btn" id="spStratNegative" onclick="spSetStrategy('negative')">Negative Splits</button>
+          <button class="pace-strategy-btn" id="spStratPositive" onclick="spSetStrategy('positive')">Positive Splits</button>
+        </div>
+        <div id="spStratDesc" class="pace-note" style="margin-bottom:0;margin-top:0"></div>
+      </div>
+
+      <div class="pace-card" id="spResultsCard" style="display:none">
+        <div class="pace-card-title" style="justify-content:space-between">
+          <span>Split Table</span>
+          <button class="pace-export-btn" style="margin:0;padding:5px 12px" onclick="spExport()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="pace-splits-table" id="spTable">
+            <thead>
+              <tr>
+                <th style="text-align:left">Split</th>
+                <th>Distance</th>
+                <th>Split Time</th>
+                <th>Cum. Time</th>
+                <th>Pace</th>
+                <th>Cum. Dist</th>
+              </tr>
+            </thead>
+            <tbody id="spTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pace-chart-container">
+          <canvas id="spChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab 4: Grade Adjusted Pace ────────────────────── -->
+    <div class="pace-tab-panel" id="paceTabGap">
+      <div class="gap-explanation">
+        <strong>Grade Adjusted Pace (GAP)</strong> converts your hilly run pace to the equivalent flat-ground pace.
+        This helps you understand your true effort regardless of terrain — a 6:00/km uphill could equal 4:45/km on flat ground.
+      </div>
+
+      <div class="pace-card">
+        <div class="pace-card-title">GAP Calculator</div>
+        <div class="pace-input-group">
+          <div class="pace-field">
+            <div class="pace-field-label">Actual Pace</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="gapPaceM" type="number" min="0" max="99" placeholder="5" oninput="gapCalculate()" style="max-width:64px">
+              <span class="pace-input-sep">:</span>
+              <input class="pace-input" id="gapPaceS" type="number" min="0" max="59" placeholder="00" oninput="gapCalculate()" style="max-width:64px">
+              <span id="gapPaceUnit" class="pace-input-sep" style="font-size:.8rem">/km</span>
+            </div>
+          </div>
+          <div class="pace-field">
+            <div class="pace-field-label">Distance</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="gapDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="gapRecalcGradient()" style="max-width:100px">
+              <span id="gapDistUnit" class="pace-input-sep" style="font-size:.8rem">km</span>
+            </div>
+          </div>
+          <div class="pace-field">
+            <div class="pace-field-label">Avg Gradient %</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="gapGradient" type="number" min="-30" max="30" step="0.1" placeholder="0" oninput="gapCalculate()">
+              <span class="pace-input-sep" style="font-size:.8rem">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="pace-input-group">
+          <div class="pace-field">
+            <div class="pace-field-label">Elevation Gain</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="gapElevGain" type="number" min="0" placeholder="0" oninput="gapRecalcGradient()">
+              <span id="gapElevUnit" class="pace-input-sep" style="font-size:.8rem">m</span>
+            </div>
+          </div>
+          <div class="pace-field">
+            <div class="pace-field-label">Elevation Loss</div>
+            <div class="pace-field-inputs">
+              <input class="pace-input" id="gapElevLoss" type="number" min="0" placeholder="0" oninput="gapRecalcGradient()">
+              <span id="gapElevUnit2" class="pace-input-sep" style="font-size:.8rem">m</span>
+            </div>
+          </div>
+          <div class="pace-field"></div>
+        </div>
+
+        <!-- Gradient Slider -->
+        <div class="gap-slider-wrap">
+          <div class="gap-gradient-label">
+            <span>-15% (steep downhill)</span>
+            <strong id="gapSliderVal" style="color:var(--text)">0%</strong>
+            <span>+15% (steep uphill)</span>
+          </div>
+          <input class="gap-slider" id="gapSlider" type="range" min="-15" max="15" step="0.5" value="0" oninput="gapSliderMove()">
+        </div>
+
+        <!-- Hill Visual -->
+        <div class="gap-hill-visual" id="gapHillVisual">
+          <div class="gap-hill-road"></div>
+          <div class="gap-hill-runner" id="gapHillRunner">🏃</div>
+          <div class="gap-hill-arrow" id="gapHillArrow">➡️</div>
+        </div>
+
+        <!-- GAP Results -->
+        <div class="gap-results-big">
+          <div class="gap-big-item">
+            <div class="gap-big-label">Actual Pace</div>
+            <div class="gap-big-value" id="gapActualPace">—</div>
+            <div class="gap-big-sub" id="gapActualPaceSub">enter pace above</div>
+          </div>
+          <div class="gap-big-item">
+            <div class="gap-big-label">Grade Adjusted Pace</div>
+            <div class="gap-big-value" id="gapAdjPace" style="color:#22c55e">—</div>
+            <div class="gap-big-sub" id="gapAdjPaceSub">flat-ground equivalent</div>
+          </div>
+        </div>
+        <div id="gapEffortText" class="pace-note" style="margin-top:12px;display:none"></div>
+        <div id="gapEquivDist" class="pace-note" style="margin-top:6px;display:none"></div>
+      </div>
+
+      <!-- Multi-Segment -->
+      <div class="pace-card">
+        <div class="pace-card-title">Multi-Segment Run</div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">Break your run into segments with different gradients to calculate overall GAP</p>
+        <div style="overflow-x:auto">
+          <div style="min-width:480px">
+            <div style="display:grid;grid-template-columns:36px 1fr 1fr 1fr 1fr 36px;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+              <span></span>
+              <span style="font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;text-align:center">Distance</span>
+              <span style="font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;text-align:center">Elev +</span>
+              <span style="font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;text-align:center">Elev -</span>
+              <span style="font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;text-align:center">Pace</span>
+              <span></span>
+            </div>
+            <div id="gapSegmentsContainer"></div>
+          </div>
+        </div>
+        <button class="pace-add-segment-btn" onclick="gapAddSegment()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Segment
+        </button>
+        <div id="gapSegResults" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="pace-results-grid" id="gapSegResultsGrid"></div>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table class="pace-splits-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Seg</th>
+                  <th>Dist</th>
+                  <th>Gradient</th>
+                  <th>Actual Pace</th>
+                  <th>GAP</th>
+                  <th>Effort</th>
+                </tr>
+              </thead>
+              <tbody id="gapSegTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pace-chart-container" style="height:160px">
+            <canvas id="gapSegChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── VO2 Max Lab Overlay ───────────────────────────────── -->
+<div class="vo2-overlay" id="vo2Overlay">
+  <div class="vo2-page">
+    <button class="vo2-back-btn" onclick="closeVo2Page()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </button>
+
+    <div class="vo2-page-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="28" height="28"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      VO2 Max Lab
+    </div>
+    <div class="vo2-page-sub">Measure, track, and improve your aerobic fitness — the gold standard metric for endurance athletes</div>
+
+    <div class="vo2-tabs">
+      <button class="vo2-tab active" id="vo2TabBtnCalculate" onclick="setVo2Tab('calculate')">Calculate</button>
+      <button class="vo2-tab" id="vo2TabBtnHistory" onclick="setVo2Tab('history')">My VO2 Max</button>
+      <button class="vo2-tab" id="vo2TabBtnCompare" onclick="setVo2Tab('compare')">Compare</button>
+      <button class="vo2-tab" id="vo2TabBtnImprove" onclick="setVo2Tab('improve')">Improve</button>
+    </div>
+
+    <!-- ── Tab 1: Calculate ──────────────────────────────── -->
+    <div class="vo2-tab-panel active" id="vo2TabCalculate">
+      <div class="vo2-card">
+        <div class="vo2-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Calculation Method
+        </div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Choose a method — Race Result is the most accurate</p>
+        <div class="vo2-method-pills">
+          <button class="vo2-method-pill active" id="vo2MethRace" onclick="setVo2Method('race')">Race Result</button>
+          <button class="vo2-method-pill" id="vo2MethCooper" onclick="setVo2Method('cooper')">Cooper Test</button>
+          <button class="vo2-method-pill" id="vo2MethRockport" onclick="setVo2Method('rockport')">Rockport Walk</button>
+          <button class="vo2-method-pill" id="vo2MethRhr" onclick="setVo2Method('rhr')">Resting HR</button>
+          <button class="vo2-method-pill" id="vo2MethManual" onclick="setVo2Method('manual')">Lab Test</button>
+        </div>
+
+        <!-- Race Result -->
+        <div class="vo2-method-panel active" id="vo2PanelRace">
+          <div class="vo2-input-grid">
+            <div class="vo2-field">
+              <div class="vo2-field-label">Race Distance</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2RaceDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="vo2RaceCalc()">
+                <select class="vo2-input" id="vo2RaceUnit" onchange="vo2RaceCalc()" style="max-width:58px">
+                  <option value="km">km</option>
+                  <option value="mi">mi</option>
+                </select>
+              </div>
+              <div class="vo2-presets">
+                <button class="vo2-preset-btn" onclick="vo2SetRaceDist(5,this)">5K</button>
+                <button class="vo2-preset-btn" onclick="vo2SetRaceDist(10,this)">10K</button>
+                <button class="vo2-preset-btn" onclick="vo2SetRaceDist(21.0975,this)">Half</button>
+                <button class="vo2-preset-btn" onclick="vo2SetRaceDist(42.195,this)">Marathon</button>
+              </div>
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Finish Time</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2RaceH" type="number" min="0" max="23" placeholder="0" oninput="vo2RaceCalc()" style="max-width:52px">
+                <span style="color:var(--text-muted);font-weight:700">h</span>
+                <input class="vo2-input" id="vo2RaceM" type="number" min="0" max="59" placeholder="00" oninput="vo2RaceCalc()" style="max-width:52px">
+                <span style="color:var(--text-muted);font-weight:700">m</span>
+                <input class="vo2-input" id="vo2RaceS" type="number" min="0" max="59" placeholder="00" oninput="vo2RaceCalc()" style="max-width:52px">
+                <span style="color:var(--text-muted);font-weight:700">s</span>
+              </div>
+            </div>
+          </div>
+          <div id="vo2RaceBestBtn" style="display:none">
+            <button class="pace-use-avg-btn" style="color:#ef4444;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08)" onclick="vo2UseLastRace()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Use my best recent race
+            </button>
+          </div>
+        </div>
+
+        <!-- Cooper Test -->
+        <div class="vo2-method-panel" id="vo2PanelCooper">
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Run as far as possible in exactly 12 minutes and measure the distance.</p>
+          <div class="vo2-input-grid">
+            <div class="vo2-field">
+              <div class="vo2-field-label">Distance Covered</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2CoopDist" type="number" min="0" step="0.01" placeholder="0.00" oninput="vo2CooperCalc()">
+                <select class="vo2-input" id="vo2CoopUnit" onchange="vo2CooperCalc()" style="max-width:58px">
+                  <option value="m">m</option>
+                  <option value="km">km</option>
+                  <option value="mi">mi</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="vo2-note">Accuracy: ±10%. Best performed on a track. Run at maximum sustainable effort — not a sprint.</div>
+        </div>
+
+        <!-- Rockport Walk -->
+        <div class="vo2-method-panel" id="vo2PanelRockport">
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Walk 1 mile (1.6 km) as fast as possible on flat ground. Record time and heart rate at the end.</p>
+          <div class="vo2-input-grid">
+            <div class="vo2-field">
+              <div class="vo2-field-label">Body Weight</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2RockWeight" type="number" min="30" max="300" placeholder="70" oninput="vo2RockportCalc()">
+                <select class="vo2-input" id="vo2RockWeightUnit" onchange="vo2RockportCalc()" style="max-width:58px">
+                  <option value="kg">kg</option>
+                  <option value="lbs">lbs</option>
+                </select>
+              </div>
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Age</div>
+              <input class="vo2-input" id="vo2RockAge" type="number" min="10" max="100" placeholder="30" oninput="vo2RockportCalc()">
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Gender</div>
+              <select class="vo2-input" id="vo2RockGender" onchange="vo2RockportCalc()">
+                <option value="1">Male</option>
+                <option value="0">Female</option>
+              </select>
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Walk Time (min)</div>
+              <input class="vo2-input" id="vo2RockTime" type="number" min="5" max="30" step="0.1" placeholder="15.0" oninput="vo2RockportCalc()">
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Heart Rate at End (bpm)</div>
+              <input class="vo2-input" id="vo2RockHR" type="number" min="50" max="220" placeholder="120" oninput="vo2RockportCalc()">
+            </div>
+          </div>
+          <div class="vo2-note">Best for non-runners and beginners. More accurate than resting HR method for inactive individuals.</div>
+        </div>
+
+        <!-- Resting HR -->
+        <div class="vo2-method-panel" id="vo2PanelRhr">
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Measure resting heart rate first thing in the morning before getting out of bed.</p>
+          <div class="vo2-input-grid">
+            <div class="vo2-field">
+              <div class="vo2-field-label">Resting Heart Rate</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2RhrRhr" type="number" min="30" max="120" placeholder="60" oninput="vo2RhrCalc()">
+                <span style="color:var(--text-muted);font-size:.8rem">bpm</span>
+              </div>
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Age</div>
+              <input class="vo2-input" id="vo2RhrAge" type="number" min="10" max="100" placeholder="30" oninput="vo2RhrCalc()">
+            </div>
+          </div>
+          <div class="vo2-warning">Rough estimate only — error margin ±20%. Race-based or Cooper test calculations are much more accurate.</div>
+        </div>
+
+        <!-- Manual Lab Test -->
+        <div class="vo2-method-panel" id="vo2PanelManual">
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Enter your VO2 Max result from a laboratory test or professional fitness assessment.</p>
+          <div class="vo2-input-grid">
+            <div class="vo2-field">
+              <div class="vo2-field-label">VO2 Max Value</div>
+              <div class="vo2-field-inputs">
+                <input class="vo2-input" id="vo2ManualVal" type="number" min="10" max="100" step="0.1" placeholder="45.0" oninput="vo2ManualCalc()">
+                <span style="color:var(--text-muted);font-size:.75rem">ml/kg/min</span>
+              </div>
+            </div>
+            <div class="vo2-field">
+              <div class="vo2-field-label">Test Date</div>
+              <input class="vo2-input" id="vo2ManualDate" type="date" onchange="vo2ManualCalc()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared result card -->
+      <div class="vo2-card" id="vo2CalcResultCard" style="display:none">
+        <div class="vo2-card-title">Your VO2 Max Result</div>
+        <div class="vo2-big-display">
+          <div class="vo2-big-number" id="vo2CalcNumber">—</div>
+          <div class="vo2-big-unit">ml / kg / min</div>
+          <div id="vo2CalcBadgeWrap" style="margin-top:12px"></div>
+        </div>
+        <div class="vo2-result-box" id="vo2CalcDetails"></div>
+        <button class="vo2-save-btn" onclick="vo2SaveResult()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save This Result
+        </button>
+        <p id="vo2SaveMsg" style="display:none;font-size:.75rem;color:#22c55e;text-align:center;margin-top:8px;font-weight:600"></p>
+      </div>
+    </div>
+
+    <!-- ── Tab 2: My VO2 Max ─────────────────────────────── -->
+    <div class="vo2-tab-panel" id="vo2TabHistory">
+      <div id="vo2HistEmpty" class="vo2-card" style="text-align:center;padding:40px 20px">
+        <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+        <div style="font-size:.9rem;font-weight:700;margin-bottom:6px">No VO2 Max data yet</div>
+        <div style="font-size:.8rem;color:var(--text-muted)">Calculate your VO2 Max in the Calculate tab to start tracking</div>
+      </div>
+      <div id="vo2HistContent" style="display:none">
+        <div class="vo2-card">
+          <div class="vo2-card-title">Current VO2 Max</div>
+          <div class="vo2-big-display">
+            <div class="vo2-big-number" id="vo2CurrNum">—</div>
+            <div class="vo2-big-unit">ml / kg / min</div>
+            <div id="vo2CurrBadge" style="margin-top:12px"></div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px" id="vo2CurrStats"></div>
+        </div>
+        <div class="vo2-card">
+          <div class="vo2-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+            Fitness Age
+          </div>
+          <div class="vo2-fitness-age-wrap" id="vo2FitnessAge">
+            <div style="font-size:.8rem;color:var(--text-muted)">Enter your age in the Compare tab to see fitness age</div>
+          </div>
+        </div>
+        <div class="vo2-card">
+          <div class="vo2-card-title">VO2 Max Over Time</div>
+          <div class="vo2-chart-wrap"><canvas id="vo2HistChart"></canvas></div>
+        </div>
+        <div class="vo2-card">
+          <div class="vo2-card-title">Measurement History</div>
+          <div id="vo2HistTimeline"></div>
+          <button onclick="vo2ClearHistory()" style="margin-top:12px;padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:.75rem;cursor:pointer;transition:all var(--transition)" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">Clear History</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab 3: Compare ────────────────────────────────── -->
+    <div class="vo2-tab-panel" id="vo2TabCompare">
+      <div class="vo2-card">
+        <div class="vo2-card-title">Your Profile</div>
+        <div class="vo2-input-grid">
+          <div class="vo2-field">
+            <div class="vo2-field-label">Your VO2 Max</div>
+            <div class="vo2-field-inputs">
+              <input class="vo2-input" id="vo2CompVO2" type="number" min="10" max="100" step="0.1" placeholder="45" oninput="vo2UpdateCompare()">
+              <span style="color:var(--text-muted);font-size:.75rem">ml/kg/min</span>
+            </div>
+          </div>
+          <div class="vo2-field">
+            <div class="vo2-field-label">Age</div>
+            <input class="vo2-input" id="vo2CompAge" type="number" min="10" max="100" placeholder="30" oninput="vo2UpdateCompare()">
+          </div>
+          <div class="vo2-field">
+            <div class="vo2-field-label">Gender</div>
+            <select class="vo2-input" id="vo2CompGender" onchange="vo2UpdateCompare()">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+        <button class="pace-use-avg-btn" style="color:#ef4444;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08)" onclick="vo2LoadSavedForCompare()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Load from my saved VO2 Max
+        </button>
+      </div>
+      <div class="vo2-card" id="vo2CompPercentileCard" style="display:none">
+        <div class="vo2-card-title">Age-Group Percentile</div>
+        <div id="vo2CompPercentile"></div>
+        <div id="vo2CompNormTable" style="overflow-x:auto;margin-top:12px"></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Athletes &amp; Benchmarks
+        </div>
+        <div id="vo2AthleteBars"></div>
+        <div id="vo2AthleteMsg" class="vo2-note" style="margin-top:12px;display:none"></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">Race Potential from VO2 Max</div>
+        <div id="vo2RacePotential"><div style="font-size:.8rem;color:var(--text-muted)">Enter your VO2 Max above to see race potential</div></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">Sports That Match Your Fitness Level</div>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">VO2 Max requirements by sport (typical competitive level) — ✓ means you qualify</p>
+        <div id="vo2SportTiers"></div>
+      </div>
+    </div>
+
+    <!-- ── Tab 4: Improve ────────────────────────────────── -->
+    <div class="vo2-tab-panel" id="vo2TabImprove">
+      <div class="vo2-card" id="vo2ImprovStatus">
+        <div class="vo2-card-title">Current Status &amp; Goals</div>
+        <div id="vo2ImprovStatusBody"><div style="font-size:.8rem;color:var(--text-muted)">Calculate and save your VO2 Max first to get personalized recommendations</div></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Training Recommendations
+        </div>
+        <div id="vo2TrainingCards"></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">Expected Improvement Timeline</div>
+        <div id="vo2ProjText" style="font-size:.8rem;color:var(--text-muted);margin-bottom:8px"></div>
+        <div class="vo2-proj-chart-wrap"><canvas id="vo2ProjChart"></canvas></div>
+      </div>
+      <div class="vo2-card">
+        <div class="vo2-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Factors That Affect VO2 Max
+        </div>
+        <div id="vo2FactorsCards"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ─── Completed Race Modal ──────────────────────────────── -->
 <div class="modal-overlay" id="completedRaceModalOverlay" onclick="handleOverlayClick(event,'completedRaceModalOverlay')">
   <div class="modal" role="dialog" aria-modal="true" style="max-width:580px">
@@ -3667,6 +4872,8 @@ document.addEventListener('keydown', e => {
     closePhotoLightbox();
     if (document.getElementById('profileOverlay')?.classList.contains('open')) closeProfile();
     if (document.getElementById('racesOverlay')?.classList.contains('open')) closeRacesPage();
+    if (document.getElementById('paceOverlay')?.classList.contains('open')) closePacePage();
+    if (document.getElementById('vo2Overlay')?.classList.contains('open')) closeVo2Page();
   }
 });
 
@@ -7468,6 +8675,1195 @@ function renderProfileRaceResume() {
         View Full Race History
       </button>
     </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PACE CALCULATOR
+══════════════════════════════════════════════════════════════ */
+
+let paceUnit = 'km';
+let currentPaceTab = 'pace';
+let pcLastChanged = null;
+let rpModel = 'riegel';
+let spStrategy = 'even';
+let gapSegments = [];
+let spChartInst = null;
+let gapSegChartInst = null;
+
+const KM_PER_MILE = 1.60934;
+
+// ── Open / Close ─────────────────────────────────────────────
+function openPacePage() {
+  const saved = localStorage.getItem('paceCalcUnit');
+  if (saved) setPaceUnit(saved, true);
+  document.getElementById('paceOverlay').classList.add('open');
+  pcCheckAvgPace();
+  rpCheckBestRace();
+  if (!gapSegments.length) gapInitSegments();
+  spUpdateStratDesc();
+}
+function closePacePage() {
+  document.getElementById('paceOverlay').classList.remove('open');
+}
+
+function setPaceUnit(unit, silent) {
+  paceUnit = unit;
+  if (!silent) localStorage.setItem('paceCalcUnit', unit);
+  document.getElementById('paceUnitKm').classList.toggle('active', unit === 'km');
+  document.getElementById('paceUnitMi').classList.toggle('active', unit === 'mi');
+  const ul = unit === 'km' ? 'km' : 'mi';
+  const pl = unit === 'km' ? '/km' : '/mi';
+  const el = unit === 'km' ? 'm' : 'ft';
+  ['pcDistUnit','rpDistUnit','spDistUnit','gapDistUnit'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = ul; });
+  ['pcPaceUnit','gapPaceUnit'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = pl; });
+  ['gapElevUnit','gapElevUnit2'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = el; });
+  // Update interval dropdown label
+  const ivSel = document.getElementById('spInterval');
+  if (ivSel) { const opt = ivSel.querySelector('option[value="1"]'); if(opt) opt.textContent = unit === 'km' ? '1 km' : '1 km (≈0.62 mi)'; }
+  pcCalculate(pcLastChanged);
+  rpCalculate();
+  spCalculate();
+  gapRenderSegments();
+}
+
+function setPaceTab(tab) {
+  currentPaceTab = tab;
+  document.querySelectorAll('.pace-tab').forEach(b => b.classList.remove('active'));
+  const tabBtn = document.getElementById('paceTabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (tabBtn) tabBtn.classList.add('active');
+  document.querySelectorAll('.pace-tab-panel').forEach(p => p.classList.remove('active'));
+  const tabPanel = document.getElementById('paceTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (tabPanel) tabPanel.classList.add('active');
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function pcFmtTime(totalSecs, forceHours) {
+  if (!isFinite(totalSecs) || totalSecs < 0) return '—';
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = Math.round(totalSecs % 60);
+  if (h > 0 || forceHours) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function pcFmtPace(secsPerUnit) {
+  if (!isFinite(secsPerUnit) || secsPerUnit <= 0) return '—';
+  const m = Math.floor(secsPerUnit / 60);
+  const s = Math.round(secsPerUnit % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function pcGetTimeSecs(hId, mId, sId) {
+  return (parseFloat(document.getElementById(hId)?.value)||0)*3600 +
+         (parseFloat(document.getElementById(mId)?.value)||0)*60 +
+         (parseFloat(document.getElementById(sId)?.value)||0);
+}
+function pcSetTimeSecs(hId, mId, sId, secs) {
+  const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60), s = Math.round(secs%60);
+  document.getElementById(hId).value = h || '';
+  document.getElementById(mId).value = m ? String(m).padStart(2,'0') : '';
+  document.getElementById(sId).value = s ? String(s).padStart(2,'0') : '';
+}
+function pcGetPaceSecs(mId, sId) {
+  return (parseFloat(document.getElementById(mId)?.value)||0)*60 +
+         (parseFloat(document.getElementById(sId)?.value)||0);
+}
+function pcSetPaceSecs(mId, sId, secs) {
+  const m = Math.floor(secs/60), s = Math.round(secs%60);
+  document.getElementById(mId).value = m || '';
+  document.getElementById(sId).value = s ? String(s).padStart(2,'0') : '';
+}
+
+// ── Tab 1: Pace Calculator ────────────────────────────────────
+function pcStep(id, delta) {
+  const el = document.getElementById(id);
+  el.value = Math.max(0, Math.round((parseFloat(el.value)||0) * 100 + delta * 100) / 100);
+  pcCalculate('dist');
+}
+function pcStepTime(delta) {
+  const t = pcGetTimeSecs('pcTimeH','pcTimeM','pcTimeS') + delta;
+  if (t < 0) return;
+  pcSetTimeSecs('pcTimeH','pcTimeM','pcTimeS', t);
+  pcCalculate('time');
+}
+function pcStepPace(delta) {
+  const t = Math.max(0, pcGetPaceSecs('pcPaceM','pcPaceS') + delta);
+  pcSetPaceSecs('pcPaceM','pcPaceS', t);
+  pcCalculate('pace');
+}
+function pcSetDist(km, ev) {
+  const dist = paceUnit === 'km' ? km : km / KM_PER_MILE;
+  document.getElementById('pcDist').value = Math.round(dist * 1000) / 1000;
+  document.querySelectorAll('#paceTabPace .pace-preset-btn').forEach(b => b.classList.remove('active-preset'));
+  if (ev && ev.target) ev.target.classList.add('active-preset');
+  pcCalculate('dist');
+}
+function pcCalculate(changed) {
+  if (changed) pcLastChanged = changed;
+  const distRaw = parseFloat(document.getElementById('pcDist')?.value);
+  const timeSecs = pcGetTimeSecs('pcTimeH','pcTimeM','pcTimeS');
+  const paceSecs = pcGetPaceSecs('pcPaceM','pcPaceS');
+  const distKm = paceUnit === 'km' ? distRaw : distRaw * KM_PER_MILE;
+  const pacePerKm = paceUnit === 'km' ? paceSecs : paceSecs / KM_PER_MILE;
+  const hasD = !isNaN(distRaw) && distRaw > 0;
+  const hasT = timeSecs > 0;
+  const hasP = paceSecs > 0;
+  if (hasT && hasP && changed !== 'dist') {
+    const cd = timeSecs / pacePerKm;
+    document.getElementById('pcDist').value = Math.round((paceUnit==='km' ? cd : cd/KM_PER_MILE)*1000)/1000;
+  } else if (hasD && hasP && changed !== 'time') {
+    pcSetTimeSecs('pcTimeH','pcTimeM','pcTimeS', distKm * pacePerKm);
+  } else if (hasD && hasT && changed !== 'pace') {
+    const cp = timeSecs / distKm;
+    pcSetPaceSecs('pcPaceM','pcPaceS', paceUnit==='km' ? cp : cp * KM_PER_MILE);
+  }
+  pcUpdateResults();
+}
+function pcUpdateResults() {
+  const distRaw = parseFloat(document.getElementById('pcDist')?.value);
+  const timeSecs = pcGetTimeSecs('pcTimeH','pcTimeM','pcTimeS');
+  const paceSecs = pcGetPaceSecs('pcPaceM','pcPaceS');
+  const weight = parseFloat(document.getElementById('pcWeight')?.value) || 70;
+  const distKm = paceUnit === 'km' ? distRaw : distRaw * KM_PER_MILE;
+  const pacePerKm = paceUnit === 'km' ? paceSecs : paceSecs / KM_PER_MILE;
+  const hasD = !isNaN(distRaw) && distRaw > 0;
+  const hasT = timeSecs > 0;
+  const hasP = paceSecs > 0;
+  const card = document.getElementById('pcResultsCard');
+  if (!(hasD && hasP) && !(hasD && hasT) && !(hasP && hasT)) { card.style.display='none'; return; }
+  card.style.display = 'block';
+  let fDist = distKm, fTime = timeSecs, fPace = pacePerKm;
+  if (!hasD) fDist = timeSecs / pacePerKm;
+  else if (!hasT) fTime = distKm * pacePerKm;
+  else if (!hasP) fPace = timeSecs / distKm;
+  const pacePerMi = fPace * KM_PER_MILE;
+  const speedKmh = 3600 / fPace;
+  const speedMph = speedKmh / KM_PER_MILE;
+  const met = Math.min(12, Math.max(6, speedKmh * 0.8));
+  const cals = Math.round(met * weight * (fTime / 3600));
+  document.getElementById('pcResultsGrid').innerHTML = `
+    <div class="pace-result-item">
+      <div class="pace-result-label">Pace per km</div>
+      <div class="pace-result-value">${pcFmtPace(fPace)}</div>
+      <div class="pace-result-sub">min/km</div>
+    </div>
+    <div class="pace-result-item">
+      <div class="pace-result-label">Pace per mile</div>
+      <div class="pace-result-value">${pcFmtPace(pacePerMi)}</div>
+      <div class="pace-result-sub">min/mi</div>
+    </div>
+    <div class="pace-result-item">
+      <div class="pace-result-label">Speed</div>
+      <div class="pace-result-value">${speedKmh.toFixed(1)}</div>
+      <div class="pace-result-sub">km/h &nbsp;(${speedMph.toFixed(1)} mph)</div>
+    </div>
+    <div class="pace-result-item">
+      <div class="pace-result-label">Est. Calories</div>
+      <div class="pace-result-value">${cals}</div>
+      <div class="pace-result-sub">kcal (${weight} kg runner)</div>
+    </div>`;
+  const dists = [{l:'1K',km:1},{l:'5K',km:5},{l:'10K',km:10},{l:'Half Marathon',km:21.0975},{l:'Marathon',km:42.195}];
+  const items = dists.map(d => `<div class="pace-eq-item"><div class="pace-eq-dist">${d.l}</div><div class="pace-eq-time">${pcFmtTime(d.km*fPace,d.km>=10)}</div></div>`).join('');
+  document.getElementById('pcEqTimes').innerHTML = `
+    <div class="pace-eq-times">
+      <div class="pace-eq-title">At this pace, your equivalent times:</div>
+      <div class="pace-eq-grid">${items}</div>
+    </div>`;
+}
+function pcClear() {
+  ['pcDist','pcTimeH','pcTimeM','pcTimeS','pcPaceM','pcPaceS'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.querySelectorAll('#paceTabPace .pace-preset-btn').forEach(b=>b.classList.remove('active-preset'));
+  pcLastChanged = null;
+  document.getElementById('pcResultsCard').style.display = 'none';
+}
+function pcCheckAvgPace() {
+  const runs = db?.activities?.filter(a=>a.type==='run'&&a.pace) || [];
+  document.getElementById('pcUseAvgBtn').style.display = runs.length ? 'block' : 'none';
+}
+function pcUseAvgPace() {
+  const runs = (db?.activities?.filter(a=>a.type==='run'&&a.pace)||[]).slice(0,10);
+  if (!runs.length) return;
+  const avgSecs = runs.reduce((acc,a)=>{const[m,s]=(a.pace||'0:0').split(':').map(Number);return acc+m*60+(s||0);},0)/runs.length;
+  pcSetPaceSecs('pcPaceM','pcPaceS', avgSecs);
+  pcCalculate('pace');
+}
+
+// ── Tab 2: Race Predictor ─────────────────────────────────────
+function rpSetDist(km, ev) {
+  const dist = paceUnit==='km' ? km : km/KM_PER_MILE;
+  document.getElementById('rpDist').value = Math.round(dist*1000)/1000;
+  document.querySelectorAll('#paceTabPredictor .pace-preset-btn').forEach(b=>b.classList.remove('active-preset'));
+  if (ev&&ev.target) ev.target.classList.add('active-preset');
+  rpCalculate();
+}
+function rpSetModel(model) {
+  rpModel = model;
+  ['riegel','cameron','vo2'].forEach(m=>{
+    const el = document.getElementById('rpModel'+m.charAt(0).toUpperCase()+m.slice(1));
+    if (el) el.classList.toggle('active', m===model);
+  });
+  document.getElementById('rpVo2Info').style.display = model==='vo2' ? 'block' : 'none';
+  rpCalculate();
+}
+function rpCalculate() {
+  const dv = parseFloat(document.getElementById('rpDist')?.value);
+  const ts = pcGetTimeSecs('rpTimeH','rpTimeM','rpTimeS');
+  const card = document.getElementById('rpResultsCard');
+  if (!dv||dv<=0||!ts) { card.style.display='none'; return; }
+  card.style.display='block';
+  const d1km = paceUnit==='km' ? dv : dv*KM_PER_MILE;
+  const targets=[{l:'1K',km:1},{l:'5K',km:5},{l:'10K',km:10},{l:'15K',km:15},{l:'Half Marathon',km:21.0975},{l:'Marathon',km:42.195}];
+  const vo2 = rpEstVo2(d1km, ts);
+  document.getElementById('rpVo2Value').textContent = vo2.toFixed(1);
+  const rows = targets.map(t=>{
+    const pt = Math.abs(t.km-d1km)<0.01 ? ts : rpPredTime(d1km,ts,t.km);
+    const ppkm = pt/t.km;
+    const pd = paceUnit==='km' ? ppkm : ppkm*KM_PER_MILE;
+    const isIn = Math.abs(t.km-d1km)<0.01;
+    return `<tr style="${isIn?'background:rgba(249,115,22,.06)':''}">
+      <td>${t.l}${isIn?' <span style="font-size:.65rem;color:#f97316">(input)</span>':''}</td>
+      <td>${pcFmtTime(pt,t.km>=10)}</td>
+      <td style="color:var(--text-muted)">${pcFmtPace(pd)}/${paceUnit==='km'?'km':'mi'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rpTableBody').innerHTML = rows;
+}
+function rpPredTime(d1, t1, d2) {
+  if (rpModel==='riegel') return t1*Math.pow(d2/d1,1.06);
+  if (rpModel==='cameron') {
+    const exp = 1+0.0065*(d2-d1);
+    return t1*Math.pow(d2/d1,Math.max(1.02,Math.min(1.15,exp)));
+  }
+  // vo2 model — Riegel with slight long-distance adjustment
+  const base = t1*Math.pow(d2/d1,1.06);
+  return d2>d1*2 ? base*1.02 : base;
+}
+function rpEstVo2(dkm, tsecs) {
+  const vel = dkm/(tsecs/60);
+  const pct = 0.8+0.1894393*Math.exp(-0.012778*tsecs/60)+0.2989558*Math.exp(-0.1932605*tsecs/60);
+  const vo2 = (-4.60+0.182258*vel+0.000104*vel*vel)/pct;
+  return Math.max(20,Math.min(90,vo2));
+}
+function rpCheckBestRace() {
+  const cr = db?.races?.completed||[];
+  document.getElementById('rpUseBestBtn').style.display = cr.length ? 'block' : 'none';
+}
+function rpUseBestRace() {
+  const cr = (db?.races?.completed||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if (!cr.length) return;
+  const race = cr[0];
+  const dm = {5:5,10:10,'5k':5,'10k':10,'half-marathon':21.0975,'marathon':42.195};
+  const km = dm[race.type]||parseFloat(race.distance)||0;
+  if (km) { const d=paceUnit==='km'?km:km/KM_PER_MILE; document.getElementById('rpDist').value=Math.round(d*1000)/1000; }
+  if (race.time) {
+    const pts = race.time.split(':').map(Number);
+    if (pts.length===3) pcSetTimeSecs('rpTimeH','rpTimeM','rpTimeS',pts[0]*3600+pts[1]*60+pts[2]);
+    else if (pts.length===2) pcSetTimeSecs('rpTimeH','rpTimeM','rpTimeS',pts[0]*60+pts[1]);
+  }
+  rpCalculate();
+}
+
+// ── Tab 3: Splits ─────────────────────────────────────────────
+function spSetDist(km, ev) {
+  const d = paceUnit==='km' ? km : km/KM_PER_MILE;
+  document.getElementById('spDist').value = Math.round(d*1000)/1000;
+  document.querySelectorAll('#paceTabSplits .pace-preset-btn').forEach(b=>b.classList.remove('active-preset'));
+  if (ev&&ev.target) ev.target.classList.add('active-preset');
+  spCalculate();
+}
+function spSetStrategy(strat) {
+  spStrategy = strat;
+  ['even','negative','positive'].forEach(s=>{
+    const btn = document.getElementById('spStrat'+s.charAt(0).toUpperCase()+s.slice(1));
+    if (btn) btn.classList.toggle('active', s===strat);
+  });
+  spUpdateStratDesc();
+  spCalculate();
+}
+function spUpdateStratDesc() {
+  const d = {
+    even:'Same pace throughout. Best for beginners or chasing a specific finish time.',
+    negative:'Start 2–3% slower in the first half, finish 2–3% faster. Associated with most world records and personal bests.',
+    positive:'Start 2–3% faster in the first half and ease off in the second. Common mistake — usually results in a harder finish.'
+  };
+  const el = document.getElementById('spStratDesc');
+  if (el) el.textContent = d[spStrategy]||'';
+}
+function spCalculate() {
+  const dv = parseFloat(document.getElementById('spDist')?.value);
+  const ts = pcGetTimeSecs('spTimeH','spTimeM','spTimeS');
+  const iv = document.getElementById('spInterval')?.value;
+  const card = document.getElementById('spResultsCard');
+  if (!dv||dv<=0||!ts) { card.style.display='none'; return; }
+  const dkm = paceUnit==='km' ? dv : dv*KM_PER_MILE;
+  let ivkm;
+  if (iv==='mi') ivkm = KM_PER_MILE;
+  else if (iv==='half') ivkm = dkm/2;
+  else ivkm = parseFloat(iv)||1;
+  const basePace = ts/dkm;
+  const splits=[];
+  let cumD=0,cumT=0,splitNum=0;
+  while (cumD<dkm-0.001) {
+    splitNum++;
+    const sd = Math.min(ivkm, dkm-cumD);
+    const midPct = (cumD+sd/2)/dkm;
+    let mult=1;
+    if (spStrategy==='negative') mult = midPct<0.5?1.025:0.975;
+    else if (spStrategy==='positive') mult = midPct<0.5?0.975:1.025;
+    const sp = basePace*mult;
+    const st = sd*sp;
+    cumD+=sd; cumT+=st;
+    const ddist = paceUnit==='km' ? sd : sd/KM_PER_MILE;
+    const dcd = paceUnit==='km' ? cumD : cumD/KM_PER_MILE;
+    const dp = paceUnit==='km' ? sp : sp*KM_PER_MILE;
+    const ul = paceUnit==='km' ? 'km' : 'mi';
+    splits.push({splitNum,sd,ddist,st,cumT,sp,dp,dcd,ul,mult});
+  }
+  card.style.display='block';
+  const rows = splits.map(s=>{
+    const cls = s.mult<1?'pace-split-fast':(s.mult>1?'pace-split-slow':'');
+    return `<tr>
+      <td>#${s.splitNum}</td>
+      <td style="text-align:right">${s.ddist.toFixed(2)} ${s.ul}</td>
+      <td style="text-align:right">${pcFmtTime(s.st)}</td>
+      <td style="text-align:right">${pcFmtTime(s.cumT,true)}</td>
+      <td style="text-align:right" class="${cls}">${pcFmtPace(s.dp)}/${s.ul}</td>
+      <td style="text-align:right">${s.dcd.toFixed(2)} ${s.ul}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('spTableBody').innerHTML = rows;
+  spRenderChart(splits);
+}
+function spRenderChart(splits) {
+  const ctx = document.getElementById('spChart');
+  if (!ctx) return;
+  if (spChartInst) { spChartInst.destroy(); spChartInst=null; }
+  const th = getChartTheme();
+  spChartInst = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels:splits.map(s=>`#${s.splitNum}`),
+      datasets:[{
+        label:'Pace',
+        data:splits.map(s=>parseFloat((s.dp/60).toFixed(3))),
+        borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.12)',
+        fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#f97316'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10}}},
+        y:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10},callback:v=>{const m=Math.floor(v);const s=Math.round((v-m)*60);return `${m}:${String(s).padStart(2,'0')}`;}}}
+      }
+    }
+  });
+}
+function spExport() {
+  const rows = document.querySelectorAll('#spTable tbody tr');
+  let csv='Split,Distance,Split Time,Cumulative Time,Pace,Cumulative Distance\n';
+  rows.forEach(r=>{ csv+=Array.from(r.querySelectorAll('td')).map(c=>c.textContent.trim()).join(',')+'\n'; });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='splits.csv'; a.click();
+}
+
+// ── Tab 4: GAP ────────────────────────────────────────────────
+const GAP_LUT=[[-15,1.13],[-12,1.08],[-10,1.04],[-8,1.015],[-6,0.995],[-4,0.975],[-2,0.985],[0,1.0],[2,1.035],[4,1.075],[6,1.12],[8,1.17],[10,1.225],[12,1.29],[15,1.37]];
+function gapEffort(g) {
+  g=Math.max(-15,Math.min(15,g));
+  for (let i=0;i<GAP_LUT.length-1;i++) {
+    const[g1,e1]=GAP_LUT[i],[g2,e2]=GAP_LUT[i+1];
+    if (g>=g1&&g<=g2) return e1+(e2-e1)*(g-g1)/(g2-g1);
+  }
+  return 1.0;
+}
+function gapRecalcGradient() {
+  const dv=parseFloat(document.getElementById('gapDist')?.value);
+  const gain=parseFloat(document.getElementById('gapElevGain')?.value)||0;
+  const loss=parseFloat(document.getElementById('gapElevLoss')?.value)||0;
+  if (dv&&dv>0&&(gain||loss)) {
+    const dm=paceUnit==='km'?dv*1000:dv*1609.34;
+    const g=((gain-loss)/dm)*100;
+    const gr=Math.round(g*10)/10;
+    document.getElementById('gapGradient').value=gr;
+    document.getElementById('gapSlider').value=Math.max(-15,Math.min(15,g));
+    document.getElementById('gapSliderVal').textContent=`${gr}%`;
+    gapUpdateHillVisual(g);
+  }
+  gapCalculate();
+}
+function gapSliderMove() {
+  const v=parseFloat(document.getElementById('gapSlider').value);
+  document.getElementById('gapSliderVal').textContent=`${v}%`;
+  document.getElementById('gapGradient').value=v;
+  gapUpdateHillVisual(v);
+  gapCalculate();
+}
+function gapUpdateHillVisual(g) {
+  const runner=document.getElementById('gapHillRunner');
+  const arrow=document.getElementById('gapHillArrow');
+  const visual=document.getElementById('gapHillVisual');
+  if (!runner||!arrow||!visual) return;
+  runner.style.transform=`translateX(-50%) rotate(${Math.max(-35,Math.min(35,g*2.5))}deg)`;
+  if (g>2) {
+    arrow.textContent='↗️'; arrow.style.bottom=`${20+g*2}px`;
+    visual.style.background=g>8?'rgba(239,68,68,.1)':'rgba(234,179,8,.08)';
+  } else if (g<-2) {
+    arrow.textContent='↘️'; arrow.style.bottom=`${20+Math.abs(g)*2}px`;
+    visual.style.background='rgba(34,197,94,.08)';
+  } else {
+    arrow.textContent='➡️'; arrow.style.bottom='16px';
+    visual.style.background='var(--bg3)';
+  }
+}
+function gapCalculate() {
+  const pm=parseFloat(document.getElementById('gapPaceM')?.value);
+  const ps=parseFloat(document.getElementById('gapPaceS')?.value)||0;
+  const g=parseFloat(document.getElementById('gapGradient')?.value)||0;
+  const dv=parseFloat(document.getElementById('gapDist')?.value);
+  const sl=document.getElementById('gapSlider');
+  if (sl&&document.activeElement!==sl) { sl.value=Math.max(-15,Math.min(15,g)); document.getElementById('gapSliderVal').textContent=`${Math.round(g*10)/10}%`; gapUpdateHillVisual(g); }
+  if (isNaN(pm)) {
+    document.getElementById('gapActualPace').textContent='—';
+    document.getElementById('gapAdjPace').textContent='—';
+    document.getElementById('gapEffortText').style.display='none';
+    document.getElementById('gapEquivDist').style.display='none';
+    return;
+  }
+  const aps=paceUnit==='km'?(pm*60+ps):(pm*60+ps)/KM_PER_MILE;
+  const eff=gapEffort(g);
+  const adj=aps/eff;
+  const ul=paceUnit==='km'?'/km':'/mi';
+  const dsp=paceUnit==='km'?aps:aps*KM_PER_MILE;
+  const dad=paceUnit==='km'?adj:adj*KM_PER_MILE;
+  document.getElementById('gapActualPace').textContent=pcFmtPace(dsp)+ul;
+  document.getElementById('gapAdjPace').textContent=pcFmtPace(dad)+ul;
+  document.getElementById('gapActualPaceSub').textContent=`${g>0?'+':''}${Math.round(g*10)/10}% gradient`;
+  const adjEl=document.getElementById('gapAdjPace');
+  adjEl.style.color=adj<aps?'#22c55e':adj>aps?'#ef4444':'#f97316';
+  const harder=eff>1;
+  const diffP=Math.abs((eff-1)*100).toFixed(1);
+  const terrain=g>2?'uphill':g<-2?'downhill':'flat';
+  const effEl=document.getElementById('gapEffortText');
+  effEl.style.display='block';
+  effEl.innerHTML=`Your ${pcFmtPace(dsp)}${ul} on this ${terrain} equals <strong>${pcFmtPace(dad)}${ul}</strong> on flat ground. This route is <strong>${eff.toFixed(2)}× ${harder?'harder':'easier'}</strong> than flat (${diffP}% ${harder?'more':'less'} effort).`;
+  const eqEl=document.getElementById('gapEquivDist');
+  if (dv&&dv>0) {
+    const dkm=paceUnit==='km'?dv:dv*KM_PER_MILE;
+    const eqKm=dkm*eff;
+    const eqD=paceUnit==='km'?eqKm:eqKm/KM_PER_MILE;
+    eqEl.style.display='block';
+    eqEl.innerHTML=`Your ${dv.toFixed(2)} ${paceUnit} hilly run was equivalent to <strong>${eqD.toFixed(2)} ${paceUnit}</strong> of flat running in effort.`;
+  } else eqEl.style.display='none';
+}
+
+// ── GAP Multi-Segment ─────────────────────────────────────────
+function gapInitSegments() {
+  gapSegments=[
+    {dist:3,elevGain:0,elevLoss:0,paceM:5,paceS:0},
+    {dist:2,elevGain:100,elevLoss:0,paceM:6,paceS:30},
+    {dist:2,elevGain:0,elevLoss:100,paceM:4,paceS:40}
+  ];
+  gapRenderSegments();
+}
+function gapRenderSegments() {
+  const c=document.getElementById('gapSegmentsContainer');
+  if (!c) return;
+  const ul=paceUnit==='km'?'km':'mi';
+  const ev=paceUnit==='km'?'m':'ft';
+  const pu=paceUnit==='km'?'/km':'/mi';
+  c.innerHTML=gapSegments.map((s,i)=>`
+    <div style="display:grid;grid-template-columns:36px 1fr 1fr 1fr 1fr 36px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="pace-segment-num">${i+1}</div>
+      <div><input class="pace-input" type="number" min="0" step="0.01" value="${s.dist}" oninput="gapSegUpd(${i},'dist',this.value)" style="width:100%"><div style="font-size:.68rem;color:var(--text-dim);text-align:center">${ul}</div></div>
+      <div><input class="pace-input" type="number" min="0" value="${s.elevGain}" oninput="gapSegUpd(${i},'elevGain',this.value)" style="width:100%"><div style="font-size:.68rem;color:var(--text-dim);text-align:center">+${ev}</div></div>
+      <div><input class="pace-input" type="number" min="0" value="${s.elevLoss}" oninput="gapSegUpd(${i},'elevLoss',this.value)" style="width:100%"><div style="font-size:.68rem;color:var(--text-dim);text-align:center">-${ev}</div></div>
+      <div><div style="display:flex;gap:3px;align-items:center"><input class="pace-input" type="number" min="0" max="99" value="${s.paceM}" oninput="gapSegUpd(${i},'paceM',this.value)" style="width:46px"><span style="color:var(--text-muted);font-weight:700">:</span><input class="pace-input" type="number" min="0" max="59" value="${String(s.paceS).padStart(2,'0')}" oninput="gapSegUpd(${i},'paceS',this.value)" style="width:46px"></div><div style="font-size:.68rem;color:var(--text-dim);text-align:center">${pu}</div></div>
+      <button onclick="gapRemSeg(${i})" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all var(--transition)" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">✕</button>
+    </div>`).join('');
+  gapCalcSegs();
+}
+function gapSegUpd(i,k,v){gapSegments[i][k]=parseFloat(v)||0;gapCalcSegs();}
+function gapAddSegment(){gapSegments.push({dist:1,elevGain:0,elevLoss:0,paceM:5,paceS:0});gapRenderSegments();}
+function gapRemSeg(i){gapSegments.splice(i,1);if(!gapSegments.length)gapSegments.push({dist:1,elevGain:0,elevLoss:0,paceM:5,paceS:0});gapRenderSegments();}
+function gapCalcSegs() {
+  const ul=paceUnit==='km'?'/km':'/mi';
+  const results=gapSegments.map((s,i)=>{
+    const dkm=paceUnit==='km'?s.dist:s.dist*KM_PER_MILE;
+    const gm=paceUnit==='km'?s.elevGain:s.elevGain*0.3048;
+    const lm=paceUnit==='km'?s.elevLoss:s.elevLoss*0.3048;
+    const g=dkm>0?((gm-lm)/(dkm*1000))*100:0;
+    const eff=gapEffort(g);
+    const aps=s.paceM*60+s.paceS;
+    const apkm=paceUnit==='km'?aps:aps/KM_PER_MILE;
+    const adj=apkm/eff;
+    const adD=paceUnit==='km'?adj:adj*KM_PER_MILE;
+    const apD=paceUnit==='km'?apkm:apkm*KM_PER_MILE;
+    return{i,dkm,g,eff,apkm,adj,apD,adD};
+  });
+  const totD=results.reduce((a,r)=>a+r.dkm,0);
+  const wGap=results.reduce((a,r)=>a+r.adj*r.dkm,0)/(totD||1);
+  const wGapD=paceUnit==='km'?wGap:wGap*KM_PER_MILE;
+  const totDD=paceUnit==='km'?totD:totD/KM_PER_MILE;
+  const segRes=document.getElementById('gapSegResults');
+  segRes.style.display='block';
+  document.getElementById('gapSegResultsGrid').innerHTML=`
+    <div class="pace-result-item"><div class="pace-result-label">Total Distance</div><div class="pace-result-value">${totDD.toFixed(2)}</div><div class="pace-result-sub">${paceUnit}</div></div>
+    <div class="pace-result-item"><div class="pace-result-label">Overall GAP</div><div class="pace-result-value" style="color:#22c55e">${pcFmtPace(wGapD)}${ul}</div><div class="pace-result-sub">weighted average</div></div>
+    <div class="pace-result-item"><div class="pace-result-label">Avg Effort Mult.</div><div class="pace-result-value">${(results.reduce((a,r)=>a+r.eff*r.dkm,0)/(totD||1)).toFixed(2)}×</div><div class="pace-result-sub">vs flat</div></div>`;
+  document.getElementById('gapSegTableBody').innerHTML=results.map((r,i)=>{
+    const dd=paceUnit==='km'?r.dkm:r.dkm/KM_PER_MILE;
+    return`<tr>
+      <td style="text-align:left">${i+1}</td>
+      <td style="text-align:right">${dd.toFixed(2)} ${paceUnit}</td>
+      <td style="text-align:right;color:${r.g>3?'#ef4444':r.g<-3?'#22c55e':'var(--text-muted)'}">${r.g>0?'+':''}${r.g.toFixed(1)}%</td>
+      <td style="text-align:right">${pcFmtPace(r.apD)}${ul}</td>
+      <td style="text-align:right;font-weight:700;color:${r.adj<r.apkm?'#22c55e':'#ef4444'}">${pcFmtPace(r.adD)}${ul}</td>
+      <td style="text-align:right">${r.eff.toFixed(2)}×</td>
+    </tr>`;
+  }).join('');
+  gapRenderSegChart(results);
+}
+function gapRenderSegChart(results) {
+  const ctx=document.getElementById('gapSegChart');
+  if (!ctx) return;
+  if (gapSegChartInst){gapSegChartInst.destroy();gapSegChartInst=null;}
+  const th=getChartTheme();
+  const ul=paceUnit==='km'?'/km':'/mi';
+  gapSegChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:results.map((_,i)=>`Seg ${i+1}`),
+      datasets:[
+        {label:'Actual Pace',data:results.map(r=>parseFloat((r.apD/60).toFixed(3))),backgroundColor:'rgba(249,115,22,.6)',borderColor:'#f97316',borderWidth:1},
+        {label:'GAP',data:results.map(r=>parseFloat((r.adD/60).toFixed(3))),backgroundColor:'rgba(34,197,94,.6)',borderColor:'#22c55e',borderWidth:1}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:th.text,font:{size:10}}}},
+      scales:{
+        x:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10}}},
+        y:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10},callback:v=>{const m=Math.floor(v);const s=Math.round((v-m)*60);return`${m}:${String(s).padStart(2,'0')}`;}}}
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VO2 MAX LAB
+══════════════════════════════════════════════════════════════ */
+
+const VO2_KEY = 'actmtr_vo2max';
+let vo2Method = 'race';
+let vo2CurTab = 'calculate';
+let vo2CalcVal = null;
+let vo2CalcMeth = 'race';
+let vo2HistChartInst = null;
+let vo2ProjChartInst = null;
+
+const VO2_NORMS = {
+  male: {
+    '20-29':{poor:39,fair:43,good:48,excellent:53},
+    '30-39':{poor:36,fair:39,good:43,excellent:48},
+    '40-49':{poor:33,fair:36,good:40,excellent:45},
+    '50-59':{poor:30,fair:33,good:37,excellent:42},
+    '60+'  :{poor:27,fair:30,good:34,excellent:39}
+  },
+  female: {
+    '20-29':{poor:34,fair:37,good:42,excellent:47},
+    '30-39':{poor:31,fair:34,good:38,excellent:43},
+    '40-49':{poor:28,fair:31,good:35,excellent:40},
+    '50-59':{poor:25,fair:28,good:32,excellent:37},
+    '60+'  :{poor:22,fair:25,good:29,excellent:34}
+  }
+};
+
+function vo2GetNorm(gender, age) {
+  const g = VO2_NORMS[gender] || VO2_NORMS.male;
+  if (age<30) return g['20-29']; if (age<40) return g['30-39'];
+  if (age<50) return g['40-49']; if (age<60) return g['50-59'];
+  return g['60+'];
+}
+function vo2AgeGroup(age) {
+  if (age<30) return '20-29'; if (age<40) return '30-39';
+  if (age<50) return '40-49'; if (age<60) return '50-59'; return '60+';
+}
+function vo2GetCat(v, gender, age) {
+  const n = vo2GetNorm(gender||'male', age||35);
+  if (v >= n.excellent+5) return {cat:'superior', label:'Superior', cls:'cat-superior'};
+  if (v >= n.excellent)   return {cat:'excellent',label:'Excellent',cls:'cat-excellent'};
+  if (v >= n.good)        return {cat:'good',     label:'Good',     cls:'cat-good'};
+  if (v >= n.fair)        return {cat:'fair',     label:'Fair',     cls:'cat-fair'};
+  return                         {cat:'poor',     label:'Poor',     cls:'cat-poor'};
+}
+function vo2Badge(cat) {
+  return `<span class="vo2-big-badge ${cat.cls}">${cat.label}</span>`;
+}
+
+// ── Open / Close ──────────────────────────────────────────────
+function openVo2Page() {
+  document.getElementById('vo2Overlay').classList.add('open');
+  const hist = vo2LoadHist();
+  if (hist.length) {
+    const cv = document.getElementById('vo2CompVO2');
+    if (cv && !cv.value) cv.value = hist[hist.length-1].value;
+  }
+  vo2CheckBestRace();
+  vo2RenderHistory();
+  vo2UpdateCompare();
+  vo2RenderImprove();
+}
+function closeVo2Page() {
+  document.getElementById('vo2Overlay').classList.remove('open');
+}
+function setVo2Tab(tab) {
+  vo2CurTab = tab;
+  document.querySelectorAll('.vo2-tab').forEach(b=>b.classList.remove('active'));
+  const bn=document.getElementById('vo2TabBtn'+tab[0].toUpperCase()+tab.slice(1));
+  if(bn)bn.classList.add('active');
+  document.querySelectorAll('.vo2-tab-panel').forEach(p=>p.classList.remove('active'));
+  const pn=document.getElementById('vo2Tab'+tab[0].toUpperCase()+tab.slice(1));
+  if(pn)pn.classList.add('active');
+  if(tab==='history')vo2RenderHistory();
+  if(tab==='compare')vo2UpdateCompare();
+  if(tab==='improve')vo2RenderImprove();
+}
+
+// ── Storage ───────────────────────────────────────────────────
+function vo2LoadHist() { try{return JSON.parse(localStorage.getItem(VO2_KEY))||[];}catch{return[];} }
+function vo2SaveHist(a) { localStorage.setItem(VO2_KEY,JSON.stringify(a)); }
+
+// ── Method selector ───────────────────────────────────────────
+function setVo2Method(m) {
+  vo2Method = m;
+  const ids = {race:'Race',cooper:'Cooper',rockport:'Rockport',rhr:'Rhr',manual:'Manual'};
+  Object.entries(ids).forEach(([k,v])=>{
+    const pill=document.getElementById('vo2Meth'+v); if(pill)pill.classList.toggle('active',k===m);
+    const panel=document.getElementById('vo2Panel'+v); if(panel)panel.classList.toggle('active',k===m);
+  });
+}
+
+// ── Method 1: Race (Jack Daniels VDOT) ───────────────────────
+function vo2SetRaceDist(km, btn) {
+  document.getElementById('vo2RaceDist').value = km;
+  document.getElementById('vo2RaceUnit').value = 'km';
+  document.querySelectorAll('#vo2PanelRace .vo2-preset-btn').forEach(b=>b.classList.remove('vp-active'));
+  if(btn) btn.classList.add('vp-active');
+  vo2RaceCalc();
+}
+function vo2CheckBestRace() {
+  const cr=db?.races?.completed||[], acts=db?.activities?.filter(a=>a.type==='run')||[];
+  const btn=document.getElementById('vo2RaceBestBtn');
+  if(btn) btn.style.display=(cr.length||acts.length)?'block':'none';
+}
+function vo2UseLastRace() {
+  const cr=(db?.races?.completed||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!cr.length) return;
+  const race=cr[0];
+  const dm={'5k':5,'10k':10,'half-marathon':21.0975,'marathon':42.195};
+  const km=dm[race.type]||parseFloat(race.distance)||0;
+  if(km){document.getElementById('vo2RaceDist').value=km;document.getElementById('vo2RaceUnit').value='km';}
+  if(race.time){
+    const pts=race.time.split(':').map(Number);
+    if(pts.length===3){document.getElementById('vo2RaceH').value=pts[0];document.getElementById('vo2RaceM').value=pts[1];document.getElementById('vo2RaceS').value=pts[2];}
+    else if(pts.length===2){document.getElementById('vo2RaceH').value=0;document.getElementById('vo2RaceM').value=pts[0];document.getElementById('vo2RaceS').value=pts[1];}
+  }
+  vo2RaceCalc();
+}
+function vo2RaceCalc() {
+  const dr=parseFloat(document.getElementById('vo2RaceDist')?.value);
+  const unit=document.getElementById('vo2RaceUnit')?.value;
+  const h=parseFloat(document.getElementById('vo2RaceH')?.value)||0;
+  const m=parseFloat(document.getElementById('vo2RaceM')?.value)||0;
+  const s=parseFloat(document.getElementById('vo2RaceS')?.value)||0;
+  const ts=h*3600+m*60+s;
+  if(!dr||dr<=0||!ts){vo2HideResult();return;}
+  const distM=unit==='km'?dr*1000:unit==='mi'?dr*1609.34:dr;
+  const tMin=ts/60;
+  const vel=distM/tMin;
+  const pct=0.8+0.1894393*Math.exp(-0.012778*tMin)+0.2989558*Math.exp(-0.1932605*tMin);
+  const vo2=(-4.60+0.182258*vel+0.000104*vel*vel)/pct;
+  if(!isFinite(vo2)||vo2<=0){vo2HideResult();return;}
+  vo2CalcVal=Math.round(vo2*10)/10;
+  vo2CalcMeth='race';
+  const pacePerKm=ts/(distM/1000);
+  vo2ShowResult(vo2CalcVal,'Race Result (Jack Daniels VDOT)',[
+    {l:'Distance',v:`${dr} ${unit}`},
+    {l:'Time',v:pcFmtTime(ts,true)},
+    {l:'Pace',v:pcFmtPace(pacePerKm)+'/km'},
+    {l:'VDOT',v:vo2.toFixed(1)},
+  ]);
+}
+
+// ── Method 2: Cooper ─────────────────────────────────────────
+function vo2CooperCalc() {
+  const dr=parseFloat(document.getElementById('vo2CoopDist')?.value);
+  const unit=document.getElementById('vo2CoopUnit')?.value;
+  if(!dr||dr<=0){vo2HideResult();return;}
+  let dm=dr; if(unit==='km')dm=dr*1000; if(unit==='mi')dm=dr*1609.34;
+  const vo2=(dm-504.9)/44.73;
+  if(!isFinite(vo2)||vo2<=0){vo2HideResult();return;}
+  vo2CalcVal=Math.round(vo2*10)/10; vo2CalcMeth='cooper';
+  vo2ShowResult(vo2CalcVal,'Cooper Test (12-min run)',[
+    {l:'Distance covered',v:`${dr} ${unit} (${Math.round(dm)} m)`},
+    {l:'Accuracy',v:'±10%'},
+  ]);
+}
+
+// ── Method 3: Rockport ───────────────────────────────────────
+function vo2RockportCalc() {
+  const wr=parseFloat(document.getElementById('vo2RockWeight')?.value);
+  const wu=document.getElementById('vo2RockWeightUnit')?.value;
+  const age=parseFloat(document.getElementById('vo2RockAge')?.value);
+  const gen=parseFloat(document.getElementById('vo2RockGender')?.value);
+  const tMin=parseFloat(document.getElementById('vo2RockTime')?.value);
+  const hr=parseFloat(document.getElementById('vo2RockHR')?.value);
+  if(!wr||!age||!tMin||!hr){vo2HideResult();return;}
+  const wKg=wu==='lbs'?wr*0.453592:wr;
+  const vo2=132.853-0.1692*wKg-0.3877*age+6.315*gen-3.2649*tMin-0.1565*hr;
+  if(!isFinite(vo2)||vo2<=0){vo2HideResult();return;}
+  vo2CalcVal=Math.round(vo2*10)/10; vo2CalcMeth='rockport';
+  vo2ShowResult(vo2CalcVal,'Rockport Walk Test',[
+    {l:'Weight',v:`${wr} ${wu}`},{l:'Age',v:age},
+    {l:'Gender',v:gen?'Male':'Female'},{l:'Walk time',v:tMin+' min'},{l:'Heart rate',v:hr+' bpm'},
+  ]);
+}
+
+// ── Method 4: Resting HR ─────────────────────────────────────
+function vo2RhrCalc() {
+  const rhr=parseFloat(document.getElementById('vo2RhrRhr')?.value);
+  const age=parseFloat(document.getElementById('vo2RhrAge')?.value);
+  if(!rhr||!age){vo2HideResult();return;}
+  const maxHR=220-age;
+  const vo2=15.3*(maxHR/rhr);
+  vo2CalcVal=Math.round(vo2*10)/10; vo2CalcMeth='rhr';
+  vo2ShowResult(vo2CalcVal,'Resting HR (estimate)',[
+    {l:'Resting HR',v:rhr+' bpm'},{l:'Age',v:age},
+    {l:'Max HR (est.)',v:maxHR+' bpm'},{l:'Accuracy',v:'±20% (rough estimate)'},
+  ]);
+}
+
+// ── Method 5: Manual ─────────────────────────────────────────
+function vo2ManualCalc() {
+  const val=parseFloat(document.getElementById('vo2ManualVal')?.value);
+  if(!val||val<=0){vo2HideResult();return;}
+  vo2CalcVal=Math.round(val*10)/10; vo2CalcMeth='manual';
+  const date=document.getElementById('vo2ManualDate')?.value||new Date().toISOString().slice(0,10);
+  vo2ShowResult(vo2CalcVal,'Lab Test / Manual Entry',[
+    {l:'Date',v:date},{l:'Source',v:'Lab / Professional assessment'},
+  ]);
+}
+
+// ── Shared result display ────────────────────────────────────
+function vo2ShowResult(value, method, details) {
+  const card=document.getElementById('vo2CalcResultCard');
+  card.style.display='block';
+  document.getElementById('vo2CalcNumber').textContent=value.toFixed(1);
+  const age=parseFloat(document.getElementById('vo2CompAge')?.value)||35;
+  const gender=document.getElementById('vo2CompGender')?.value||'male';
+  const cat=vo2GetCat(value,gender,age);
+  document.getElementById('vo2CalcBadgeWrap').innerHTML=vo2Badge(cat);
+  document.getElementById('vo2CalcDetails').innerHTML=
+    `<div class="vo2-result-row"><span class="vo2-result-label">Method</span><span class="vo2-result-value">${method}</span></div>`+
+    details.map(d=>`<div class="vo2-result-row"><span class="vo2-result-label">${d.l}</span><span class="vo2-result-value">${d.v}</span></div>`).join('');
+  document.getElementById('vo2SaveMsg').style.display='none';
+}
+function vo2HideResult() {
+  document.getElementById('vo2CalcResultCard').style.display='none';
+  vo2CalcVal=null;
+}
+function vo2SaveResult() {
+  if(!vo2CalcVal) return;
+  const hist=vo2LoadHist();
+  hist.push({value:vo2CalcVal,method:vo2CalcMeth,date:new Date().toISOString().slice(0,10),ts:Date.now()});
+  vo2SaveHist(hist);
+  const msg=document.getElementById('vo2SaveMsg');
+  msg.style.display='block'; msg.textContent=`✓ Saved ${vo2CalcVal} ml/kg/min`;
+  vo2CheckVo2Badges(hist);
+}
+
+// ── History Tab ───────────────────────────────────────────────
+function vo2MethLabel(m){return{race:'Race Result',cooper:'Cooper Test',rockport:'Rockport Walk',rhr:'Resting HR',manual:'Lab Test'}[m]||m;}
+
+function vo2RenderHistory() {
+  const hist=vo2LoadHist();
+  const emEl=document.getElementById('vo2HistEmpty');
+  const cnEl=document.getElementById('vo2HistContent');
+  if(!hist.length){emEl.style.display='block';cnEl.style.display='none';return;}
+  emEl.style.display='none'; cnEl.style.display='block';
+  const lat=hist[hist.length-1];
+  document.getElementById('vo2CurrNum').textContent=lat.value.toFixed(1);
+  const age=parseFloat(document.getElementById('vo2CompAge')?.value)||35;
+  const gender=document.getElementById('vo2CompGender')?.value||'male';
+  const cat=vo2GetCat(lat.value,gender,age);
+  document.getElementById('vo2CurrBadge').innerHTML=vo2Badge(cat);
+  // Stats bar
+  let sh=`<div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center"><div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Last Measured</div><div style="font-weight:700">${lat.date}</div></div>`;
+  if(hist.length>=2){
+    const prev=hist[hist.length-2], diff=lat.value-prev.value;
+    const col=diff>=0?'#22c55e':'#ef4444';
+    sh+=`<div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center"><div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">vs Previous</div><div style="font-weight:700;color:${col}">${diff>=0?'+':''}${diff.toFixed(1)}</div></div>`;
+  }
+  if(hist.length>1){
+    const tot=lat.value-hist[0].value, col=tot>=0?'#22c55e':'#ef4444';
+    sh+=`<div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center"><div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Total Change</div><div style="font-weight:700;color:${col}">${tot>=0?'+':''}${tot.toFixed(1)}</div></div>`;
+  }
+  document.getElementById('vo2CurrStats').innerHTML=sh;
+  vo2RenderFitnessAge(lat.value,age,gender);
+  vo2RenderHistChart(hist);
+  // Timeline
+  const tlHtml=hist.slice().reverse().map((e,idx)=>{
+    const prev2=idx<hist.length-1?hist.slice().reverse()[idx+1]:null;
+    const diff=prev2?(e.value-prev2.value):null;
+    const ch=diff!==null?`<div class="vo2-timeline-change" style="color:${diff>=0?'#22c55e':'#ef4444'}">${diff>=0?'↑':'↓'} ${Math.abs(diff).toFixed(1)} ml/kg/min</div>`:'';
+    return`<div class="vo2-timeline-item"><div class="vo2-timeline-dot"></div><div class="vo2-timeline-content"><div class="vo2-timeline-value">${e.value.toFixed(1)} <span style="font-size:.7rem;color:var(--text-muted)">ml/kg/min</span></div><div class="vo2-timeline-meta">${e.date} · ${vo2MethLabel(e.method)}</div>${ch}</div></div>`;
+  }).join('');
+  document.getElementById('vo2HistTimeline').innerHTML=tlHtml||'<div style="color:var(--text-muted);font-size:.8rem">No history</div>';
+}
+
+function vo2RenderFitnessAge(vo2v, actualAge, gender) {
+  const el=document.getElementById('vo2FitnessAge');
+  if(!el||!actualAge||actualAge<5) return;
+  const gn=VO2_NORMS[gender]||VO2_NORMS.male;
+  const groups=[['20-29',25],['30-39',35],['40-49',45],['50-59',55],['60+',65]];
+  let fa=actualAge;
+  for(const[grp,mid]of groups){
+    const n=gn[grp], avg=(n.poor+n.excellent)/2;
+    if(vo2v>=avg){fa=mid;break;}
+  }
+  fa=Math.max(20,Math.min(70,fa));
+  el.innerHTML=`
+    <div class="vo2-age-card">
+      <div class="vo2-age-icon">🧑</div>
+      <div class="vo2-age-number">${actualAge}</div>
+      <div class="vo2-age-label">Actual Age</div>
+    </div>
+    <div style="font-size:1.5rem;color:var(--text-muted);align-self:center">→</div>
+    <div class="vo2-age-card" style="border-color:${fa<=actualAge?'rgba(34,197,94,.3)':'rgba(239,68,68,.3)'}">
+      <div class="vo2-age-icon">${fa<=actualAge?'💪':'🏃'}</div>
+      <div class="vo2-age-number" style="color:${fa<=actualAge?'#22c55e':'#f97316'}">${fa}</div>
+      <div class="vo2-age-label">Fitness Age</div>
+    </div>
+    <div style="flex:1;min-width:180px;font-size:.8rem;color:var(--text-muted);line-height:1.7">
+      VO2 Max of <strong style="color:var(--text)">${vo2v.toFixed(1)}</strong> ml/kg/min corresponds to the average fitness of a <strong style="color:var(--text)">${fa}-year-old</strong>.
+      ${fa<actualAge?'<span style="color:#22c55e"> Your fitness is ahead of your age! 🎉</span>':fa===actualAge?'':'<span style="color:#f97316"> Keep training to improve your fitness age!</span>'}
+    </div>`;
+}
+
+function vo2RenderHistChart(hist) {
+  const ctx=document.getElementById('vo2HistChart');
+  if(!ctx)return;
+  if(vo2HistChartInst){vo2HistChartInst.destroy();vo2HistChartInst=null;}
+  const th=getChartTheme();
+  const vals=hist.map(e=>e.value);
+  vo2HistChartInst=new Chart(ctx,{
+    type:'line',
+    data:{labels:hist.map(e=>e.date),datasets:[{
+      label:'VO2 Max',data:vals,
+      borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.12)',
+      fill:true,tension:0.3,pointRadius:5,pointBackgroundColor:'#ef4444'
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:c=>`VO2 Max: ${c.parsed.y.toFixed(1)} ml/kg/min`,
+        afterLabel:c=>`Method: ${vo2MethLabel(hist[c.dataIndex]?.method)}`
+      }}},
+      scales:{
+        x:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10}}},
+        y:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10}},
+           suggestedMin:Math.max(0,Math.min(...vals)-5),
+           suggestedMax:Math.max(...vals)+5}
+      }
+    }
+  });
+}
+
+function vo2ClearHistory() {
+  if(!confirm('Clear all VO2 Max history? This cannot be undone.')) return;
+  localStorage.removeItem(VO2_KEY);
+  vo2RenderHistory();
+}
+
+// ── Compare Tab ───────────────────────────────────────────────
+function vo2LoadSavedForCompare() {
+  const hist=vo2LoadHist();
+  if(!hist.length)return;
+  document.getElementById('vo2CompVO2').value=hist[hist.length-1].value;
+  vo2UpdateCompare();
+}
+
+function vo2UpdateCompare() {
+  const vo2v=parseFloat(document.getElementById('vo2CompVO2')?.value);
+  const age=parseFloat(document.getElementById('vo2CompAge')?.value);
+  const gender=document.getElementById('vo2CompGender')?.value||'male';
+  vo2RenderAthleteBars(vo2v||null);
+  vo2RenderSportTiers(vo2v||null);
+  vo2RenderRacePotential(vo2v||null);
+  if(!vo2v){document.getElementById('vo2CompPercentileCard').style.display='none';return;}
+  if(!age){document.getElementById('vo2CompPercentileCard').style.display='none';return;}
+  document.getElementById('vo2CompPercentileCard').style.display='block';
+  vo2RenderPercentile(vo2v,age,gender);
+  // Update fitness age if history tab visible
+  const hist=vo2LoadHist();
+  if(hist.length) vo2RenderFitnessAge(hist[hist.length-1].value,age,gender);
+}
+
+function vo2RenderPercentile(vo2v, age, gender) {
+  const norm=vo2GetNorm(gender,age);
+  const cat=vo2GetCat(vo2v,gender,age);
+  const colors={poor:'#ef4444',fair:'#f97316',good:'#eab308',excellent:'#22c55e',superior:'#3b82f6'};
+  const col=colors[cat.cat]||'#ef4444';
+  // Estimate percentile
+  let pct;
+  if(vo2v<norm.poor)pct=Math.round((vo2v/norm.poor)*15);
+  else if(vo2v<norm.fair)pct=Math.round(15+((vo2v-norm.poor)/(norm.fair-norm.poor))*15);
+  else if(vo2v<norm.good)pct=Math.round(30+((vo2v-norm.fair)/(norm.good-norm.fair))*20);
+  else if(vo2v<norm.excellent)pct=Math.round(50+((vo2v-norm.good)/(norm.excellent-norm.good))*25);
+  else if(vo2v<norm.excellent+5)pct=Math.round(75+((vo2v-norm.excellent)/5)*15);
+  else pct=Math.round(Math.min(99,90+(vo2v-norm.excellent-5)*0.5));
+  pct=Math.max(1,Math.min(99,pct));
+  document.getElementById('vo2CompPercentile').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:2rem;font-weight:900;color:${col}">${pct}th percentile</div>
+      <div style="font-size:.82rem;color:var(--text-muted)">for ${gender}s aged ${vo2AgeGroup(age)}</div>
+      <div style="margin-top:8px">${vo2Badge(cat)}</div>
+    </div>
+    <div class="vo2-progress-bar-wrap">
+      <div class="vo2-progress-label"><span>0th</span><span>Percentile</span><span>100th</span></div>
+      <div class="vo2-progress-track"><div class="vo2-progress-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-muted);text-align:center;margin-top:8px">
+      You are ${pct>=50?`in the top <strong style="color:var(--text)">${100-pct}%</strong>`:`in the bottom <strong style="color:var(--text)">${pct}%</strong>`} for your age group.
+    </div>`;
+  // Norm table
+  const gn=VO2_NORMS[gender]||VO2_NORMS.male;
+  const ag=vo2AgeGroup(age);
+  let tbl=`<table class="vo2-norm-table"><thead><tr><th>Age</th><th>Poor</th><th>Fair</th><th>Good</th><th>Excellent</th><th>Superior</th></tr></thead><tbody>`;
+  for(const[grp,n]of Object.entries(gn)){
+    tbl+=`<tr class="${grp===ag?'vo2-hl':''}"><td><strong>${grp}</strong></td><td>&lt;${n.poor}</td><td>${n.poor}–${n.fair-1}</td><td>${n.fair}–${n.good-1}</td><td>${n.good}–${n.excellent-1}</td><td>${n.excellent}+</td></tr>`;
+  }
+  tbl+='</tbody></table>';
+  document.getElementById('vo2CompNormTable').innerHTML=tbl;
+}
+
+const VO2_ATHLETES=[
+  {name:'Oskar Svendsen (highest recorded)',v:97.5,type:'athlete'},
+  {name:'Kilian Jornet (ultra runner)',v:92,type:'athlete'},
+  {name:'Chris Froome (cycling)',v:84,type:'athlete'},
+  {name:'Eliud Kipchoge (marathon WR)',v:78,type:'athlete'},
+  {name:'Paula Radcliffe (women\'s marathon WR)',v:75,type:'athlete'},
+  {name:'Joan Benoit (Olympic marathon)',v:78,type:'athlete'},
+  {name:'Average recreational runner',v:48,type:'benchmark'},
+  {name:'Average sedentary male',v:35,type:'benchmark'},
+  {name:'Average sedentary female',v:27,type:'benchmark'},
+];
+
+function vo2RenderAthleteBars(userV) {
+  const maxV=100;
+  const entries=userV?[...VO2_ATHLETES,{name:'You ★',v:userV,type:'user'}]:VO2_ATHLETES;
+  const sorted=[...entries].sort((a,b)=>b.v-a.v);
+  document.getElementById('vo2AthleteBars').innerHTML=sorted.map(e=>{
+    const pct=(e.v/maxV)*100;
+    const isU=e.type==='user';
+    const col=isU?'#ef4444':e.type==='athlete'?'#3b82f6':'#8896a8';
+    return`<div class="vo2-comp-bar-item">
+      <div class="vo2-comp-bar-label"><span style="${isU?'font-weight:700;color:var(--text)':''}">${e.name}</span><span style="color:${col}">${e.v}</span></div>
+      <div class="vo2-comp-track"><div class="vo2-comp-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+  const msgEl=document.getElementById('vo2AthleteMsg');
+  if(userV){
+    let msg;
+    if(userV>70)msg='🏆 Elite athlete territory! Extraordinary aerobic engine.';
+    else if(userV>55)msg='⭐ High amateur competitor level. Impressive fitness!';
+    else if(userV>45)msg='💪 Above average runner — fitter than most people on the planet.';
+    else if(userV>35)msg='👟 Solid fitness. Consistent training will push you higher.';
+    else msg='🌱 Room to grow! VO2 Max responds very well to training — 15-20% improvement is achievable in months.';
+    msgEl.textContent=msg; msgEl.style.display='block';
+  } else msgEl.style.display='none';
+}
+
+function vo2RenderRacePotential(vo2v) {
+  const el=document.getElementById('vo2RacePotential');
+  if(!vo2v){el.innerHTML='<div style="font-size:.8rem;color:var(--text-muted)">Enter your VO2 Max above to see race potential</div>';return;}
+  const dists=[{l:'5K',km:5,pct:0.97},{l:'10K',km:10,pct:0.95},{l:'Half Marathon',km:21.0975,pct:0.92},{l:'Marathon',km:42.195,pct:0.87}];
+  let html='<div style="overflow-x:auto"><table class="pace-predictor-table"><thead><tr><th>Distance</th><th>Potential Time</th><th>Pace/km</th></tr></thead><tbody>';
+  dists.forEach(d=>{
+    const wv=vo2v*d.pct;
+    const a=0.000104,b=0.182258,c=-(wv+4.60);
+    const vel=(-b+Math.sqrt(b*b-4*a*c))/(2*a);
+    const ts=(d.km*1000)/vel*60;
+    html+=`<tr><td>${d.l}</td><td>${pcFmtTime(ts,d.km>=10)}</td><td>${pcFmtPace(ts/d.km)}</td></tr>`;
+  });
+  html+='</tbody></table></div><div class="vo2-note" style="margin-top:10px">Theoretical potentials based on VO2 Max. Actual performance depends on training specificity, pacing, nutrition, and race experience.</div>';
+  el.innerHTML=html;
+}
+
+const VO2_SPORTS=[
+  {name:'Cross-country skiing',range:[70,85],icon:'⛷️'},
+  {name:'Cycling (pro)',range:[70,85],icon:'🚴'},
+  {name:'Elite distance running',range:[70,85],icon:'🏃'},
+  {name:'Competitive swimming',range:[55,70],icon:'🏊'},
+  {name:'Soccer / Football',range:[50,65],icon:'⚽'},
+  {name:'Basketball',range:[45,55],icon:'🏀'},
+  {name:'Tennis (competitive)',range:[40,55],icon:'🎾'},
+  {name:'General fitness',range:[35,45],icon:'💪'},
+  {name:'Sedentary lifestyle',range:[20,35],icon:'🪑'},
+];
+function vo2RenderSportTiers(userV) {
+  document.getElementById('vo2SportTiers').innerHTML=VO2_SPORTS.map(s=>{
+    const q=userV&&userV>=s.range[0];
+    return`<div class="vo2-sport-item ${q?'qualified':''}">
+      <span style="font-size:1.1rem">${s.icon}</span>
+      <span class="vo2-sport-name">${s.name}</span>
+      <span class="vo2-sport-range">${s.range[0]}–${s.range[1]}</span>
+      ${q?'<span class="vo2-sport-check">✓</span>':''}
+    </div>`;
+  }).join('');
+}
+
+// ── Improve Tab ───────────────────────────────────────────────
+function vo2RenderImprove() {
+  const hist=vo2LoadHist();
+  const v=hist.length?hist[hist.length-1].value:null;
+  vo2RenderImprovStatus(v);
+  vo2RenderTrainingCards(v);
+  vo2RenderProjChart(v);
+  vo2RenderFactorsCards();
+}
+
+function vo2RenderImprovStatus(v) {
+  const el=document.getElementById('vo2ImprovStatusBody');
+  if(!v){el.innerHTML='<div style="font-size:.8rem;color:var(--text-muted)">Calculate and save your VO2 Max first to get personalized recommendations</div>';return;}
+  const age=parseFloat(document.getElementById('vo2CompAge')?.value)||35;
+  const gender=document.getElementById('vo2CompGender')?.value||'male';
+  const norm=vo2GetNorm(gender,age);
+  const cat=vo2GetCat(v,gender,age);
+  const next={poor:{label:'Fair',target:norm.fair},fair:{label:'Good',target:norm.good},good:{label:'Excellent',target:norm.excellent},excellent:{label:'Superior',target:norm.excellent+5},superior:null}[cat.cat];
+  const rate={poor:0.28,fair:0.20,good:0.12,excellent:0.07,superior:0.04}[cat.cat]||0.1;
+  let timeStr='';
+  if(next){
+    const wks=Math.ceil((next.target-v)/rate);
+    timeStr=wks<8?`~${wks} weeks`:`~${Math.round(wks/4.3)} months`;
+  }
+  const progPct=next?Math.min(100,Math.max(0,((v-(next.target-(next.target-v)*3))/(next.target-(next.target-v)*3))*100).toFixed(0)):100;
+  el.innerHTML=`
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">VO2 Max</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ef4444">${v.toFixed(1)}</div>
+      </div>
+      <div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Category</div>
+        <div style="margin-top:4px">${vo2Badge(cat)}</div>
+      </div>
+      ${next?`<div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center"><div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Next Goal</div><div style="font-weight:700">${next.label} (${next.target}+)</div></div><div style="flex:1;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center"><div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Est. Time</div><div style="font-weight:700;color:#22c55e">${timeStr}</div></div>`:''}
+    </div>
+    ${next?`<div style="font-size:.78rem;color:var(--text-muted);margin-bottom:5px">Progress toward ${next.label}</div>
+    <div class="vo2-progress-track" style="height:14px"><div class="vo2-progress-fill" style="width:${Math.min(100,Math.max(5,((v-norm[cat.cat==='poor'?'poor':'poor'])/(next.target-norm[cat.cat==='poor'?'poor':'poor'])*100))).toFixed(0)}%;background:#ef4444"></div></div>
+    <div style="font-size:.72rem;color:var(--text-muted);text-align:right;margin-top:3px">Need ${(next.target-v).toFixed(1)} more ml/kg/min</div>`
+    :`<div style="font-size:.85rem;font-weight:700;color:#3b82f6">🏆 Superior category — elite fitness level!</div>`}`;
+}
+
+const VO2_TRAINING_DATA=[
+  {title:'Interval Training',badge:'Highest Impact',body:'Run 4–6 × 800m at 90–95% max effort with 400m jog recovery. This is the single most effective workout for VO2 Max. Once per week — twice is overtraining. Your body needs time to adapt between sessions.'},
+  {title:'Tempo Runs',badge:'High Impact',body:'Run 20–30 min at lactate threshold pace — the speed you could hold for ~1 hour. Improves lactate threshold which supports a higher VO2 Max ceiling. Once per week, 48 hours away from interval sessions.'},
+  {title:'Long Runs',badge:'Foundation',body:'Weekly long run of 90+ min at easy conversational pace. Builds aerobic capacity, capillary density, and mitochondrial content. The foundation that makes all other improvements possible.'},
+  {title:'Hill Repeats',badge:'High Impact',body:'Find a 4–8% gradient hill. Run hard uphill 60–90 seconds, jog down for recovery. Repeat 6–10 times. Combines cardiovascular load with strength — excellent VO2 Max stimulus with lower injury risk than flat sprints.'},
+  {title:'Consistency Above All',badge:'Most Important',body:'Running 4–5× per week consistently for 3 months will improve VO2 Max by 10–20%. No magic workout beats simply showing up. Missing two weeks erases one month of adaptation.'},
+  {title:'Cross-Training',badge:'Supplement',body:'Cycling, swimming, rowing — these improve cardiovascular fitness while resting running muscles. Ideal for injury-prone runners or high-mileage weeks. Maintains aerobic base during recovery.'},
+];
+function vo2RenderTrainingCards() {
+  document.getElementById('vo2TrainingCards').innerHTML=VO2_TRAINING_DATA.map(c=>`
+    <div class="vo2-expand-card">
+      <div class="vo2-expand-header" onclick="vo2ToggleCard(this)">
+        <span class="vo2-expand-title">${c.title}</span>
+        <span style="display:flex;gap:8px;align-items:center"><span class="vo2-expand-badge">${c.badge}</span><span class="vo2-expand-arrow">▼</span></span>
+      </div>
+      <div class="vo2-expand-body">${c.body}</div>
+    </div>`).join('');
+}
+function vo2ToggleCard(hdr) {
+  const body=hdr.nextElementSibling, arrow=hdr.querySelector('.vo2-expand-arrow');
+  body.classList.toggle('open'); if(arrow)arrow.classList.toggle('open');
+}
+
+function vo2RenderProjChart(v) {
+  const ctx=document.getElementById('vo2ProjChart');
+  if(!ctx)return;
+  if(vo2ProjChartInst){vo2ProjChartInst.destroy();vo2ProjChartInst=null;}
+  const th=getChartTheme();
+  const start=v||40;
+  const rate=start<35?0.28:start<50?0.16:0.09;
+  const rateM=rate*0.55;
+  document.getElementById('vo2ProjText').textContent=
+    start<35?'Beginner: up to 20% improvement in 12 weeks possible':
+    start<50?'Intermediate: 5–10% improvement in 12 weeks':
+    'Advanced: 2–5% improvement in 12 weeks (diminishing returns)';
+  const wks=16;
+  const labs=Array.from({length:wks+1},(_,i)=>`Wk ${i}`);
+  const cons=Array.from({length:wks+1},(_,i)=>+(start+rate*i*(1-i/(wks*3.5))).toFixed(1));
+  const mod=Array.from({length:wks+1},(_,i)=>+(start+rateM*i*(1-i/(wks*3.5))).toFixed(1));
+  vo2ProjChartInst=new Chart(ctx,{
+    type:'line',
+    data:{labels:labs,datasets:[
+      {label:'Consistent (4–5×/wk)',data:cons,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:false,tension:0.3,pointRadius:2,pointBackgroundColor:'#ef4444'},
+      {label:'Moderate (2–3×/wk)',data:mod,borderColor:'#f97316',fill:false,tension:0.3,pointRadius:2,pointBackgroundColor:'#f97316',borderDash:[5,3]}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:th.text,font:{size:10}}}},
+      scales:{
+        x:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10},maxTicksLimit:9}},
+        y:{grid:{color:th.grid},ticks:{color:th.text,font:{size:10}},
+           title:{display:true,text:'ml/kg/min',color:th.text,font:{size:9}}}
+      }
+    }
+  });
+}
+
+const VO2_FACTORS_DATA=[
+  {title:'Age',body:'VO2 Max declines ~1% per year after age 25. Trained athletes decline far slower — active 60-year-olds often outperform sedentary 25-year-olds. Rate of decline accelerates after 45 without consistent training.'},
+  {title:'Genetics',body:'Genetics determine 20–50% of your VO2 Max ceiling. But most people never approach their genetic limit, so training still produces enormous gains. Don\'t use genetics as an excuse — everyone responds to consistent effort.'},
+  {title:'Altitude Training',body:'Living at 1500–2500m altitude boosts red blood cell production, improving VO2 Max 1–3% over several weeks. Elite athletes use "live high, train low" — sleep at altitude, do quality sessions at sea level.'},
+  {title:'Body Composition',body:'VO2 Max is measured per kg of body weight. Losing excess body fat directly improves your score even without cardiovascular changes. Every 1 kg of fat lost may yield ~0.3–0.5 ml/kg/min improvement.'},
+  {title:'Sleep Quality',body:'Poor sleep reduces VO2 Max performance by up to 11%. 7–9 hours of quality sleep is non-negotiable for cardiovascular adaptation to training. Chronic sleep debt prevents your body from adapting to training stress.'},
+  {title:'Nutrition &amp; Hydration',body:'Dehydration reduces VO2 Max by up to 10%. Iron deficiency is one of the most common and fixable causes of low VO2 Max — especially in female runners. Even mild anemia significantly reduces oxygen transport capacity.'},
+];
+function vo2RenderFactorsCards() {
+  document.getElementById('vo2FactorsCards').innerHTML=VO2_FACTORS_DATA.map(f=>`
+    <div class="vo2-expand-card">
+      <div class="vo2-expand-header" onclick="vo2ToggleCard(this)">
+        <span class="vo2-expand-title">${f.title}</span><span class="vo2-expand-arrow">▼</span>
+      </div>
+      <div class="vo2-expand-body">${f.body}</div>
+    </div>`).join('');
+}
+
+// ── Badges ────────────────────────────────────────────────────
+function vo2CheckVo2Badges(hist) {
+  if(!db?.badges) return;
+  const defs={
+    vo2_tracker:{id:'vo2_tracker',name:'VO2 Tracker',desc:'Calculated VO2 Max for the first time',icon:'❤️',tier:'bronze'},
+    vo2_aware:  {id:'vo2_aware',  name:'Fitness Aware',desc:'Calculated VO2 Max 5 times',icon:'📊',tier:'silver'},
+    vo2_good:   {id:'vo2_good',   name:'Good Fitness',desc:'Reached Good VO2 Max category',icon:'💚',tier:'silver'},
+    vo2_excellent:{id:'vo2_excellent',name:'Excellent Fitness',desc:'Reached Excellent category',icon:'⭐',tier:'gold'},
+    vo2_superior:{id:'vo2_superior',name:'Superior Athlete',desc:'Reached Superior category',icon:'🏆',tier:'platinum'},
+    vo2_climber:{id:'vo2_climber',name:'VO2 Climber',desc:'Improved VO2 Max by 5+ points',icon:'📈',tier:'gold'},
+  };
+  const award=id=>{const def=defs[id];if(!def||db.badges.find(b=>b.id===id))return;db.badges.push({...def,earned:new Date().toISOString().slice(0,10)});saveData();};
+  if(hist.length>=1)award('vo2_tracker');
+  if(hist.length>=5)award('vo2_aware');
+  const lat=hist[hist.length-1];
+  if(lat){
+    const cat=vo2GetCat(lat.value,'male',35);
+    if(['good','excellent','superior'].includes(cat.cat))award('vo2_good');
+    if(['excellent','superior'].includes(cat.cat))award('vo2_excellent');
+    if(cat.cat==='superior')award('vo2_superior');
+    if(hist.length>1&&lat.value-hist[0].value>=5)award('vo2_climber');
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
