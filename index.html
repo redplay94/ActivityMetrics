@@ -3110,7 +3110,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 <header>
   <!-- Row 1: Brand | Activity Tabs + Status | Right Actions -->
   <div class="header-row1">
-    <div class="header-row1-brand">
+    <div class="header-row1-brand" onclick="navTo('dashboard')" style="cursor:pointer">
       <div class="brand">
         <span class="brand-title">ActivityMetrics</span>
         <span class="brand-badge">ACTMTR</span>
@@ -11600,6 +11600,7 @@ function openVo2Page() {
 }
 function closeVo2Page() {
   document.getElementById('vo2Overlay').classList.remove('open');
+  _setNavActive('dashboard');
 }
 function setVo2Tab(tab) {
   vo2CurTab = tab;
@@ -16374,8 +16375,19 @@ var NAV_SECTION_TITLES = {
   racesOverlay:      'My Races',
 };
 
+function _closeAllStandaloneOverlays() {
+  if (document.getElementById('profileOverlay')?.classList.contains('open'))  closeProfile();
+  if (document.getElementById('racesOverlay')?.classList.contains('open'))    closeRacesPage();
+  if (document.getElementById('calendarOverlay')?.classList.contains('open')) closeCalendarPage();
+  if (document.getElementById('friendsOverlay')?.classList.contains('open'))  closeFriendsPage();
+  if (document.getElementById('paceOverlay')?.classList.contains('open'))     closePacePage();
+  if (document.getElementById('vo2Overlay')?.classList.contains('open'))      closeVo2Page();
+}
+
 function navTo(sectionId) {
-  if (sectionId === 'dashboard') { closeNavSection(); return; }
+  if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); _setNavActive('dashboard'); return; }
+  // Close any open standalone overlays before switching
+  _closeAllStandaloneOverlays();
   // Pace and VO2 use their own full-page overlays
   if (sectionId === 'paceOverlay') {
     if (_navCurrentSection) { _navReturnSection(); document.getElementById('navSectionOverlay').classList.remove('open'); document.getElementById('navOverlayBackdrop').classList.remove('open'); document.body.style.overflow = ''; }
