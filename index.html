@@ -14440,8 +14440,7 @@ BADGE_DEFS.push(
       if(ADV_HM_FILTER !== 'all') acts = acts.filter(function(a){ return a.type === ADV_HM_FILTER; });
     }
 
-    var typeColors  = { run:'#f97316', walk:'#22c55e', cycle:'#3b82f6' };
-    var typeLabels  = { run:'Run', walk:'Walk / Hike', cycle:'Cycle' };
+    var typeLabels  = { run:'Run', 'walk-hike':'Walk / Hike', cycle:'Cycle' };
 
     var html = '<div class="adv-hm-popup-date">'+header+'</div>';
     if(!acts.length) {
@@ -14450,10 +14449,22 @@ BADGE_DEFS.push(
       html += acts.map(function(a) {
         var label = a.name || a.notes || typeLabels[a.type] || a.type;
         if(label.length > 28) label = label.substring(0,26)+'…';
+        var st = (a.sport_type || '').toLowerCase();
+        var tp = (a.type || '').toLowerCase();
+        var emoji;
+        if(tp === 'run' || st === 'run' || st === 'trailrun') {
+          emoji = '🏃';
+        } else if(tp === 'walk-hike' || st === 'hike' || st === 'walk') {
+          emoji = '🥾';
+        } else if(tp === 'cycle' || st === 'ride' || st === 'mountainbikeride' || st === 'gravelride') {
+          emoji = '🚴';
+        } else {
+          emoji = '🏅';
+        }
         return '<div class="adv-hm-popup-act">'
-          +'<span class="adv-hm-popup-dot" style="background:'+(typeColors[a.type]||'#888')+'"></span>'
+          +'<span style="font-size:.9em;flex-shrink:0">'+emoji+'</span>'
           +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>'
-          +'<span style="color:var(--text);font-weight:600;white-space:nowrap;margin-left:6px">'+a.distance.toFixed(1)+' km</span>'
+          +'<span style="color:var(--text);font-weight:600;white-space:nowrap;margin-left:6px">— '+a.distance.toFixed(1)+' km</span>'
           +'</div>';
       }).join('');
       var totalKm = acts.reduce(function(s,a){ return s+a.distance; }, 0);
