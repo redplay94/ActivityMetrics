@@ -663,6 +663,44 @@ header {
 .log-empty { padding: 32px; text-align: center; color: var(--text-muted); font-size: .85rem; }
 .log-footer { padding: 8px 14px; font-size: .7rem; color: var(--text-dim); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 
+/* ─── Log Pagination ────────────────────────────────────────── */
+.log-pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-top: 1px solid var(--border);
+  flex-wrap: wrap; gap: 8px;
+}
+.log-pagination-info { font-size: .7rem; color: var(--text-dim); white-space: nowrap; }
+.log-pagination-controls { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.log-page-btn {
+  min-width: 30px; height: 30px; border-radius: var(--radius-sm);
+  font-size: .72rem; font-weight: 600;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  color: var(--text-muted); transition: all var(--transition);
+  padding: 0 8px; display: inline-flex; align-items: center; justify-content: center;
+}
+.log-page-btn:hover:not(:disabled) { background: var(--bg2); color: var(--text); border-color: var(--text-dim); }
+.log-page-btn.active { background: var(--cycle); border-color: var(--cycle); color: #fff; }
+.log-page-btn:disabled { opacity: .35; cursor: not-allowed; }
+.log-page-ellipsis { font-size: .72rem; color: var(--text-dim); padding: 0 3px; }
+.log-per-page { font-size: .7rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.log-per-page select {
+  background: var(--bg3); border: 1.5px solid var(--border); color: var(--text);
+  border-radius: var(--radius-sm); padding: 4px 6px; font-size: .7rem; outline: none;
+  cursor: pointer;
+}
+.log-mobile-page-info { display: none; font-size: .72rem; color: var(--text-muted); padding: 0 6px; }
+@keyframes logPageFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+#logTableBody { animation: logPageFade .15s ease; }
+@media (max-width: 600px) {
+  .log-pagination { justify-content: center; }
+  .log-pagination-info { width: 100%; text-align: center; }
+  .log-page-btn.page-num { display: none; }
+  .log-page-btn.page-num.active { display: inline-flex; }
+  .log-page-ellipsis { display: none; }
+  .log-mobile-page-info { display: inline-flex !important; }
+  .log-per-page { width: 100%; justify-content: center; }
+}
+
 /* ─── Personal Records ──────────────────────────────────────────── */
 .pr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 12px; }
 .pr-card {
@@ -3395,22 +3433,22 @@ select.vo2-input { cursor:pointer; }
     </div>
 
     <div class="log-toolbar">
-      <select class="log-filter-select form-select" id="logTypeFilter" onchange="renderLog()">
+      <select class="log-filter-select form-select" id="logTypeFilter" onchange="logResetPage();renderLog()">
         <option value="">All Types</option>
         <option value="run">Run</option>
         <option value="walk">Walk / Hike</option>
         <option value="cycle">Cycle</option>
       </select>
-      <select class="log-filter-select form-select" id="logDiffFilter" onchange="renderLog()">
+      <select class="log-filter-select form-select" id="logDiffFilter" onchange="logResetPage();renderLog()">
         <option value="">All Difficulties</option>
         <option value="easy">Easy</option>
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
       </select>
       <div class="log-date-range">
-        <input type="date" id="logDateFrom" onchange="renderLog()" title="From date">
+        <input type="date" id="logDateFrom" onchange="logResetPage();renderLog()" title="From date">
         <span>–</span>
-        <input type="date" id="logDateTo" onchange="renderLog()" title="To date">
+        <input type="date" id="logDateTo" onchange="logResetPage();renderLog()" title="To date">
       </div>
       <div class="log-actions-group">
         <button class="btn btn-ghost" onclick="exportCSV()" title="Export CSV">
@@ -3450,6 +3488,7 @@ select.vo2-input { cursor:pointer; }
         </table>
       </div>
       <div class="log-footer" id="logFooter"></div>
+      <div class="log-pagination" id="logPagination"></div>
     </div>
   </section>
 
@@ -5839,6 +5878,8 @@ const chartInstances = {};
 // Log table state
 let logSortCol = 'date';
 let logSortDir = 'desc';
+let logPage = 1;
+let logPerPage = 30;
 
 // PR state (tracks previous PRs to detect new ones)
 let lastPRs = {};
@@ -6834,16 +6875,25 @@ function getLogActivities() {
 }
 
 function renderLog() {
-  const acts = getLogActivities();
+  const allActs = getLogActivities();
   const tbody = document.getElementById('logTableBody');
   const footer = document.getElementById('logFooter');
   if (!tbody) return;
 
-  if (!acts.length) {
+  const totalCount = allActs.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / logPerPage));
+  if (logPage > totalPages) logPage = totalPages;
+
+  if (!totalCount) {
     tbody.innerHTML = `<tr><td colspan="10" class="log-empty">No activities match the current filters.</td></tr>`;
     if (footer) footer.textContent = '0 activities';
+    renderLogPagination(0, 0);
     return;
   }
+
+  const start = (logPage - 1) * logPerPage;
+  const end = start + logPerPage;
+  const acts = allActs.slice(start, end);
 
   const typeColors = {run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
   const typeLabels = {run:'Run',walk:'Walk/Hike',cycle:'Cycle'};
@@ -6882,9 +6932,73 @@ function renderLog() {
     if (arrow) arrow.textContent = th.dataset.col===logSortCol ? (logSortDir==='asc'?'↑':'↓') : '↕';
   });
 
-  const total = acts.reduce((s,a)=>s+a.distance,0);
-  if (footer) footer.innerHTML = `<span>${acts.length} activit${acts.length!==1?'ies':'y'}</span>
-    <span>Total: <strong>${total.toFixed(1)} km</strong></span>`;
+  const totalDist = allActs.reduce((s,a)=>s+a.distance,0);
+  if (footer) footer.innerHTML = `<span>${totalCount} activit${totalCount!==1?'ies':'y'}</span>
+    <span>Total: <strong>${totalDist.toFixed(1)} km</strong></span>`;
+
+  renderLogPagination(totalCount, totalPages);
+}
+
+function renderLogPagination(total, totalPages) {
+  const container = document.getElementById('logPagination');
+  if (!container) return;
+
+  if (total === 0) { container.innerHTML = ''; return; }
+
+  const startItem = (logPage - 1) * logPerPage + 1;
+  const endItem = Math.min(logPage * logPerPage, total);
+
+  // Build page number buttons with ellipsis
+  const range = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= logPage - 2 && i <= logPage + 2)) {
+      range.push(i);
+    }
+  }
+
+  let pagesHtml = '';
+  let prev = null;
+  for (const p of range) {
+    if (prev !== null && p - prev > 1) {
+      pagesHtml += `<span class="log-page-ellipsis">…</span>`;
+    }
+    pagesHtml += `<button class="log-page-btn page-num${p === logPage ? ' active' : ''}" onclick="logGoPage(${p})">${p}</button>`;
+    prev = p;
+  }
+
+  container.innerHTML = `
+    <div class="log-pagination-info">Showing ${startItem}–${endItem} of ${total} activit${total!==1?'ies':'y'}</div>
+    <div class="log-pagination-controls">
+      <button class="log-page-btn" onclick="logGoPage(${logPage - 1})"${logPage === 1 ? ' disabled' : ''}>← Prev</button>
+      ${pagesHtml}
+      <span class="log-mobile-page-info">Page ${logPage} of ${totalPages}</span>
+      <button class="log-page-btn" onclick="logGoPage(${logPage + 1})"${logPage === totalPages ? ' disabled' : ''}>Next →</button>
+    </div>
+    <div class="log-per-page">Per page:
+      <select onchange="logSetPerPage(this.value)">
+        <option value="15"${logPerPage===15?' selected':''}>15</option>
+        <option value="30"${logPerPage===30?' selected':''}>30</option>
+        <option value="50"${logPerPage===50?' selected':''}>50</option>
+        <option value="100"${logPerPage===100?' selected':''}>100</option>
+      </select>
+    </div>`;
+}
+
+function logGoPage(p) {
+  const allActs = getLogActivities();
+  const totalPages = Math.max(1, Math.ceil(allActs.length / logPerPage));
+  logPage = Math.max(1, Math.min(p, totalPages));
+  renderLog();
+}
+
+function logSetPerPage(val) {
+  logPerPage = parseInt(val, 10);
+  logPage = 1;
+  renderLog();
+}
+
+function logResetPage() {
+  logPage = 1;
 }
 
 function setLogSort(col) {
