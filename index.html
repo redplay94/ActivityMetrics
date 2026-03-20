@@ -176,6 +176,56 @@ header {
 .stat-compare.down { color: #ef4444; }
 .stat-compare.neutral { color: var(--text-muted); }
 
+/* ─── YTD Goal Bars ────────────────────────────────────────────── */
+.ytd-goal-wrap { margin-top:10px; }
+.ytd-goal-trigger {
+  font-size:.68rem; font-weight:600; color:var(--text-muted);
+  cursor:pointer; display:inline-flex; align-items:center; gap:4px;
+  background:none; border:1px dashed var(--border); border-radius:6px;
+  padding:3px 8px; transition:all var(--transition);
+}
+.ytd-goal-trigger:hover { color:var(--text); border-color:var(--text-muted); }
+.ytd-goal-trigger svg { width:12px; height:12px; }
+.ytd-goal-editor {
+  display:none; align-items:center; gap:6px; margin-top:2px;
+}
+.ytd-goal-editor.open { display:flex; }
+.ytd-goal-editor input {
+  width:72px; padding:4px 6px; font-size:.75rem; font-weight:600;
+  border:1px solid var(--border); border-radius:6px;
+  background:var(--bg3); color:var(--text); text-align:center;
+}
+.ytd-goal-editor input:focus { outline:none; border-color:var(--text-muted); }
+.ytd-goal-editor .ytd-goal-unit { font-size:.68rem; color:var(--text-muted); }
+.ytd-goal-editor button {
+  background:none; border:none; cursor:pointer; padding:2px;
+  color:var(--text-muted); display:flex; align-items:center;
+}
+.ytd-goal-editor button:hover { color:var(--text); }
+.ytd-goal-bar-wrap {
+  margin-top:8px; display:none;
+}
+.ytd-goal-bar-wrap.visible { display:block; }
+.ytd-goal-bar {
+  height:6px; border-radius:3px; background:var(--bg3); overflow:hidden; position:relative;
+}
+.ytd-goal-bar-fill {
+  height:100%; border-radius:3px; width:0%; transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+.stat-card.run .ytd-goal-bar-fill        { background:var(--run); }
+.stat-card.walk .ytd-goal-bar-fill       { background:var(--walk); }
+.stat-card.cycle .ytd-goal-bar-fill      { background:var(--cycle); }
+.stat-card.steps-card .ytd-goal-bar-fill { background:var(--steps); }
+.ytd-goal-label {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:4px; font-size:.65rem; font-weight:600; color:var(--text-muted);
+}
+.ytd-goal-pct { font-weight:700; }
+.stat-card.run .ytd-goal-pct        { color:var(--run); }
+.stat-card.walk .ytd-goal-pct       { color:var(--walk); }
+.stat-card.cycle .ytd-goal-pct      { color:var(--cycle); }
+.stat-card.steps-card .ytd-goal-pct { color:var(--steps); }
+
 /* ─── Section header ───────────────────────────────────────────── */
 .section-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -1888,14 +1938,20 @@ select.pace-input { text-align:left; cursor:pointer; }
 }
 .vo2-overlay.open { transform:none; }
 .vo2-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
-.vo2-back-btn {
-  display:flex; align-items:center; gap:8px;
-  padding:16px 0 12px; font-size:.85rem; font-weight:600;
-  color:var(--text-muted); background:none; border:none; cursor:pointer;
-  transition:color var(--transition);
+.vo2-top-nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 0 12px;
 }
-.vo2-back-btn:hover { color:var(--text); }
-.vo2-back-btn svg { width:18px; height:18px; }
+.vo2-nav-back, .vo2-nav-close {
+  display:flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:50%;
+  background:var(--bg2); border:1px solid var(--border); cursor:pointer;
+  color:var(--text-muted); transition:all var(--transition);
+}
+.vo2-nav-back:hover, .vo2-nav-close:hover {
+  color:var(--text); background:var(--bg3);
+}
+.vo2-nav-back svg, .vo2-nav-close svg { width:18px; height:18px; }
 .vo2-page-title {
   display:flex; align-items:center; gap:10px;
   font-size:1.4rem; font-weight:800; margin-bottom:6px;
@@ -3224,7 +3280,21 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="stat-label">Running Distance</div>
         <div><span class="stat-value" id="ytdRun">0</span><span class="stat-unit">km</span></div>
-        <div class="stat-compare" id="ytdRunCmp"></div>
+        <div class="ytd-goal-wrap" data-goal-key="run" data-goal-unit="km">
+          <button class="ytd-goal-trigger" onclick="ytdGoalToggle(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            Set your goal
+          </button>
+          <div class="ytd-goal-editor">
+            <input type="number" min="0" placeholder="e.g. 500" onkeydown="if(event.key==='Enter')ytdGoalSave(this)">
+            <span class="ytd-goal-unit">km</span>
+            <button onclick="ytdGoalSave(this)" title="Save goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg></button>
+          </div>
+          <div class="ytd-goal-bar-wrap">
+            <div class="ytd-goal-bar"><div class="ytd-goal-bar-fill"></div></div>
+            <div class="ytd-goal-label"><span class="ytd-goal-pct">0% achieved</span><span class="ytd-goal-target"></span></div>
+          </div>
+        </div>
       </div>
       <div class="stat-card walk">
         <div class="stat-icon">
@@ -3232,7 +3302,21 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="stat-label">Walking / Hiking</div>
         <div><span class="stat-value" id="ytdWalk">0</span><span class="stat-unit">km</span></div>
-        <div class="stat-compare" id="ytdWalkCmp"></div>
+        <div class="ytd-goal-wrap" data-goal-key="walk" data-goal-unit="km">
+          <button class="ytd-goal-trigger" onclick="ytdGoalToggle(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            Set your goal
+          </button>
+          <div class="ytd-goal-editor">
+            <input type="number" min="0" placeholder="e.g. 200" onkeydown="if(event.key==='Enter')ytdGoalSave(this)">
+            <span class="ytd-goal-unit">km</span>
+            <button onclick="ytdGoalSave(this)" title="Save goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg></button>
+          </div>
+          <div class="ytd-goal-bar-wrap">
+            <div class="ytd-goal-bar"><div class="ytd-goal-bar-fill"></div></div>
+            <div class="ytd-goal-label"><span class="ytd-goal-pct">0% achieved</span><span class="ytd-goal-target"></span></div>
+          </div>
+        </div>
       </div>
       <div class="stat-card cycle">
         <div class="stat-icon">
@@ -3240,7 +3324,21 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="stat-label">Cycling Distance</div>
         <div><span class="stat-value" id="ytdCycle">0</span><span class="stat-unit">km</span></div>
-        <div class="stat-compare" id="ytdCycleCmp"></div>
+        <div class="ytd-goal-wrap" data-goal-key="cycle" data-goal-unit="km">
+          <button class="ytd-goal-trigger" onclick="ytdGoalToggle(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            Set your goal
+          </button>
+          <div class="ytd-goal-editor">
+            <input type="number" min="0" placeholder="e.g. 1000" onkeydown="if(event.key==='Enter')ytdGoalSave(this)">
+            <span class="ytd-goal-unit">km</span>
+            <button onclick="ytdGoalSave(this)" title="Save goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg></button>
+          </div>
+          <div class="ytd-goal-bar-wrap">
+            <div class="ytd-goal-bar"><div class="ytd-goal-bar-fill"></div></div>
+            <div class="ytd-goal-label"><span class="ytd-goal-pct">0% achieved</span><span class="ytd-goal-target"></span></div>
+          </div>
+        </div>
       </div>
       <div class="stat-card steps-card">
         <div class="stat-icon">
@@ -3248,7 +3346,21 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="stat-label">Total Steps</div>
         <div><span class="stat-value" id="ytdSteps">0</span><span class="stat-unit">k</span></div>
-        <div class="stat-compare" id="ytdStepsCmp"></div>
+        <div class="ytd-goal-wrap" data-goal-key="steps" data-goal-unit="k steps">
+          <button class="ytd-goal-trigger" onclick="ytdGoalToggle(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            Set your goal
+          </button>
+          <div class="ytd-goal-editor">
+            <input type="number" min="0" placeholder="e.g. 3000" onkeydown="if(event.key==='Enter')ytdGoalSave(this)">
+            <span class="ytd-goal-unit">k steps</span>
+            <button onclick="ytdGoalSave(this)" title="Save goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg></button>
+          </div>
+          <div class="ytd-goal-bar-wrap">
+            <div class="ytd-goal-bar"><div class="ytd-goal-bar-fill"></div></div>
+            <div class="ytd-goal-label"><span class="ytd-goal-pct">0% achieved</span><span class="ytd-goal-target"></span></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -3266,12 +3378,6 @@ header { padding: 0 !important; z-index: 600 !important; }
   <!-- Dashboard Weekly Summary -->
   <div class="dash-label">This Week</div>
   <div id="dashWeeklySummary"></div>
-
-  <!-- Dashboard Compact Heatmap -->
-  <div class="dash-label" style="margin-top:24px">Activity Heatmap <span style="font-size:.68rem;font-weight:400;color:var(--text-dim)">(last 12 months)</span></div>
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--card-shadow)">
-    <div class="heatmap-wrap" id="dashHeatmapWrap"><div id="dashHeatmap"></div></div>
-  </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        MY STATS
@@ -5406,10 +5512,14 @@ header { padding: 0 !important; z-index: 600 !important; }
 <!-- ─── VO2 Max Lab Overlay ───────────────────────────────── -->
 <div class="vo2-overlay" id="vo2Overlay">
   <div class="vo2-page">
-    <button class="vo2-back-btn" onclick="closeVo2Page()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Dashboard
-    </button>
+    <div class="vo2-top-nav">
+      <button class="vo2-nav-back" onclick="closeVo2Page()" title="Back to Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="vo2-nav-close" onclick="closeVo2Page()" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
 
     <div class="vo2-page-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="28" height="28"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -6265,11 +6375,79 @@ function renderYTD() {
   animCount('ytdCycle', 0, ytd.cycle, 1);
   animCount('ytdSteps', 0, Math.round(ytd.steps/1000), 0);
 
-  // Comparisons vs last month
-  setCmp('ytdRunCmp',   ytd.run,   lm.run);
-  setCmp('ytdWalkCmp',  ytd.walk,  lm.walk);
-  setCmp('ytdCycleCmp', ytd.cycle, lm.cycle);
-  setCmp('ytdStepsCmp', ytd.steps, lm.steps);
+  // Update goal bars with current YTD values
+  _ytdValues = { run: ytd.run, walk: ytd.walk, cycle: ytd.cycle, steps: Math.round(ytd.steps/1000) };
+  ytdGoalRefreshAll();
+}
+
+/* ── YTD Goals ─────────────────────────────────────────────── */
+var _ytdValues = { run:0, walk:0, cycle:0, steps:0 };
+
+function _ytdGoalsLoad() {
+  try { return JSON.parse(localStorage.getItem('actmtr_ytd_goals') || '{}'); } catch(e) { return {}; }
+}
+function _ytdGoalsSave(goals) {
+  localStorage.setItem('actmtr_ytd_goals', JSON.stringify(goals));
+}
+
+function ytdGoalToggle(btn) {
+  var wrap = btn.closest('.ytd-goal-wrap');
+  var editor = wrap.querySelector('.ytd-goal-editor');
+  var isOpen = editor.classList.contains('open');
+  editor.classList.toggle('open');
+  if (!isOpen) {
+    var inp = editor.querySelector('input');
+    var goals = _ytdGoalsLoad();
+    var key = wrap.dataset.goalKey;
+    if (goals[key]) inp.value = goals[key];
+    inp.focus();
+  }
+}
+
+function ytdGoalSave(el) {
+  var wrap = el.closest('.ytd-goal-wrap');
+  var key = wrap.dataset.goalKey;
+  var unit = wrap.dataset.goalUnit;
+  var inp = wrap.querySelector('.ytd-goal-editor input');
+  var val = parseFloat(inp.value);
+  var goals = _ytdGoalsLoad();
+  if (!val || val <= 0) {
+    delete goals[key];
+    _ytdGoalsSave(goals);
+    wrap.querySelector('.ytd-goal-bar-wrap').classList.remove('visible');
+    wrap.querySelector('.ytd-goal-trigger').innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg> Set your goal';
+    wrap.querySelector('.ytd-goal-editor').classList.remove('open');
+    return;
+  }
+  goals[key] = val;
+  _ytdGoalsSave(goals);
+  wrap.querySelector('.ytd-goal-editor').classList.remove('open');
+  _ytdGoalUpdateBar(wrap, key, val, unit);
+}
+
+function _ytdGoalUpdateBar(wrap, key, goal, unit) {
+  var current = _ytdValues[key] || 0;
+  var pct = Math.min(Math.round((current / goal) * 100), 100);
+  var barWrap = wrap.querySelector('.ytd-goal-bar-wrap');
+  barWrap.classList.add('visible');
+  var fill = barWrap.querySelector('.ytd-goal-bar-fill');
+  requestAnimationFrame(function(){ fill.style.width = pct + '%'; });
+  barWrap.querySelector('.ytd-goal-pct').textContent = pct + '% achieved';
+  barWrap.querySelector('.ytd-goal-target').textContent = 'Goal: ' + goal + ' ' + unit;
+  // Update trigger text
+  wrap.querySelector('.ytd-goal-trigger').innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> '
+    + goal + ' ' + unit;
+}
+
+function ytdGoalRefreshAll() {
+  var goals = _ytdGoalsLoad();
+  document.querySelectorAll('.ytd-goal-wrap').forEach(function(wrap) {
+    var key = wrap.dataset.goalKey;
+    var unit = wrap.dataset.goalUnit;
+    if (goals[key]) _ytdGoalUpdateBar(wrap, key, goals[key], unit);
+  });
 }
 
 function animCount(id, from, to, decimals) {
