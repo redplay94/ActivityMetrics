@@ -1055,13 +1055,13 @@ header {
    PROFILE OVERLAY
 ══════════════════════════════════════════════════════════════ */
 .profile-overlay {
-  position:fixed; inset:0; z-index:400;
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
   background:var(--bg); overflow-y:auto;
   transform:translateX(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 .profile-overlay.open { transform:none; }
-.profile-page { max-width:1100px; margin:0 auto; padding:0 16px 80px; }
+.profile-page { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 .profile-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -1430,13 +1430,21 @@ header {
 
 /* ─── My Calendar Overlay ────────────────────────────────── */
 .calendar-overlay {
-  position:fixed; inset:0; z-index:400;
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
   background:var(--bg); overflow-y:auto;
   transform:translateX(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 .calendar-overlay.open { transform:none; }
-.calendar-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
+.calendar-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
+.friends-overlay {
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
+  background:var(--bg); overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.friends-overlay.open { transform:none; }
+.friends-page-content { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 .calendar-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -1511,13 +1519,13 @@ header {
 }
 
 .races-overlay {
-  position:fixed; inset:0; z-index:400;
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
   background:var(--bg); overflow-y:auto;
   transform:translateX(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 .races-overlay.open { transform:none; }
-.races-page { max-width:1100px; margin:0 auto; padding:0 16px 80px; }
+.races-page { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 .races-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -1689,13 +1697,13 @@ header {
 .pace-nav-btn:hover { background:rgba(249,115,22,.15); color:#f97316; border-color:#f97316; }
 .pace-nav-btn svg { width:14px; height:14px; }
 .pace-overlay {
-  position:fixed; inset:0; z-index:400;
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
   background:var(--bg); overflow-y:auto;
   transform:translateX(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 .pace-overlay.open { transform:none; }
-.pace-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
+.pace-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
 .pace-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -1951,27 +1959,13 @@ select.pace-input { text-align:left; cursor:pointer; }
 .vo2-nav-btn:hover { background:rgba(239,68,68,.15); color:#ef4444; border-color:#ef4444; }
 .vo2-nav-btn svg { width:14px; height:14px; }
 .vo2-overlay {
-  position:fixed; inset:0; z-index:400;
+  position:fixed; left:0; right:0; bottom:0; z-index:500;
   background:var(--bg); overflow-y:auto;
   transform:translateX(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 .vo2-overlay.open { transform:none; }
-.vo2-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
-.vo2-top-nav {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:16px 0 12px;
-}
-.vo2-nav-back, .vo2-nav-close {
-  display:flex; align-items:center; justify-content:center;
-  width:36px; height:36px; border-radius:50%;
-  background:var(--bg2); border:1px solid var(--border); cursor:pointer;
-  color:var(--text-muted); transition:all var(--transition);
-}
-.vo2-nav-back:hover, .vo2-nav-close:hover {
-  color:var(--text); background:var(--bg3);
-}
-.vo2-nav-back svg, .vo2-nav-close svg { width:18px; height:18px; }
+.vo2-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
 .vo2-page-title {
   display:flex; align-items:center; gap:10px;
   font-size:1.4rem; font-weight:800; margin-bottom:6px;
@@ -3167,6 +3161,7 @@ header { padding: 0 !important; z-index: 600 !important; }
     <div class="nav-bar-inner">
       <button class="nav-btn active" data-section="dashboard" onclick="navTo('dashboard')">Dashboard</button>
       <button class="nav-btn" data-section="statsSection" onclick="navTo('statsSection')">My Stats</button>
+      <button class="nav-btn" data-section="racesOverlay" onclick="navTo('racesOverlay')">My Races</button>
       <button class="nav-btn" data-section="hrSection" onclick="navTo('hrSection')">Heart Rate</button>
       <button class="nav-btn" data-section="logSection" onclick="navTo('logSection')">Activity Log</button>
       <button class="nav-btn" data-section="coachSection" onclick="navTo('coachSection')">Running Coach</button>
@@ -4617,12 +4612,14 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 <!-- ─── Profile Page Overlay ──────────────────────────────────── -->
 <div class="profile-overlay" id="profileOverlay">
-  <div class="profile-page">
-    <button class="profile-back-btn" onclick="closeProfile()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Dashboard
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closeProfile()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-
+    <div class="nav-overlay-title">My Profile</div>
+    <button class="nav-overlay-close" onclick="closeProfile()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="profile-page">
     <!-- Hero -->
     <div class="profile-hero" id="profileHero"></div>
 
@@ -4974,12 +4971,14 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 <!-- ─── My Races Overlay ───────────────────────────────────── -->
 <div class="races-overlay" id="racesOverlay">
-  <div class="races-page">
-    <button class="races-back-btn" onclick="closeRacesPage()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Dashboard
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closeRacesPage()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-
+    <div class="nav-overlay-title">My Races</div>
+    <button class="nav-overlay-close" onclick="closeRacesPage()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="races-page">
     <div class="races-page-title">🏅 My Races</div>
     <div class="races-page-sub">Track completed races, plan upcoming events, and dream big with your bucket list</div>
 
@@ -5072,12 +5071,14 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 <!-- ─── My Calendar Overlay ───────────────────────────────── -->
 <div class="calendar-overlay" id="calendarOverlay">
-  <div class="calendar-page">
-    <button class="calendar-back-btn" onclick="closeCalendarPage()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Dashboard
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closeCalendarPage()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-
+    <div class="nav-overlay-title">My Calendar</div>
+    <button class="nav-overlay-close" onclick="closeCalendarPage()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="calendar-page">
     <div class="calendar-page-title">📅 My Calendar</div>
     <div class="calendar-page-sub">Click a day to see your activities</div>
 
@@ -5118,14 +5119,30 @@ header { padding: 0 !important; z-index: 600 !important; }
   </div>
 </div>
 
+<!-- ─── My Friends Overlay ──────────────────────────────── -->
+<div class="friends-overlay" id="friendsOverlay">
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closeFriendsPage()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="nav-overlay-title">My Friends</div>
+    <button class="nav-overlay-close" onclick="closeFriendsPage()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="friends-page-content">
+    <div class="profile-section" id="friendsSectionStandalone"></div>
+  </div>
+</div>
+
 <!-- ─── Pace Calculator Overlay ──────────────────────────── -->
 <div class="pace-overlay" id="paceOverlay">
-  <div class="pace-page">
-    <button class="pace-back-btn" onclick="closePacePage()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Dashboard
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closePacePage()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-
+    <div class="nav-overlay-title">Pace Calculator</div>
+    <button class="nav-overlay-close" onclick="closePacePage()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="pace-page">
     <div class="pace-page-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" width="28" height="28"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M10 3h4"/></svg>
       Pace Calculator
@@ -5518,16 +5535,14 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 <!-- ─── VO2 Max Lab Overlay ───────────────────────────────── -->
 <div class="vo2-overlay" id="vo2Overlay">
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closeVo2Page()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="nav-overlay-title">VO2 Max Lab</div>
+    <button class="nav-overlay-close" onclick="closeVo2Page()" title="Close" aria-label="Close">&times;</button>
+  </div>
   <div class="vo2-page">
-    <div class="vo2-top-nav">
-      <button class="vo2-nav-back" onclick="closeVo2Page()" title="Back to Dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="vo2-nav-close" onclick="closeVo2Page()" title="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-
     <div class="vo2-page-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="28" height="28"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       VO2 Max Lab
@@ -6989,6 +7004,7 @@ document.addEventListener('keydown', e => {
     else if (document.getElementById('calendarOverlay')?.classList.contains('open')) closeCalendarPage();
     if (document.getElementById('profileOverlay')?.classList.contains('open')) closeProfile();
     if (document.getElementById('racesOverlay')?.classList.contains('open')) closeRacesPage();
+    if (document.getElementById('friendsOverlay')?.classList.contains('open')) closeFriendsPage();
     if (document.getElementById('paceOverlay')?.classList.contains('open')) closePacePage();
     if (document.getElementById('vo2Overlay')?.classList.contains('open')) closeVo2Page();
   }
@@ -8783,6 +8799,10 @@ function renderAuthHeader() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             My Calendar
           </button>
+          <button class="user-dropdown-item" onclick="openFriendsPage();closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            My Friends
+          </button>
           <button class="user-dropdown-item danger" onclick="confirmReset();closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Reset All Data
@@ -8982,13 +9002,17 @@ document.addEventListener('click', e => {
 function openProfile() {
   if (!currentUser) { openAuthModal(); return; }
   renderProfilePage();
-  document.getElementById('profileOverlay').classList.add('open');
+  var el = document.getElementById('profileOverlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
   document.body.style.overflow = 'hidden';
   startProfileCountdown();
 }
 function closeProfile() {
   document.getElementById('profileOverlay')?.classList.remove('open');
   document.body.style.overflow = '';
+  _setNavActive('dashboard');
   stopProfileCountdown();
 }
 
@@ -10124,17 +10148,46 @@ function renderTips() {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   MY FRIENDS PAGE
+══════════════════════════════════════════════════════════════ */
+function openFriendsPage() {
+  var el = document.getElementById('friendsOverlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
+  var src = document.getElementById('friendsSection');
+  var dst = document.getElementById('friendsSectionStandalone');
+  if (src && dst) {
+    dst.innerHTML = src.innerHTML;
+    var origId = src.id;
+    src.id = '_friendsSectionOrig';
+    dst.id = 'friendsSection';
+    if (typeof renderFriendsSection === 'function') renderFriendsSection();
+    dst.id = 'friendsSectionStandalone';
+    src.id = origId;
+  }
+}
+function closeFriendsPage() {
+  document.getElementById('friendsOverlay').classList.remove('open');
+  _setNavActive('dashboard');
+}
+
+/* ══════════════════════════════════════════════════════════════
    MY RACES PAGE
 ══════════════════════════════════════════════════════════════ */
 let currentRaceTab = 'completed';
 
 function openRacesPage() {
-  document.getElementById('racesOverlay').classList.add('open');
+  var el = document.getElementById('racesOverlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
   renderRacesPage();
   startProfileCountdown(); // reuse countdown interval
 }
 function closeRacesPage() {
   document.getElementById('racesOverlay').classList.remove('open');
+  _setNavActive('dashboard');
   stopProfileCountdown();
 }
 
@@ -10142,12 +10195,16 @@ function closeRacesPage() {
    MY CALENDAR PAGE
 ══════════════════════════════════════════════════════════════ */
 function openCalendarPage() {
-  document.getElementById('calendarOverlay').classList.add('open');
+  var el = document.getElementById('calendarOverlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
   renderCalendar();
 }
 function closeCalendarPage() {
   closeDayModal();
   document.getElementById('calendarOverlay').classList.remove('open');
+  _setNavActive('dashboard');
 }
 
 function setRaceTab(tab) {
@@ -10916,7 +10973,10 @@ const KM_PER_MILE = 1.60934;
 function openPacePage() {
   const saved = localStorage.getItem('paceCalcUnit');
   if (saved) setPaceUnit(saved, true);
-  document.getElementById('paceOverlay').classList.add('open');
+  var el = document.getElementById('paceOverlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
   pcCheckAvgPace();
   rpCheckBestRace();
   if (!gapSegments.length) gapInitSegments();
@@ -10924,6 +10984,7 @@ function openPacePage() {
 }
 function closePacePage() {
   document.getElementById('paceOverlay').classList.remove('open');
+  _setNavActive('dashboard');
 }
 
 function setPaceUnit(unit, silent) {
@@ -11523,7 +11584,10 @@ function vo2Badge(cat) {
 
 // ── Open / Close ──────────────────────────────────────────────
 function openVo2Page() {
-  document.getElementById('vo2Overlay').classList.add('open');
+  var el = document.getElementById('vo2Overlay');
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
   const hist = vo2LoadHist();
   if (hist.length) {
     const cv = document.getElementById('vo2CompVO2');
@@ -16307,6 +16371,7 @@ var NAV_SECTION_TITLES = {
   prSection:         'Personal Records',
   goalsSection:      'Goals & Progress',
   racesSection:      'My Races',
+  racesOverlay:      'My Races',
 };
 
 function navTo(sectionId) {
@@ -16319,6 +16384,10 @@ function navTo(sectionId) {
   if (sectionId === 'vo2Overlay') {
     if (_navCurrentSection) { _navReturnSection(); document.getElementById('navSectionOverlay').classList.remove('open'); document.getElementById('navOverlayBackdrop').classList.remove('open'); document.body.style.overflow = ''; }
     openVo2Page(); _setNavActive('vo2Overlay'); return;
+  }
+  if (sectionId === 'racesOverlay') {
+    if (_navCurrentSection) { _navReturnSection(); document.getElementById('navSectionOverlay').classList.remove('open'); document.getElementById('navOverlayBackdrop').classList.remove('open'); document.body.style.overflow = ''; }
+    openRacesPage(); _setNavActive('racesOverlay'); return;
   }
   openNavSection(sectionId);
 }
