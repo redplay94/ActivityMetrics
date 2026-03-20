@@ -2399,7 +2399,10 @@ select.vo2-input { cursor:pointer; }
   position:fixed; z-index:9999; background:var(--bg2); border:1px solid var(--border);
   border-radius:10px; padding:10px 14px; font-size:.78rem; box-shadow:0 8px 32px rgba(0,0,0,.4);
   pointer-events:none; display:none; max-width:240px;
+  opacity:0; transition:opacity .15s ease;
 }
+.adv-hm-tooltip.tip-visible { opacity:1; }
+@media (hover:none) { .adv-hm-tooltip { display:none !important; } }
 .adv-hm-tooltip .tt-date   { font-weight:700; color:var(--text); margin-bottom:5px; font-size:.8rem; }
 .adv-hm-tooltip .tt-row   { display:flex; align-items:center; gap:6px; margin-top:3px; color:var(--text-muted); }
 .adv-hm-tooltip .tt-hint  { font-size:.68rem; color:var(--text-dim); margin-top:6px; font-style:italic; }
@@ -13730,6 +13733,14 @@ BADGE_DEFS.push(
     if(t==='cycle') return 'Cycle';
     return t;
   }
+  function getActivityEmoji(a) {
+    var st = (a.sport_type || '').toLowerCase();
+    var tp = (a.type || '').toLowerCase();
+    if(tp === 'run' || st === 'run' || st === 'trailrun') return '🏃';
+    if(tp === 'walk-hike' || st === 'hike' || st === 'walk') return '🥾';
+    if(tp === 'cycle' || st === 'ride' || st === 'mountainbikeride' || st === 'gravelride') return '🚴';
+    return '🏅';
+  }
 
   /* ── Activity data helpers ── */
   function getActsByYear(year) {
@@ -14142,11 +14153,23 @@ BADGE_DEFS.push(
     if(!tip) return;
     var html = '<div class="tt-date">'+fmtDateLong(date)+'</div>';
     if(mode==='act') {
-      if(count>0) {
-        html += '<div class="tt-row">📏 '+parseFloat(km).toFixed(1)+' km total</div>';
-        html += '<div class="tt-row">🏃 '+count+' activit'+(count>1?'ies':'y')+'</div>';
-        if(types) html += '<div class="tt-row">'+types+'</div>';
-        if(cals>0) html += '<div class="tt-row">🔥 '+cals+' kcal</div>';
+      var acts = [];
+      if(db && db.activities) {
+        acts = db.activities.filter(function(a){ return a.date === date; });
+        if(ADV_HM_FILTER !== 'all') acts = acts.filter(function(a){ return a.type === ADV_HM_FILTER; });
+      }
+      if(acts.length > 0) {
+        acts.forEach(function(a) {
+          var label = a.name || a.notes || typeLabel(a.type) || a.type;
+          if(label.length > 26) label = label.substring(0,24)+'…';
+          html += '<div class="tt-row">'
+            +'<span style="font-size:.9em;flex-shrink:0">'+getActivityEmoji(a)+'</span>'
+            +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>'
+            +'<span style="white-space:nowrap;margin-left:6px;color:var(--text);font-weight:600">— '+a.distance.toFixed(1)+' km</span>'
+            +'</div>';
+        });
+        var totalKm = acts.reduce(function(s,a){ return s+a.distance; }, 0);
+        html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:.72rem;color:var(--text-muted);font-weight:700">Total: '+totalKm.toFixed(2)+' km</div>';
       } else {
         html += '<div class="tt-row" style="color:var(--text-dim)">No activities</div>';
       }
@@ -14166,16 +14189,20 @@ BADGE_DEFS.push(
     }
     html += '<div class="tt-hint">Click for details</div>';
     tip.innerHTML = html;
+    tip.classList.remove('tip-visible');
     tip.style.display = 'block';
     var x = e.clientX+14, y = e.clientY-10;
     if(x+240>window.innerWidth) x = e.clientX-250;
     if(y+tip.offsetHeight>window.innerHeight) y = e.clientY-tip.offsetHeight-10;
     tip.style.left = x+'px';
     tip.style.top  = y+'px';
+    requestAnimationFrame(function(){ tip.classList.add('tip-visible'); });
   };
   window.advHmHideTip = function() {
     var tip = document.getElementById('advHmTooltip');
-    if(tip) tip.style.display='none';
+    if(!tip) return;
+    tip.classList.remove('tip-visible');
+    setTimeout(function(){ if(!tip.classList.contains('tip-visible')) tip.style.display='none'; }, 160);
   };
 
   /* ── Day detail modal ── */
@@ -14449,18 +14476,7 @@ BADGE_DEFS.push(
       html += acts.map(function(a) {
         var label = a.name || a.notes || typeLabels[a.type] || a.type;
         if(label.length > 28) label = label.substring(0,26)+'…';
-        var st = (a.sport_type || '').toLowerCase();
-        var tp = (a.type || '').toLowerCase();
-        var emoji;
-        if(tp === 'run' || st === 'run' || st === 'trailrun') {
-          emoji = '🏃';
-        } else if(tp === 'walk-hike' || st === 'hike' || st === 'walk') {
-          emoji = '🥾';
-        } else if(tp === 'cycle' || st === 'ride' || st === 'mountainbikeride' || st === 'gravelride') {
-          emoji = '🚴';
-        } else {
-          emoji = '🏅';
-        }
+        var emoji = getActivityEmoji(a);
         return '<div class="adv-hm-popup-act">'
           +'<span style="font-size:.9em;flex-shrink:0">'+emoji+'</span>'
           +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>'
