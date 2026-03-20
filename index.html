@@ -2406,6 +2406,63 @@ select.vo2-input { cursor:pointer; }
 .adv-hm-tooltip .tt-goal-met  { color:#39d353; font-weight:600; }
 .adv-hm-tooltip .tt-goal-miss { color:#f97316; font-weight:600; }
 
+/* Activity type filter row */
+.adv-hm-filter-row { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.adv-hm-filter-btn {
+  padding:5px 12px; border-radius:99px; font-size:.75rem; font-weight:600;
+  border:1.5px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  transition:all .18s ease; cursor:pointer;
+}
+.adv-hm-filter-btn:hover { color:var(--text); border-color:var(--text-muted); }
+.adv-hm-filter-btn[data-filter="all"].active   { background:var(--bg2);                    border-color:var(--text-muted); color:var(--text);   }
+.adv-hm-filter-btn[data-filter="run"].active   { background:rgba(249,115,22,.15);           border-color:#f97316;           color:#f97316;       }
+.adv-hm-filter-btn[data-filter="walk"].active  { background:rgba(34,197,94,.15);            border-color:#22c55e;           color:#22c55e;       }
+.adv-hm-filter-btn[data-filter="cycle"].active { background:rgba(59,130,246,.15);           border-color:#3b82f6;           color:#3b82f6;       }
+
+/* Cell click popup */
+.adv-hm-cell-popup {
+  position:fixed; z-index:10002;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.45);
+  padding:12px 14px 12px 14px; min-width:170px; max-width:260px;
+  font-size:.78rem; line-height:1.5; display:none;
+  opacity:0; pointer-events:none;
+  transition:opacity .15s ease, transform .15s ease;
+  transform:translateY(-4px) scale(.97);
+}
+.adv-hm-cell-popup.visible { opacity:1; pointer-events:all; transform:none; }
+.adv-hm-popup-date {
+  font-size:.78rem; font-weight:700; margin-bottom:8px;
+  border-bottom:1px solid var(--border); padding-bottom:6px; padding-right:18px;
+}
+.adv-hm-popup-act { display:flex; align-items:center; gap:7px; padding:3px 0; font-size:.75rem; color:var(--text-muted); }
+.adv-hm-popup-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.adv-hm-popup-total { margin-top:7px; padding-top:7px; border-top:1px solid var(--border); font-size:.72rem; color:var(--text-muted); font-weight:700; }
+.adv-hm-popup-empty { color:var(--text-dim); font-style:italic; font-size:.75rem; }
+.adv-hm-popup-close {
+  position:absolute; top:7px; right:7px; width:18px; height:18px;
+  border-radius:50%; background:var(--bg3); border:1px solid var(--border);
+  font-size:.72rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-muted); line-height:1; transition:all .18s ease;
+}
+.adv-hm-popup-close:hover { color:var(--text); }
+/* Arrow triangle */
+.adv-hm-cell-popup::after {
+  content:''; position:absolute; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; pointer-events:none;
+}
+.adv-hm-cell-popup.pop-above::after { top:100%;   border-top-color:var(--border);  }
+.adv-hm-cell-popup.pop-below::after { bottom:100%; border-bottom-color:var(--border); }
+@media(max-width:600px) {
+  .adv-hm-cell-popup {
+    position:fixed!important; left:50%!important; bottom:20px!important;
+    top:auto!important; transform:translateX(-50%) translateY(8px) scale(.97)!important;
+    min-width:200px; border-radius:12px;
+  }
+  .adv-hm-cell-popup.visible { transform:translateX(-50%) translateY(0) scale(1)!important; }
+  .adv-hm-cell-popup::after { display:none; }
+}
+
 /* Day Detail Modal */
 .adv-hm-modal-overlay {
   display:none; position:fixed; inset:0; z-index:10000;
@@ -3774,6 +3831,14 @@ select.vo2-input { cursor:pointer; }
         </div>
       </div>
 
+      <!-- Activity Type Filters -->
+      <div class="adv-hm-filter-row" id="advHmFilterRow">
+        <button class="adv-hm-filter-btn active" data-filter="all"   onclick="advHmSetFilter('all')">All</button>
+        <button class="adv-hm-filter-btn"         data-filter="run"   onclick="advHmSetFilter('run')">🏃 Run</button>
+        <button class="adv-hm-filter-btn"         data-filter="walk"  onclick="advHmSetFilter('walk')">🚶 Walk / Hike</button>
+        <button class="adv-hm-filter-btn"         data-filter="cycle" onclick="advHmSetFilter('cycle')">🚴 Cycling</button>
+      </div>
+
       <!-- Grid -->
       <div class="adv-hm-grid-wrap" id="advHmGridWrap">
         <div id="advHmGrid"></div>
@@ -3837,6 +3902,12 @@ select.vo2-input { cursor:pointer; }
 
   <!-- Advanced Heatmap Tooltip -->
   <div class="adv-hm-tooltip" id="advHmTooltip"></div>
+
+  <!-- Cell Click Popup -->
+  <div class="adv-hm-cell-popup" id="advHmCellPopup">
+    <button class="adv-hm-popup-close" onclick="advHmCloseCellPopup()" aria-label="Close">&times;</button>
+    <div id="advHmPopupContent"></div>
+  </div>
 
   <!-- Activity Detail Modal -->
   <div class="adv-hm-modal-overlay" id="advHmModalOverlay" onclick="advHmCloseModal(event)">
@@ -13611,6 +13682,7 @@ BADGE_DEFS.push(
   var ADV_HM_SYEAR  = new Date().getFullYear();
   var ADV_HM_THEME  = localStorage.getItem('advHmTheme') || 'green';
   var ADV_HM_GOAL   = parseInt(localStorage.getItem('advHmStepGoal')) || 10000;
+  var ADV_HM_FILTER = 'all'; // 'all' | 'run' | 'walk' | 'cycle'
 
   var THEMES = {
     green:   ['#1a1a2e','#0e4429','#006d32','#26a641','#39d353'],
@@ -13661,10 +13733,12 @@ BADGE_DEFS.push(
 
   /* ── Activity data helpers ── */
   function getActsByYear(year) {
-    if(!window.db||!db.activities) return {};
+    if(!db||!db.activities) return {};
+    console.log('[ActivityMetrics Heatmap] Total activities in db:', db.activities.length, '| Showing year:', year, '| Filter:', ADV_HM_FILTER);
     var map = {};
     db.activities.forEach(function(a) {
       if(a.date && a.date.startsWith(String(year))) {
+        if(ADV_HM_FILTER !== 'all' && a.type !== ADV_HM_FILTER) return;
         if(!map[a.date]) map[a.date]=[];
         map[a.date].push(a);
       }
@@ -13673,7 +13747,7 @@ BADGE_DEFS.push(
   }
 
   function getStepsByYear(year) {
-    if(!window.db||!db.activities) return {};
+    if(!db||!db.activities) return {};
     var map = {};
     db.activities.forEach(function(a) {
       if(a.date && a.date.startsWith(String(year)) && a.steps) {
@@ -13772,7 +13846,8 @@ BADGE_DEFS.push(
           return '<div class="adv-hm-cell adv-future"></div>';
         }
         var acts = byDate[cell.date]||[];
-        var color = actCellColor(acts, ADV_HM_THEME);
+        var cellTheme = ADV_HM_FILTER === 'run' ? 'orange' : ADV_HM_FILTER === 'walk' ? 'green' : ADV_HM_FILTER === 'cycle' ? 'blue' : ADV_HM_THEME;
+        var color = actCellColor(acts, cellTheme);
         var delayMs = (wi*7+ci)*4;
         var style = color ? 'background:'+color+';animation-delay:'+delayMs+'ms' : 'animation-delay:'+delayMs+'ms';
         var cls = 'adv-hm-cell wave '+(color?'':'adv-empty');
@@ -13782,7 +13857,7 @@ BADGE_DEFS.push(
         return '<div class="'+cls+'" style="'+style+'"'
           +' onmouseenter="advHmShowTip(event,\''+cell.date+'\',\'act\','+km+','+acts.length+','+cals+',\''+types+'\')"'
           +' onmouseleave="advHmHideTip()"'
-          +' onclick="advHmOpenDay(\''+cell.date+'\',\'act\')"></div>';
+          +' onclick="advHmCellClick(event,\''+cell.date+'\',\'act\')"></div>';
       }).join('');
       return '<div class="adv-hm-week">'+cells+'</div>';
     }).join('');
@@ -13832,7 +13907,10 @@ BADGE_DEFS.push(
 
     // Streaks
     var allDates = [];
-    if(window.db&&db.activities) db.activities.forEach(function(a){if(!allDates.includes(a.date))allDates.push(a.date);});
+    if(db&&db.activities) db.activities.forEach(function(a){
+      if(ADV_HM_FILTER !== 'all' && a.type !== ADV_HM_FILTER) return;
+      if(!allDates.includes(a.date)) allDates.push(a.date);
+    });
     allDates.sort();
     // Longest streak this year
     var yearDates = Object.keys(byDate).sort();
@@ -14111,7 +14189,7 @@ BADGE_DEFS.push(
 
     if(mode==='act') {
       var acts = [];
-      if(window.db&&db.activities) {
+      if(db&&db.activities) {
         acts = db.activities.filter(function(a){return a.date===date;});
       }
       if(!acts.length) {
@@ -14151,7 +14229,7 @@ BADGE_DEFS.push(
     } else {
       // Steps mode
       var stepMap = {};
-      if(window.db&&db.activities) {
+      if(db&&db.activities) {
         db.activities.filter(function(a){return a.date===date;}).forEach(function(a){
           if(a.steps) stepMap.fromActs = (stepMap.fromActs||0)+a.steps;
         });
@@ -14264,7 +14342,7 @@ BADGE_DEFS.push(
       try {
         var now = new Date();
         var year = now.getFullYear();
-        var acts = (window.db&&db.activities)||[];
+        var acts = (db&&db.activities)||[];
         var goal = ADV_HM_GOAL;
 
         // Active days this year
@@ -14304,7 +14382,7 @@ BADGE_DEFS.push(
       try {
         var now = new Date();
         var year = now.getFullYear();
-        var acts = (window.db&&db.activities)||[];
+        var acts = (db&&db.activities)||[];
         var goal = ADV_HM_GOAL;
         var yearActs = acts.filter(function(a){return a.date&&a.date.startsWith(String(year));});
         switch(def.id) {
@@ -14331,6 +14409,112 @@ BADGE_DEFS.push(
       return null;
     };
   })();
+
+  /* ── Activity type filter ── */
+  window.advHmSetFilter = function(filter) {
+    ADV_HM_FILTER = filter;
+    document.querySelectorAll('.adv-hm-filter-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+    });
+    advHmCloseCellPopup();
+    renderActGrid();
+  };
+
+  /* ── Cell click popup ── */
+  window.advHmCellClick = function(e, date, mode) {
+    e.stopPropagation();
+    advHmHideTip();
+    var popup  = document.getElementById('advHmCellPopup');
+    var content = document.getElementById('advHmPopupContent');
+    if(!popup || !content) return;
+
+    // Format date header
+    var d = new Date(date+'T00:00:00');
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var header = days[d.getDay()].substring(0,3)+', '+MONTH_NAMES[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+
+    // Get activities for this day (respecting current filter)
+    var acts = [];
+    if(db && db.activities) {
+      acts = db.activities.filter(function(a){ return a.date === date; });
+      if(ADV_HM_FILTER !== 'all') acts = acts.filter(function(a){ return a.type === ADV_HM_FILTER; });
+    }
+
+    var typeColors  = { run:'#f97316', walk:'#22c55e', cycle:'#3b82f6' };
+    var typeLabels  = { run:'Run', walk:'Walk / Hike', cycle:'Cycle' };
+
+    var html = '<div class="adv-hm-popup-date">'+header+'</div>';
+    if(!acts.length) {
+      html += '<div class="adv-hm-popup-empty">No activities</div>';
+    } else {
+      html += acts.map(function(a) {
+        var label = a.name || a.notes || typeLabels[a.type] || a.type;
+        if(label.length > 28) label = label.substring(0,26)+'…';
+        return '<div class="adv-hm-popup-act">'
+          +'<span class="adv-hm-popup-dot" style="background:'+(typeColors[a.type]||'#888')+'"></span>'
+          +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+label+'</span>'
+          +'<span style="color:var(--text);font-weight:600;white-space:nowrap;margin-left:6px">'+a.distance.toFixed(1)+' km</span>'
+          +'</div>';
+      }).join('');
+      var totalKm = acts.reduce(function(s,a){ return s+a.distance; }, 0);
+      html += '<div class="adv-hm-popup-total">Total: '+totalKm.toFixed(2)+' km</div>';
+    }
+    content.innerHTML = html;
+
+    // Position popup near the clicked cell
+    popup.classList.remove('pop-above','pop-below','visible');
+    popup.style.display = 'block';
+    popup.style.left = '0px'; popup.style.top = '0px'; // reset first
+
+    var rect   = e.target.getBoundingClientRect();
+    var popW   = popup.offsetWidth  || 220;
+    var popH   = popup.offsetHeight || 130;
+    var vpW    = window.innerWidth;
+    var vpH    = window.innerHeight;
+
+    // Horizontal: center on cell, clamp to viewport
+    var left = rect.left + rect.width/2 - popW/2;
+    left = Math.max(8, Math.min(left, vpW - popW - 8));
+
+    // Vertical: prefer above cell, fall back to below
+    var spaceAbove = rect.top;
+    var spaceBelow = vpH - rect.bottom;
+    var top;
+    if(spaceAbove >= popH + 12) {
+      top = rect.top - popH - 10;
+      popup.classList.add('pop-above');
+    } else {
+      top = rect.bottom + 10;
+      popup.classList.add('pop-below');
+    }
+    top = Math.max(8, Math.min(top, vpH - popH - 8));
+
+    popup.style.left = left + 'px';
+    popup.style.top  = top  + 'px';
+
+    // Fade in
+    requestAnimationFrame(function() { popup.classList.add('visible'); });
+  };
+
+  window.advHmCloseCellPopup = function() {
+    var popup = document.getElementById('advHmCellPopup');
+    if(!popup) return;
+    popup.classList.remove('visible');
+    setTimeout(function() { if(!popup.classList.contains('visible')) popup.style.display = ''; }, 200);
+  };
+
+  // Close popup when clicking anywhere outside it
+  document.addEventListener('click', function(e) {
+    var popup = document.getElementById('advHmCellPopup');
+    if(popup && popup.classList.contains('visible') && !popup.contains(e.target)) {
+      advHmCloseCellPopup();
+    }
+  });
+
+  // Close popup on Escape
+  document.addEventListener('keydown', function(e) {
+    if(e.key === 'Escape') advHmCloseCellPopup();
+  });
 
   /* ── Init on page load ── */
   document.addEventListener('DOMContentLoaded', function() {
