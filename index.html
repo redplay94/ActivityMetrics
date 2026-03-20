@@ -1358,6 +1358,88 @@ header {
 .races-nav-btn:hover { background:rgba(249,115,22,.15); }
 .races-nav-btn svg { width:14px; height:14px; }
 
+/* ─── My Calendar Overlay ────────────────────────────────── */
+.calendar-overlay {
+  position:fixed; inset:0; z-index:400;
+  background:var(--bg); overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.calendar-overlay.open { transform:none; }
+.calendar-page { max-width:900px; margin:0 auto; padding:0 16px 80px; }
+.calendar-back-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:16px 0 12px; font-size:.85rem; font-weight:600;
+  color:var(--text-muted); transition:color var(--transition);
+}
+.calendar-back-btn:hover { color:var(--text); }
+.calendar-back-btn svg { width:18px; height:18px; }
+.calendar-page-title {
+  display:flex; align-items:center; gap:10px;
+  font-size:1.4rem; font-weight:800; margin-bottom:6px;
+}
+.calendar-page-sub { font-size:.82rem; color:var(--text-muted); margin-bottom:20px; }
+
+/* ─── Calendar Day Popup Modal ──────────────────────────── */
+.cal-modal-backdrop {
+  position:fixed; inset:0; z-index:600;
+  background:rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  padding:16px;
+  opacity:0; pointer-events:none;
+  transition:opacity .2s ease;
+}
+.cal-modal-backdrop.open { opacity:1; pointer-events:all; }
+.cal-day-modal {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:0 20px 60px rgba(0,0,0,.5);
+  width:100%; max-width:500px; max-height:85vh;
+  display:flex; flex-direction:column;
+  transform:translateY(20px) scale(.97);
+  transition:transform .2s ease;
+  overflow:hidden;
+}
+.cal-modal-backdrop.open .cal-day-modal { transform:none; }
+.cal-modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.cal-modal-date { font-size:1rem; font-weight:800; }
+.cal-modal-close {
+  width:30px; height:30px; border-radius:var(--radius-sm);
+  background:var(--bg3); color:var(--text-muted);
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border); transition:all var(--transition);
+}
+.cal-modal-close:hover { color:var(--text); }
+.cal-modal-close svg { width:14px; height:14px; }
+.cal-modal-body {
+  overflow-y:auto; padding:16px 20px;
+  display:flex; flex-direction:column; gap:12px;
+  flex:1;
+}
+.cal-modal-day-summary {
+  background:var(--bg3); border-radius:var(--radius-sm);
+  padding:12px 16px; border:1px solid var(--border);
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px;
+  margin-top:4px;
+}
+.cal-modal-sum-item { display:flex; flex-direction:column; gap:2px; }
+.cal-modal-sum-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); font-weight:600; }
+.cal-modal-sum-value { font-size:1rem; font-weight:800; }
+.cal-rest-day { text-align:center; padding:32px 16px; color:var(--text-muted); font-size:.9rem; }
+.cal-rest-icon { font-size:2.5rem; display:block; margin-bottom:12px; }
+@media(max-width:600px) {
+  .cal-modal-backdrop { align-items:flex-end; padding:0; }
+  .cal-day-modal {
+    max-width:100%; border-radius:var(--radius) var(--radius) 0 0;
+    max-height:90vh;
+    transform:translateY(100%);
+  }
+  .cal-modal-backdrop.open .cal-day-modal { transform:none; }
+}
+
 .races-overlay {
   position:fixed; inset:0; z-index:400;
   background:var(--bg); overflow-y:auto;
@@ -3034,48 +3116,6 @@ select.vo2-input { cursor:pointer; }
     <div class="streak-best" id="streakBest">Best: 0</div>
   </div>
 
-  <!-- Calendar Section -->
-  <section aria-label="Activity calendar">
-    <div class="section-header">
-      <div>
-        <div class="section-title">Activity Calendar</div>
-        <div class="section-sub">Click a day to see details</div>
-      </div>
-    </div>
-
-    <div class="calendar-card">
-      <div class="calendar-header">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)" title="Previous month">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="cal-month-label" id="calMonthLabel"></div>
-        <button class="cal-nav-btn" onclick="changeMonth(1)" title="Next month">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-        <button class="cal-today-btn" onclick="goToToday()">Today</button>
-      </div>
-      <div class="calendar-grid">
-        <div class="cal-weekdays">
-          <div class="cal-weekday">Sun</div><div class="cal-weekday">Mon</div>
-          <div class="cal-weekday">Tue</div><div class="cal-weekday">Wed</div>
-          <div class="cal-weekday">Thu</div><div class="cal-weekday">Fri</div>
-          <div class="cal-weekday">Sat</div>
-        </div>
-        <div class="cal-days" id="calDays"></div>
-      </div>
-    </div>
-
-    <!-- Detail Panel -->
-    <div class="detail-panel" id="detailPanel">
-      <div class="detail-header">
-        <div class="detail-date" id="detailDate"></div>
-        <button class="detail-close" onclick="closeDetail()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="detail-activities" id="detailActivities"></div>
-    </div>
-  </section>
 
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -4735,6 +4775,54 @@ select.vo2-input { cursor:pointer; }
   </div>
 </div>
 
+<!-- ─── My Calendar Overlay ───────────────────────────────── -->
+<div class="calendar-overlay" id="calendarOverlay">
+  <div class="calendar-page">
+    <button class="calendar-back-btn" onclick="closeCalendarPage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </button>
+
+    <div class="calendar-page-title">📅 My Calendar</div>
+    <div class="calendar-page-sub">Click a day to see your activities</div>
+
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)" title="Previous month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)" title="Next month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="cal-today-btn" onclick="goToToday()">Today</button>
+      </div>
+      <div class="calendar-grid">
+        <div class="cal-weekdays">
+          <div class="cal-weekday">Sun</div><div class="cal-weekday">Mon</div>
+          <div class="cal-weekday">Tue</div><div class="cal-weekday">Wed</div>
+          <div class="cal-weekday">Thu</div><div class="cal-weekday">Fri</div>
+          <div class="cal-weekday">Sat</div>
+        </div>
+        <div class="cal-days" id="calDays"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Calendar Day Popup Modal ──────────────────────────── -->
+<div class="cal-modal-backdrop" id="calModalBackdrop" onclick="closeDayModal()">
+  <div class="cal-day-modal" id="calDayModal" onclick="event.stopPropagation()">
+    <div class="cal-modal-header">
+      <div class="cal-modal-date" id="calModalDate"></div>
+      <button class="cal-modal-close" onclick="closeDayModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cal-modal-body" id="calModalBody"></div>
+  </div>
+</div>
+
 <!-- ─── Pace Calculator Overlay ──────────────────────────── -->
 <div class="pace-overlay" id="paceOverlay">
   <div class="pace-page">
@@ -6135,34 +6223,81 @@ function goToToday() {
 }
 
 function toggleDay(dateStr) {
-  if (selectedDay === dateStr) { closeDetail(); return; }
+  if (selectedDay === dateStr) { closeDayModal(); return; }
   selectedDay = dateStr;
   renderCalendar();
-  showDetail(dateStr);
+  showDayModal(dateStr);
 }
 function closeDetail() {
-  selectedDay = null;
-  document.getElementById('detailPanel').classList.remove('open');
-  renderCalendar();
+  closeDayModal();
 }
 
 function showDetail(dateStr) {
-  const panel = document.getElementById('detailPanel');
+  showDayModal(dateStr);
+}
+
+function showDayModal(dateStr) {
+  const backdrop = document.getElementById('calModalBackdrop');
+  if (!backdrop) return;
   const d = new Date(dateStr + 'T00:00:00');
-  document.getElementById('detailDate').textContent =
+  document.getElementById('calModalDate').textContent =
     d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
   const acts = db.activities.filter(a => a.date === dateStr);
-  const container = document.getElementById('detailActivities');
+  const body  = document.getElementById('calModalBody');
+  const typeLabels = {run:'Run', walk:'Walk / Hike', cycle:'Cycle'};
 
   if (!acts.length) {
-    container.innerHTML = `<div class="detail-empty">No activities recorded for this day.<br><span style="font-size:.7rem">Click the + button to add one.</span></div>`;
+    body.innerHTML = `<div class="cal-rest-day"><span class="cal-rest-icon">😴</span>Rest day — no activities logged<br><span style="font-size:.75rem;color:var(--text-dim)">Click the + button to add an activity.</span></div>`;
   } else {
-    container.innerHTML = acts.map(a => buildActivityRow(a)).join('');
+    const rows = acts.map(a => {
+      const paceLabel = a.type === 'cycle' ? 'Avg Speed' : 'Avg Pace';
+      const paceVal   = a.type === 'cycle' ? fmtSpeed(a.duration, a.distance) : fmtPace(a.duration, a.distance);
+      const hrHtml    = (a.avgHr || a.maxHr)
+        ? `<div class="act-stat"><div class="act-stat-label">Avg HR</div><div class="act-stat-value">${a.avgHr || '—'} bpm</div></div>
+           <div class="act-stat"><div class="act-stat-label">Max HR</div><div class="act-stat-value">${a.maxHr || '—'} bpm</div></div>` : '';
+      const nameHtml  = a.name ? `<div style="font-size:.85rem;font-weight:700;margin-bottom:6px">${escHtml(a.name)}</div>` : '';
+      return `<div class="activity-row ${a.type}">
+        <div class="activity-row-header">
+          <span class="activity-type-badge ${a.type}">${typeLabels[a.type]}</span>
+          <span class="difficulty-badge ${a.difficulty}">${cap(a.difficulty)}</span>
+        </div>
+        ${nameHtml}
+        <div class="activity-stats">
+          <div class="act-stat"><div class="act-stat-label">Distance</div><div class="act-stat-value">${a.distance.toFixed(2)} km</div></div>
+          <div class="act-stat"><div class="act-stat-label">Duration</div><div class="act-stat-value">${fmtDuration(a.duration)}</div></div>
+          <div class="act-stat"><div class="act-stat-label">${paceLabel}</div><div class="act-stat-value">${paceVal}</div></div>
+          <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${a.calories} kcal</div></div>
+          ${a.type !== 'cycle' ? `<div class="act-stat"><div class="act-stat-label">Steps</div><div class="act-stat-value">${(a.steps||0).toLocaleString()}</div></div>` : ''}
+          <div class="act-stat"><div class="act-stat-label">Elevation</div><div class="act-stat-value">${a.elevation||0} m</div></div>
+          ${hrHtml}
+        </div>
+        ${a.notes ? `<div class="act-note">"${escHtml(a.notes)}"</div>` : ''}
+      </div>`;
+    }).join('');
+
+    const totalDist  = acts.reduce((s,a) => s + a.distance, 0);
+    const totalCal   = acts.reduce((s,a) => s + a.calories, 0);
+    const totalDur   = acts.reduce((s,a) => s + a.duration, 0);
+    const totalSteps = acts.reduce((s,a) => s + (a.steps||0), 0);
+    const summary = acts.length > 1 ? `<div class="cal-modal-day-summary">
+      <div class="cal-modal-sum-item"><div class="cal-modal-sum-label">Total Distance</div><div class="cal-modal-sum-value">${totalDist.toFixed(2)} km</div></div>
+      <div class="cal-modal-sum-item"><div class="cal-modal-sum-label">Total Time</div><div class="cal-modal-sum-value">${fmtDuration(totalDur)}</div></div>
+      <div class="cal-modal-sum-item"><div class="cal-modal-sum-label">Calories</div><div class="cal-modal-sum-value">${totalCal} kcal</div></div>
+      ${totalSteps ? `<div class="cal-modal-sum-item"><div class="cal-modal-sum-label">Steps</div><div class="cal-modal-sum-value">${totalSteps.toLocaleString()}</div></div>` : ''}
+    </div>` : '';
+
+    body.innerHTML = rows + summary;
   }
 
-  panel.classList.add('open');
-  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+  backdrop.classList.add('open');
+}
+
+function closeDayModal() {
+  const backdrop = document.getElementById('calModalBackdrop');
+  if (backdrop) backdrop.classList.remove('open');
+  selectedDay = null;
+  renderCalendar();
 }
 
 function buildActivityRow(a) {
@@ -6474,6 +6609,8 @@ document.addEventListener('keydown', e => {
     closeCompletedRaceModal();
     closeBucketModal();
     closePhotoLightbox();
+    if (document.getElementById('calModalBackdrop')?.classList.contains('open')) closeDayModal();
+    else if (document.getElementById('calendarOverlay')?.classList.contains('open')) closeCalendarPage();
     if (document.getElementById('profileOverlay')?.classList.contains('open')) closeProfile();
     if (document.getElementById('racesOverlay')?.classList.contains('open')) closeRacesPage();
     if (document.getElementById('paceOverlay')?.classList.contains('open')) closePacePage();
@@ -8266,6 +8403,10 @@ function renderAuthHeader() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 12v10"/><path d="M6 17l-2 4h16l-2-4"/></svg>
             My Races
           </button>
+          <button class="user-dropdown-item" onclick="openCalendarPage();closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            My Calendar
+          </button>
           <button class="user-dropdown-item" onclick="toggleSettings();closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Settings
@@ -9619,6 +9760,18 @@ function openRacesPage() {
 function closeRacesPage() {
   document.getElementById('racesOverlay').classList.remove('open');
   stopProfileCountdown();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MY CALENDAR PAGE
+══════════════════════════════════════════════════════════════ */
+function openCalendarPage() {
+  document.getElementById('calendarOverlay').classList.add('open');
+  renderCalendar();
+}
+function closeCalendarPage() {
+  closeDayModal();
+  document.getElementById('calendarOverlay').classList.remove('open');
 }
 
 function setRaceTab(tab) {
