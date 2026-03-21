@@ -1787,12 +1787,11 @@ header {
 .pace-nav-btn:hover { background:rgba(249,115,22,.15); color:#f97316; border-color:#f97316; }
 .pace-nav-btn svg { width:14px; height:14px; }
 .pace-overlay {
-  position:fixed; left:0; right:0; bottom:0; z-index:500;
+  position:fixed; top:0; left:0; right:0; bottom:0; z-index:700;
   background:var(--bg); overflow-y:auto;
-  transform:translateX(100%);
-  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:none;
 }
-.pace-overlay.open { transform:none; }
+.pace-overlay.open { display:block; }
 .pace-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
 .pace-back-btn {
   display:flex; align-items:center; gap:8px;
@@ -2049,12 +2048,11 @@ select.pace-input { text-align:left; cursor:pointer; }
 .vo2-nav-btn:hover { background:rgba(239,68,68,.15); color:#ef4444; border-color:#ef4444; }
 .vo2-nav-btn svg { width:14px; height:14px; }
 .vo2-overlay {
-  position:fixed; left:0; right:0; bottom:0; z-index:500;
+  position:fixed; top:0; left:0; right:0; bottom:0; z-index:700;
   background:var(--bg); overflow-y:auto;
-  transform:translateX(100%);
-  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:none;
 }
-.vo2-overlay.open { transform:none; }
+.vo2-overlay.open { display:block; }
 .vo2-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
 .vo2-page-title {
   display:flex; align-items:center; gap:10px;
@@ -3169,6 +3167,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 .nav-bar {
   background: var(--bg2); border-top: 1px solid var(--border);
   overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  position: relative; z-index: 601;
 }
 .nav-bar::-webkit-scrollbar { display: none; }
 .nav-bar-inner {
@@ -3188,6 +3187,7 @@ header { padding: 0 !important; z-index: 600 !important; }
   padding: 5px 14px; border-radius: 99px; font-size: .75rem; font-weight: 600;
   color: var(--text-muted); border: 1.5px solid transparent;
   transition: all .18s ease; cursor: pointer; flex-shrink: 0; background: none;
+  pointer-events: auto; position: relative;
 }
 .nav-btn:hover { color: var(--text); background: var(--bg3); }
 .nav-btn.active { background: var(--bg3); color: var(--text); border-color: var(--border); }
@@ -3214,7 +3214,8 @@ header { padding: 0 !important; z-index: 600 !important; }
   color: var(--text-muted); cursor: pointer; transition: all .18s ease; flex-shrink: 0;
 }
 .nav-overlay-back:hover, .nav-overlay-close:hover { color: var(--text); border-color: var(--text-muted); }
-.nav-overlay-close { font-size: 1.1rem; line-height: 1; }
+.nav-overlay-close { font-size: 1.1rem; line-height: 1; min-width: 32px; min-height: 32px; }
+@media (max-width: 480px) { .nav-overlay-close, .nav-overlay-back { width: 40px; height: 40px; min-width: 40px; min-height: 40px; font-size: 1.3rem; } }
 .nav-overlay-title { font-size: 1rem; font-weight: 700; flex: 1; }
 .nav-overlay-content { max-width: 1280px; margin: 0 auto; padding: 20px 16px 80px; }
 .nav-overlay-backdrop {
@@ -11351,18 +11352,21 @@ const KM_PER_MILE = 1.60934;
 function openPacePage() {
   const saved = localStorage.getItem('paceCalcUnit');
   if (saved) setPaceUnit(saved, true);
+  closeVo2Page(true);
   var el = document.getElementById('paceOverlay');
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  document.body.style.overflow = 'hidden';
   pcCheckAvgPace();
   rpCheckBestRace();
   if (!gapSegments.length) gapInitSegments();
   spUpdateStratDesc();
 }
-function closePacePage() {
-  document.getElementById('paceOverlay').classList.remove('open');
-  _setNavActive('dashboard');
+function closePacePage(silent) {
+  var el = document.getElementById('paceOverlay');
+  el.classList.remove('open');
+  if (!silent) { document.body.style.overflow = ''; _setNavActive('dashboard'); }
 }
 
 function setPaceUnit(unit, silent) {
@@ -11962,10 +11966,12 @@ function vo2Badge(cat) {
 
 // ── Open / Close ──────────────────────────────────────────────
 function openVo2Page() {
+  closePacePage(true);
   var el = document.getElementById('vo2Overlay');
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  document.body.style.overflow = 'hidden';
   const hist = vo2LoadHist();
   if (hist.length) {
     const cv = document.getElementById('vo2CompVO2');
@@ -11976,9 +11982,10 @@ function openVo2Page() {
   vo2UpdateCompare();
   vo2RenderImprove();
 }
-function closeVo2Page() {
-  document.getElementById('vo2Overlay').classList.remove('open');
-  _setNavActive('dashboard');
+function closeVo2Page(silent) {
+  var el = document.getElementById('vo2Overlay');
+  el.classList.remove('open');
+  if (!silent) { document.body.style.overflow = ''; _setNavActive('dashboard'); }
 }
 function setVo2Tab(tab) {
   vo2CurTab = tab;
@@ -17071,9 +17078,11 @@ function _navRerenderSection(id) {
   if (id === 'advHeatmapSection' && typeof advHmInit         === 'function') advHmInit();
 }
 
-// Escape key closes nav overlay
+// Escape key closes nav overlay, pace, or VO2
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    if (document.getElementById('paceOverlay')?.classList.contains('open')) { closePacePage(); return; }
+    if (document.getElementById('vo2Overlay')?.classList.contains('open'))  { closeVo2Page();  return; }
     var overlay = document.getElementById('navSectionOverlay');
     if (overlay && overlay.classList.contains('open')) closeNavSection();
   }
