@@ -1198,10 +1198,16 @@ header {
 .weekly-stat-cmp.up   { color:#22c55e; }
 .weekly-stat-cmp.down { color:#ef4444; }
 .weekly-stat-cmp.neu  { color:var(--text-muted); }
-.weekly-bar-chart { display:flex; gap:5px; align-items:flex-end; height:48px; }
-.weekly-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+.weekly-bar-chart { display:flex; gap:5px; align-items:flex-end; height:56px; position:relative; }
+.weekly-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; min-width:0; }
+.weekly-bar-stack { width:100%; display:flex; flex-direction:column-reverse; align-items:stretch; border-radius:3px 3px 0 0; overflow:hidden; }
+.weekly-bar-seg { width:100%; min-height:0; cursor:pointer; position:relative; transition:opacity .15s; }
+.weekly-bar-seg:hover { opacity:.8; }
 .weekly-bar { width:100%; border-radius:3px 3px 0 0; min-height:2px; }
 .weekly-bar-day { font-size:.58rem; color:var(--text-dim); }
+.weekly-bar-tooltip { position:fixed; background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.68rem;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25); }
+.weekly-bar-legend { display:flex; gap:10px; justify-content:center; margin-top:6px; font-size:.58rem; color:var(--text-muted); }
+.weekly-bar-legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:3px; vertical-align:middle; background:var(--c); }
 
 /* Activity Heatmap */
 .heatmap-wrap { overflow-x:auto; padding-bottom:8px; }
@@ -9422,7 +9428,7 @@ function renderProfileWeekly() {
   const el = document.getElementById('profileWeeklySummary');
   if (!el) return;
   const now  = new Date();
-  const sow  = new Date(now); sow.setDate(now.getDate()-now.getDay()); sow.setHours(0,0,0,0);
+  const sow  = new Date(now); sow.setDate(now.getDate()-((now.getDay()+6)%7)); sow.setHours(0,0,0,0);
   const slow = new Date(sow); slow.setDate(slow.getDate()-7);
   const thisW = db.activities.filter(a=>new Date(a.date+'T00:00:00')>=sow);
   const lastW = db.activities.filter(a=>{ const d=new Date(a.date+'T00:00:00'); return d>=slow&&d<sow; });
@@ -9440,18 +9446,39 @@ function renderProfileWeekly() {
     if (pct<0)  return `<span class="weekly-stat-cmp down">▼ ${Math.abs(pct)}%</span>`;
     return `<span class="weekly-stat-cmp neu">= same</span>`;
   }
-  // Mini bar chart Mon-Sun
-  const dayDist = [0,0,0,0,0,0,0];
-  thisW.forEach(a => { const d = new Date(a.date+'T00:00:00'); dayDist[d.getDay()] += a.distance; });
-  const maxD = Math.max(...dayDist, 0.01);
-  const dLabels = ['S','M','T','W','T','F','S'];
-  const todayDOW = now.getDay();
+  // Mini stacked bar chart Mon-Sun
+  const daySports = Array.from({length:7}, ()=>({run:0,walk:0,cycle:0}));
+  thisW.forEach(a => {
+    const d = new Date(a.date+'T00:00:00');
+    const idx = (d.getDay()+6)%7; // 0=Mon..6=Sun
+    const t = (a.type==='cycle') ? 'cycle' : (a.type==='walk'||a.type==='walk-hike'||a.type==='hike') ? 'walk' : 'run';
+    daySports[idx][t] += a.distance;
+  });
+  const dayTotals = daySports.map(s=>s.run+s.walk+s.cycle);
+  const maxD = Math.max(...dayTotals, 0.01);
+  const dLabels = ['M','T','W','T','F','S','S'];
+  const todayIdx = (now.getDay()+6)%7;
+  const sportColors = {run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
+  const sportNames = {run:'Run',walk:'Walk/Hike',cycle:'Cycle'};
   const barsHtml = dLabels.map((label,i) => {
-    const h = Math.max(4, (dayDist[i]/maxD)*44);
-    const col = dayDist[i]>0 ? (i===0||i===6 ? 'var(--walk)' : 'var(--run)') : 'var(--bg3)';
-    const bold = i===todayDOW ? 'color:var(--run);font-weight:700' : '';
+    const total = dayTotals[i];
+    const h = Math.max(4, (total/maxD)*48);
+    const bold = i===todayIdx ? 'color:var(--run);font-weight:700' : '';
+    const dayName = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i];
+    if (total < 0.01) {
+      return `<div class="weekly-bar-wrap">
+        <div class="weekly-bar-stack" style="height:${h}px"><div class="weekly-bar-seg" style="height:100%;background:var(--bg3)"></div></div>
+        <div class="weekly-bar-day" style="${bold}">${label}</div>
+      </div>`;
+    }
+    const segs = ['run','walk','cycle'].filter(s=>daySports[i][s]>0).map(s=>{
+      const segH = (daySports[i][s]/total)*h;
+      return `<div class="weekly-bar-seg" style="height:${segH}px;background:${sportColors[s]}"
+        onmouseenter="showWeeklyTip(event,'${dayName}','${sportNames[s]}',${daySports[i][s].toFixed(1)})"
+        onmouseleave="hideWeeklyTip()"></div>`;
+    }).join('');
     return `<div class="weekly-bar-wrap">
-      <div class="weekly-bar" style="height:${h}px;background:${col}"></div>
+      <div class="weekly-bar-stack" style="height:${h}px">${segs}</div>
       <div class="weekly-bar-day" style="${bold}">${label}</div>
     </div>`;
   }).join('');
@@ -9465,8 +9492,21 @@ function renderProfileWeekly() {
       </div>
       <div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>
       <div class="weekly-bar-chart">${barsHtml}</div>
+      <div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div>
     </div>`;
 }
+
+/* ── Weekly bar tooltip helpers ── */
+let _weeklyTipEl = null;
+function showWeeklyTip(e, day, sport, km) {
+  if (!_weeklyTipEl) { _weeklyTipEl = document.createElement('div'); _weeklyTipEl.className='weekly-bar-tooltip'; document.body.appendChild(_weeklyTipEl); }
+  _weeklyTipEl.textContent = `${day} \u2014 ${sport}: ${km} km`;
+  _weeklyTipEl.style.display = 'block';
+  const r = e.target.getBoundingClientRect();
+  _weeklyTipEl.style.left = (r.left + r.width/2 - _weeklyTipEl.offsetWidth/2) + 'px';
+  _weeklyTipEl.style.top  = (r.top - 28) + 'px';
+}
+function hideWeeklyTip() { if (_weeklyTipEl) _weeklyTipEl.style.display='none'; }
 
 /* ── Activity Heatmap ── */
 function renderProfileHeatmap() {
@@ -16939,7 +16979,7 @@ function renderDashWeekly() {
   var el = document.getElementById('dashWeeklySummary');
   if (!el) return;
   var now  = new Date();
-  var sow  = new Date(now); sow.setDate(now.getDate() - now.getDay()); sow.setHours(0,0,0,0);
+  var sow  = new Date(now); sow.setDate(now.getDate() - ((now.getDay()+6)%7)); sow.setHours(0,0,0,0);
   var slow = new Date(sow); slow.setDate(slow.getDate() - 7);
   var thisW = db.activities.filter(function(a) { return new Date(a.date+'T00:00:00') >= sow; });
   var lastW = db.activities.filter(function(a) { var d=new Date(a.date+'T00:00:00'); return d>=slow && d<sow; });
@@ -16952,15 +16992,23 @@ function renderDashWeekly() {
     if (pct<0)  return '<span class="weekly-stat-cmp down">▼ '+Math.abs(pct)+'%</span>';
     return '<span class="weekly-stat-cmp neu">= same</span>';
   }
-  var dayDist=[0,0,0,0,0,0,0];
-  thisW.forEach(function(a){ var d=new Date(a.date+'T00:00:00'); dayDist[d.getDay()]+=a.distance; });
-  var maxD=Math.max.apply(null,dayDist.concat([0.01]));
-  var dLabels=['S','M','T','W','T','F','S'], todayDOW=now.getDay();
+  var daySports=[]; for(var _i=0;_i<7;_i++) daySports.push({run:0,walk:0,cycle:0});
+  thisW.forEach(function(a){ var d=new Date(a.date+'T00:00:00'); var idx=(d.getDay()+6)%7;
+    var t=(a.type==='cycle')?'cycle':(a.type==='walk'||a.type==='walk-hike'||a.type==='hike')?'walk':'run';
+    daySports[idx][t]+=a.distance; });
+  var dayTotals=daySports.map(function(s){return s.run+s.walk+s.cycle;});
+  var maxD=Math.max.apply(null,dayTotals.concat([0.01]));
+  var dLabels=['M','T','W','T','F','S','S'], todayIdx=(now.getDay()+6)%7;
+  var sportColors={run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
+  var sportNames={run:'Run',walk:'Walk/Hike',cycle:'Cycle'};
+  var dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var barsHtml=dLabels.map(function(lbl,i){
-    var h=Math.max(4,(dayDist[i]/maxD)*44);
-    var col=dayDist[i]>0?(i===0||i===6?'var(--walk)':'var(--run)'):'var(--bg3)';
-    var bold=i===todayDOW?'color:var(--run);font-weight:700':'';
-    return '<div class="weekly-bar-wrap"><div class="weekly-bar" style="height:'+h+'px;background:'+col+'"></div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
+    var total=dayTotals[i]; var h=Math.max(4,(total/maxD)*48);
+    var bold=i===todayIdx?'color:var(--run);font-weight:700':'';
+    if(total<0.01) return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px"><div class="weekly-bar-seg" style="height:100%;background:var(--bg3)"></div></div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
+    var segs=''; ['run','walk','cycle'].forEach(function(s){ if(daySports[i][s]>0){ var segH=(daySports[i][s]/total)*h;
+      segs+='<div class="weekly-bar-seg" style="height:'+segH+'px;background:'+sportColors[s]+'" onmouseenter="showWeeklyTip(event,\''+dayNames[i]+'\',\''+sportNames[s]+'\','+daySports[i][s].toFixed(1)+')" onmouseleave="hideWeeklyTip()"></div>'; }});
+    return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px">'+segs+'</div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
   }).join('');
   el.innerHTML='<div class="weekly-summary-card">'
     +'<div class="weekly-row">'
@@ -16970,7 +17018,8 @@ function renderDashWeekly() {
     +'<div class="weekly-stat"><div class="weekly-stat-label">Steps</div><div class="weekly-stat-val">'+(tw.steps/1000).toFixed(1)+'k</div>'+cmpHtml(tw.steps,lw.steps)+'</div>'
     +'</div>'
     +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
-    +'<div class="weekly-bar-chart">'+barsHtml+'</div></div>';
+    +'<div class="weekly-bar-chart">'+barsHtml+'</div>'
+    +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div></div>';
 }
 
 /* ── Dashboard compact heatmap ── */
