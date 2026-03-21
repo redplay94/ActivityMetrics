@@ -1539,6 +1539,33 @@ header {
 }
 .friends-overlay.open { transform:none; }
 .friends-page-content { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
+/* ── Friends inner modals (Add Friend & Leaderboard) ── */
+.friends-inner-modal-overlay{
+  position:absolute;inset:0;z-index:10;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease;
+}
+.friends-inner-modal-overlay.open{opacity:1;pointer-events:all}
+.friends-inner-modal{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:0 24px 64px rgba(0,0,0,.6);
+  width:92%;max-width:560px;max-height:85vh;overflow-y:auto;
+  transform:translateY(20px) scale(.97);
+  transition:transform .25s ease;
+}
+.friends-inner-modal-overlay.open .friends-inner-modal{transform:none}
+@media(max-width:700px){
+  .friends-inner-modal-overlay{align-items:flex-end;padding:0}
+  .friends-inner-modal{
+    border-radius:16px 16px 0 0;max-height:90vh;
+    width:100%;max-width:100%!important;
+    transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  .friends-inner-modal-overlay.open .friends-inner-modal{transform:translateY(0)}
+}
 .calendar-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -4936,8 +4963,8 @@ header { padding: 0 !important; z-index: 600 !important; }
       <!-- Tab navigation -->
       <div class="friends-tabs-nav">
         <button class="friends-tab-btn active" id="friendsBtnMyFriends" onclick="friendsSwitchTab('myFriends')">👥 My Friends</button>
-        <button class="friends-tab-btn" id="friendsBtnAddFriend" onclick="friendsSwitchTab('addFriend')">➕ Add Friend</button>
-        <button class="friends-tab-btn" id="friendsBtnLeaderboard" onclick="friendsSwitchTab('leaderboard')">🏆 Leaderboard</button>
+        <button class="friends-tab-btn" id="friendsBtnAddFriend" onclick="openAddFriendModal()">➕ Add Friend</button>
+        <button class="friends-tab-btn" id="friendsBtnLeaderboard" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
       </div>
 
       <!-- ── TAB 1: My Friends ── -->
@@ -4966,109 +4993,8 @@ header { padding: 0 !important; z-index: 600 !important; }
         <div class="friends-grid" id="friendsGrid"></div>
       </div>
 
-      <!-- ── TAB 2: Add Friend ── -->
-      <div class="friends-tab-panel" id="friendsTabAddFriend">
-        <div class="friends-add-note">
-          💡 Since ActivityMetrics runs locally, friend data is manually entered. Add your training buddies and track their progress alongside yours!
-        </div>
-        <div class="friends-quick-add">
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('runner')">🏃 Add Training Buddy</button>
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('hiker')">🥾 Add Hiking Partner</button>
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('cyclist')">🚴 Add Cycling Friend</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="form-group">
-            <label class="form-label">Friend's Name *</label>
-            <input class="form-input" id="addFriendName" placeholder="e.g. Marko Petrović" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Username / Nickname *</label>
-            <input class="form-input" id="addFriendUsername" placeholder="e.g. markorun" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Member Since</label>
-            <input class="form-input" type="date" id="addFriendSince" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Profile Picture</label>
-            <div class="avatar-picker" id="addFriendAvatarPicker">
-              <div class="avatar-opt selected" data-av="🏃" onclick="friendsSelectAvatar(this)">🏃</div>
-              <div class="avatar-opt" data-av="🥾" onclick="friendsSelectAvatar(this)">🥾</div>
-              <div class="avatar-opt" data-av="🚴" onclick="friendsSelectAvatar(this)">🚴</div>
-              <div class="avatar-opt" data-av="⛰️" onclick="friendsSelectAvatar(this)">⛰️</div>
-              <div class="avatar-opt" data-av="⭐" onclick="friendsSelectAvatar(this)">⭐</div>
-              <div class="avatar-opt" data-av="⚡" onclick="friendsSelectAvatar(this)">⚡</div>
-            </div>
-            <label class="avatar-upload-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Upload Photo
-              <input type="file" accept="image/*" id="addFriendPhoto" style="display:none" onchange="friendsHandlePhotoUpload(this)" />
-            </label>
-            <div id="addFriendPhotoPreview" style="margin-top:8px;display:none">
-              <img id="addFriendPhotoImg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--teal)" alt="preview" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Favorite Activity</label>
-            <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="run" checked /> 🏃 Run</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="hike" /> 🥾 Hike</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="cycle" /> 🚴 Cycle</label>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Weekly Avg (km)</label>
-              <input class="form-input" type="number" id="addFriendWeeklyKm" placeholder="0" min="0" step="0.1" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Current Streak</label>
-              <input class="form-input" type="number" id="addFriendStreak" placeholder="0" min="0" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Total Km (all time)</label>
-              <input class="form-input" type="number" id="addFriendTotalKm" placeholder="0" min="0" step="0.1" />
-            </div>
-          </div>
-          <button class="btn btn-teal" onclick="addFriendSubmit()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Friend
-          </button>
-        </div>
-        <!-- Import / Export -->
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="form-label" style="margin-bottom:8px">Import / Export</div>
-          <div class="friends-io-row">
-            <button class="btn btn-ghost" onclick="friendsImportJSON()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Import from JSON
-            </button>
-            <button class="btn btn-ghost" onclick="friendsExportMyProfile()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Export My Profile for Friends
-            </button>
-          </div>
-        </div>
-        <!-- Recently Added -->
-        <div id="recentlyAddedSection"></div>
-      </div>
-
-      <!-- ── TAB 3: Leaderboard ── -->
-      <div class="friends-tab-panel" id="friendsTabLeaderboard">
-        <div class="lb-toggle-row">
-          <button class="lb-toggle-btn active" id="lbBtnWeekly" onclick="friendsLbSetPeriod('weekly')">📅 This Week</button>
-          <button class="lb-toggle-btn" id="lbBtnMonthly" onclick="friendsLbSetPeriod('monthly')">📆 This Month</button>
-          <button class="lb-toggle-btn" id="lbBtnAlltime" onclick="friendsLbSetPeriod('alltime')">🏅 All Time</button>
-        </div>
-        <div class="lb-category-row">
-          <button class="lb-cat-btn active" id="lbCatAll" onclick="friendsLbSetCat('all')">All</button>
-          <button class="lb-cat-btn" id="lbCatRun" onclick="friendsLbSetCat('run')">🏃 Run</button>
-          <button class="lb-cat-btn" id="lbCatHike" onclick="friendsLbSetCat('hike')">🥾 Hike</button>
-          <button class="lb-cat-btn" id="lbCatCycle" onclick="friendsLbSetCat('cycle')">🚴 Cycle</button>
-        </div>
-        <div id="lbRankSummary"></div>
-        <div id="lbList"></div>
-      </div>
+      <!-- ── TAB 3: Leaderboard (kept inline, hidden by default) ── -->
+      <!-- Add Friend and Leaderboard moved to modals below -->
 
       <!-- ── Friend Activity Feed ── -->
       <div class="friends-feed-section" id="friendsFeedSection" style="display:none">
@@ -5404,6 +5330,130 @@ header { padding: 0 !important; z-index: 600 !important; }
   </div>
   <div class="friends-page-content">
     <div class="profile-section" id="friendsSectionStandalone"></div>
+  </div>
+
+  <!-- ─── Add Friend Modal (scoped inside Friends overlay) ─── -->
+  <div class="friends-inner-modal-overlay" id="addFriendModalOverlay" onclick="if(event.target===this)closeAddFriendModal()">
+    <div class="friends-inner-modal">
+      <div class="modal-header">
+        <div class="modal-title">➕ Add Friend</div>
+        <button class="modal-close" onclick="closeAddFriendModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px">
+        <div class="friends-add-note">
+          💡 Since ActivityMetrics runs locally, friend data is manually entered. Add your training buddies and track their progress alongside yours!
+        </div>
+        <div class="friends-quick-add">
+          <button class="friends-quick-btn" onclick="friendsQuickAdd('runner')">🏃 Add Training Buddy</button>
+          <button class="friends-quick-btn" onclick="friendsQuickAdd('hiker')">🥾 Add Hiking Partner</button>
+          <button class="friends-quick-btn" onclick="friendsQuickAdd('cyclist')">🚴 Add Cycling Friend</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Friend's Name *</label>
+            <input class="form-input" id="addFriendName" placeholder="e.g. Marko Petrović" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username / Nickname *</label>
+            <input class="form-input" id="addFriendUsername" placeholder="e.g. markorun" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Member Since</label>
+            <input class="form-input" type="date" id="addFriendSince" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Profile Picture</label>
+            <div class="avatar-picker" id="addFriendAvatarPicker">
+              <div class="avatar-opt selected" data-av="🏃" onclick="friendsSelectAvatar(this)">🏃</div>
+              <div class="avatar-opt" data-av="🥾" onclick="friendsSelectAvatar(this)">🥾</div>
+              <div class="avatar-opt" data-av="🚴" onclick="friendsSelectAvatar(this)">🚴</div>
+              <div class="avatar-opt" data-av="⛰️" onclick="friendsSelectAvatar(this)">⛰️</div>
+              <div class="avatar-opt" data-av="⭐" onclick="friendsSelectAvatar(this)">⭐</div>
+              <div class="avatar-opt" data-av="⚡" onclick="friendsSelectAvatar(this)">⚡</div>
+            </div>
+            <label class="avatar-upload-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Upload Photo
+              <input type="file" accept="image/*" id="addFriendPhoto" style="display:none" onchange="friendsHandlePhotoUpload(this)" />
+            </label>
+            <div id="addFriendPhotoPreview" style="margin-top:8px;display:none">
+              <img id="addFriendPhotoImg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--teal)" alt="preview" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Favorite Activity</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="run" checked /> 🏃 Run</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="hike" /> 🥾 Hike</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="cycle" /> 🚴 Cycle</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Weekly Avg (km)</label>
+              <input class="form-input" type="number" id="addFriendWeeklyKm" placeholder="0" min="0" step="0.1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Streak</label>
+              <input class="form-input" type="number" id="addFriendStreak" placeholder="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Km (all time)</label>
+              <input class="form-input" type="number" id="addFriendTotalKm" placeholder="0" min="0" step="0.1" />
+            </div>
+          </div>
+          <button class="btn btn-teal" onclick="addFriendSubmit()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Friend
+          </button>
+        </div>
+        <!-- Import / Export -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="form-label" style="margin-bottom:8px">Import / Export</div>
+          <div class="friends-io-row">
+            <button class="btn btn-ghost" onclick="friendsImportJSON()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Import from JSON
+            </button>
+            <button class="btn btn-ghost" onclick="friendsExportMyProfile()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Export My Profile for Friends
+            </button>
+          </div>
+        </div>
+        <!-- Recently Added -->
+        <div id="recentlyAddedSection"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Leaderboard Modal (scoped inside Friends overlay) ── -->
+  <div class="friends-inner-modal-overlay" id="leaderboardModalOverlay" onclick="if(event.target===this)closeLeaderboardModal()">
+    <div class="friends-inner-modal">
+      <div class="modal-header">
+        <div class="modal-title">🏆 Leaderboard</div>
+        <button class="modal-close" onclick="closeLeaderboardModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px">
+        <div class="lb-toggle-row">
+          <button class="lb-toggle-btn active" id="lbBtnWeekly" onclick="friendsLbSetPeriod('weekly')">📅 This Week</button>
+          <button class="lb-toggle-btn" id="lbBtnMonthly" onclick="friendsLbSetPeriod('monthly')">📆 This Month</button>
+          <button class="lb-toggle-btn" id="lbBtnAlltime" onclick="friendsLbSetPeriod('alltime')">🏅 All Time</button>
+        </div>
+        <div class="lb-category-row">
+          <button class="lb-cat-btn active" id="lbCatAll" onclick="friendsLbSetCat('all')">All</button>
+          <button class="lb-cat-btn" id="lbCatRun" onclick="friendsLbSetCat('run')">🏃 Run</button>
+          <button class="lb-cat-btn" id="lbCatHike" onclick="friendsLbSetCat('hike')">🥾 Hike</button>
+          <button class="lb-cat-btn" id="lbCatCycle" onclick="friendsLbSetCat('cycle')">🚴 Cycle</button>
+        </div>
+        <div id="lbRankSummary"></div>
+        <div id="lbList"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -10560,6 +10610,8 @@ function openFriendsPage() {
   }
 }
 function closeFriendsPage() {
+  document.getElementById('addFriendModalOverlay')?.classList.remove('open');
+  document.getElementById('leaderboardModalOverlay')?.classList.remove('open');
   document.getElementById('friendsOverlay').classList.remove('open');
   _setNavActive('dashboard');
 }
@@ -15596,17 +15648,29 @@ BADGE_DEFS.push(
     if(el)el.textContent=`(${n} ${n===1?'Friend':'Friends'})`;
   }
 
-  /* ── Tab switching ── */
+  /* ── Tab switching (myFriends only — addFriend & leaderboard are modals now) ── */
   window.friendsSwitchTab = function(tab){
-    ['myFriends','addFriend','leaderboard'].forEach(t=>{
-      const panel=document.getElementById('friendsTab'+t[0].toUpperCase()+t.slice(1));
-      const btn  =document.getElementById('friendsBtn'+t[0].toUpperCase()+t.slice(1));
-      if(panel)panel.classList.toggle('active',t===tab);
-      if(btn)btn.classList.toggle('active',t===tab);
-    });
-    if(tab==='leaderboard')renderLeaderboard();
-    if(tab==='myFriends')renderFriendsGrid();
-    if(tab==='addFriend')renderRecentlyAdded();
+    if(tab==='myFriends') renderFriendsGrid();
+  };
+
+  /* ── Add Friend Modal ── */
+  window.openAddFriendModal = function(){
+    document.getElementById('addFriendModalOverlay')?.classList.add('open');
+    renderRecentlyAdded();
+  };
+  window.closeAddFriendModal = function(){
+    document.getElementById('addFriendModalOverlay')?.classList.remove('open');
+    renderFriendsGrid();
+    updateFriendsCount();
+  };
+
+  /* ── Leaderboard Modal ── */
+  window.openLeaderboardModal = function(){
+    document.getElementById('leaderboardModalOverlay')?.classList.add('open');
+    renderLeaderboard();
+  };
+  window.closeLeaderboardModal = function(){
+    document.getElementById('leaderboardModalOverlay')?.classList.remove('open');
   };
 
   window.friendsSetView = function(view){
