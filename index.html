@@ -898,6 +898,30 @@ header {
 .badge-popup-name { font-size:1.3rem; font-weight:800; margin-bottom:8px; }
 .badge-popup-desc { font-size:.82rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5; }
 
+/* ── Recent Badges Floating Widget ── */
+.rb-widget { position:fixed; z-index:8000; width:180px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 8px 32px rgba(0,0,0,.35); user-select:none; transition:box-shadow .2s; }
+.rb-widget.dragging { box-shadow:0 16px 48px rgba(0,0,0,.5); }
+.rb-widget-header { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); cursor:grab; background:var(--bg3); border-radius:var(--radius) var(--radius) 0 0; }
+.rb-widget-header:active { cursor:grabbing; }
+.rb-widget-header .rb-handle { display:flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+.rb-widget-header .rb-handle::before { content:'⠿'; font-size:.9rem; color:var(--text-dim); }
+.rb-widget-close { background:none; border:none; color:var(--text-muted); font-size:1rem; cursor:pointer; padding:0 2px; line-height:1; transition:color .15s; }
+.rb-widget-close:hover { color:var(--text); }
+.rb-widget-body { padding:10px; display:flex; flex-direction:column; gap:8px; }
+.rb-widget-badge { display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; transition:transform .15s; }
+.rb-widget-badge:hover { transform:translateX(2px); }
+.rb-widget-badge .rb-badge-icon { font-size:1.4rem; flex-shrink:0; }
+.rb-widget-badge .rb-badge-info { min-width:0; }
+.rb-widget-badge .rb-badge-name { font-size:.65rem; font-weight:700; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rb-widget-badge .rb-badge-tier { font-size:.55rem; font-weight:600; text-transform:uppercase; letter-spacing:.3px; }
+.rb-widget-badge .rb-badge-tier.bronze { color:#cd7f32; }
+.rb-widget-badge .rb-badge-tier.silver { color:#a0a0a0; }
+.rb-widget-badge .rb-badge-tier.gold { color:#ffd700; }
+.rb-widget-empty { font-size:.7rem; color:var(--text-muted); text-align:center; padding:12px 4px; }
+.rb-widget-toggle { position:fixed; z-index:7999; width:36px; height:36px; border-radius:50%; background:var(--bg2); border:1px solid var(--border); box-shadow:0 4px 16px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; transition:transform .2s; }
+.rb-widget-toggle:hover { transform:scale(1.1); }
+@media(max-width:480px) { .rb-widget { width:160px; } .rb-widget-badge .rb-badge-icon { font-size:1.2rem; } }
+
 /* ══════════════════════════════════════════════════════════════
    CHALLENGES
 ══════════════════════════════════════════════════════════════ */
@@ -6563,6 +6587,7 @@ function renderAll() {
   renderRacesPreview();
   if(typeof advHmInit === 'function') advHmInit();
   if(typeof renderDashWeekly === 'function') renderDashWeekly();
+  if(typeof renderRbWidget === 'function') renderRbWidget();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -17256,6 +17281,174 @@ function closePREdit() {
   document.removeEventListener('keydown', prEditEscHandler);
 }
 function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
+
+/* ══════════════════════════════════════════════════════════════
+   RECENT BADGES FLOATING WIDGET
+══════════════════════════════════════════════════════════════ */
+(function() {
+  // Build widget DOM
+  var widget = document.createElement('div');
+  widget.className = 'rb-widget';
+  widget.id = 'rbWidget';
+  widget.innerHTML =
+    '<div class="rb-widget-header" id="rbWidgetHeader">' +
+      '<span class="rb-handle">Recent Badges</span>' +
+      '<button class="rb-widget-close" onclick="rbWidgetClose()" title="Hide widget">&times;</button>' +
+    '</div>' +
+    '<div class="rb-widget-body" id="rbWidgetBody"></div>';
+  document.body.appendChild(widget);
+
+  // Toggle button (shown when widget is closed)
+  var toggle = document.createElement('button');
+  toggle.className = 'rb-widget-toggle';
+  toggle.id = 'rbWidgetToggle';
+  toggle.title = 'Show Recent Badges';
+  toggle.textContent = '🏅';
+  toggle.style.display = 'none';
+  toggle.onclick = function() { rbWidgetOpen(); };
+  document.body.appendChild(toggle);
+
+  // Position: load from localStorage or default
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem('rbWidgetPos')); } catch(e) {}
+  if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+    widget.style.left = saved.x + 'px';
+    widget.style.top  = saved.y + 'px';
+  } else {
+    widget.style.right = '16px';
+    widget.style.bottom = '80px';
+  }
+
+  // Hidden state
+  var hidden = localStorage.getItem('rbWidgetHidden') === '1';
+  if (hidden) { widget.style.display = 'none'; toggle.style.display = ''; }
+
+  // Toggle button position (near bottom-right)
+  var tSaved = null;
+  try { tSaved = JSON.parse(localStorage.getItem('rbTogglePos')); } catch(e) {}
+  if (tSaved && typeof tSaved.x === 'number') {
+    toggle.style.left = tSaved.x + 'px';
+    toggle.style.top  = tSaved.y + 'px';
+  } else {
+    toggle.style.right = '16px';
+    toggle.style.bottom = '80px';
+  }
+
+  // ── Drag logic ──
+  var dragState = null;
+
+  function onPointerDown(e) {
+    if (e.target.closest('.rb-widget-close')) return;
+    e.preventDefault();
+    var el = widget;
+    var rect = el.getBoundingClientRect();
+    // Convert right/bottom positioning to left/top
+    if (!el.style.left || el.style.right) {
+      el.style.left = rect.left + 'px';
+      el.style.top  = rect.top  + 'px';
+      el.style.right  = '';
+      el.style.bottom = '';
+    }
+    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+    var cy = e.touches ? e.touches[0].clientY : e.clientY;
+    dragState = { el:el, startX:cx, startY:cy, origX:rect.left, origY:rect.top };
+    el.classList.add('dragging');
+    document.addEventListener('mousemove', onPointerMove, {passive:false});
+    document.addEventListener('mouseup',   onPointerUp);
+    document.addEventListener('touchmove', onPointerMove, {passive:false});
+    document.addEventListener('touchend',  onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragState) return;
+    e.preventDefault();
+    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+    var cy = e.touches ? e.touches[0].clientY : e.clientY;
+    var dx = cx - dragState.startX;
+    var dy = cy - dragState.startY;
+    var newX = dragState.origX + dx;
+    var newY = dragState.origY + dy;
+    // Clamp to viewport
+    var w = dragState.el.offsetWidth, h = dragState.el.offsetHeight;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    newX = Math.max(-w + 40, Math.min(vw - 40, newX));
+    newY = Math.max(0, Math.min(vh - 40, newY));
+    dragState.el.style.left = newX + 'px';
+    dragState.el.style.top  = newY + 'px';
+  }
+
+  function onPointerUp() {
+    if (!dragState) return;
+    dragState.el.classList.remove('dragging');
+    // Save position
+    try { localStorage.setItem('rbWidgetPos', JSON.stringify({x:parseInt(dragState.el.style.left),y:parseInt(dragState.el.style.top)})); } catch(e) {}
+    dragState = null;
+    document.removeEventListener('mousemove', onPointerMove);
+    document.removeEventListener('mouseup',   onPointerUp);
+    document.removeEventListener('touchmove', onPointerMove);
+    document.removeEventListener('touchend',  onPointerUp);
+  }
+
+  var header = document.getElementById('rbWidgetHeader');
+  header.addEventListener('mousedown',  onPointerDown);
+  header.addEventListener('touchstart', onPointerDown, {passive:false});
+
+  // ── Open / Close ──
+  window.rbWidgetClose = function() {
+    widget.style.display = 'none';
+    // Position toggle at widget's location
+    var rect = widget.getBoundingClientRect();
+    toggle.style.left = rect.left + 'px';
+    toggle.style.top  = rect.top  + 'px';
+    toggle.style.right = '';
+    toggle.style.bottom = '';
+    try { localStorage.setItem('rbTogglePos', JSON.stringify({x:parseInt(toggle.style.left),y:parseInt(toggle.style.top)})); } catch(e) {}
+    toggle.style.display = '';
+    localStorage.setItem('rbWidgetHidden','1');
+  };
+
+  window.rbWidgetOpen = function() {
+    // Open widget at toggle's position
+    var rect = toggle.getBoundingClientRect();
+    widget.style.left = rect.left + 'px';
+    widget.style.top  = Math.max(0, rect.top - 100) + 'px';
+    widget.style.right = '';
+    widget.style.bottom = '';
+    widget.style.display = '';
+    toggle.style.display = 'none';
+    localStorage.removeItem('rbWidgetHidden');
+    try { localStorage.setItem('rbWidgetPos', JSON.stringify({x:parseInt(widget.style.left),y:parseInt(widget.style.top)})); } catch(e) {}
+    renderRbWidget();
+  };
+
+  // ── Render badges ──
+  window.renderRbWidget = function() {
+    var body = document.getElementById('rbWidgetBody');
+    if (!body) return;
+    if (typeof BADGE_DEFS === 'undefined' || typeof computeBadges !== 'function') {
+      body.innerHTML = '<div class="rb-widget-empty">No badges yet</div>';
+      return;
+    }
+    var badges = computeBadges();
+    var earned = BADGE_DEFS.filter(function(d) { return badges[d.id]; });
+    if (!earned.length) {
+      body.innerHTML = '<div class="rb-widget-empty">No badges earned yet.<br>Keep training!</div>';
+      return;
+    }
+    var recent = earned.slice(-3).reverse();
+    body.innerHTML = recent.map(function(b) {
+      return '<div class="rb-widget-badge">' +
+        '<span class="rb-badge-icon">' + b.icon + '</span>' +
+        '<div class="rb-badge-info">' +
+          '<div class="rb-badge-name">' + b.name + '</div>' +
+          '<div class="rb-badge-tier ' + b.tier + '">' + b.tier + '</div>' +
+        '</div></div>';
+    }).join('');
+  };
+
+  // Initial render after data is ready
+  if (typeof db !== 'undefined' && db.activities) renderRbWidget();
+})();
 
 </script>
 </body>
