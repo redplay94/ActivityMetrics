@@ -1116,12 +1116,11 @@ header {
    PROFILE OVERLAY
 ══════════════════════════════════════════════════════════════ */
 .profile-overlay {
-  position:fixed; left:0; right:0; bottom:0; z-index:500;
+  position:fixed; top:0; left:0; right:0; bottom:0; z-index:700;
   background:var(--bg); overflow-y:auto;
-  transform:translateX(100%);
-  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:none;
 }
-.profile-overlay.open { transform:none; }
+.profile-overlay.open { display:block; }
 .profile-page { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 .profile-back-btn {
   display:flex; align-items:center; gap:8px;
@@ -9287,8 +9286,6 @@ function openProfile() {
   if (!currentUser) { openAuthModal(); return; }
   renderProfilePage();
   var el = document.getElementById('profileOverlay');
-  var headerH = document.querySelector('header').offsetHeight || 88;
-  el.style.top = headerH + 'px';
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
   startProfileCountdown();
