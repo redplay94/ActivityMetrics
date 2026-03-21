@@ -758,8 +758,45 @@ header {
   border-radius: var(--radius); padding: 16px;
   box-shadow: var(--card-shadow); position: relative;
   transition: transform var(--transition), border-color var(--transition);
+  cursor: pointer;
 }
-.pr-card:hover { transform: translateY(-2px); }
+.pr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:10000; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-detail-overlay.open { opacity:1; }
+.pr-detail-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:400px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
+.pr-detail-overlay.open .pr-detail-modal { transform:translateY(0); }
+.pr-detail-close { position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:var(--radius-sm); background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background var(--transition); }
+.pr-detail-close:hover { background:var(--border); }
+.pr-detail-close svg { width:14px; height:14px; color:var(--text-muted); }
+.pr-detail-icon { font-size:2.5rem; margin-bottom:12px; }
+.pr-detail-title { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-muted); margin-bottom:6px; }
+.pr-detail-value { font-size:2.2rem; font-weight:800; line-height:1.1; margin-bottom:16px; color:var(--text); }
+.pr-detail-meta { display:flex; flex-direction:column; gap:10px; padding-top:16px; border-top:1px solid var(--border); }
+.pr-detail-meta-row { display:flex; align-items:center; gap:8px; font-size:.82rem; }
+.pr-detail-meta-row svg { width:15px; height:15px; color:var(--text-muted); flex-shrink:0; }
+.pr-detail-meta-label { color:var(--text-muted); min-width:60px; }
+.pr-detail-meta-val { font-weight:600; }
+.pr-detail-congrats { margin-top:16px; padding:12px; background:linear-gradient(135deg,rgba(234,179,8,.1),rgba(249,115,22,.08)); border:1px solid rgba(234,179,8,.2); border-radius:var(--radius-sm); font-size:.8rem; text-align:center; color:var(--text); }
+.pr-edit-btn { position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:var(--radius-sm); background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s ease, background .15s ease; z-index:2; }
+.pr-card:hover .pr-edit-btn { opacity:1; }
+.pr-edit-btn:hover { background:var(--border); }
+.pr-edit-btn svg { width:12px; height:12px; color:var(--text-muted); }
+.pr-card.new-pr .pr-edit-btn { top:8px; right:40px; }
+@media(max-width:768px){ .pr-edit-btn { opacity:1; } }
+.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:10001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-edit-overlay.open { opacity:1; }
+.pr-edit-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:420px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
+.pr-edit-overlay.open .pr-edit-modal { transform:translateY(0); }
+.pr-edit-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+.pr-edit-header-icon { font-size:1.6rem; }
+.pr-edit-header-title { font-size:1rem; font-weight:700; flex:1; }
+.pr-edit-close { position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:var(--radius-sm); background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background var(--transition); }
+.pr-edit-close:hover { background:var(--border); }
+.pr-edit-close svg { width:14px; height:14px; color:var(--text-muted); }
+.pr-edit-form { display:flex; flex-direction:column; gap:14px; }
+.pr-edit-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+.pr-edit-actions .btn { min-width:90px; }
+@media(max-width:480px){ .pr-detail-modal { padding:22px 18px 18px; } .pr-detail-value { font-size:1.8rem; } .pr-edit-modal { padding:22px 18px 18px; } }
 .pr-card.new-pr { border-color: gold; box-shadow: 0 0 0 2px rgba(255,215,0,.18), var(--card-shadow); }
 .pr-trophy { font-size: 1.5rem; display: block; margin-bottom: 8px; }
 .pr-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); margin-bottom: 3px; }
@@ -5231,7 +5268,14 @@ header { padding: 0 !important; z-index: 600 !important; }
     </div>
   </div>
 </div>
+<div id="bucketListContainer"></div>
+    </div>
+  </div>
+</div>
 
+<!-- ─── My Calendar Overlay ───────────────────────────────── -->
+<div class="calendar-overlay" id="calendarOverlay">
+  <div class="nav-overlay-header">
 <!-- ─── My Calendar Overlay ───────────────────────────────── -->
 <div class="calendar-overlay" id="calendarOverlay">
   <div class="nav-overlay-header">
@@ -7832,6 +7876,14 @@ function computePRs() {
     if (steps > prs.mostStepsDay.val) prs.mostStepsDay = {val:steps, date};
   });
 
+  // Merge user overrides from localStorage
+  const ov = db.prOverrides || {};
+  Object.keys(ov).forEach(k => {
+    if (prs[k] !== undefined) {
+      prs[k] = { val:ov[k].val, date:ov[k].date, location:ov[k].location||'', name:ov[k].name||'' };
+    }
+  });
+
   return prs;
 }
 
@@ -7873,8 +7925,11 @@ function renderPRs() {
   grid.innerHTML = cards.map(c => {
     const isNew = newPRKeys.includes(c.key);
     const dateStr = c.date ? new Date(c.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-    return `<div class="pr-card${isNew?' new-pr':''}">
+    return `<div class="pr-card${isNew?' new-pr':''}" onclick="openPRDetail('${c.trophy}',\`${c.label}\`,\`${c.val||''}\`,\`${c.date||''}\`,\`${c.key}\`)">
       ${isNew ? '<span class="pr-new-badge">New!</span>' : ''}
+      <button class="pr-edit-btn" onclick="event.stopPropagation();openPREdit(\`${c.key}\`,\`${c.trophy}\`,\`${c.label}\`)" title="Edit record">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <span class="pr-trophy">${c.trophy}</span>
       <div class="pr-label">${c.label}</div>
       ${c.val
@@ -9316,19 +9371,28 @@ function renderProfileCountdown() {
         </div>
       </div>
     </div>`;
+  
   tickCountdown(next);
+  const el2 = document.getElementById('racesPageCountdownSection');
+  if (el2) el2.innerHTML = el.innerHTML;
 }
 
 function tickCountdown(race) {
   const el = document.getElementById('profileCountdownTimer');
   if (!el) return;
-  const diff = new Date(race.date+'T00:00:00') - new Date();
-  if (diff <= 0) { el.innerHTML = `<div style="font-size:1.5rem;font-weight:800;color:var(--run)">Race Day! 🏁</div>`; return; }
-  const d  = Math.floor(diff/86400000);
-  const h  = Math.floor((diff%86400000)/3600000);
-  const m  = Math.floor((diff%3600000)/60000);
-  const s  = Math.floor((diff%60000)/1000);
-  const pad = n => String(n).padStart(2,'0');
+  const diff = new Date(race.date + 'T00:00:00') - new Date();
+  if (diff <= 0) {
+    const finishHTML = '<div style="font-size:1.5rem;font-weight:800;color:var(--run)">Race Day! 🏁</div>';
+    el.innerHTML = finishHTML;
+    const el2 = document.getElementById('racesPageCountdownSection');
+    if (el2) el2.innerHTML = finishHTML;
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  const pad = n => String(n).padStart(2, '0');
   el.innerHTML = `
     <div class="countdown-unit"><div class="countdown-num">${pad(d)}</div><div class="countdown-label">Days</div></div>
     <div class="countdown-colon">:</div>
@@ -9337,17 +9401,21 @@ function tickCountdown(race) {
     <div class="countdown-unit"><div class="countdown-num">${pad(m)}</div><div class="countdown-label">Min</div></div>
     <div class="countdown-colon">:</div>
     <div class="countdown-unit"><div class="countdown-num">${pad(s)}</div><div class="countdown-label">Sec</div></div>`;
+  const el2 = document.getElementById('racesPageCountdownSection');
+  if (el2) el2.innerHTML = el.innerHTML;
 }
 
 function startProfileCountdown() {
   stopProfileCountdown();
   const today = fmtDate(new Date());
-  const next  = (db.races||[]).filter(r=>r.date>today).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const next = (db.races||[]).filter(r=>r.date>today).sort((a,b)=>a.date.localeCompare(b.date))[0];
   if (next) countdownInterval = setInterval(() => tickCountdown(next), 1000);
 }
+
 function stopProfileCountdown() {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 }
+
 
 /* ── Weekly Summary ── */
 function renderProfileWeekly() {
@@ -9508,11 +9576,14 @@ function renderProfilePRs() {
   if (!el) return;
   const prs = computePRs();
   const sevenAgo = fmtDate(new Date(Date.now()-7*86400000));
-  function card(icon, label, val, date, sub) {
+  function card(icon, label, val, date, sub, actKey) {
     const isNew = date && date>=sevenAgo;
     const dateStr = date ? new Date(date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-    return `<div class="pr-card${isNew?' new-pr':''}">
+    return `<div class="pr-card${isNew?' new-pr':''}" onclick="openPRDetail('${icon}',\`${label}\`,\`${val||''}\`,\`${date||''}\`,\`${actKey||''}\`)">
       ${isNew?'<span class="pr-new-badge">NEW</span>':''}
+      <button class="pr-edit-btn" onclick="event.stopPropagation();openPREdit(\`${actKey||''}\`,\`${icon}\`,\`${label}\`)" title="Edit record">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <span class="pr-trophy">${icon}</span>
       <div class="pr-label">${label}</div>
       ${val ? `<div class="pr-value">${val}</div>` : '<div class="pr-none">No data yet</div>'}
@@ -9532,15 +9603,15 @@ function renderProfilePRs() {
     if (cur>best) { best=cur; bestStart=curStart; bestEnd=ds; }
   });
   el.innerHTML = [
-    card('🏃','Longest Run',      prs.longestRun.date   ? prs.longestRun.val.toFixed(2)+' km'  : null, prs.longestRun.date),
+    card('🏃','Longest Run',      prs.longestRun.date   ? prs.longestRun.val.toFixed(2)+' km'  : null, prs.longestRun.date, null, 'longestRun'),
     card('⚡','Fastest Run Pace', prs.fastestPace.date  ? fmtPace(prs.fastestPace.val,1)        : null, prs.fastestPace.date,
-         prs.fastestPace.date ? `Based on ${db.activities.find(a=>a.date===prs.fastestPace.date&&a.type==='run')?.distance?.toFixed(1)||'?'} km run` : null),
-    card('🥾','Longest Walk/Hike',prs.longestWalk.date  ? prs.longestWalk.val.toFixed(2)+' km'  : null, prs.longestWalk.date),
-    card('🚴','Longest Cycle',    prs.longestCycle.date ? prs.longestCycle.val.toFixed(2)+' km' : null, prs.longestCycle.date),
-    card('🔥','Most Calories',    prs.mostCals.date     ? prs.mostCals.val+' kcal'              : null, prs.mostCals.date),
-    card('⛰️','Highest Elevation',prs.highestElev.date  ? prs.highestElev.val.toLocaleString()+' m' : null, prs.highestElev.date),
-    card('👟','Most Steps / Day', prs.mostStepsDay.date ? prs.mostStepsDay.val.toLocaleString() +' steps' : null, prs.mostStepsDay.date),
-    card('🔥','Longest Streak',   best>0 ? best+' days' : null, null, best>0 ? `${bestStart} – ${bestEnd}` : null),
+         prs.fastestPace.date ? `Based on ${db.activities.find(a=>a.date===prs.fastestPace.date&&a.type==='run')?.distance?.toFixed(1)||'?'} km run` : null, 'fastestPace'),
+    card('🥾','Longest Walk/Hike',prs.longestWalk.date  ? prs.longestWalk.val.toFixed(2)+' km'  : null, prs.longestWalk.date, null, 'longestWalk'),
+    card('🚴','Longest Cycle',    prs.longestCycle.date ? prs.longestCycle.val.toFixed(2)+' km' : null, prs.longestCycle.date, null, 'longestCycle'),
+    card('🔥','Most Calories',    prs.mostCals.date     ? prs.mostCals.val+' kcal'              : null, prs.mostCals.date, null, 'mostCals'),
+    card('⛰️','Highest Elevation',prs.highestElev.date  ? prs.highestElev.val.toLocaleString()+' m' : null, prs.highestElev.date, null, 'highestElev'),
+    card('👟','Most Steps / Day', prs.mostStepsDay.date ? prs.mostStepsDay.val.toLocaleString() +' steps' : null, prs.mostStepsDay.date, null, 'mostStepsDay'),
+    card('🔥','Longest Streak',   best>0 ? best+' days' : null, null, best>0 ? `${bestStart} – ${bestEnd}` : null, 'longestStreak'),
   ].join('');
 }
 
@@ -16948,6 +17019,229 @@ function renderDashHeatmap() {
    BOOT
 ══════════════════════════════════════════════════════════════ */
 init();
+/* ── PR Detail Modal ── */
+function openPRDetail(icon, label, val, date, activityKey) {
+  if (!val) return;
+  let overlay = document.getElementById('prDetailOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'prDetailOverlay';
+    overlay.className = 'pr-detail-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) closePRDetail(); };
+    document.body.appendChild(overlay);
+  }
+  const dateObj = date ? new Date(date + 'T00:00:00') : null;
+  const dateStr = dateObj ? dateObj.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'}) : 'Unknown';
+  const daysAgo = dateObj ? Math.floor((new Date() - dateObj) / 86400000) : null;
+  const agoStr = daysAgo !== null ? (daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : daysAgo + ' days ago') : '';
+
+  // Find the matching activity for extra details
+  let actName = '', actLocation = '', actType = '';
+  if (date && db.activities) {
+    const match = db.activities.find(function(a) {
+      if (activityKey === 'longestRun')   return a.date === date && a.type === 'run';
+      if (activityKey === 'fastestPace')  return a.date === date && a.type === 'run';
+      if (activityKey === 'longestWalk')  return a.date === date && a.type === 'walk';
+      if (activityKey === 'longestCycle') return a.date === date && a.type === 'cycle';
+      return a.date === date;
+    });
+    if (match) {
+      actName = match.name || '';
+      actLocation = match.location || '';
+      actType = match.type || '';
+    }
+  }
+
+  const congrats = [
+    'Outstanding achievement! Keep pushing your limits! 💪',
+    'You crushed it! This record speaks for itself! 🏆',
+    'Personal best — proof that consistency pays off! 🌟',
+    'What a milestone! Your dedication is inspiring! 🎯',
+    'Record-breaking performance! The hard work shows! 🔥'
+  ];
+  const congratMsg = congrats[Math.abs((label||'').length + (val||'').length) % congrats.length];
+
+  overlay.innerHTML = `
+    <div class="pr-detail-modal">
+      <button class="pr-detail-close" onclick="closePRDetail()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="pr-detail-icon">${icon}</div>
+      <div class="pr-detail-title">${escHtml(label)}</div>
+      <div class="pr-detail-value">${escHtml(val)}</div>
+      <div class="pr-detail-meta">
+        <div class="pr-detail-meta-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="pr-detail-meta-label">Date</span>
+          <span class="pr-detail-meta-val">${dateStr}</span>
+        </div>
+        ${agoStr ? `<div class="pr-detail-meta-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="pr-detail-meta-label">When</span>
+          <span class="pr-detail-meta-val">${agoStr}</span>
+        </div>` : ''}
+        ${actName ? `<div class="pr-detail-meta-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>
+          <span class="pr-detail-meta-label">Activity</span>
+          <span class="pr-detail-meta-val">${escHtml(actName)}</span>
+        </div>` : ''}
+        ${actLocation ? `<div class="pr-detail-meta-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="pr-detail-meta-label">Location</span>
+          <span class="pr-detail-meta-val">${escHtml(actLocation)}</span>
+        </div>` : ''}
+      </div>
+      <div class="pr-detail-congrats">${congratMsg}</div>
+    </div>`;
+  requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.addEventListener('keydown', prDetailEscHandler);
+}
+function closePRDetail() {
+  const overlay = document.getElementById('prDetailOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    setTimeout(function() { overlay.remove(); }, 200);
+  }
+  document.removeEventListener('keydown', prDetailEscHandler);
+}
+function prDetailEscHandler(e) { if (e.key === 'Escape') closePRDetail(); }
+
+/* ── PR Edit Modal ── */
+const PR_META = {
+  longestRun:   { label:'Longest Run',            icon:'🏃', unit:'km',   field:'distance' },
+  fastestPace:  { label:'Fastest Run Pace',       icon:'⚡', unit:'min/km', field:'pace' },
+  longestWalk:  { label:'Longest Walk/Hike',      icon:'🥾', unit:'km',   field:'distance' },
+  longestCycle: { label:'Longest Ride',            icon:'🚴', unit:'km',   field:'distance' },
+  mostCals:     { label:'Most Calories Burned',   icon:'🔥', unit:'kcal', field:'calories' },
+  highestElev:  { label:'Highest Elevation Gain', icon:'⛰️', unit:'m',    field:'elevation' },
+  mostStepsDay: { label:'Most Steps in a Day',    icon:'👟', unit:'steps',field:'steps' },
+  longestStreak:{ label:'Longest Streak',          icon:'🔥', unit:'days', field:'streak' },
+};
+
+function openPREdit(key, icon, label) {
+  if (!key) return;
+  const meta = PR_META[key] || { label:label, icon:icon, unit:'', field:'value' };
+  const existing = (db.prOverrides || {})[key] || {};
+  const prs = computePRs();
+  const current = prs[key] || {};
+
+  // Prefill with override or computed value
+  const prefillVal = existing.val !== undefined ? existing.val : (current.val || '');
+  const prefillDate = existing.date || current.date || '';
+  const prefillLocation = existing.location || '';
+  const prefillName = existing.name || '';
+
+  // Format the value for display
+  let displayVal = prefillVal;
+  if (meta.field === 'pace' && typeof prefillVal === 'number' && prefillVal < Infinity) {
+    const pm = Math.floor(prefillVal / 60);
+    const ps = Math.round(prefillVal % 60);
+    displayVal = pm + ':' + String(ps).padStart(2,'0');
+  }
+
+  let overlay = document.getElementById('prEditOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'prEditOverlay';
+    overlay.className = 'pr-edit-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) closePREdit(); };
+    document.body.appendChild(overlay);
+  }
+
+  overlay.innerHTML = `
+    <div class="pr-edit-modal">
+      <button class="pr-edit-close" onclick="closePREdit()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="pr-edit-header">
+        <span class="pr-edit-header-icon">${meta.icon}</span>
+        <span class="pr-edit-header-title">Edit: ${escHtml(meta.label)}</span>
+      </div>
+      <div class="pr-edit-form">
+        <div class="form-group">
+          <label class="form-label">Value (${escHtml(meta.unit)})</label>
+          <input class="form-input" id="prEditVal" type="${meta.field==='pace'?'text':'number'}" step="any"
+            placeholder="${meta.field==='pace'?'e.g. 4:30':'Enter value'}" value="${escHtml(String(displayVal||''))}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="prEditDate" type="date" value="${escHtml(prefillDate)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Activity Name</label>
+          <input class="form-input" id="prEditName" type="text" placeholder="e.g. Morning Run" value="${escHtml(prefillName)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input class="form-input" id="prEditLocation" type="text" placeholder="e.g. Central Park" value="${escHtml(prefillLocation)}">
+        </div>
+        <div class="pr-edit-actions">
+          ${existing.val !== undefined ? '<button class="btn" style="margin-right:auto;color:#ef4444;border-color:rgba(239,68,68,.3)" onclick="resetPROverride(\'' + key + '\')">Reset</button>' : ''}
+          <button class="btn" onclick="closePREdit()">Cancel</button>
+          <button class="btn btn-primary" onclick="savePREdit(\`${key}\`)">Save</button>
+        </div>
+      </div>
+    </div>`;
+  requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.addEventListener('keydown', prEditEscHandler);
+}
+
+function savePREdit(key) {
+  const meta = PR_META[key];
+  if (!meta) return;
+
+  let rawVal = document.getElementById('prEditVal').value.trim();
+  const date = document.getElementById('prEditDate').value.trim();
+  const name = document.getElementById('prEditName').value.trim();
+  const location = document.getElementById('prEditLocation').value.trim();
+
+  if (!rawVal) { showToast('Please enter a value', 'error'); return; }
+
+  let numVal;
+  if (meta.field === 'pace') {
+    // Parse mm:ss format
+    const parts = rawVal.split(':');
+    if (parts.length === 2) {
+      numVal = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    } else {
+      numVal = parseFloat(rawVal) * 60; // assume minutes
+    }
+    if (isNaN(numVal) || numVal <= 0) { showToast('Invalid pace format (use m:ss)', 'error'); return; }
+  } else {
+    numVal = parseFloat(rawVal);
+    if (isNaN(numVal) || numVal < 0) { showToast('Please enter a valid number', 'error'); return; }
+  }
+
+  if (!db.prOverrides) db.prOverrides = {};
+  db.prOverrides[key] = { val:numVal, date:date||null, name:name, location:location };
+  saveData(db);
+  renderPRs();
+  renderProfilePRs();
+  closePREdit();
+  showToast('Personal record updated!', 'success');
+}
+
+function resetPROverride(key) {
+  if (!db.prOverrides || !db.prOverrides[key]) return;
+  delete db.prOverrides[key];
+  if (Object.keys(db.prOverrides).length === 0) delete db.prOverrides;
+  saveData(db);
+  renderPRs();
+  renderProfilePRs();
+  closePREdit();
+  showToast('Record reset to computed value', 'success');
+}
+
+function closePREdit() {
+  const overlay = document.getElementById('prEditOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    setTimeout(function() { overlay.remove(); }, 200);
+  }
+  document.removeEventListener('keydown', prEditEscHandler);
+}
+function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
+
 </script>
 </body>
 </html>
