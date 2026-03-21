@@ -1048,14 +1048,14 @@ header {
 .user-avatar-sm img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .user-greeting { font-size:.78rem; font-weight:600; }
 .user-dropdown {
-  position:absolute; top:100%; right:0; margin-top:6px;
+  position:fixed !important; z-index:999999 !important;
   background:var(--bg2); border:1px solid var(--border);
-  border-radius:var(--radius); box-shadow:var(--card-shadow);
-  min-width:180px; z-index:500; padding:6px;
-  opacity:0; pointer-events:none; transform:translateY(-8px);
-  transition:all var(--transition);
+  border-radius:var(--radius); box-shadow:0 8px 32px rgba(0,0,0,.4);
+  min-width:200px; padding:6px;
+  opacity:0; pointer-events:none; transform:translateY(-6px);
+  transition:opacity .15s ease, transform .15s ease;
 }
-.user-dropdown.open { opacity:1; pointer-events:all; transform:none; }
+.user-dropdown.open { opacity:1 !important; pointer-events:all !important; transform:none !important; }
 .user-dropdown-item {
   display:flex; align-items:center; gap:10px;
   padding:9px 12px; border-radius:var(--radius-sm);
@@ -1085,6 +1085,7 @@ header {
   .strava-btn-label { display:none; }
   .strava-nav-btn { padding:6px 8px; }
   .theme-toggle-wrap .theme-icon { width:12px; height:12px; }
+  .user-dropdown.open { left:8px !important; right:8px !important; width:auto !important; min-width:0 !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1116,11 +1117,15 @@ header {
    PROFILE OVERLAY
 ══════════════════════════════════════════════════════════════ */
 .profile-overlay {
-  position:fixed; top:0; left:0; right:0; bottom:0; z-index:700;
+  position:fixed !important; top:0 !important; left:0 !important;
+  right:0 !important; bottom:0 !important;
+  width:100% !important; height:100% !important;
+  z-index:999999 !important;
   background:var(--bg); overflow-y:auto;
   display:none;
+  transform:none !important;
 }
-.profile-overlay.open { display:block; }
+.profile-overlay.open { display:block !important; }
 .profile-page { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 .profile-back-btn {
   display:flex; align-items:center; gap:8px;
@@ -9118,7 +9123,19 @@ function avatarHtmlLarge(avatar) {
 }
 
 function toggleUserMenu() {
-  document.getElementById('userDropdown')?.classList.toggle('open');
+  var dd = document.getElementById('userDropdown');
+  if (!dd) return;
+  var isOpen = dd.classList.toggle('open');
+  if (isOpen) {
+    var btn = document.getElementById('userPillBtn');
+    if (btn) {
+      var r = btn.getBoundingClientRect();
+      var dw = dd.offsetWidth || 200;
+      var left = Math.min(r.right - dw, window.innerWidth - dw - 8);
+      dd.style.top  = (r.bottom + 6) + 'px';
+      dd.style.left = Math.max(8, left) + 'px';
+    }
+  }
 }
 function closeUserMenu() {
   document.getElementById('userDropdown')?.classList.remove('open');
@@ -9286,6 +9303,7 @@ function openProfile() {
   if (!currentUser) { openAuthModal(); return; }
   renderProfilePage();
   var el = document.getElementById('profileOverlay');
+  el.style.top = '0';
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
   startProfileCountdown();
