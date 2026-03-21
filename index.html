@@ -3473,6 +3473,125 @@ header { padding: 0 !important; z-index: 600 !important; }
   <div class="dash-label">This Week</div>
   <div id="dashWeeklySummary"></div>
 
+  <!-- ══════════════════════════════════════════════════════════════
+       ADVANCED ACTIVITY HEATMAP SECTION (Dashboard)
+  ═══════════════════════════════════════════════════════════════ -->
+  <section id="advHeatmapSection" aria-label="Advanced Activity Heatmap">
+    <div class="section-header">
+      <div>
+        <div class="section-title">
+          <svg style="display:inline;vertical-align:-.15em;margin-right:6px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
+          Activity Heatmap
+        </div>
+        <div class="section-sub">Full-year activity &amp; steps overview — GitHub style</div>
+      </div>
+      <button class="adv-hm-export-btn" onclick="advHmExport()" title="Download heatmap as image">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Heatmap
+      </button>
+    </div>
+
+    <!-- Main Tabs -->
+    <div class="adv-hm-tabs">
+      <button class="adv-hm-tab active" id="advHmTabAct"   onclick="advHmSetTab('activity')">
+        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
+        Activity Heatmap
+      </button>
+      <button class="adv-hm-tab" id="advHmTabSteps" onclick="advHmSetTab('steps')">
+        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
+        Steps Heatmap
+      </button>
+    </div>
+
+    <!-- Activity Heatmap Panel -->
+    <div id="advHmPanelActivity">
+      <!-- Controls Row -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+        <!-- Year Selector -->
+        <div class="adv-hm-year-row" style="margin-bottom:0">
+          <button class="adv-hm-year-btn" onclick="advHmYearStep(-1)">&#8249;</button>
+          <span class="adv-hm-year-label" id="advHmYearLabel">2026</span>
+          <button class="adv-hm-year-btn" onclick="advHmYearStep(1)">&#8250;</button>
+        </div>
+        <!-- Color Theme -->
+        <div class="adv-hm-theme-row" style="margin-bottom:0">
+          <span style="font-size:.72rem;color:var(--text-muted);">Theme:</span>
+          <button class="adv-hm-theme-btn active" data-theme-id="green"   onclick="advHmSetTheme('green')">Green</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="orange"  onclick="advHmSetTheme('orange')">Orange</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="blue"    onclick="advHmSetTheme('blue')">Blue</button>
+          <button class="adv-hm-theme-btn"         data-theme-id="rainbow" onclick="advHmSetTheme('rainbow')">Rainbow</button>
+        </div>
+      </div>
+
+      <!-- Activity Type Filters -->
+      <div class="adv-hm-filter-row" id="advHmFilterRow">
+        <button class="adv-hm-filter-btn active" data-filter="all"   onclick="advHmSetFilter('all')">All</button>
+        <button class="adv-hm-filter-btn"         data-filter="run"   onclick="advHmSetFilter('run')">🏃 Run</button>
+        <button class="adv-hm-filter-btn"         data-filter="walk"  onclick="advHmSetFilter('walk')">🚶 Walk / Hike</button>
+        <button class="adv-hm-filter-btn"         data-filter="cycle" onclick="advHmSetFilter('cycle')">🚴 Cycling</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="adv-hm-grid-wrap" id="advHmGridWrap">
+        <div id="advHmGrid"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="adv-hm-legend" id="advHmLegend"></div>
+
+      <!-- Summary Stats -->
+      <div class="adv-hm-stats-grid" id="advHmStats"></div>
+
+      <!-- Monthly Bar Chart -->
+      <div class="adv-hm-monthly-wrap">
+        <div class="adv-hm-monthly-title">Monthly Distance Breakdown</div>
+        <div class="adv-hm-monthly-bars" id="advHmMonthlyBars"></div>
+        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmMonthlyLabels"></div>
+      </div>
+    </div>
+
+    <!-- Steps Heatmap Panel -->
+    <div id="advHmPanelSteps" style="display:none">
+      <!-- Controls Row -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+        <div class="adv-hm-year-row" style="margin-bottom:0">
+          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(-1)">&#8249;</button>
+          <span class="adv-hm-year-label" id="advHmStepsYearLabel">2026</span>
+          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(1)">&#8250;</button>
+        </div>
+      </div>
+
+      <!-- Steps Grid -->
+      <div class="adv-hm-grid-wrap" id="advHmStepsGridWrap">
+        <div id="advHmStepsGrid"></div>
+      </div>
+      <div class="adv-hm-legend" id="advHmStepsLegend"></div>
+
+      <!-- Steps Summary Stats -->
+      <div class="adv-hm-stats-grid" id="advHmStepsStats"></div>
+
+      <!-- DOW Chart -->
+      <div class="adv-hm-monthly-wrap" style="margin-top:16px">
+        <div class="adv-hm-monthly-title">Average Steps by Day of Week</div>
+        <div class="adv-hm-dow-bars" id="advHmDowBars"></div>
+        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmDowLabels"></div>
+      </div>
+
+      <!-- Step Goal Setting -->
+      <div class="adv-hm-goal-row">
+        <span class="adv-hm-goal-label">Daily Step Goal:</span>
+        <div class="adv-hm-goal-input-wrap">
+          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(-500)">−</button>
+          <input type="number" class="adv-hm-goal-num" id="advHmGoalInput" value="10000" min="1000" max="50000" step="500">
+          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(500)">+</button>
+        </div>
+        <button class="adv-hm-goal-save" onclick="advHmSaveGoal()">Save Goal</button>
+        <span style="font-size:.72rem;color:var(--text-muted)" id="advHmGoalStatus"></span>
+      </div>
+    </div>
+
+  </section>
+
   <!-- ═══════════════════════════════════════════════════════════
        MY STATS
   ═══════════════════════════════════════════════════════════ -->
@@ -4190,125 +4309,6 @@ header { padding: 0 !important; z-index: 600 !important; }
       </div>
       <div id="tipsContainer"></div>
     </div><!-- /coachTabTips -->
-
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════════════
-       ADVANCED ACTIVITY HEATMAP SECTION
-  ═══════════════════════════════════════════════════════════════ -->
-  <section id="advHeatmapSection" aria-label="Advanced Activity Heatmap">
-    <div class="section-header">
-      <div>
-        <div class="section-title">
-          <svg style="display:inline;vertical-align:-.15em;margin-right:6px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
-          Activity Heatmap
-        </div>
-        <div class="section-sub">Full-year activity &amp; steps overview — GitHub style</div>
-      </div>
-      <button class="adv-hm-export-btn" onclick="advHmExport()" title="Download heatmap as image">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Heatmap
-      </button>
-    </div>
-
-    <!-- Main Tabs -->
-    <div class="adv-hm-tabs">
-      <button class="adv-hm-tab active" id="advHmTabAct"   onclick="advHmSetTab('activity')">
-        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
-        Activity Heatmap
-      </button>
-      <button class="adv-hm-tab" id="advHmTabSteps" onclick="advHmSetTab('steps')">
-        <svg width="13" height="13" style="vertical-align:-.1em;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
-        Steps Heatmap
-      </button>
-    </div>
-
-    <!-- Activity Heatmap Panel -->
-    <div id="advHmPanelActivity">
-      <!-- Controls Row -->
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
-        <!-- Year Selector -->
-        <div class="adv-hm-year-row" style="margin-bottom:0">
-          <button class="adv-hm-year-btn" onclick="advHmYearStep(-1)">&#8249;</button>
-          <span class="adv-hm-year-label" id="advHmYearLabel">2026</span>
-          <button class="adv-hm-year-btn" onclick="advHmYearStep(1)">&#8250;</button>
-        </div>
-        <!-- Color Theme -->
-        <div class="adv-hm-theme-row" style="margin-bottom:0">
-          <span style="font-size:.72rem;color:var(--text-muted);">Theme:</span>
-          <button class="adv-hm-theme-btn active" data-theme-id="green"   onclick="advHmSetTheme('green')">Green</button>
-          <button class="adv-hm-theme-btn"         data-theme-id="orange"  onclick="advHmSetTheme('orange')">Orange</button>
-          <button class="adv-hm-theme-btn"         data-theme-id="blue"    onclick="advHmSetTheme('blue')">Blue</button>
-          <button class="adv-hm-theme-btn"         data-theme-id="rainbow" onclick="advHmSetTheme('rainbow')">Rainbow</button>
-        </div>
-      </div>
-
-      <!-- Activity Type Filters -->
-      <div class="adv-hm-filter-row" id="advHmFilterRow">
-        <button class="adv-hm-filter-btn active" data-filter="all"   onclick="advHmSetFilter('all')">All</button>
-        <button class="adv-hm-filter-btn"         data-filter="run"   onclick="advHmSetFilter('run')">🏃 Run</button>
-        <button class="adv-hm-filter-btn"         data-filter="walk"  onclick="advHmSetFilter('walk')">🚶 Walk / Hike</button>
-        <button class="adv-hm-filter-btn"         data-filter="cycle" onclick="advHmSetFilter('cycle')">🚴 Cycling</button>
-      </div>
-
-      <!-- Grid -->
-      <div class="adv-hm-grid-wrap" id="advHmGridWrap">
-        <div id="advHmGrid"></div>
-      </div>
-
-      <!-- Legend -->
-      <div class="adv-hm-legend" id="advHmLegend"></div>
-
-      <!-- Summary Stats -->
-      <div class="adv-hm-stats-grid" id="advHmStats"></div>
-
-      <!-- Monthly Bar Chart -->
-      <div class="adv-hm-monthly-wrap">
-        <div class="adv-hm-monthly-title">Monthly Distance Breakdown</div>
-        <div class="adv-hm-monthly-bars" id="advHmMonthlyBars"></div>
-        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmMonthlyLabels"></div>
-      </div>
-    </div>
-
-    <!-- Steps Heatmap Panel -->
-    <div id="advHmPanelSteps" style="display:none">
-      <!-- Controls Row -->
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
-        <div class="adv-hm-year-row" style="margin-bottom:0">
-          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(-1)">&#8249;</button>
-          <span class="adv-hm-year-label" id="advHmStepsYearLabel">2026</span>
-          <button class="adv-hm-year-btn" onclick="advHmStepsYearStep(1)">&#8250;</button>
-        </div>
-      </div>
-
-      <!-- Steps Grid -->
-      <div class="adv-hm-grid-wrap" id="advHmStepsGridWrap">
-        <div id="advHmStepsGrid"></div>
-      </div>
-      <div class="adv-hm-legend" id="advHmStepsLegend"></div>
-
-      <!-- Steps Summary Stats -->
-      <div class="adv-hm-stats-grid" id="advHmStepsStats"></div>
-
-      <!-- DOW Chart -->
-      <div class="adv-hm-monthly-wrap" style="margin-top:16px">
-        <div class="adv-hm-monthly-title">Average Steps by Day of Week</div>
-        <div class="adv-hm-dow-bars" id="advHmDowBars"></div>
-        <div style="display:flex;gap:4px;margin-top:4px;" id="advHmDowLabels"></div>
-      </div>
-
-      <!-- Step Goal Setting -->
-      <div class="adv-hm-goal-row">
-        <span class="adv-hm-goal-label">Daily Step Goal:</span>
-        <div class="adv-hm-goal-input-wrap">
-          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(-500)">−</button>
-          <input type="number" class="adv-hm-goal-num" id="advHmGoalInput" value="10000" min="1000" max="50000" step="500">
-          <button class="adv-hm-goal-adj" onclick="advHmAdjGoal(500)">+</button>
-        </div>
-        <button class="adv-hm-goal-save" onclick="advHmSaveGoal()">Save Goal</button>
-        <span style="font-size:.72rem;color:var(--text-muted)" id="advHmGoalStatus"></span>
-      </div>
-    </div>
 
   </section>
 
@@ -6540,7 +6540,7 @@ function init() {
   hrInit();
   // Hide non-dashboard sections — they open as nav overlays
   ['statsSection','hrSection','logSection','prSection','goalsSection',
-   'badgesSection','challengesSection','racesSection','coachSection','advHeatmapSection'
+   'badgesSection','challengesSection','racesSection','coachSection'
   ].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.classList.add('dash-hidden');
@@ -6563,7 +6563,6 @@ function renderAll() {
   renderRacesPreview();
   if(typeof advHmInit === 'function') advHmInit();
   if(typeof renderDashWeekly === 'function') renderDashWeekly();
-  if(typeof renderDashHeatmap === 'function') renderDashHeatmap();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -16831,6 +16830,15 @@ function _closeAllStandaloneOverlays() {
 
 function navTo(sectionId) {
   if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); hrCloseZoneModal(); _setNavActive('dashboard'); return; }
+  // Advanced Heatmap lives on the dashboard — scroll to it instead of opening overlay
+  if (sectionId === 'advHeatmapSection') {
+    closeNavSection(); _closeAllStandaloneOverlays();
+    _setNavActive('advHeatmapSection');
+    var hmEl = document.getElementById('advHeatmapSection');
+    if (hmEl) { hmEl.scrollIntoView({behavior:'smooth',block:'start'}); }
+    if (typeof advHmInit === 'function') advHmInit();
+    return;
+  }
   // Close any open standalone overlays before switching
   _closeAllStandaloneOverlays();
   // Heart Rate: show zone selection modal first as the entry point
@@ -17020,48 +17028,6 @@ function renderDashWeekly() {
     +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
     +'<div class="weekly-bar-chart">'+barsHtml+'</div>'
     +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div></div>';
-}
-
-/* ── Dashboard compact heatmap ── */
-function renderDashHeatmap() {
-  var el = document.getElementById('dashHeatmap');
-  if (!el) return;
-  var today=new Date(); today.setHours(0,0,0,0);
-  var start=new Date(today); start.setDate(start.getDate()-today.getDay()-52*7);
-  var byDate={};
-  db.activities.forEach(function(a){ if(!byDate[a.date]) byDate[a.date]=[]; byDate[a.date].push(a); });
-  var weeks=[], d=new Date(start);
-  while(d<=today) {
-    var wk=[];
-    for(var i=0;i<7;i++) { var ds=fmtDate(d); wk.push({date:ds,acts:byDate[ds]||[],isFuture:d>today}); d.setDate(d.getDate()+1); }
-    weeks.push(wk);
-  }
-  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var monthRow='', lastM=-1;
-  weeks.forEach(function(wk){ var m=new Date(wk[0].date+'T00:00:00').getMonth(); if(m!==lastM){monthRow+='<div style="width:14px;font-size:.58rem;color:var(--text-muted)">'+MN[m]+'</div>';lastM=m;}else monthRow+='<div style="width:14px"></div>'; });
-  var weeksHtml=weeks.map(function(wk){
-    return '<div class="heatmap-week">'+wk.map(function(cell){
-      if(cell.isFuture) return '<div class="heatmap-cell empty" style="cursor:default"></div>';
-      var acts=cell.acts, km=acts.reduce(function(s,a){return s+a.distance;},0);
-      var hasCycle=acts.some(function(a){return a.type==='cycle';}), hasWalk=acts.some(function(a){return a.type==='walk'||a.type==='walk-hike';});
-      var cls='heatmap-cell ';
-      if(!acts.length) cls+='empty';
-      else if(hasCycle) cls+='cycle-'+(km<5?1:km<15?2:km<30?3:4);
-      else if(hasWalk)  cls+='walk-'+(km<3?1:km<8?2:km<15?3:4);
-      else              cls+='run-'+(km<3?1:km<8?2:km<15?3:4);
-      return '<div class="'+cls+'" title="'+cell.date+(acts.length?' · '+km.toFixed(1)+' km':'')+'"></div>';
-    }).join('')+'</div>';
-  }).join('');
-  el.innerHTML='<div style="display:flex;gap:3px;margin-bottom:3px">'+monthRow+'</div>'
-    +'<div class="heatmap-weeks">'+weeksHtml+'</div>'
-    +'<div class="heatmap-legend"><span>Less</span>'
-    +'<div class="heatmap-cell empty" style="transform:none;cursor:default"></div>'
-    +'<div class="heatmap-cell run-1" style="transform:none;cursor:default"></div>'
-    +'<div class="heatmap-cell run-2" style="transform:none;cursor:default"></div>'
-    +'<div class="heatmap-cell run-3" style="transform:none;cursor:default"></div>'
-    +'<div class="heatmap-cell run-4" style="transform:none;cursor:default"></div>'
-    +'<span>More</span><span style="margin-left:10px;color:var(--run)">■ Run</span>'
-    +'<span style="color:var(--walk)">■ Walk</span><span style="color:var(--cycle)">■ Cycle</span></div>';
 }
 
 /* ══════════════════════════════════════════════════════════════
