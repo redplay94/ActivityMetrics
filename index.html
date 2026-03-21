@@ -5346,9 +5346,6 @@ header { padding: 0 !important; z-index: 600 !important; }
 <!-- ─── My Calendar Overlay ───────────────────────────────── -->
 <div class="calendar-overlay" id="calendarOverlay">
   <div class="nav-overlay-header">
-<!-- ─── My Calendar Overlay ───────────────────────────────── -->
-<div class="calendar-overlay" id="calendarOverlay">
-  <div class="nav-overlay-header">
     <button class="nav-overlay-back" onclick="closeCalendarPage()" title="Back to Dashboard" aria-label="Back to Dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
@@ -10553,12 +10550,13 @@ function openFriendsPage() {
   var dst = document.getElementById('friendsSectionStandalone');
   if (src && dst) {
     dst.innerHTML = src.innerHTML;
-    var origId = src.id;
-    src.id = '_friendsSectionOrig';
-    dst.id = 'friendsSection';
+    // Temporarily detach dashboard section so duplicate child IDs
+    // (friendsGrid, friendsSearch, etc.) don't shadow the overlay copies
+    var placeholder = document.createComment('friends-placeholder');
+    src.parentNode.replaceChild(placeholder, src);
     if (typeof renderFriendsSection === 'function') renderFriendsSection();
-    dst.id = 'friendsSectionStandalone';
-    src.id = origId;
+    // Restore dashboard section
+    placeholder.parentNode.replaceChild(src, placeholder);
   }
 }
 function closeFriendsPage() {
