@@ -2195,6 +2195,17 @@ select.vo2-input { cursor:pointer; }
 .hr-model-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
 .hr-model-btn{padding:5px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-muted);cursor:pointer;transition:all var(--transition);}
 .hr-model-btn.active{border-color:#ef4444;background:rgba(239,68,68,.1);color:#ef4444;}
+.hr-manual-zones{margin-top:10px;padding:14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border);}
+.hr-manual-zones-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:600px){.hr-manual-zones-grid{grid-template-columns:1fr;}}
+.hr-manual-zone-field label{display:block;font-size:.73rem;font-weight:700;margin-bottom:4px;color:var(--text);}
+.hr-manual-range{display:flex;align-items:center;gap:6px;}
+.hr-manual-range input{width:72px;padding:6px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg2);color:var(--text);font-size:.8rem;font-weight:600;text-align:center;transition:border-color .18s;}
+.hr-manual-range input:focus{border-color:#ef4444;outline:none;}
+.hr-manual-range span{font-size:.8rem;color:var(--text-muted);}
+.hr-manual-unit{font-size:.7rem;font-weight:600;color:var(--text-muted);}
+.hr-manual-apply-btn{margin-top:12px;width:100%;padding:8px 0;border-radius:var(--radius-sm);border:none;background:#ef4444;color:#fff;font-size:.8rem;font-weight:700;cursor:pointer;transition:background .18s;}
+.hr-manual-apply-btn:hover{background:#dc2626;}
 .hr-zone-bar-wrap{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
 .hr-zone-bar-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;}
 @media(max-width:600px){.hr-zone-bar-row{grid-template-columns:90px 1fr;}}
@@ -3593,6 +3604,33 @@ header { padding: 0 !important; z-index: 600 !important; }
           <button class="hr-model-btn" data-m="coggan"    onclick="hrSetModel('coggan')">Coggan Cycling (7-Zone)</button>
           <button class="hr-model-btn" data-m="polar"     onclick="hrSetModel('polar')">Polar 5-Zone</button>
           <button class="hr-model-btn" data-m="8020"      onclick="hrSetModel('8020')">80/20 Running</button>
+          <button class="hr-model-btn" data-m="manual"    onclick="hrSetModel('manual')">Manual Entry</button>
+        </div>
+        <!-- Manual Zone Inputs (visible only when Manual Entry selected) -->
+        <div id="hrManualZones" class="hr-manual-zones" style="display:none">
+          <div class="hr-manual-zones-grid">
+            <div class="hr-manual-zone-field">
+              <label>Zone 1 <span style="color:var(--text-muted);font-weight:400">Recovery</span></label>
+              <div class="hr-manual-range"><input type="number" id="hrMZ1lo" placeholder="Min" min="60" max="220"><span>–</span><input type="number" id="hrMZ1hi" placeholder="Max" min="60" max="220"><span class="hr-manual-unit">bpm</span></div>
+            </div>
+            <div class="hr-manual-zone-field">
+              <label>Zone 2 <span style="color:var(--text-muted);font-weight:400">Aerobic</span></label>
+              <div class="hr-manual-range"><input type="number" id="hrMZ2lo" placeholder="Min" min="60" max="220"><span>–</span><input type="number" id="hrMZ2hi" placeholder="Max" min="60" max="220"><span class="hr-manual-unit">bpm</span></div>
+            </div>
+            <div class="hr-manual-zone-field">
+              <label>Zone 3 <span style="color:var(--text-muted);font-weight:400">Tempo</span></label>
+              <div class="hr-manual-range"><input type="number" id="hrMZ3lo" placeholder="Min" min="60" max="220"><span>–</span><input type="number" id="hrMZ3hi" placeholder="Max" min="60" max="220"><span class="hr-manual-unit">bpm</span></div>
+            </div>
+            <div class="hr-manual-zone-field">
+              <label>Zone 4 <span style="color:var(--text-muted);font-weight:400">Threshold</span></label>
+              <div class="hr-manual-range"><input type="number" id="hrMZ4lo" placeholder="Min" min="60" max="220"><span>–</span><input type="number" id="hrMZ4hi" placeholder="Max" min="60" max="220"><span class="hr-manual-unit">bpm</span></div>
+            </div>
+            <div class="hr-manual-zone-field">
+              <label>Zone 5 <span style="color:var(--text-muted);font-weight:400">Max Effort</span></label>
+              <div class="hr-manual-range"><input type="number" id="hrMZ5lo" placeholder="Min" min="60" max="220"><span>–</span><input type="number" id="hrMZ5hi" placeholder="Max" min="60" max="220"><span class="hr-manual-unit">bpm</span></div>
+            </div>
+          </div>
+          <button class="hr-manual-apply-btn" onclick="hrApplyManualZones()">Apply Manual Zones</button>
         </div>
       </div>
 
@@ -12284,8 +12322,64 @@ function hrGetMaxHR() {
 function hrSetModel(m) {
   hrCurrentModel = m;
   document.querySelectorAll('.hr-model-btn').forEach(b => b.classList.toggle('active', b.dataset.m === m));
+  const manualWrap = document.getElementById('hrManualZones');
+  if (manualWrap) manualWrap.style.display = m === 'manual' ? 'block' : 'none';
   const s = hrGetSettings(); s.model = m; hrSaveSettings(s);
+  if (m === 'manual') {
+    // Restore saved manual values into inputs
+    const mz = s.manualZones || [];
+    for (let i = 0; i < 5; i++) {
+      const lo = document.getElementById('hrMZ'+(i+1)+'lo');
+      const hi = document.getElementById('hrMZ'+(i+1)+'hi');
+      if (lo && mz[i]) lo.value = mz[i][0] || '';
+      if (hi && mz[i]) hi.value = mz[i][1] || '';
+    }
+    // If we have saved manual zones, build the model and render
+    if (mz.length === 5 && mz.every(z => z[0] && z[1])) {
+      _hrBuildManualModel(mz);
+      hrRenderZones();
+    }
+  } else {
+    hrRenderZones();
+  }
+}
+
+function hrApplyManualZones() {
+  const NAMES  = ['Zone 1 — Recovery','Zone 2 — Aerobic','Zone 3 — Tempo','Zone 4 — Threshold','Zone 5 — Max Effort'];
+  const COLORS = ['#94a3b8','#3b82f6','#22c55e','#f97316','#ef4444'];
+  const DESCS  = ['Easy recovery pace.','Aerobic base building.','Moderate tempo effort.','Hard threshold effort.','All-out maximum effort.'];
+  const FEELS  = ['Can sing while exercising','Full sentences comfortably','Short sentences','Few words only','Cannot speak at all'];
+  const zones = [];
+  for (let i = 1; i <= 5; i++) {
+    const lo = parseInt(document.getElementById('hrMZ'+i+'lo').value);
+    const hi = parseInt(document.getElementById('hrMZ'+i+'hi').value);
+    if (!lo || !hi || lo < 60 || hi > 230 || lo >= hi) {
+      showToast('Zone '+i+': enter valid min/max BPM (min < max, 60–230)', 'error');
+      return;
+    }
+    zones.push([lo, hi]);
+  }
+  // Save to settings
+  const s = hrGetSettings();
+  s.manualZones = zones;
+  hrSaveSettings(s);
+  // Build model from absolute BPM using maxHR to convert to percentages
+  _hrBuildManualModel(zones);
   hrRenderZones();
+  showToast('Manual zones applied! ❤️', 'success');
+}
+
+function _hrBuildManualModel(zones) {
+  const NAMES  = ['Zone 1 — Recovery','Zone 2 — Aerobic','Zone 3 — Tempo','Zone 4 — Threshold','Zone 5 — Max Effort'];
+  const COLORS = ['#94a3b8','#3b82f6','#22c55e','#f97316','#ef4444'];
+  const DESCS  = ['Easy recovery pace.','Aerobic base building.','Moderate tempo effort.','Hard threshold effort.','All-out maximum effort.'];
+  const FEELS  = ['Can sing while exercising','Full sentences comfortably','Short sentences','Few words only','Cannot speak at all'];
+  const maxHR = hrGetMaxHR() || zones[4][1]; // fallback to top of Z5
+  HR_ZONE_MODELS.manual = zones.map((z, i) => ({
+    name: NAMES[i], color: COLORS[i], desc: DESCS[i], feel: FEELS[i],
+    pct: [Math.round(z[0]/maxHR*100), Math.round(z[1]/maxHR*100)],
+    _absBpm: z  // store absolute values for rendering
+  }));
 }
 
 function hrRenderZones() {
@@ -12293,14 +12387,19 @@ function hrRenderZones() {
   const zones  = HR_ZONE_MODELS[hrCurrentModel];
   const wrap   = document.getElementById('hrZoneBars');
   if (!wrap) return;
-  if (!maxHR) {
+  const isManual = hrCurrentModel === 'manual';
+  if (!isManual && !maxHR) {
     wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.85rem">Enter your age above to see your personalised zones.</div>';
+    return;
+  }
+  if (isManual && !zones) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.85rem">Enter your zone values above and click "Apply Manual Zones".</div>';
     return;
   }
   let html = '<div class="hr-zone-bar-wrap">';
   zones.forEach((z, i) => {
-    const lo = Math.round(maxHR * z.pct[0] / 100);
-    const hi = Math.min(Math.round(maxHR * z.pct[1] / 100), maxHR);
+    const lo = z._absBpm ? z._absBpm[0] : Math.round(maxHR * z.pct[0] / 100);
+    const hi = z._absBpm ? z._absBpm[1] : Math.min(Math.round(maxHR * z.pct[1] / 100), maxHR);
     const width = Math.min(100, z.pct[1]) - z.pct[0];
     const barW  = (width / 60) * 100; // normalise to 60% range for visual
     html += `
