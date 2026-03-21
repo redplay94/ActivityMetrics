@@ -10550,12 +10550,13 @@ function openFriendsPage() {
   var dst = document.getElementById('friendsSectionStandalone');
   if (src && dst) {
     dst.innerHTML = src.innerHTML;
-    var origId = src.id;
-    src.id = '_friendsSectionOrig';
-    dst.id = 'friendsSection';
+    // Temporarily detach dashboard section so duplicate child IDs
+    // (friendsGrid, friendsSearch, etc.) don't shadow the overlay copies
+    var placeholder = document.createComment('friends-placeholder');
+    src.parentNode.replaceChild(placeholder, src);
     if (typeof renderFriendsSection === 'function') renderFriendsSection();
-    dst.id = 'friendsSectionStandalone';
-    src.id = origId;
+    // Restore dashboard section
+    placeholder.parentNode.replaceChild(src, placeholder);
   }
 }
 function closeFriendsPage() {
