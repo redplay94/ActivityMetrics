@@ -1173,6 +1173,29 @@ header {
 }
 .profile-section-title::before { content:''; display:block; width:4px; height:18px; border-radius:2px; background:linear-gradient(var(--run),var(--cycle)); flex-shrink:0; }
 
+/* Stats range label & edit */
+.profile-stats-range-label { font-size:.68rem; font-weight:600; color:var(--text-muted); background:var(--bg3); padding:2px 8px; border-radius:99px; margin-left:auto; letter-spacing:.3px; }
+.profile-stats-edit-btn { background:none; border:none; color:var(--text-muted); cursor:pointer; padding:2px; display:flex; align-items:center; transition:color .15s; flex-shrink:0; }
+.profile-stats-edit-btn:hover { color:var(--run); }
+
+/* Stats range modal */
+.stats-range-overlay { position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity .2s; }
+.stats-range-overlay.open { opacity:1; pointer-events:all; }
+.stats-range-modal { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 16px 48px rgba(0,0,0,.5); padding:24px; max-width:340px; width:100%; transform:translateY(20px); transition:transform .25s; }
+.stats-range-overlay.open .stats-range-modal { transform:none; }
+.stats-range-modal h3 { font-size:1rem; font-weight:800; margin:0 0 16px; }
+.stats-range-field { margin-bottom:12px; }
+.stats-range-field label { display:block; font-size:.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.stats-range-field input[type="date"] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg3); color:var(--text); font-size:.82rem; }
+.stats-range-actions { display:flex; gap:8px; margin-top:18px; }
+.stats-range-actions button { flex:1; padding:8px 0; border-radius:var(--radius-sm); font-size:.8rem; font-weight:700; cursor:pointer; transition:all .15s; }
+.stats-range-save { background:var(--run); color:#fff; border:none; }
+.stats-range-save:hover { opacity:.85; }
+.stats-range-reset { background:var(--bg3); color:var(--text-muted); border:1px solid var(--border); }
+.stats-range-reset:hover { color:var(--text); border-color:var(--text-muted); }
+.stats-range-cancel { background:none; color:var(--text-muted); border:1px solid var(--border); }
+.stats-range-cancel:hover { color:var(--text); }
+
 /* Stats overview horizontal scroll */
 .profile-stats-scroll { overflow-x:auto; padding-bottom:8px; }
 .profile-stats-row { display:flex; gap:12px; min-width:max-content; }
@@ -4855,7 +4878,13 @@ header { padding: 0 !important; z-index: 600 !important; }
 
     <!-- Stats overview -->
     <div class="profile-section">
-      <div class="profile-section-title">Stats Overview</div>
+      <div class="profile-section-title">
+        Stats Overview
+        <span class="profile-stats-range-label" id="profileStatsRangeLabel">All-time</span>
+        <button class="profile-stats-edit-btn" onclick="openStatsRangeModal()" title="Set date range">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
       <div class="profile-stats-scroll">
         <div class="profile-stats-row" id="profileStatsRow"></div>
       </div>
@@ -4865,20 +4894,6 @@ header { padding: 0 !important; z-index: 600 !important; }
     <div class="profile-section">
       <div class="profile-section-title">Next Race Countdown</div>
       <div id="profileCountdownSection"></div>
-    </div>
-
-    <!-- Weekly Summary -->
-    <div class="profile-section">
-      <div class="profile-section-title">This Week</div>
-      <div id="profileWeeklySummary"></div>
-    </div>
-
-    <!-- Activity Heatmap -->
-    <div class="profile-section">
-      <div class="profile-section-title">Activity Heatmap <span style="font-size:.72rem;font-weight:500;color:var(--text-muted)">(last 12 months)</span></div>
-      <div class="heatmap-wrap" id="profileHeatmapWrap">
-        <div id="profileHeatmap"></div>
-      </div>
     </div>
 
     <!-- Personal Records -->
@@ -5086,6 +5101,26 @@ header { padding: 0 !important; z-index: 600 !important; }
     </div>
   </div>
   <div class="heatmap-tooltip" id="heatmapTooltip"></div>
+</div>
+
+<!-- ─── Stats Range Modal ─────────────────────────────────── -->
+<div class="stats-range-overlay" id="statsRangeOverlay" onclick="if(event.target===this)closeStatsRangeModal()">
+  <div class="stats-range-modal">
+    <h3>Set Statistics Range</h3>
+    <div class="stats-range-field">
+      <label for="statsRangeStart">Start Date</label>
+      <input type="date" id="statsRangeStart">
+    </div>
+    <div class="stats-range-field">
+      <label for="statsRangeEnd">End Date</label>
+      <input type="date" id="statsRangeEnd">
+    </div>
+    <div class="stats-range-actions">
+      <button class="stats-range-reset" onclick="resetStatsRange()">Reset</button>
+      <button class="stats-range-cancel" onclick="closeStatsRangeModal()">Cancel</button>
+      <button class="stats-range-save" onclick="saveStatsRange()">Save</button>
+    </div>
+  </div>
 </div>
 
 <!-- ─── Friends: Friend Profile Modal ─────────────────────── -->
@@ -9268,8 +9303,6 @@ function renderProfilePage() {
   renderProfileHero();
   renderProfileStats();
   renderProfileCountdown();
-  renderProfileWeekly();
-  renderProfileHeatmap();
   renderProfilePRs();
   renderProfileBadges();
   renderProfileRaceResume();
@@ -9320,7 +9353,22 @@ function computeCurrentStreak() {
 function renderProfileStats() {
   const el = document.getElementById('profileStatsRow');
   if (!el) return;
-  const acts = db.activities;
+  // Date range from localStorage
+  const range = getProfileStatsRange();
+  let acts = db.activities;
+  const labelEl = document.getElementById('profileStatsRangeLabel');
+  if (range.start || range.end) {
+    acts = acts.filter(a => {
+      if (range.start && a.date < range.start) return false;
+      if (range.end   && a.date > range.end)   return false;
+      return true;
+    });
+    const s = range.start ? new Date(range.start+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'beginning';
+    const e = range.end   ? new Date(range.end+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})   : 'now';
+    if (labelEl) labelEl.textContent = `${s} \u2013 ${e}`;
+  } else {
+    if (labelEl) labelEl.textContent = 'All-time';
+  }
   const runKm   = acts.filter(a=>a.type==='run').reduce((s,a)=>s+a.distance,0);
   const walkKm  = acts.filter(a=>a.type==='walk').reduce((s,a)=>s+a.distance,0);
   const cycleKm = acts.filter(a=>a.type==='cycle').reduce((s,a)=>s+a.distance,0);
@@ -9353,6 +9401,38 @@ function renderProfileStats() {
       <div class="profile-stat-card-unit">${c.unit}</div>
       ${c.sub ? `<div class="profile-stat-card-sub">${c.sub}</div>` : ''}
     </div>`).join('');
+}
+
+/* ── Profile Stats Range Modal ── */
+function getProfileStatsRange() {
+  try {
+    const r = JSON.parse(localStorage.getItem('profileStatsRange'));
+    if (r && typeof r === 'object') return r;
+  } catch(e) {}
+  return {};
+}
+function openStatsRangeModal() {
+  const range = getProfileStatsRange();
+  document.getElementById('statsRangeStart').value = range.start || '';
+  document.getElementById('statsRangeEnd').value   = range.end   || '';
+  document.getElementById('statsRangeOverlay').classList.add('open');
+}
+function closeStatsRangeModal() {
+  document.getElementById('statsRangeOverlay').classList.remove('open');
+}
+function saveStatsRange() {
+  const start = document.getElementById('statsRangeStart').value;
+  const end   = document.getElementById('statsRangeEnd').value;
+  localStorage.setItem('profileStatsRange', JSON.stringify({ start: start || '', end: end || '' }));
+  closeStatsRangeModal();
+  renderProfileStats();
+}
+function resetStatsRange() {
+  localStorage.removeItem('profileStatsRange');
+  document.getElementById('statsRangeStart').value = '';
+  document.getElementById('statsRangeEnd').value   = '';
+  closeStatsRangeModal();
+  renderProfileStats();
 }
 
 /* ── Race Countdown ── */
