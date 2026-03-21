@@ -2206,6 +2206,44 @@ select.vo2-input { cursor:pointer; }
 .hr-manual-unit{font-size:.7rem;font-weight:600;color:var(--text-muted);}
 .hr-manual-apply-btn{margin-top:12px;width:100%;padding:8px 0;border-radius:var(--radius-sm);border:none;background:#ef4444;color:#fff;font-size:.8rem;font-weight:700;cursor:pointer;transition:background .18s;}
 .hr-manual-apply-btn:hover{background:#dc2626;}
+
+/* ── Zone Selection Modal ─────────────────────────────────── */
+.hr-zone-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+.hr-zone-modal-backdrop.open{display:flex;}
+.hr-zone-modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,.3);animation:hrModalIn .25s ease;}
+@keyframes hrModalIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hr-zone-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;position:sticky;top:0;background:var(--bg);z-index:1;}
+.hr-zone-modal-header h3{font-size:1rem;font-weight:700;color:var(--text);margin:0;display:flex;align-items:center;gap:8px;}
+.hr-zone-modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;border-radius:var(--radius-sm);transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.hr-zone-modal-close:hover{background:var(--bg3);color:var(--text);}
+.hr-zone-modal-body{padding:16px 20px 20px;}
+.hr-zone-modal-sub{font-size:.75rem;color:var(--text-muted);margin-bottom:16px;}
+.hr-zm-option{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .18s;background:var(--bg2);}
+.hr-zm-option:hover{border-color:var(--text-muted);background:var(--bg3);}
+.hr-zm-option.active{border-color:#ef4444;background:rgba(239,68,68,.06);}
+.hr-zm-option-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;}
+.hr-zm-option-name{font-size:.82rem;font-weight:700;color:var(--text);}
+.hr-zm-option-desc{font-size:.68rem;color:var(--text-muted);line-height:1.3;}
+/* Slide toggle */
+.hr-zm-toggle{position:relative;width:40px;height:22px;flex-shrink:0;margin-left:12px;}
+.hr-zm-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.hr-zm-toggle-track{position:absolute;inset:0;border-radius:99px;background:var(--bg3);border:1.5px solid var(--border);transition:all .22s;cursor:pointer;}
+.hr-zm-toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-muted);transition:all .22s;}
+.hr-zm-toggle input:checked + .hr-zm-toggle-track{background:#ef4444;border-color:#ef4444;}
+.hr-zm-toggle input:checked + .hr-zm-toggle-track::after{transform:translateX(18px);background:#fff;}
+/* Manual fields inside modal */
+.hr-zm-manual-fields{padding:10px 14px 14px;margin:-4px 0 8px;border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg2);display:none;}
+.hr-zm-manual-fields.open{display:block;}
+.hr-zm-manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:500px){.hr-zm-manual-grid{grid-template-columns:1fr;}}
+.hr-zm-manual-row{display:flex;align-items:center;gap:6px;}
+.hr-zm-manual-row label{font-size:.7rem;font-weight:700;color:var(--text);width:56px;flex-shrink:0;}
+.hr-zm-manual-row input{width:60px;padding:5px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:.78rem;font-weight:600;text-align:center;transition:border-color .18s;}
+.hr-zm-manual-row input:focus{border-color:#ef4444;outline:none;}
+.hr-zm-manual-row span{font-size:.72rem;color:var(--text-muted);}
+.hr-zone-modal-footer{padding:0 20px 18px;text-align:center;font-size:.7rem;color:var(--text-muted);font-style:italic;}
+.hr-zm-confirm-btn{width:100%;padding:10px 0;border-radius:var(--radius-sm);border:none;background:#ef4444;color:#fff;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .18s;margin-top:12px;}
+.hr-zm-confirm-btn:hover{background:#dc2626;}
 .hr-zone-bar-wrap{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
 .hr-zone-bar-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;}
 @media(max-width:600px){.hr-zone-bar-row{grid-template-columns:90px 1fr;}}
@@ -3598,7 +3636,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 
       <!-- Zone Model -->
       <div class="hr-card">
-        <div class="hr-card-title"><span class="hr-card-title-dot"></span>Zone Model</div>
+        <div class="hr-card-title" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:8px"><span class="hr-card-title-dot"></span>Zone Model</span><button onclick="hrOpenZoneModal()" style="background:none;border:1.5px solid var(--border);border-radius:99px;padding:3px 12px;font-size:.68rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .18s" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='';this.style.color=''">Change Model</button></div>
         <div class="hr-model-btns">
           <button class="hr-model-btn active" data-m="standard5" onclick="hrSetModel('standard5')">Standard 5-Zone</button>
           <button class="hr-model-btn" data-m="coggan"    onclick="hrSetModel('coggan')">Coggan Cycling (7-Zone)</button>
@@ -3719,6 +3757,93 @@ header { padding: 0 !important; z-index: 600 !important; }
       </div>
 
     </div><!-- /hrPanel_analytics -->
+
+    <!-- ── Zone Selection Modal ────────────────────────────── -->
+    <div id="hrZoneModal" class="hr-zone-modal-backdrop" onclick="if(event.target===this)hrCloseZoneModal()">
+      <div class="hr-zone-modal">
+        <div class="hr-zone-modal-header">
+          <h3><span style="font-size:1.1rem">❤️</span> Zone Model Selection</h3>
+          <button class="hr-zone-modal-close" onclick="hrCloseZoneModal()" title="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="hr-zone-modal-body">
+          <div class="hr-zone-modal-sub">Choose a heart rate zone model for your training analysis.</div>
+
+          <!-- Standard 5-Zone -->
+          <div class="hr-zm-option active" data-zm="standard5" onclick="hrZmSelect('standard5')">
+            <div class="hr-zm-option-info">
+              <div class="hr-zm-option-name">Standard 5-Zone</div>
+              <div class="hr-zm-option-desc">Classic 5-zone model based on % of max HR. Ideal for general fitness.</div>
+            </div>
+            <label class="hr-zm-toggle" onclick="event.stopPropagation()">
+              <input type="radio" name="hrZmRadio" value="standard5" checked onchange="hrZmSelect('standard5')">
+              <div class="hr-zm-toggle-track"></div>
+            </label>
+          </div>
+
+          <!-- Coggan Cycling -->
+          <div class="hr-zm-option" data-zm="coggan" onclick="hrZmSelect('coggan')">
+            <div class="hr-zm-option-info">
+              <div class="hr-zm-option-name">Coggan Cycling (7-Zone)</div>
+              <div class="hr-zm-option-desc">Andrew Coggan's 7-zone power/HR model for cyclists.</div>
+            </div>
+            <label class="hr-zm-toggle" onclick="event.stopPropagation()">
+              <input type="radio" name="hrZmRadio" value="coggan" onchange="hrZmSelect('coggan')">
+              <div class="hr-zm-toggle-track"></div>
+            </label>
+          </div>
+
+          <!-- Polar 5-Zone -->
+          <div class="hr-zm-option" data-zm="polar" onclick="hrZmSelect('polar')">
+            <div class="hr-zm-option-info">
+              <div class="hr-zm-option-name">Polar 5-Zone</div>
+              <div class="hr-zm-option-desc">Polar's default 5-zone system based on max HR percentages.</div>
+            </div>
+            <label class="hr-zm-toggle" onclick="event.stopPropagation()">
+              <input type="radio" name="hrZmRadio" value="polar" onchange="hrZmSelect('polar')">
+              <div class="hr-zm-toggle-track"></div>
+            </label>
+          </div>
+
+          <!-- 80/20 Running -->
+          <div class="hr-zm-option" data-zm="8020" onclick="hrZmSelect('8020')">
+            <div class="hr-zm-option-info">
+              <div class="hr-zm-option-name">80/20 Running</div>
+              <div class="hr-zm-option-desc">Matt Fitzgerald's 3-zone model — 80% easy, 20% hard.</div>
+            </div>
+            <label class="hr-zm-toggle" onclick="event.stopPropagation()">
+              <input type="radio" name="hrZmRadio" value="8020" onchange="hrZmSelect('8020')">
+              <div class="hr-zm-toggle-track"></div>
+            </label>
+          </div>
+
+          <!-- Manual Entry -->
+          <div class="hr-zm-option" data-zm="manual" onclick="hrZmSelect('manual')" style="border-radius:var(--radius) var(--radius) 0 0;margin-bottom:0" id="hrZmManualOption">
+            <div class="hr-zm-option-info">
+              <div class="hr-zm-option-name">Manual Entry</div>
+              <div class="hr-zm-option-desc">Define your own zones with custom BPM ranges.</div>
+            </div>
+            <label class="hr-zm-toggle" onclick="event.stopPropagation()">
+              <input type="radio" name="hrZmRadio" value="manual" onchange="hrZmSelect('manual')">
+              <div class="hr-zm-toggle-track"></div>
+            </label>
+          </div>
+          <div class="hr-zm-manual-fields" id="hrZmManualFields">
+            <div class="hr-zm-manual-grid">
+              <div class="hr-zm-manual-row"><label>Zone 1</label><input type="number" id="hrZM1lo" placeholder="Min" min="60" max="220" oninput="hrZmAutoSave()"><span>–</span><input type="number" id="hrZM1hi" placeholder="Max" min="60" max="220" oninput="hrZmAutoSave()"><span>bpm</span></div>
+              <div class="hr-zm-manual-row"><label>Zone 2</label><input type="number" id="hrZM2lo" placeholder="Min" min="60" max="220" oninput="hrZmAutoSave()"><span>–</span><input type="number" id="hrZM2hi" placeholder="Max" min="60" max="220" oninput="hrZmAutoSave()"><span>bpm</span></div>
+              <div class="hr-zm-manual-row"><label>Zone 3</label><input type="number" id="hrZM3lo" placeholder="Min" min="60" max="220" oninput="hrZmAutoSave()"><span>–</span><input type="number" id="hrZM3hi" placeholder="Max" min="60" max="220" oninput="hrZmAutoSave()"><span>bpm</span></div>
+              <div class="hr-zm-manual-row"><label>Zone 4</label><input type="number" id="hrZM4lo" placeholder="Min" min="60" max="220" oninput="hrZmAutoSave()"><span>–</span><input type="number" id="hrZM4hi" placeholder="Max" min="60" max="220" oninput="hrZmAutoSave()"><span>bpm</span></div>
+              <div class="hr-zm-manual-row"><label>Zone 5</label><input type="number" id="hrZM5lo" placeholder="Min" min="60" max="220" oninput="hrZmAutoSave()"><span>–</span><input type="number" id="hrZM5hi" placeholder="Max" min="60" max="220" oninput="hrZmAutoSave()"><span>bpm</span></div>
+            </div>
+          </div>
+
+          <button class="hr-zm-confirm-btn" onclick="hrConfirmZoneModal()">Confirm Selection</button>
+        </div>
+        <div class="hr-zone-modal-footer">You can change your zone model later.</div>
+      </div>
+    </div>
 
   </section>
 
@@ -12382,6 +12507,101 @@ function _hrBuildManualModel(zones) {
   }));
 }
 
+/* ── Zone Selection Modal ────────────────────────────────── */
+let _hrZmSelected = null;
+
+function hrOpenZoneModal() {
+  const modal = document.getElementById('hrZoneModal');
+  if (!modal) return;
+  // Sync modal state with current model
+  _hrZmSelected = hrCurrentModel;
+  _hrZmUpdateUI();
+  // Restore manual fields from localStorage
+  const s = hrGetSettings();
+  const mz = s.manualZones || [];
+  for (let i = 1; i <= 5; i++) {
+    const lo = document.getElementById('hrZM'+i+'lo');
+    const hi = document.getElementById('hrZM'+i+'hi');
+    if (lo && mz[i-1]) lo.value = mz[i-1][0] || '';
+    if (hi && mz[i-1]) hi.value = mz[i-1][1] || '';
+  }
+  modal.classList.add('open');
+}
+
+function hrCloseZoneModal() {
+  const modal = document.getElementById('hrZoneModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function hrZmSelect(model) {
+  _hrZmSelected = model;
+  _hrZmUpdateUI();
+}
+
+function _hrZmUpdateUI() {
+  // Toggle active option cards
+  document.querySelectorAll('.hr-zm-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.zm === _hrZmSelected);
+  });
+  // Toggle radio inputs
+  document.querySelectorAll('input[name="hrZmRadio"]').forEach(r => {
+    r.checked = r.value === _hrZmSelected;
+  });
+  // Show/hide manual fields
+  const manualFields = document.getElementById('hrZmManualFields');
+  const manualOption = document.getElementById('hrZmManualOption');
+  if (manualFields) {
+    const isManual = _hrZmSelected === 'manual';
+    manualFields.classList.toggle('open', isManual);
+    if (manualOption) {
+      manualOption.style.borderRadius = isManual ? 'var(--radius) var(--radius) 0 0' : 'var(--radius)';
+      manualOption.style.marginBottom = isManual ? '0' : '8px';
+    }
+  }
+}
+
+function hrZmAutoSave() {
+  // Auto-save manual zone values to localStorage on every keystroke
+  const zones = [];
+  for (let i = 1; i <= 5; i++) {
+    const lo = parseInt(document.getElementById('hrZM'+i+'lo').value) || 0;
+    const hi = parseInt(document.getElementById('hrZM'+i+'hi').value) || 0;
+    zones.push([lo, hi]);
+  }
+  const s = hrGetSettings();
+  s.manualZones = zones;
+  hrSaveSettings(s);
+}
+
+function hrConfirmZoneModal() {
+  if (_hrZmSelected === 'manual') {
+    // Validate manual zones
+    for (let i = 1; i <= 5; i++) {
+      const lo = parseInt(document.getElementById('hrZM'+i+'lo').value);
+      const hi = parseInt(document.getElementById('hrZM'+i+'hi').value);
+      if (!lo || !hi || lo < 60 || hi > 230 || lo >= hi) {
+        showToast('Zone '+i+': enter valid min/max BPM (min < max, 60–230)', 'error');
+        return;
+      }
+    }
+    // Sync modal values to the inline manual fields too
+    for (let i = 1; i <= 5; i++) {
+      const mLo = document.getElementById('hrZM'+i+'lo');
+      const mHi = document.getElementById('hrZM'+i+'hi');
+      const iLo = document.getElementById('hrMZ'+i+'lo');
+      const iHi = document.getElementById('hrMZ'+i+'hi');
+      if (iLo && mLo) iLo.value = mLo.value;
+      if (iHi && mHi) iHi.value = mHi.value;
+    }
+    hrZmAutoSave();
+  }
+  // Apply model selection
+  hrSetModel(_hrZmSelected);
+  if (_hrZmSelected === 'manual') hrApplyManualZones();
+  hrCloseZoneModal();
+  showToast('Zone model updated!', 'success');
+}
+
 function hrRenderZones() {
   const maxHR  = hrGetMaxHR();
   const zones  = HR_ZONE_MODELS[hrCurrentModel];
@@ -13284,6 +13504,11 @@ function hrInit() {
   hrPopulateActivitySelect('hrActivitySelect');
   hrPopulateActivitySelect('hrModalActivity');
   hrBuildModalZoneInputs();
+
+  // Show zone selection modal on first visit (no saved model yet)
+  if (!s.model) {
+    setTimeout(function() { hrOpenZoneModal(); }, 300);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
