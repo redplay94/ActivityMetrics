@@ -761,7 +761,7 @@ header {
   cursor: pointer;
 }
 .pr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:10000; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
 .pr-detail-overlay.open { opacity:1; }
 .pr-detail-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:400px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
 .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0); }
@@ -783,7 +783,7 @@ header {
 .pr-edit-btn svg { width:12px; height:12px; color:var(--text-muted); }
 .pr-card.new-pr .pr-edit-btn { top:8px; right:40px; }
 @media(max-width:768px){ .pr-edit-btn { opacity:1; } }
-.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:10001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:1000002; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
 .pr-edit-overlay.open { opacity:1; }
 .pr-edit-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:420px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
 .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0); }
