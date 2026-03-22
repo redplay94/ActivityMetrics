@@ -8048,6 +8048,18 @@ function renderPRs() {
     return isNew && prs[k].val > 0 && prs[k].val !== Infinity;
   });
 
+  // Longest streak computation (same logic as renderProfilePRs)
+  const prDateset = new Set(db.activities.map(a=>a.date));
+  const prSorted  = [...prDateset].sort();
+  let prBest=0, prBestStart='', prBestEnd='', prCur=0, prCurStart='';
+  prSorted.forEach((ds,i) => {
+    const prev = i>0 ? prSorted[i-1] : null;
+    const prevDay = prev ? fmtDate(new Date(new Date(prev+'T00:00:00').getTime()+86400000)) : null;
+    if (prev && prevDay===ds) { prCur++; }
+    else { prCur=1; prCurStart=ds; }
+    if (prCur>prBest) { prBest=prCur; prBestStart=prCurStart; prBestEnd=ds; }
+  });
+
   const cards = [
     { key:'longestRun',   trophy:'🏃', label:'Longest Run',          val:prs.longestRun.date   ? prs.longestRun.val.toFixed(1)+' km' : null,   date:prs.longestRun.date },
     { key:'fastestPace',  trophy:'⚡', label:'Fastest Run Pace',      val:prs.fastestPace.date  ? fmtPace(prs.fastestPace.val*1, 1)  : null,   date:prs.fastestPace.date },
@@ -8056,6 +8068,7 @@ function renderPRs() {
     { key:'mostCals',     trophy:'🔥', label:'Most Calories Burned',  val:prs.mostCals.date     ? prs.mostCals.val+' kcal'            : null,   date:prs.mostCals.date },
     { key:'highestElev',  trophy:'⛰️', label:'Highest Elevation Gain',val:prs.highestElev.date  ? prs.highestElev.val.toLocaleString()+' m' : null, date:prs.highestElev.date },
     { key:'mostStepsDay', trophy:'👟', label:'Most Steps in a Day',   val:prs.mostStepsDay.date ? prs.mostStepsDay.val.toLocaleString() : null,  date:prs.mostStepsDay.date },
+    { key:'longestStreak',trophy:'🔥', label:'Longest Streak',        val:prBest>0 ? prBest+' days' : null, date:prBest>0 ? prBestEnd : null, sub:prBest>0 ? prBestStart+' – '+prBestEnd : null },
   ];
 
   grid.innerHTML = cards.map(c => {
@@ -8069,7 +8082,7 @@ function renderPRs() {
       <span class="pr-trophy">${c.trophy}</span>
       <div class="pr-label">${c.label}</div>
       ${c.val
-        ? `<div class="pr-value">${c.val}</div><div class="pr-date">${dateStr}</div>`
+        ? `<div class="pr-value">${c.val}</div>${c.sub ? `<div class="pr-date">${c.sub}</div>` : ''}<div class="pr-date">${dateStr}</div>`
         : `<div class="pr-none">No data yet</div>`}
     </div>`;
   }).join('');
