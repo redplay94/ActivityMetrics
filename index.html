@@ -761,7 +761,7 @@ header {
   cursor: pointer;
 }
 .pr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:10000; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
 .pr-detail-overlay.open { opacity:1; }
 .pr-detail-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:400px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
 .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0); }
@@ -783,7 +783,7 @@ header {
 .pr-edit-btn svg { width:12px; height:12px; color:var(--text-muted); }
 .pr-card.new-pr .pr-edit-btn { top:8px; right:40px; }
 @media(max-width:768px){ .pr-edit-btn { opacity:1; } }
-.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:10001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:1000002; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
 .pr-edit-overlay.open { opacity:1; }
 .pr-edit-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:420px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
 .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0); }
@@ -1183,7 +1183,7 @@ header {
 .profile-stats-edit-btn:hover { color:var(--run); }
 
 /* Stats range modal */
-.stats-range-overlay { position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity .2s; }
+.stats-range-overlay { position:fixed; inset:0; z-index:1000001; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity .2s; }
 .stats-range-overlay.open { opacity:1; pointer-events:all; }
 .stats-range-modal { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 16px 48px rgba(0,0,0,.5); padding:24px; max-width:340px; width:100%; transform:translateY(20px); transition:transform .25s; }
 .stats-range-overlay.open .stats-range-modal { transform:none; }
@@ -3042,6 +3042,13 @@ select.vo2-input { cursor:pointer; }
 /* ── Friend Modal Overlay Fixes ─────────────────────────────── */
 /* Raise all modal overlays above the profile overlay (z-index:400) */
 .modal-overlay{z-index:500!important}
+/* Best Activity modal & detail must sit above profile overlay (z-index:999999) */
+#baModalOverlay{z-index:1000001!important}
+.ba-detail-overlay{z-index:1000001!important}
+/* Race modals must sit above profile overlay & races overlay */
+#raceModalOverlay{z-index:1000001!important}
+#completedRaceModalOverlay{z-index:1000001!important}
+#bucketModalOverlay{z-index:1000001!important}
 /* Desktop sizing per spec */
 .modal{max-width:700px;max-height:85vh}
 #friendProfileModal .modal{max-width:700px}
@@ -4952,86 +4959,64 @@ header { padding: 0 !important; z-index: 600 !important; }
       <div class="ba-tab-panel" id="baTabRide"></div>
     </div>
 
-    <!-- ════════════════════════ FRIENDS SECTION ════════════════════════ -->
-    <div class="profile-section" id="friendsSection">
-      <div class="profile-section-title">
-        <svg style="width:18px;height:18px;color:#14b8a6;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Friends
-        <span class="friends-count-badge" id="friendsCountBadge">(0 Friends)</span>
-      </div>
-
-      <!-- Tab navigation -->
-      <div class="friends-tabs-nav">
-        <button class="friends-tab-btn active" id="friendsBtnMyFriends" onclick="friendsSwitchTab('myFriends')">👥 My Friends</button>
-        <button class="friends-tab-btn" id="friendsBtnAddFriend" onclick="openAddFriendModal()">➕ Add Friend</button>
-        <button class="friends-tab-btn" id="friendsBtnLeaderboard" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-      </div>
-
-      <!-- ── TAB 1: My Friends ── -->
-      <div class="friends-tab-panel active" id="friendsTabMyFriends">
-        <div class="friends-toolbar">
-          <input class="friends-search" id="friendsSearch" placeholder="Search friends…" oninput="renderFriendsGrid()" />
-          <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsSortSel" onchange="renderFriendsGrid()">
-            <option value="name">Sort: Name</option>
-            <option value="active">Most Active</option>
-            <option value="streak">Longest Streak</option>
-            <option value="km">Most km This Week</option>
-          </select>
-          <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsFilterSel" onchange="renderFriendsGrid()">
-            <option value="all">All Friends</option>
-            <option value="activeWeek">Active This Week</option>
-          </select>
-          <div class="friends-view-toggle">
-            <button class="view-toggle-btn active" id="viewBtnGrid" onclick="friendsSetView('grid')" title="Grid view">
-              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            </button>
-            <button class="view-toggle-btn" id="viewBtnList" onclick="friendsSetView('list')" title="List view">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="friends-grid" id="friendsGrid"></div>
-      </div>
-
-      <!-- ── TAB 3: Leaderboard (kept inline, hidden by default) ── -->
-      <!-- Add Friend and Leaderboard moved to modals below -->
-
-      <!-- ── Friend Activity Feed ── -->
-      <div class="friends-feed-section" id="friendsFeedSection" style="display:none">
-        <div class="friends-feed-title">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Friend Activity
-        </div>
-        <div class="friends-feed" id="friendsFeed"></div>
-      </div>
-
-      <!-- ── Social Badges ── -->
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-        <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">🏅 Social Badges</div>
-        <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">Earn badges by connecting with the community</div>
-        <div class="social-badges-grid" id="socialBadgesGrid"></div>
-      </div>
-    </div>
-
-    <!-- Badges Showcase -->
-    <div class="profile-section">
-      <div class="profile-section-title">Badges</div>
-      <div id="profileBadgesSection"></div>
-    </div>
-
     <!-- Race Resume -->
     <div class="profile-section">
       <div class="profile-section-title">Race Resume</div>
       <div id="profileRaceResume"></div>
     </div>
 
-    <!-- Planned Races -->
-    <div class="profile-section">
-      <div class="profile-section-title">Upcoming Races</div>
-      <div id="profileRacesSection"></div>
-    </div>
   </div>
   <div class="heatmap-tooltip" id="heatmapTooltip"></div>
+</div>
+
+<!-- ─── Hidden Friends template (used by standalone Friends page) ─── -->
+<div style="display:none" id="friendsSection">
+  <div class="profile-section-title">
+    <svg style="width:18px;height:18px;color:#14b8a6;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Friends
+    <span class="friends-count-badge" id="friendsCountBadge">(0 Friends)</span>
+  </div>
+  <div class="friends-tabs-nav">
+    <button class="friends-tab-btn active" id="friendsBtnMyFriends" onclick="friendsSwitchTab('myFriends')">👥 My Friends</button>
+    <button class="friends-tab-btn" id="friendsBtnAddFriend" onclick="openAddFriendModal()">➕ Add Friend</button>
+    <button class="friends-tab-btn" id="friendsBtnLeaderboard" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
+  </div>
+  <div class="friends-tab-panel active" id="friendsTabMyFriends">
+    <div class="friends-toolbar">
+      <input class="friends-search" id="friendsSearch" placeholder="Search friends…" oninput="renderFriendsGrid()" />
+      <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsSortSel" onchange="renderFriendsGrid()">
+        <option value="name">Sort: Name</option>
+        <option value="active">Most Active</option>
+        <option value="streak">Longest Streak</option>
+        <option value="km">Most km This Week</option>
+      </select>
+      <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsFilterSel" onchange="renderFriendsGrid()">
+        <option value="all">All Friends</option>
+        <option value="activeWeek">Active This Week</option>
+      </select>
+      <div class="friends-view-toggle">
+        <button class="view-toggle-btn active" id="viewBtnGrid" onclick="friendsSetView('grid')" title="Grid view">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
+        <button class="view-toggle-btn" id="viewBtnList" onclick="friendsSetView('list')" title="List view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="friends-grid" id="friendsGrid"></div>
+  </div>
+  <div class="friends-feed-section" id="friendsFeedSection" style="display:none">
+    <div class="friends-feed-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Friend Activity
+    </div>
+    <div class="friends-feed" id="friendsFeed"></div>
+  </div>
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+    <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">🏅 Social Badges</div>
+    <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">Earn badges by connecting with the community</div>
+    <div class="social-badges-grid" id="socialBadgesGrid"></div>
+  </div>
 </div>
 
 <!-- ─── Stats Range Modal ─────────────────────────────────── -->
@@ -9367,9 +9352,7 @@ function renderProfilePage() {
   renderProfileStats();
   renderProfileCountdown();
   renderProfilePRs();
-  renderProfileBadges();
   renderProfileRaceResume();
-  renderProfileRaces();
 }
 
 /* ── Hero ── */
