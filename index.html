@@ -3098,8 +3098,8 @@ select.vo2-input { cursor:pointer; }
 .diff-medium{background:rgba(245,158,11,.15);color:#f59e0b}
 .diff-hard{background:rgba(239,68,68,.15);color:#ef4444}
 /* ── Friend Modal Overlay Fixes ─────────────────────────────── */
-/* Raise all modal overlays above the profile overlay (z-index:400) */
-.modal-overlay{z-index:500!important}
+/* Raise all modal overlays above nav-section-overlay (z-index:500) and header */
+.modal-overlay{z-index:1000!important}
 /* Best Activity modal & detail must sit above profile overlay (z-index:999999) */
 #baModalOverlay{z-index:1000001!important}
 .ba-detail-overlay{z-index:1000001!important}
@@ -8352,6 +8352,8 @@ function openEditModal(id) {
   diffUserOverride = true;
   document.getElementById('diffAutoBadge').style.display = 'none';
   document.getElementById('addModalOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
+  document.body.style.overflow = 'hidden';
 }
 
 /* ══════════════════════════════════════════════════════════════
