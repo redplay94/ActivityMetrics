@@ -3474,11 +3474,223 @@ header { padding: 0 !important; z-index: 600 !important; }
 .rcw-digit-val{font-size:1.2rem;font-weight:800;color:var(--run);line-height:1}
 .rcw-digit-lbl{font-size:.55rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
 .rcw-empty{font-size:.75rem;color:var(--text-muted);text-align:center;padding:8px 0}
+.rcw-quote-section{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.rcw-quote-select{
+  width:100%;appearance:none;-webkit-appearance:none;
+  background:var(--bg3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238896a8'/%3E%3C/svg%3E") no-repeat right 8px center;
+  border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-size:.7rem;font-weight:600;font-style:italic;
+  padding:8px 26px 8px 10px;cursor:pointer;
+  transition:border-color var(--transition);
+}
+.rcw-quote-select:focus{outline:none;border-color:var(--text-muted)}
+.rcw-quote-select option{font-style:normal;background:var(--bg2);color:var(--text)}
+.rcw-quote-display{
+  font-size:.72rem;font-style:italic;color:var(--run);
+  text-align:center;line-height:1.4;margin-top:6px;
+  min-height:1.4em;
+}
+#raceCountdownWidget.snapping{transition:left .3s cubic-bezier(.4,0,.2,1),top .3s cubic-bezier(.4,0,.2,1)}
 @media(max-width:600px){
   #raceCountdownWidget{width:220px;bottom:80px;right:12px}
   #raceCountdownWidget.minimized{width:42px;height:42px}
   .rcw-digit-val{font-size:1rem}
   .rcw-body{padding:10px}
+  .rcw-quote-select{font-size:.72rem;min-height:38px}
+}
+
+/* ─── Floating Pace Editor Widget ─────────────────────────── */
+#paceEditorWidget{
+  position:fixed;bottom:96px;left:24px;z-index:499;
+  display:none;
+  width:270px;
+  background:rgba(22,27,39,.78);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:box-shadow .2s,width .25s,height .25s;
+  cursor:default;user-select:none;
+  overflow:hidden;
+}
+[data-theme="light"] #paceEditorWidget{
+  background:rgba(255,255,255,.78);
+  box-shadow:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
+}
+#paceEditorWidget.dragging{cursor:grabbing;box-shadow:0 20px 56px rgba(0,0,0,.6)}
+#paceEditorWidget.minimized{width:48px;height:48px;border-radius:50%;cursor:grab;overflow:hidden}
+#paceEditorWidget.minimized .pew-body{display:none}
+#paceEditorWidget.minimized .pew-header{padding:0;border:none;justify-content:center}
+#paceEditorWidget.minimized .pew-min-btn{display:none}
+#paceEditorWidget.minimized .pew-title{display:none}
+#paceEditorWidget.minimized .pew-mini-icon{display:flex}
+.pew-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-bottom:1px solid var(--border);cursor:grab;
+}
+.pew-title{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px}
+.pew-min-btn{
+  width:22px;height:22px;border-radius:6px;
+  background:var(--bg3);color:var(--text-muted);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;cursor:pointer;transition:all var(--transition);
+  flex-shrink:0;
+}
+.pew-min-btn:hover{color:var(--text);border-color:var(--text-muted)}
+.pew-mini-icon{
+  display:none;width:48px;height:48px;
+  align-items:center;justify-content:center;
+  font-size:1.3rem;cursor:pointer;
+}
+.pew-body{padding:12px}
+.pew-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.pew-row:last-child{margin-bottom:0}
+.pew-label{
+  font-size:.72rem;font-weight:700;width:56px;flex-shrink:0;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.pew-label.easy{color:#22c55e}
+.pew-label.medium{color:#eab308}
+.pew-label.hard{color:var(--run)}
+.pew-input{
+  flex:1;
+  background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-size:.8rem;font-weight:600;
+  padding:7px 10px;text-align:center;
+  transition:border-color var(--transition);
+  font-family:inherit;
+}
+.pew-input:focus{outline:none;border-color:var(--run)}
+.pew-unit{font-size:.65rem;color:var(--text-muted);flex-shrink:0}
+.pew-sync-msg{
+  font-size:.65rem;color:#22c55e;text-align:center;
+  opacity:0;transition:opacity .3s;margin-top:6px;
+}
+.pew-sync-msg.visible{opacity:1}
+#paceEditorWidget.snapping{transition:left .3s cubic-bezier(.4,0,.2,1),top .3s cubic-bezier(.4,0,.2,1)}
+@media(max-width:600px){
+  #paceEditorWidget{width:220px;bottom:80px;left:12px}
+  #paceEditorWidget.minimized{width:42px;height:42px}
+  .pew-body{padding:10px}
+  .pew-input{font-size:.75rem;padding:6px 8px}
+}
+
+/* ─── Help Guides Nav Button ──────────────────────────────── */
+.hg-nav-btn{display:inline-flex;align-items:center;gap:6px}
+.hg-nav-icon{width:15px;height:15px;flex-shrink:0}
+@media(max-width:480px){.hg-nav-label{display:none}}
+
+/* ─── Help Guides Overlay ─────────────────────────────────── */
+#helpGuidesOverlay{
+  position:fixed;inset:0;z-index:10000;
+  display:none;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;
+}
+#helpGuidesOverlay.open{display:flex}
+.hg-card{
+  width:min(520px,94vw);max-height:88vh;
+  background:rgba(22,27,39,.88);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05) inset;
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  overflow:hidden;display:flex;flex-direction:column;
+  animation:hgSlideIn .28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes hgSlideIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+[data-theme="light"] .hg-card{
+  background:rgba(255,255,255,.9);
+  box-shadow:0 32px 80px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
+}
+.hg-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.hg-header-left{display:flex;align-items:center;gap:10px}
+.hg-header-icon{width:18px;height:18px;color:var(--run)}
+.hg-header-title{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text)}
+.hg-step-badge{
+  font-size:.65rem;font-weight:700;color:var(--run);
+  background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);
+  border-radius:20px;padding:3px 10px;
+}
+.hg-close-btn{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--bg3);color:var(--text-muted);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all var(--transition);flex-shrink:0;
+}
+.hg-close-btn:hover{color:var(--text);border-color:var(--text-muted);background:var(--border)}
+.hg-close-btn svg{width:14px;height:14px}
+
+/* Slide viewport */
+.hg-slide-viewport{overflow:hidden;flex:1;min-height:0}
+.hg-slide-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform}
+.hg-slide{flex:0 0 100%;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.hg-slide-inner{padding:28px 24px}
+
+/* Mini-preview icon */
+.hg-preview{
+  width:64px;height:64px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.hg-preview svg{width:30px;height:30px;position:relative;z-index:1}
+.hg-preview::before{
+  content:'';position:absolute;inset:0;opacity:.12;border-radius:inherit;
+}
+.hg-preview.hg-dash{color:#3b82f6}.hg-preview.hg-dash::before{background:#3b82f6}
+.hg-preview.hg-race{color:#22c55e}.hg-preview.hg-race::before{background:#22c55e}
+.hg-preview.hg-pace{color:var(--run)}.hg-preview.hg-pace::before{background:var(--run)}
+.hg-preview.hg-clock{color:#a855f7}.hg-preview.hg-clock::before{background:#a855f7}
+
+.hg-slide-title{font-size:1.1rem;font-weight:800;margin-bottom:10px;color:var(--text);line-height:1.3}
+.hg-slide-desc{font-size:.82rem;line-height:1.7;color:var(--text-muted)}
+.hg-slide-desc strong{color:var(--text);font-weight:700}
+.hg-tip{
+  margin-top:14px;padding:10px 14px;
+  background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.18);
+  border-radius:10px;font-size:.75rem;color:var(--run);line-height:1.5;
+}
+.hg-tip::before{content:'Tip: ';font-weight:800}
+
+/* Footer */
+.hg-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0;
+}
+.hg-dots{display:flex;gap:7px;align-items:center}
+.hg-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--border);
+  transition:all .25s;cursor:pointer;
+}
+.hg-dot:hover{background:var(--text-muted)}
+.hg-dot.active{background:var(--run);transform:scale(1.35)}
+.hg-nav-btns{display:flex;gap:8px}
+.hg-btn{
+  padding:8px 18px;border-radius:8px;
+  font-size:.76rem;font-weight:700;cursor:pointer;
+  border:1px solid var(--border);transition:all var(--transition);
+}
+.hg-btn-prev{background:var(--bg3);color:var(--text-muted)}
+.hg-btn-prev:hover{color:var(--text);border-color:var(--text-muted)}
+.hg-btn-prev:disabled{opacity:.3;cursor:default}
+.hg-btn-next{background:var(--run);color:#fff;border-color:var(--run)}
+.hg-btn-next:hover{filter:brightness(1.12)}
+
+@media(max-width:600px){
+  .hg-card{width:100vw;max-height:100vh;border-radius:0;height:100vh}
+  .hg-slide-inner{padding:22px 18px}
+  .hg-header{padding:14px 16px}
+  .hg-footer{padding:12px 16px}
+  .hg-slide-title{font-size:1rem}
+  .hg-slide-desc{font-size:.78rem}
+  .hg-btn{padding:10px 16px;min-height:42px}
+  .hg-preview{width:56px;height:56px;border-radius:12px}
 }
 </style>
 
@@ -3552,6 +3764,7 @@ header { padding: 0 !important; z-index: 600 !important; }
       <button class="nav-btn" data-section="advHeatmapSection" onclick="navTo('advHeatmapSection')">Heatmap</button>
       <button class="nav-btn" data-section="prSection" onclick="navTo('prSection')">Personal Records</button>
       <button class="nav-btn" data-section="goalsSection" onclick="navTo('goalsSection')">Goals</button>
+      <button class="nav-btn hg-nav-btn" onclick="helpGuidesOpen()" title="Help Guides" style="margin-left:auto"><svg class="hg-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="hg-nav-label">Help Guides</span></button>
     </div>
   </div>
 </header>
@@ -6834,6 +7047,7 @@ function init() {
   if (!db.bucketList)      { db.bucketList      = []; saveData(db); }
 
   renderAll();
+  pewShow();
   // Init badge tracking after first render
   prevBadgeState = Object.fromEntries(Object.entries(computeBadges()).filter(([,v])=>v));
   setupChartObserver();
@@ -10498,10 +10712,11 @@ function renderCoachPaces() {
     return;
   }
   const avgPace     = getAvgRunPaceSec();
-  const easyPace    = avgPace + 70;
-  const longPace    = avgPace + 50;
-  const tempoPace   = Math.max(180, avgPace - 25);
-  const intervalPace= Math.max(150, avgPace - 55);
+  const pt = db.settings && db.settings.paceTargets;
+  const easyPace    = pt ? pt.easy   : avgPace + 70;
+  const longPace    = pt ? Math.round((pt.easy + pt.medium) / 2) : avgPace + 50;
+  const tempoPace   = pt ? pt.medium : Math.max(180, avgPace - 25);
+  const intervalPace= pt ? pt.hard   : Math.max(150, avgPace - 55);
 
   // Best ~5K run for Riegel reference
   const best5k = runs.filter(a=>a.distance>=4.5&&a.distance<=5.5)
@@ -10532,7 +10747,7 @@ function renderCoachPaces() {
       ${card('race-pace',     'Marathon Pace',      estMar/42.195, `Est. finish: ${fmtT(estMar)}`)}
     </div>
     <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:16px">
-      Based on avg pace of <strong>${paceSecToStr(avgPace)}</strong> across ${runs.length} runs.
+      ${pt ? 'Using custom pace targets from Pace Editor.' : `Based on avg pace of <strong>${paceSecToStr(avgPace)}</strong> across ${runs.length} runs.`}
       Race estimates use the Riegel formula (T₂&nbsp;=&nbsp;T₁&nbsp;×&nbsp;(D₂/D₁)^1.06).
     </div>`;
 }
@@ -17461,10 +17676,11 @@ function _closeAllStandaloneOverlays() {
   if (document.getElementById('vo2Overlay')?.classList.contains('open'))      closeVo2Page();
   var zmModal = document.getElementById('hrZoneModal');
   if (zmModal?.classList.contains('open')) zmModal.classList.remove('open');
+  pewHide();
 }
 
 function navTo(sectionId) {
-  if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); hrCloseZoneModal(); _setNavActive('dashboard'); return; }
+  if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); hrCloseZoneModal(); _setNavActive('dashboard'); pewShow(); return; }
   // Advanced Heatmap lives on the dashboard — scroll to it instead of opening overlay
   if (sectionId === 'advHeatmapSection') {
     closeNavSection(); _closeAllStandaloneOverlays();
@@ -18305,20 +18521,48 @@ function rcwToggleMinimize() {
   w.classList.toggle('minimized');
 }
 
-/* ── Dragging ── */
+function rcwSelectQuote(val) {
+  var display = document.getElementById('rcwQuoteDisplay');
+  if (display) display.textContent = val || '';
+}
+
+/* ── Dragging with mobile edge-snap ── */
 (function() {
   var widget = null;
   var dragState = null;
+  var isMobile = function() { return window.innerWidth <= 600; };
+
+  function snapToEdge(w) {
+    if (!isMobile()) return;
+    var rect = w.getBoundingClientRect();
+    var centerX = rect.left + rect.width / 2;
+    var vpW = window.innerWidth;
+    var targetLeft;
+    if (centerX < vpW / 2) {
+      targetLeft = 8;
+    } else {
+      targetLeft = vpW - rect.width - 8;
+    }
+    // Clamp vertical
+    var maxY = window.innerHeight - rect.height - 8;
+    var clampedTop = Math.max(8, Math.min(rect.top, maxY));
+    w.classList.add('snapping');
+    w.style.left = targetLeft + 'px';
+    w.style.top = clampedTop + 'px';
+    w.style.right = 'auto';
+    w.style.bottom = 'auto';
+    setTimeout(function() { w.classList.remove('snapping'); }, 320);
+  }
 
   function onPointerDown(e) {
     widget = document.getElementById('raceCountdownWidget');
     if (!widget || widget.style.display === 'none') return;
-    // Only drag from header area or when minimized
+    // Don't drag from interactive elements
+    if (e.target.closest('.rcw-min-btn') || e.target.closest('.rcw-mini-icon') || e.target.closest('.rcw-quote-select')) return;
+    // Only drag from header or when minimized
     var header = widget.querySelector('.rcw-header');
     var isMini = widget.classList.contains('minimized');
     if (!isMini && !header.contains(e.target)) return;
-    // Don't drag if clicking a button
-    if (e.target.closest('.rcw-min-btn') || e.target.closest('.rcw-mini-icon')) return;
     e.preventDefault();
     var rect = widget.getBoundingClientRect();
     dragState = {
@@ -18339,7 +18583,6 @@ function rcwToggleMinimize() {
     var dy = e.clientY - dragState.startY;
     var newLeft = dragState.origLeft + dx;
     var newTop = dragState.origTop + dy;
-    // Clamp within viewport
     var maxX = window.innerWidth - widget.offsetWidth;
     var maxY = window.innerHeight - widget.offsetHeight;
     newLeft = Math.max(0, Math.min(newLeft, maxX));
@@ -18354,6 +18597,7 @@ function rcwToggleMinimize() {
     if (widget) {
       widget.classList.remove('dragging');
       widget.style.transition = '';
+      snapToEdge(widget);
     }
     dragState = null;
     document.removeEventListener('pointermove', onPointerMove);
@@ -18364,6 +18608,211 @@ function rcwToggleMinimize() {
     var w = document.getElementById('raceCountdownWidget');
     if (w && w.contains(e.target)) onPointerDown(e);
   });
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   FLOATING PACE EDITOR WIDGET
+══════════════════════════════════════════════════════════════ */
+function pewShow() {
+  var w = document.getElementById('paceEditorWidget');
+  if (!w) return;
+  w.style.display = 'block';
+  pewLoadValues();
+}
+function pewHide() {
+  var w = document.getElementById('paceEditorWidget');
+  if (w) w.style.display = 'none';
+}
+function pewToggleMinimize() {
+  var w = document.getElementById('paceEditorWidget');
+  if (w) w.classList.toggle('minimized');
+}
+
+function pewLoadValues() {
+  if (!db.settings.paceTargets) {
+    var avg = getAvgRunPaceSec();
+    db.settings.paceTargets = {
+      easy: Math.round(avg + 70),
+      medium: Math.round(avg),
+      hard: Math.round(Math.max(150, avg - 55))
+    };
+    saveData(db);
+  }
+  var t = db.settings.paceTargets;
+  document.getElementById('pewEasy').value   = paceSecToStr(t.easy).replace('/km','');
+  document.getElementById('pewMedium').value = paceSecToStr(t.medium).replace('/km','');
+  document.getElementById('pewHard').value   = paceSecToStr(t.hard).replace('/km','');
+}
+
+function pewParsePace(str) {
+  str = (str || '').trim();
+  var parts = str.split(':');
+  if (parts.length !== 2) return null;
+  var m = parseInt(parts[0], 10);
+  var s = parseInt(parts[1], 10);
+  if (isNaN(m) || isNaN(s) || m < 0 || s < 0 || s >= 60) return null;
+  return m * 60 + s;
+}
+
+var _pewDebounce = null;
+function pewOnInput() {
+  if (_pewDebounce) clearTimeout(_pewDebounce);
+  _pewDebounce = setTimeout(pewSync, 600);
+}
+
+function pewSync() {
+  var easy   = pewParsePace(document.getElementById('pewEasy').value);
+  var medium = pewParsePace(document.getElementById('pewMedium').value);
+  var hard   = pewParsePace(document.getElementById('pewHard').value);
+  if (easy === null || medium === null || hard === null) return;
+  if (!db.settings.paceTargets) db.settings.paceTargets = {};
+  db.settings.paceTargets.easy   = easy;
+  db.settings.paceTargets.medium = medium;
+  db.settings.paceTargets.hard   = hard;
+  saveData(db);
+  // Re-render all affected sections
+  renderCoach();
+  renderRacesPreview();
+  if (typeof renderRacesPage === 'function') renderRacesPage();
+  if (typeof renderCharts === 'function' && chartsRendered) renderCharts();
+  if (typeof renderDashWeekly === 'function') renderDashWeekly();
+  // Flash sync confirmation
+  var msg = document.getElementById('pewSyncMsg');
+  if (msg) {
+    msg.classList.add('visible');
+    setTimeout(function() { msg.classList.remove('visible'); }, 1500);
+  }
+}
+
+/* ── Pace Editor Dragging ── */
+(function() {
+  var widget = null;
+  var dragState = null;
+
+  function onPointerDown(e) {
+    widget = document.getElementById('paceEditorWidget');
+    if (!widget || widget.style.display === 'none') return;
+    if (e.target.closest('.pew-min-btn') || e.target.closest('.pew-mini-icon') || e.target.closest('.pew-input')) return;
+    var header = widget.querySelector('.pew-header');
+    var isMini = widget.classList.contains('minimized');
+    if (!isMini && !header.contains(e.target)) return;
+    e.preventDefault();
+    var rect = widget.getBoundingClientRect();
+    dragState = { startX: e.clientX, startY: e.clientY, origLeft: rect.left, origTop: rect.top };
+    widget.classList.add('dragging');
+    widget.style.transition = 'none';
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragState || !widget) return;
+    var dx = e.clientX - dragState.startX;
+    var dy = e.clientY - dragState.startY;
+    var newLeft = Math.max(0, Math.min(dragState.origLeft + dx, window.innerWidth - widget.offsetWidth));
+    var newTop  = Math.max(0, Math.min(dragState.origTop + dy, window.innerHeight - widget.offsetHeight));
+    widget.style.left = newLeft + 'px';
+    widget.style.top  = newTop + 'px';
+    widget.style.right = 'auto';
+    widget.style.bottom = 'auto';
+  }
+
+  function onPointerUp() {
+    if (widget) {
+      widget.classList.remove('dragging');
+      widget.style.transition = '';
+      // Mobile edge snap
+      if (window.innerWidth <= 600) {
+        var rect = widget.getBoundingClientRect();
+        var targetLeft = (rect.left + rect.width / 2 < window.innerWidth / 2) ? 8 : window.innerWidth - rect.width - 8;
+        var clampedTop = Math.max(8, Math.min(rect.top, window.innerHeight - rect.height - 8));
+        widget.classList.add('snapping');
+        widget.style.left = targetLeft + 'px';
+        widget.style.top = clampedTop + 'px';
+        setTimeout(function() { widget.classList.remove('snapping'); }, 320);
+      }
+    }
+    dragState = null;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+  }
+
+  document.addEventListener('pointerdown', function(e) {
+    var w = document.getElementById('paceEditorWidget');
+    if (w && w.contains(e.target)) onPointerDown(e);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   HELP GUIDES — VISUAL WALKTHROUGH
+══════════════════════════════════════════════════════════════ */
+var _hgStep = 0;
+var _hgTotal = 4;
+
+function helpGuidesOpen() {
+  _hgStep = 0;
+  document.getElementById('helpGuidesOverlay').classList.add('open');
+  _hgRender();
+}
+function helpGuidesClose() {
+  document.getElementById('helpGuidesOverlay').classList.remove('open');
+}
+function helpGuidesNext() {
+  if (_hgStep >= _hgTotal - 1) { helpGuidesClose(); return; }
+  _hgStep++;
+  _hgRender();
+}
+function helpGuidesPrev() {
+  if (_hgStep <= 0) return;
+  _hgStep--;
+  _hgRender();
+}
+function helpGuidesGoTo(idx) {
+  if (idx < 0 || idx >= _hgTotal) return;
+  _hgStep = idx;
+  _hgRender();
+}
+function _hgRender() {
+  var track = document.getElementById('hgSlideTrack');
+  if (track) track.style.transform = 'translateX(-' + (_hgStep * 100) + '%)';
+  document.getElementById('hgStepBadge').textContent = (_hgStep + 1) + ' / ' + _hgTotal;
+  document.getElementById('hgPrevBtn').disabled = (_hgStep === 0);
+  document.getElementById('hgNextBtn').textContent = (_hgStep === _hgTotal - 1) ? 'Finish' : 'Next';
+  // Dots
+  var html = '';
+  for (var i = 0; i < _hgTotal; i++) {
+    html += '<div class="hg-dot' + (i === _hgStep ? ' active' : '') + '" onclick="helpGuidesGoTo(' + i + ')"></div>';
+  }
+  document.getElementById('hgDots').innerHTML = html;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  var overlay = document.getElementById('helpGuidesOverlay');
+  if (!overlay || !overlay.classList.contains('open')) return;
+  if (e.key === 'Escape') helpGuidesClose();
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') helpGuidesNext();
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') helpGuidesPrev();
+});
+
+// Touch swipe support for mobile
+(function() {
+  var startX = 0;
+  var el = null;
+  document.addEventListener('touchstart', function(e) {
+    el = document.getElementById('helpGuidesOverlay');
+    if (!el || !el.classList.contains('open')) { el = null; return; }
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    if (!el) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) helpGuidesNext();
+      else helpGuidesPrev();
+    }
+    el = null;
+  }, { passive: true });
 })();
 
 </script>
@@ -18381,6 +18830,116 @@ function rcwToggleMinimize() {
   </div>
 </div>
 
+<!-- Floating Pace Editor Widget -->
+<div id="paceEditorWidget">
+  <div class="pew-header">
+    <span class="pew-title">Pace Editor</span>
+    <button class="pew-min-btn" onclick="pewToggleMinimize()" title="Minimize">&mdash;</button>
+    <div class="pew-mini-icon" onclick="pewToggleMinimize()" title="Expand pace editor">&#9201;</div>
+  </div>
+  <div class="pew-body">
+    <div class="pew-row">
+      <span class="pew-label easy">Easy</span>
+      <input class="pew-input" id="pewEasy" type="text" placeholder="6:30" oninput="pewOnInput()">
+      <span class="pew-unit">/km</span>
+    </div>
+    <div class="pew-row">
+      <span class="pew-label medium">Medium</span>
+      <input class="pew-input" id="pewMedium" type="text" placeholder="5:30" oninput="pewOnInput()">
+      <span class="pew-unit">/km</span>
+    </div>
+    <div class="pew-row">
+      <span class="pew-label hard">Hard</span>
+      <input class="pew-input" id="pewHard" type="text" placeholder="4:45" oninput="pewOnInput()">
+      <span class="pew-unit">/km</span>
+    </div>
+    <div class="pew-sync-msg" id="pewSyncMsg">Synced &amp; re-rendered</div>
+  </div>
+</div>
+
+<!-- Help Guides Overlay -->
+<div id="helpGuidesOverlay" onclick="if(event.target===this)helpGuidesClose()">
+  <div class="hg-card">
+    <div class="hg-header">
+      <div class="hg-header-left">
+        <svg class="hg-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="hg-header-title">Help Guides</span>
+        <span class="hg-step-badge" id="hgStepBadge">1 / 4</span>
+      </div>
+      <button class="hg-close-btn" onclick="helpGuidesClose()" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="hg-slide-viewport">
+      <div class="hg-slide-track" id="hgSlideTrack">
+        <!-- Slide 1: Dashboard -->
+        <div class="hg-slide">
+          <div class="hg-slide-inner">
+            <div class="hg-preview hg-dash">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+            </div>
+            <div class="hg-slide-title">Dashboard — Your Command Center</div>
+            <div class="hg-slide-desc">
+              The Dashboard shows your <strong>Year-to-Date totals</strong> for running, walking, cycling, and steps across the top cards. Below that, you'll find your <strong>activity streak</strong>, a <strong>calendar heatmap</strong> colour-coded by effort, and <strong>interactive charts</strong> that break down your training over time.<br><br>
+              All numbers update <strong>live</strong> the moment you log a new activity — no refresh needed.
+            </div>
+            <div class="hg-tip">Click any chart legend item to toggle that data series on or off.</div>
+          </div>
+        </div>
+        <!-- Slide 2: My Races -->
+        <div class="hg-slide">
+          <div class="hg-slide-inner">
+            <div class="hg-preview hg-race">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            </div>
+            <div class="hg-slide-title">My Races — Plan & Track Events</div>
+            <div class="hg-slide-desc">
+              Add upcoming races with a <strong>date, distance, type, goal time, and notes</strong>. Each race card shows key details at a glance. Tap a card to <strong>edit</strong> any field or <strong>delete</strong> the race entirely.<br><br>
+              Completed races are archived automatically once the date passes, so you can revisit your race history any time.
+            </div>
+            <div class="hg-tip">Use the location and elevation fields to better prepare for hilly or trail races.</div>
+          </div>
+        </div>
+        <!-- Slide 3: Pace Editor -->
+        <div class="hg-slide">
+          <div class="hg-slide-inner">
+            <div class="hg-preview hg-pace">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="hg-slide-title">Pace Editor — Fine-Tune Your Targets</div>
+            <div class="hg-slide-desc">
+              The floating <strong>Pace Editor</strong> widget (bottom-left on the Dashboard) lets you set custom target paces for <strong style="color:#22c55e">Easy</strong>, <strong style="color:#eab308">Medium</strong>, and <strong style="color:var(--run)">Hard</strong> effort levels.<br><br>
+              Type a pace like <strong>5:30</strong> and it saves automatically. All pace recommendations, coach cards, and race predictions <strong>re-render instantly</strong> across every section — no reload required.
+            </div>
+            <div class="hg-tip">The widget is draggable — grab the header to move it anywhere on screen. Click the minimize button to collapse it.</div>
+          </div>
+        </div>
+        <!-- Slide 4: Next Race Widget -->
+        <div class="hg-slide">
+          <div class="hg-slide-inner">
+            <div class="hg-preview hg-clock">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 8 14"/><path d="M5 3L2 6"/><path d="M22 6l-3-3"/></svg>
+            </div>
+            <div class="hg-slide-title">Next Race Countdown Widget</div>
+            <div class="hg-slide-desc">
+              When you open <strong>My Races</strong>, a floating countdown widget appears showing a <strong>live timer</strong> (days, hours, minutes, seconds) to your soonest upcoming race.<br><br>
+              <strong>Drag it</strong> anywhere on the screen by grabbing the header. <strong>Minimize</strong> it to a small icon with one click. On mobile, it snaps to the nearest screen edge when you release. Pick a <strong>motivational quote</strong> from the dropdown to stay inspired.
+            </div>
+            <div class="hg-tip">If no upcoming races exist, the widget shows "No upcoming races" — add one from the My Races section!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hg-footer">
+      <div class="hg-dots" id="hgDots"></div>
+      <div class="hg-nav-btns">
+        <button class="hg-btn hg-btn-prev" id="hgPrevBtn" onclick="helpGuidesPrev()" disabled>Previous</button>
+        <button class="hg-btn hg-btn-next" id="hgNextBtn" onclick="helpGuidesNext()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Floating Race Countdown Widget -->
 <div id="raceCountdownWidget">
   <div class="rcw-header">
@@ -18388,7 +18947,23 @@ function rcwToggleMinimize() {
     <button class="rcw-min-btn" onclick="rcwToggleMinimize()" title="Minimize">—</button>
     <div class="rcw-mini-icon" onclick="rcwToggleMinimize()" title="Expand countdown">🏁</div>
   </div>
-  <div class="rcw-body" id="rcwBody"></div>
+  <div class="rcw-body">
+    <div id="rcwBody"></div>
+    <div class="rcw-quote-section" id="rcwQuoteSection">
+      <select class="rcw-quote-select" id="rcwQuoteSelect" onchange="rcwSelectQuote(this.value)">
+        <option value="">Choose motivation...</option>
+        <option value="Keep Pushing! Every step counts.">Keep Pushing!</option>
+        <option value="Trust the Training. It will pay off.">Trust the Training</option>
+        <option value="The finish line is waiting for you.">The Finish Line Awaits</option>
+        <option value="Pain is temporary. Pride is forever.">Pain is Temporary</option>
+        <option value="Run the mile you're in.">Run the Mile You're In</option>
+        <option value="Strong legs, stronger mind.">Strong Mind</option>
+        <option value="You don't have to be fast. You just have to go.">Just Go</option>
+        <option value="Today's effort is tomorrow's result.">Today's Effort</option>
+      </select>
+      <div class="rcw-quote-display" id="rcwQuoteDisplay"></div>
+    </div>
+  </div>
 </div>
 
 </body>
