@@ -993,9 +993,17 @@ body.modal-open header {
 .race-icon { font-size:1.4rem; flex-shrink:0; }
 .race-name { font-size:.92rem; font-weight:700; line-height:1.3; }
 .race-type-badge { font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:99px; background:var(--cycle-dim); color:var(--cycle); text-transform:uppercase; letter-spacing:.5px; display:inline-block; margin-top:3px; }
-.race-delete-btn { margin-left:auto; width:26px; height:26px; border-radius:var(--radius-sm); background:rgba(239,68,68,.1); color:#ef4444; display:flex; align-items:center; justify-content:center; border:1px solid rgba(239,68,68,.2); transition:all var(--transition); flex-shrink:0; }
+.race-action-btns{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.race-edit-btn{width:28px;height:28px;border-radius:var(--radius-sm);background:rgba(59,130,246,.1);color:var(--cycle);display:flex;align-items:center;justify-content:center;border:1px solid rgba(59,130,246,.2);transition:all var(--transition);flex-shrink:0}
+.race-edit-btn:hover{background:rgba(59,130,246,.25)}
+.race-edit-btn svg{width:12px;height:12px}
+.race-delete-btn { width:28px; height:28px; border-radius:var(--radius-sm); background:rgba(239,68,68,.1); color:#ef4444; display:flex; align-items:center; justify-content:center; border:1px solid rgba(239,68,68,.2); transition:all var(--transition); flex-shrink:0; }
 .race-delete-btn:hover { background:rgba(239,68,68,.25); }
 .race-delete-btn svg { width:12px; height:12px; }
+.bucket-edit-btn{width:28px;height:28px;border-radius:var(--radius-sm);background:rgba(59,130,246,.1);color:var(--cycle);display:flex;align-items:center;justify-content:center;border:1px solid rgba(59,130,246,.2);transition:all var(--transition);flex-shrink:0;font-size:0}
+.bucket-edit-btn:hover{background:rgba(59,130,246,.25)}
+.bucket-edit-btn svg{width:12px;height:12px}
+@media(max-width:600px){.race-edit-btn,.race-delete-btn,.bucket-edit-btn{width:34px;height:34px;min-width:34px}}
 .race-countdown { margin-bottom:8px; }
 .race-days-num  { font-size:1.8rem; font-weight:800; color:var(--cycle); line-height:1; }
 .race-days-label{ font-size:.63rem; color:var(--text-muted); }
@@ -3410,6 +3418,67 @@ header { padding: 0 !important; z-index: 600 !important; }
   .adv-stat-grid{gap:8px}
   .adv-filter-bar{gap:6px}
   .adv-filter-bar select{padding:12px 28px 12px 12px;font-size:.82rem;min-height:44px}
+}
+/* ─── Floating Race Countdown Widget ──────────────────────── */
+#raceCountdownWidget{
+  position:fixed;bottom:96px;right:24px;z-index:499;
+  display:none;
+  width:260px;
+  background:rgba(22,27,39,.78);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:box-shadow .2s,width .25s,height .25s;
+  cursor:grab;user-select:none;
+  overflow:hidden;
+}
+[data-theme="light"] #raceCountdownWidget{
+  background:rgba(255,255,255,.78);
+  box-shadow:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
+}
+#raceCountdownWidget.dragging{cursor:grabbing;box-shadow:0 20px 56px rgba(0,0,0,.6)}
+#raceCountdownWidget.minimized{width:48px;height:48px;border-radius:50%;cursor:grab}
+#raceCountdownWidget.minimized .rcw-body{display:none}
+#raceCountdownWidget.minimized .rcw-header{padding:0;border:none;justify-content:center}
+#raceCountdownWidget.minimized .rcw-min-btn{display:none}
+#raceCountdownWidget.minimized .rcw-title{display:none}
+#raceCountdownWidget.minimized .rcw-mini-icon{display:flex}
+.rcw-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-bottom:1px solid var(--border);
+}
+.rcw-title{font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px}
+.rcw-min-btn{
+  width:22px;height:22px;border-radius:6px;
+  background:var(--bg3);color:var(--text-muted);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;cursor:pointer;transition:all var(--transition);
+  flex-shrink:0;
+}
+.rcw-min-btn:hover{color:var(--text);border-color:var(--text-muted)}
+.rcw-mini-icon{
+  display:none;width:48px;height:48px;
+  align-items:center;justify-content:center;
+  font-size:1.3rem;cursor:pointer;
+}
+.rcw-body{padding:12px}
+.rcw-race-name{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+.rcw-race-date{font-size:.68rem;color:var(--text-muted);margin-bottom:10px}
+.rcw-digits{display:flex;gap:6px;justify-content:center}
+.rcw-digit-box{
+  flex:1;text-align:center;
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 0;
+}
+.rcw-digit-val{font-size:1.2rem;font-weight:800;color:var(--run);line-height:1}
+.rcw-digit-lbl{font-size:.55rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.rcw-empty{font-size:.75rem;color:var(--text-muted);text-align:center;padding:8px 0}
+@media(max-width:600px){
+  #raceCountdownWidget{width:220px;bottom:80px;right:12px}
+  #raceCountdownWidget.minimized{width:42px;height:42px}
+  .rcw-digit-val{font-size:1rem}
+  .rcw-body{padding:10px}
 }
 </style>
 
@@ -9000,7 +9069,10 @@ function renderChallenges() {
 ══════════════════════════════════════════════════════════════ */
 const RACE_TYPE_DIST = { '5k':5,'10k':10,'half-marathon':21.1,'marathon':42.195,'ultra':50,'cycling':100,'trail':21.0,'custom':0 };
 
+var _editingRaceId = null;
+
 function openRaceModal() {
+  _editingRaceId = null;
   document.getElementById('raceName').value = '';
   document.getElementById('raceDate').value = '';
   document.getElementById('raceType').value = '10k';
@@ -9009,13 +9081,46 @@ function openRaceModal() {
   document.getElementById('raceLocation').value = '';
   document.getElementById('raceGoalTime').value = '';
   document.getElementById('raceNotes').value = '';
+  _setRaceModalMode('add');
   document.getElementById('raceModalOverlay').classList.add('open');
 }
-function closeRaceModal() { document.getElementById('raceModalOverlay').classList.remove('open'); }
+function closeRaceModal() {
+  _editingRaceId = null;
+  _setRaceModalMode('add');
+  document.getElementById('raceModalOverlay').classList.remove('open');
+}
+
+function _setRaceModalMode(mode) {
+  var titleEl = document.querySelector('#raceModalOverlay .modal-title');
+  var saveBtn = document.querySelector('#raceModalOverlay .modal-footer .btn-primary');
+  if (mode === 'edit') {
+    if (titleEl) titleEl.textContent = '✏️ Edit Race';
+    if (saveBtn) saveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Update Race';
+  } else {
+    if (titleEl) titleEl.textContent = '🏁 Add Planned Race';
+    if (saveBtn) saveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Add Race';
+  }
+}
+
+function editRace(id) {
+  var race = (db.races||[]).find(function(r) { return r.id === id; });
+  if (!race) { showToast('Race not found', 'error'); return; }
+  _editingRaceId = id;
+  document.getElementById('raceName').value      = race.name || '';
+  document.getElementById('raceDate').value      = race.date || '';
+  document.getElementById('raceType').value      = race.type || '10k';
+  document.getElementById('raceDist').value      = race.distance || '';
+  document.getElementById('raceElevation').value = race.elevation || '';
+  document.getElementById('raceLocation').value  = race.location || '';
+  document.getElementById('raceGoalTime').value  = race.goalTime || '';
+  document.getElementById('raceNotes').value     = race.notes || '';
+  _setRaceModalMode('edit');
+  document.getElementById('raceModalOverlay').classList.add('open');
+}
 
 function onRaceTypeChange() {
   const dist = RACE_TYPE_DIST[document.getElementById('raceType').value];
-  if (dist) document.getElementById('raceDist').value = dist;
+  if (dist && !_editingRaceId) document.getElementById('raceDist').value = dist;
 }
 
 function saveRace() {
@@ -9025,31 +9130,62 @@ function saveRace() {
   if (!date) { showToast('Please select a race date', 'error'); return; }
   const dist = parseFloat(document.getElementById('raceDist').value);
   if (!dist || dist <= 0) { showToast('Please enter a distance', 'error'); return; }
-  const race = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    name, date,
-    type:      document.getElementById('raceType').value,
-    distance:  dist,
-    elevation: parseInt(document.getElementById('raceElevation').value) || 0,
-    location:  document.getElementById('raceLocation').value.trim(),
-    goalTime:  document.getElementById('raceGoalTime').value.trim(),
-    notes:     document.getElementById('raceNotes').value.trim(),
-    addedDate: fmtDate(new Date()),
-  };
-  if (!db.races) db.races = [];
-  db.races.push(race);
-  saveData(db);
-  closeRaceModal();
-  renderRaces();
-  checkAndAwardBadges();
-  showToast('Race added! 🏁', 'success');
+
+  if (_editingRaceId) {
+    // Edit mode — update existing race
+    var existing = (db.races||[]).find(function(r) { return r.id === _editingRaceId; });
+    if (existing) {
+      existing.name      = name;
+      existing.date      = date;
+      existing.type      = document.getElementById('raceType').value;
+      existing.distance  = dist;
+      existing.elevation = parseInt(document.getElementById('raceElevation').value) || 0;
+      existing.location  = document.getElementById('raceLocation').value.trim();
+      existing.goalTime  = document.getElementById('raceGoalTime').value.trim();
+      existing.notes     = document.getElementById('raceNotes').value.trim();
+    }
+    saveData(db);
+    _editingRaceId = null;
+    closeRaceModal();
+    renderRaces();
+    renderRacesPreview();
+    checkAndAwardBadges();
+    rcwRefresh();
+    showToast('Race updated! 🏁', 'success');
+  } else {
+    // Add mode
+    const race = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      name, date,
+      type:      document.getElementById('raceType').value,
+      distance:  dist,
+      elevation: parseInt(document.getElementById('raceElevation').value) || 0,
+      location:  document.getElementById('raceLocation').value.trim(),
+      goalTime:  document.getElementById('raceGoalTime').value.trim(),
+      notes:     document.getElementById('raceNotes').value.trim(),
+      addedDate: fmtDate(new Date()),
+    };
+    if (!db.races) db.races = [];
+    db.races.push(race);
+    saveData(db);
+    closeRaceModal();
+    renderRaces();
+    checkAndAwardBadges();
+    rcwRefresh();
+    showToast('Race added! 🏁', 'success');
+  }
 }
 
 function deleteRace(id) {
+  var race = (db.races||[]).find(function(r) { return r.id === id; });
+  var raceName = race ? race.name : 'this race';
+  if (!confirm('Are you sure you want to delete "' + raceName + '"?')) return;
   db.races = (db.races||[]).filter(r => r.id !== id);
   saveData(db);
   renderRaces();
+  renderRacesPreview();
   checkAndAwardBadges();
+  rcwRefresh();
   showToast('Race removed', 'success');
 }
 
@@ -9132,9 +9268,14 @@ function buildRaceCard(race, today) {
         <div class="race-name">${race.name}</div>
         <span class="race-type-badge">${typeLabel}</span>
       </div>
-      <button class="race-delete-btn" onclick="deleteRace('${race.id}')" title="Remove">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-      </button>
+      <div class="race-action-btns">
+        <button class="race-edit-btn" onclick="editRace('${race.id}')" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="race-delete-btn" onclick="deleteRace('${race.id}')" title="Remove">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
     </div>
     <div class="race-countdown">
       ${isPast
@@ -10765,11 +10906,13 @@ function openRacesPage() {
   el.classList.add('open');
   renderRacesPage();
   startProfileCountdown(); // reuse countdown interval
+  rcwShow();
 }
 function closeRacesPage() {
   document.getElementById('racesOverlay').classList.remove('open');
   _setNavActive('dashboard');
   stopProfileCountdown();
+  rcwHide();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -11204,20 +11347,62 @@ function closePhotoLightbox() {
 // Override buildRaceCard to add Mark as Completed button
 
 function buildRaceCard(race, today) {
- const raceDate = new Date(race.date).toLocaleDateString();
-  return `
-    <div class="race-card" id="race-${race.id}">
-      <div class="race-info">
-        <h4>${race.name}</h4>
-        <p>${raceDate}</p>
+  const raceDate  = new Date(race.date+'T00:00:00');
+  const todayDate = new Date(today+'T00:00:00');
+  const daysUntil = Math.ceil((raceDate - todayDate) / 86400000);
+  const isPast    = daysUntil < 0;
+  const diff      = computeRaceDifficulty(race);
+  const typeLabel = {'5k':'5K','10k':'10K','half-marathon':'Half Marathon','marathon':'Marathon','ultra':'Ultra','cycling':'Cycling Race','trail':'Trail Run','custom':'Custom'}[race.type]||race.type;
+  const dateFormatted = raceDate.toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'});
+  const barPct = Math.min(100, Math.max(0, ((180 - Math.max(0,daysUntil)) / 180) * 100));
+
+  return `<div class="race-card${isPast?' race-past':''}" id="race-${race.id}">
+    <div class="race-header">
+      <span class="race-icon">🏁</span>
+      <div>
+        <div class="race-name">${escHtml(race.name)}</div>
+        <span class="race-type-badge">${typeLabel}</span>
       </div>
-      <button class="mark-completed-btn" onclick="markUpcomingAsCompleted('${race.id}')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-        Mark as Completed
-      </button>
-    </div>`;
+      <div class="race-action-btns">
+        <button class="race-edit-btn" onclick="editRace('${race.id}')" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="race-delete-btn" onclick="deleteRace('${race.id}')" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="race-countdown">
+      ${isPast
+        ? '<div class="race-days-num" style="color:var(--text-muted)">Past</div><div class="race-date-str">'+dateFormatted+'</div>'
+        : '<div class="race-days-num">'+daysUntil+'</div><div class="race-days-label">days away</div><div class="race-date-str">'+dateFormatted+'</div>'}
+    </div>
+    ${!isPast ? '<div class="race-countdown-bar"><div class="race-countdown-fill" style="width:'+barPct+'%"></div></div>' : ''}
+    <div class="race-info-row">
+      <div class="race-info-item"><div class="race-info-label">Distance</div><div class="race-info-val">${race.distance} km</div></div>
+      ${race.elevation ? '<div class="race-info-item"><div class="race-info-label">Elevation</div><div class="race-info-val">'+race.elevation+' m</div></div>' : ''}
+      ${race.location  ? '<div class="race-info-item"><div class="race-info-label">Location</div><div class="race-info-val">'+escHtml(race.location)+'</div></div>' : ''}
+      ${race.goalTime  ? '<div class="race-info-item"><div class="race-info-label">Goal Time</div><div class="race-info-val">'+escHtml(race.goalTime)+'</div></div>' : ''}
+    </div>
+    <div class="race-difficulty">
+      <div class="race-diff-score-wrap">
+        <div class="race-diff-score">${diff.score}/10</div>
+        <div class="race-diff-score-label">Difficulty</div>
+      </div>
+      <span class="race-diff-badge ${diff.cls}">${diff.label}</span>
+      <span class="race-breakdown-toggle" onclick="toggleRaceBreakdown('${race.id}')">Details ▾</span>
+    </div>
+    <div class="race-breakdown" id="breakdown-${race.id}">
+      ${diff.breakdown.map(function(l){return '• '+l;}).join('<br>')}
+      <div class="race-rec">${diff.rec}</div>
+    </div>
+    <button class="mark-completed-btn" onclick="markUpcomingAsCompleted('${race.id}')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Mark as Completed
+    </button>
+  </div>`;
 }
 
 function markUpcomingAsCompleted(id) {
@@ -11255,7 +11440,10 @@ function onBucketTypeChange() {
   if (dist) document.getElementById('blDist').value = dist;
 }
 
+var _editingBucketId = null;
+
 function openBucketModal(prefill) {
+  _editingBucketId = null;
   ['blName','blLocation','blCost','blBestTime','blLink','blWhy'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
@@ -11270,37 +11458,95 @@ function openBucketModal(prefill) {
     if (prefill.location) document.getElementById('blLocation').value = prefill.location;
     if (prefill.why) document.getElementById('blWhy').value = prefill.why;
   }
+  _setBucketModalMode('add');
   document.getElementById('bucketModalOverlay').classList.add('open');
 }
 function closeBucketModal() {
+  _editingBucketId = null;
+  _setBucketModalMode('add');
   document.getElementById('bucketModalOverlay').classList.remove('open');
+}
+
+function _setBucketModalMode(mode) {
+  var titleEl = document.querySelector('#bucketModalOverlay .modal-title');
+  var saveBtn = document.querySelector('#bucketModalOverlay .modal-footer .btn-primary');
+  if (mode === 'edit') {
+    if (titleEl) titleEl.textContent = '✏️ Edit Dream Race';
+    if (saveBtn) saveBtn.textContent = 'Update Dream Race';
+  } else {
+    if (titleEl) titleEl.textContent = '⭐ Add Dream Race';
+    if (saveBtn) saveBtn.textContent = 'Add to Bucket List';
+  }
+}
+
+function editBucketEntry(id) {
+  var entry = (db.bucketList||[]).find(function(e) { return e.id === id; });
+  if (!entry) { showToast('Dream race not found', 'error'); return; }
+  _editingBucketId = id;
+  document.getElementById('blName').value       = entry.name || '';
+  document.getElementById('blType').value       = entry.type || 'marathon';
+  document.getElementById('blDist').value       = entry.distance || '42.195';
+  document.getElementById('blLocation').value   = entry.location || '';
+  document.getElementById('blCost').value       = entry.cost || '';
+  document.getElementById('blBestTime').value   = entry.bestTime || '';
+  document.getElementById('blLink').value       = entry.link || '';
+  document.getElementById('blDifficulty').value = entry.difficulty || 'moderate';
+  document.getElementById('blPriority').value   = entry.priority || 'medium';
+  document.getElementById('blWhy').value        = entry.why || '';
+  _setBucketModalMode('edit');
+  document.getElementById('bucketModalOverlay').classList.add('open');
 }
 
 function saveBucketEntry() {
   const name = document.getElementById('blName').value.trim();
   if (!name) { showToast('Please enter a race name', 'error'); return; }
-  const entry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    name,
-    type:       document.getElementById('blType').value,
-    distance:   parseFloat(document.getElementById('blDist').value) || 0,
-    location:   document.getElementById('blLocation').value.trim(),
-    cost:       document.getElementById('blCost').value.trim(),
-    bestTime:   document.getElementById('blBestTime').value.trim(),
-    link:       document.getElementById('blLink').value.trim(),
-    difficulty: document.getElementById('blDifficulty').value,
-    priority:   document.getElementById('blPriority').value,
-    why:        document.getElementById('blWhy').value.trim(),
-    addedDate:  fmtDate(new Date()),
-  };
-  if (!db.bucketList) db.bucketList = [];
-  db.bucketList.push(entry);
-  saveData(db);
-  closeBucketModal();
-  renderBucketList();
-  renderBucketSuggestions();
-  renderRacesPreview();
-  showToast(`Added to bucket list: ${name} ⭐`, 'success');
+
+  if (_editingBucketId) {
+    // Edit mode
+    var existing = (db.bucketList||[]).find(function(e) { return e.id === _editingBucketId; });
+    if (existing) {
+      existing.name       = name;
+      existing.type       = document.getElementById('blType').value;
+      existing.distance   = parseFloat(document.getElementById('blDist').value) || 0;
+      existing.location   = document.getElementById('blLocation').value.trim();
+      existing.cost       = document.getElementById('blCost').value.trim();
+      existing.bestTime   = document.getElementById('blBestTime').value.trim();
+      existing.link       = document.getElementById('blLink').value.trim();
+      existing.difficulty = document.getElementById('blDifficulty').value;
+      existing.priority   = document.getElementById('blPriority').value;
+      existing.why        = document.getElementById('blWhy').value.trim();
+    }
+    saveData(db);
+    _editingBucketId = null;
+    closeBucketModal();
+    renderBucketList();
+    renderRacesPreview();
+    showToast('Dream race updated! ⭐', 'success');
+  } else {
+    // Add mode
+    const entry = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      name,
+      type:       document.getElementById('blType').value,
+      distance:   parseFloat(document.getElementById('blDist').value) || 0,
+      location:   document.getElementById('blLocation').value.trim(),
+      cost:       document.getElementById('blCost').value.trim(),
+      bestTime:   document.getElementById('blBestTime').value.trim(),
+      link:       document.getElementById('blLink').value.trim(),
+      difficulty: document.getElementById('blDifficulty').value,
+      priority:   document.getElementById('blPriority').value,
+      why:        document.getElementById('blWhy').value.trim(),
+      addedDate:  fmtDate(new Date()),
+    };
+    if (!db.bucketList) db.bucketList = [];
+    db.bucketList.push(entry);
+    saveData(db);
+    closeBucketModal();
+    renderBucketList();
+    renderBucketSuggestions();
+    renderRacesPreview();
+    showToast(`Added to bucket list: ${name} ⭐`, 'success');
+  }
 }
 
 function deleteBucketEntry(id) {
@@ -11418,6 +11664,9 @@ function buildBucketCard(e) {
     <div class="bucket-card-actions">
       <button class="bucket-action-btn btn-move-upcoming" onclick="moveBucketToUpcoming('${e.id}')">🏁 Plan it</button>
       <button class="bucket-action-btn btn-move-completed" onclick="moveBucketToCompleted('${e.id}')">✅ Done!</button>
+      <button class="bucket-edit-btn" onclick="editBucketEntry('${e.id}')" title="Edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <button class="bucket-action-btn btn-delete-bucket" onclick="deleteBucketEntry('${e.id}')">✕</button>
     </div>
   </div>`;
@@ -17985,6 +18234,138 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════
+   FLOATING RACE COUNTDOWN WIDGET
+══════════════════════════════════════════════════════════════ */
+var _rcwInterval = null;
+
+function _rcwGetNextRace() {
+  var data = (typeof db !== 'undefined' && db) ? db : null;
+  if (!data || !data.races || !data.races.length) return null;
+  var today = fmtDate(new Date());
+  var upcoming = data.races
+    .filter(function(r) { return r.date && r.date > today; })
+    .sort(function(a, b) { return a.date.localeCompare(b.date); });
+  return upcoming.length ? upcoming[0] : null;
+}
+
+function _rcwRenderBody() {
+  var body = document.getElementById('rcwBody');
+  if (!body) return;
+  var race = _rcwGetNextRace();
+  if (!race) {
+    body.innerHTML = '<div class="rcw-empty">No upcoming races</div>';
+    return;
+  }
+  var raceDate = new Date(race.date + 'T00:00:00');
+  var dateStr = raceDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  var now = new Date();
+  var diff = raceDate.getTime() - now.getTime();
+  var d = 0, h = 0, m = 0, s = 0;
+  if (diff > 0) {
+    d = Math.floor(diff / 86400000);
+    h = Math.floor((diff % 86400000) / 3600000);
+    m = Math.floor((diff % 3600000) / 60000);
+    s = Math.floor((diff % 60000) / 1000);
+  }
+  body.innerHTML =
+    '<div class="rcw-race-name" title="' + (race.name || '').replace(/"/g, '&quot;') + '">' + (race.name || 'Race') + '</div>' +
+    '<div class="rcw-race-date">' + dateStr + '</div>' +
+    '<div class="rcw-digits">' +
+      '<div class="rcw-digit-box"><div class="rcw-digit-val">' + d + '</div><div class="rcw-digit-lbl">Days</div></div>' +
+      '<div class="rcw-digit-box"><div class="rcw-digit-val">' + h + '</div><div class="rcw-digit-lbl">Hrs</div></div>' +
+      '<div class="rcw-digit-box"><div class="rcw-digit-val">' + m + '</div><div class="rcw-digit-lbl">Min</div></div>' +
+      '<div class="rcw-digit-box"><div class="rcw-digit-val">' + s + '</div><div class="rcw-digit-lbl">Sec</div></div>' +
+    '</div>';
+}
+
+function rcwShow() {
+  var w = document.getElementById('raceCountdownWidget');
+  if (!w) return;
+  w.style.display = 'block';
+  _rcwRenderBody();
+  if (_rcwInterval) clearInterval(_rcwInterval);
+  _rcwInterval = setInterval(_rcwRenderBody, 1000);
+}
+
+function rcwHide() {
+  var w = document.getElementById('raceCountdownWidget');
+  if (w) w.style.display = 'none';
+  if (_rcwInterval) { clearInterval(_rcwInterval); _rcwInterval = null; }
+}
+
+function rcwRefresh() {
+  var w = document.getElementById('raceCountdownWidget');
+  if (w && w.style.display !== 'none') _rcwRenderBody();
+}
+
+function rcwToggleMinimize() {
+  var w = document.getElementById('raceCountdownWidget');
+  if (!w) return;
+  w.classList.toggle('minimized');
+}
+
+/* ── Dragging ── */
+(function() {
+  var widget = null;
+  var dragState = null;
+
+  function onPointerDown(e) {
+    widget = document.getElementById('raceCountdownWidget');
+    if (!widget || widget.style.display === 'none') return;
+    // Only drag from header area or when minimized
+    var header = widget.querySelector('.rcw-header');
+    var isMini = widget.classList.contains('minimized');
+    if (!isMini && !header.contains(e.target)) return;
+    // Don't drag if clicking a button
+    if (e.target.closest('.rcw-min-btn') || e.target.closest('.rcw-mini-icon')) return;
+    e.preventDefault();
+    var rect = widget.getBoundingClientRect();
+    dragState = {
+      startX: e.clientX,
+      startY: e.clientY,
+      origLeft: rect.left,
+      origTop: rect.top
+    };
+    widget.classList.add('dragging');
+    widget.style.transition = 'none';
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragState || !widget) return;
+    var dx = e.clientX - dragState.startX;
+    var dy = e.clientY - dragState.startY;
+    var newLeft = dragState.origLeft + dx;
+    var newTop = dragState.origTop + dy;
+    // Clamp within viewport
+    var maxX = window.innerWidth - widget.offsetWidth;
+    var maxY = window.innerHeight - widget.offsetHeight;
+    newLeft = Math.max(0, Math.min(newLeft, maxX));
+    newTop = Math.max(0, Math.min(newTop, maxY));
+    widget.style.left = newLeft + 'px';
+    widget.style.top = newTop + 'px';
+    widget.style.right = 'auto';
+    widget.style.bottom = 'auto';
+  }
+
+  function onPointerUp() {
+    if (widget) {
+      widget.classList.remove('dragging');
+      widget.style.transition = '';
+    }
+    dragState = null;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+  }
+
+  document.addEventListener('pointerdown', function(e) {
+    var w = document.getElementById('raceCountdownWidget');
+    if (w && w.contains(e.target)) onPointerDown(e);
+  });
+})();
+
 </script>
 
 <!-- Advanced Stats Modal -->
@@ -17998,6 +18379,16 @@ document.addEventListener('keydown', function(e) {
     </div>
     <div class="adv-modal-body" id="advStatsBody"></div>
   </div>
+</div>
+
+<!-- Floating Race Countdown Widget -->
+<div id="raceCountdownWidget">
+  <div class="rcw-header">
+    <span class="rcw-title">Next Race</span>
+    <button class="rcw-min-btn" onclick="rcwToggleMinimize()" title="Minimize">—</button>
+    <div class="rcw-mini-icon" onclick="rcwToggleMinimize()" title="Expand countdown">🏁</div>
+  </div>
+  <div class="rcw-body" id="rcwBody"></div>
 </div>
 
 </body>
