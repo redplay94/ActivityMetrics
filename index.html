@@ -95,12 +95,20 @@ body.modal-open header {
   font-size: .78rem; font-weight: 600;
   border: 1.5px solid transparent;
   color: var(--text-muted);
-  transition: all var(--transition);
+  transition: all .2s ease-in-out;
 }
 .tab-btn.active-tab, .tab-btn:hover { color: var(--text); }
+.tab-btn:hover { transform: scale(1.05); }
+.tab-btn:active { transform: scale(0.95); }
+.tab-btn[data-type="run"]:hover   { box-shadow: 0 0 15px rgba(255,165,0,.5); }
+.tab-btn[data-type="walk"]:hover  { box-shadow: 0 0 15px rgba(76,175,80,.5); }
+.tab-btn[data-type="cycle"]:hover { box-shadow: 0 0 15px rgba(33,150,243,.5); }
 .tab-btn[data-type="run"].active-tab   { border-color: var(--run);   background: var(--run-dim);   color: var(--run); }
 .tab-btn[data-type="walk"].active-tab  { border-color: var(--walk);  background: var(--walk-dim);  color: var(--walk); }
 .tab-btn[data-type="cycle"].active-tab { border-color: var(--cycle); background: var(--cycle-dim); color: var(--cycle); }
+.tab-btn[data-type="run"].active-tab:hover   { box-shadow: 0 0 18px rgba(255,165,0,.6); }
+.tab-btn[data-type="walk"].active-tab:hover  { box-shadow: 0 0 18px rgba(76,175,80,.6); }
+.tab-btn[data-type="cycle"].active-tab:hover { box-shadow: 0 0 18px rgba(33,150,243,.6); }
 .tab-btn svg { width: 14px; height: 14px; }
 
 /* Status indicator */
@@ -501,12 +509,19 @@ body.modal-open header {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 10px 6px; border-radius: var(--radius-sm);
   border: 1.5px solid var(--border); background: var(--bg3);
-  cursor: pointer; transition: all var(--transition); font-size: .72rem; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; transition: all .2s ease-in-out; font-size: .72rem; font-weight: 600; color: var(--text-muted);
 }
-.type-opt:hover { border-color: var(--text-muted); color: var(--text); }
+.type-opt:hover { border-color: var(--text-muted); color: var(--text); transform: scale(1.05); }
+.type-opt[data-val="run"]:hover   { box-shadow: 0 0 12px rgba(249,115,22,.25); }
+.type-opt[data-val="walk"]:hover  { box-shadow: 0 0 12px rgba(34,197,94,.25); }
+.type-opt[data-val="cycle"]:hover { box-shadow: 0 0 12px rgba(59,130,246,.25); }
+.type-opt:active { transform: scale(0.95); }
 .type-opt.selected[data-val="run"]   { border-color: var(--run);   background: var(--run-dim);   color: var(--run); }
 .type-opt.selected[data-val="walk"]  { border-color: var(--walk);  background: var(--walk-dim);  color: var(--walk); }
 .type-opt.selected[data-val="cycle"] { border-color: var(--cycle); background: var(--cycle-dim); color: var(--cycle); }
+.type-opt.selected[data-val="run"]:hover   { box-shadow: 0 0 16px rgba(249,115,22,.35); }
+.type-opt.selected[data-val="walk"]:hover  { box-shadow: 0 0 16px rgba(34,197,94,.35); }
+.type-opt.selected[data-val="cycle"]:hover { box-shadow: 0 0 16px rgba(59,130,246,.35); }
 .type-opt svg { width: 22px; height: 22px; }
 
 /* Difficulty selector */
@@ -516,12 +531,16 @@ body.modal-open header {
   border-radius: var(--radius-sm); border: 1.5px solid var(--border);
   background: var(--bg3); cursor: pointer;
   font-size: .75rem; font-weight: 700; color: var(--text-muted);
-  transition: all var(--transition);
+  transition: all .2s ease-in-out;
 }
-.diff-opt:hover { color: var(--text); }
+.diff-opt:hover { color: var(--text); transform: scale(1.05); box-shadow: 0 0 12px rgba(255,255,255,.08); }
+.diff-opt:active { transform: scale(0.95); }
 .diff-opt.selected.easy   { border-color: #22c55e; background: rgba(34,197,94,.12); color: #22c55e; }
 .diff-opt.selected.medium { border-color: #eab308; background: rgba(234,179,8,.12); color: #eab308; }
 .diff-opt.selected.hard   { border-color: #ef4444; background: rgba(239,68,68,.12); color: #ef4444; }
+.diff-opt.selected.easy:hover   { box-shadow: 0 0 16px rgba(34,197,94,.3); }
+.diff-opt.selected.medium:hover { box-shadow: 0 0 16px rgba(234,179,8,.3); }
+.diff-opt.selected.hard:hover   { box-shadow: 0 0 16px rgba(239,68,68,.3); }
 
 .auto-badge {
   font-size: .65rem; background: var(--bg3); border: 1px solid var(--border);
@@ -934,6 +953,10 @@ body.modal-open header {
 .rb-widget-badge .rb-badge-tier.silver { color:#a0a0a0; }
 .rb-widget-badge .rb-badge-tier.gold { color:#ffd700; }
 .rb-widget-empty { font-size:.7rem; color:var(--text-muted); text-align:center; padding:12px 4px; }
+.rb-view-all { display:block; text-align:center; font-size:.68rem; font-weight:600; color:var(--text-muted); cursor:pointer; padding:6px 0 2px; margin-top:2px; border:none; background:none; width:100%; transition:color var(--transition); }
+.rb-view-all:hover { color:var(--run); }
+.rb-view-all .rb-arrow { display:inline-block; transition:transform .2s; }
+.rb-view-all:hover .rb-arrow { transform:translateX(3px); }
 .rb-widget-toggle { position:fixed; z-index:7999; width:36px; height:36px; border-radius:50%; background:var(--bg2); border:1px solid var(--border); box-shadow:0 4px 16px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; transition:transform .2s; }
 .rb-widget-toggle:hover { transform:scale(1.1); }
 @media(max-width:480px) { .rb-widget { width:160px; } .rb-widget-badge .rb-badge-icon { font-size:1.2rem; } }
@@ -1061,8 +1084,11 @@ body.modal-open header {
   background:var(--bg3); border:1px solid var(--border);
   cursor:pointer; transition:all var(--transition);
 }
-.user-pill:hover { border-color:var(--text-muted); }
-.user-pill svg { width:12px; height:12px; color:var(--text-muted); }
+.user-pill:hover { border-color:var(--text-muted); background:var(--border); }
+.user-pill.pill-active { border-color:var(--run); box-shadow:0 0 0 1px var(--run); background:rgba(249,115,22,.08); }
+.user-pill.pill-active .user-greeting { color:var(--run); }
+.user-pill.pill-active svg { color:var(--run); }
+.user-pill svg { width:12px; height:12px; color:var(--text-muted); transition:color var(--transition); }
 .user-avatar-sm {
   width:28px; height:28px; border-radius:50%;
   background:linear-gradient(135deg,var(--run),var(--cycle));
@@ -1070,7 +1096,7 @@ body.modal-open header {
   font-size:.95rem; overflow:hidden; flex-shrink:0;
 }
 .user-avatar-sm img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-.user-greeting { font-size:.78rem; font-weight:600; }
+.user-greeting { font-size:.78rem; font-weight:600; color:var(--text); transition:color var(--transition); }
 .user-dropdown {
   position:fixed !important; z-index:999999 !important;
   background:var(--bg2); border:1px solid var(--border);
@@ -1087,7 +1113,8 @@ body.modal-open header {
   width:100%; text-align:left; color:var(--text);
 }
 .user-dropdown-item:hover { background:var(--bg3); }
-.user-dropdown-item svg { width:15px; height:15px; color:var(--text-muted); flex-shrink:0; }
+.user-dropdown-item svg { width:15px; height:15px; color:var(--text); opacity:.7; flex-shrink:0; transition:opacity var(--transition); }
+.user-dropdown-item:hover svg { opacity:1; }
 .user-dropdown-item.danger { color:#ef4444; }
 .user-dropdown-item.danger svg { color:#ef4444; }
 
@@ -1293,6 +1320,17 @@ body.modal-open header {
 .weekly-bar-tooltip { position:fixed; background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.68rem;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25); }
 .weekly-bar-legend { display:flex; gap:10px; justify-content:center; margin-top:6px; font-size:.58rem; color:var(--text-muted); }
 .weekly-bar-legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:3px; vertical-align:middle; background:var(--c); }
+.chart-placeholder {
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:56px; gap:8px; z-index:1;
+}
+.chart-placeholder-text { font-size:.82rem; color:var(--text-muted); }
+.chart-placeholder-btn {
+  padding:5px 14px; border-radius:8px; font-size:.72rem; font-weight:700;
+  color:var(--run); background:none; border:1.5px solid var(--run);
+  cursor:pointer; transition:all var(--transition);
+}
+.chart-placeholder-btn:hover { background:var(--run); color:#fff; }
 
 /* Activity Heatmap */
 .heatmap-wrap { overflow-x:auto; padding-bottom:8px; }
@@ -3825,8 +3863,6 @@ header { padding: 0 !important; z-index: 600 !important; }
         <button class="nav-btn" data-section="logSection" onclick="navTo('logSection')">Activity Log</button>
         <button class="nav-btn" data-section="coachSection" onclick="navTo('coachSection')">Running Coach</button>
         <button class="nav-btn" data-section="paceOverlay" onclick="navTo('paceOverlay')">Pace Calculator</button>
-        <button class="nav-btn" data-section="vo2Overlay" onclick="navTo('vo2Overlay')">VO2 Max Lab</button>
-        <button class="nav-btn" data-section="badgesSection" onclick="navTo('badgesSection')">Achievements</button>
       </div>
       <div class="nav-bar-right">
         <button class="nav-btn pew-nav-btn" id="pewNavBtn" onclick="pewToggle()" title="Pace Editor"><svg class="pew-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="pew-nav-label">Pace Editor</span></button>
@@ -4051,7 +4087,7 @@ header { padding: 0 !important; z-index: 600 !important; }
           <svg style="display:inline;vertical-align:-.15em;margin-right:6px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
           Activity Heatmap
         </div>
-        <div class="section-sub">Full-year activity &amp; steps overview — GitHub style</div>
+        <div class="section-sub">Full-year activity &amp; steps overview</div>
       </div>
       <button class="adv-hm-export-btn" onclick="advHmExport()" title="Download heatmap as image">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -9688,10 +9724,6 @@ function renderAuthHeader() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             My Profile
           </button>
-          <button class="user-dropdown-item" onclick="openRacesPage();closeUserMenu()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 12v10"/><path d="M6 17l-2 4h16l-2-4"/></svg>
-            My Races
-          </button>
           <button class="user-dropdown-item" onclick="openCalendarPage();closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             My Calendar
@@ -9707,6 +9739,14 @@ function renderAuthHeader() {
           <button class="user-dropdown-item" onclick="navTo('challengesSection');closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Active Challenges
+          </button>
+          <button class="user-dropdown-item" onclick="navTo('badgesSection');closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+            My Achievements
+          </button>
+          <button class="user-dropdown-item" onclick="navTo('vo2Overlay');closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+            VO2 Max Lab
           </button>
           <div class="settings-divider"></div>
           <button class="user-dropdown-item danger" onclick="confirmReset();closeUserMenu()">
@@ -9924,6 +9964,7 @@ function openProfile() {
   el.style.top = '0';
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  _setNavActive('profileOverlay');
   startProfileCountdown();
 }
 function closeProfile() {
@@ -11170,6 +11211,7 @@ function openFriendsPage() {
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  _setNavActive('friendsOverlay');
   var src = document.getElementById('friendsSection');
   var dst = document.getElementById('friendsSectionStandalone');
   if (src && dst) {
@@ -11219,6 +11261,7 @@ function openCalendarPage() {
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  _setNavActive('calendarOverlay');
   renderCalendar();
 }
 function closeCalendarPage() {
@@ -17879,10 +17922,17 @@ function _navReturnSection() {
   _navSectionOrigNext   = null;
 }
 
+var _pillSections = ['profileOverlay','calendarOverlay','friendsOverlay','goalsSection','challengesSection','badgesSection','vo2Overlay'];
+
 function _setNavActive(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.querySelector('.nav-btn[data-section="' + sectionId + '"]');
   if (btn) btn.classList.add('active');
+  // Toggle profile pill active state
+  var pill = document.getElementById('userPillBtn');
+  if (pill) {
+    pill.classList.toggle('pill-active', _pillSections.indexOf(sectionId) !== -1);
+  }
 }
 
 function _navRerenderSection(id) {
@@ -17959,8 +18009,14 @@ function renderDashWeekly() {
     +'<div class="weekly-stat"><div class="weekly-stat-label">Steps</div><div class="weekly-stat-val">'+(tw.steps/1000).toFixed(1)+'k</div>'+cmpHtml(tw.steps,lw.steps)+'</div>'
     +'</div>'
     +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
-    +'<div class="weekly-bar-chart">'+barsHtml+'</div>'
-    +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div></div>';
+    +(tw.dist > 0
+      ? '<div class="weekly-bar-chart">'+barsHtml+'</div>'
+       +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div>'
+      : '<div class="chart-placeholder">'
+       +'<div class="chart-placeholder-text">No activities logged this week.</div>'
+       +'<button class="chart-placeholder-btn" onclick="openAddModal()">[+] Add Activity</button>'
+       +'</div>')
+    +'</div>';
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -18351,7 +18407,8 @@ function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
           '<div class="rb-badge-name">' + b.name + '</div>' +
           '<div class="rb-badge-tier ' + b.tier + '">' + b.tier + '</div>' +
         '</div></div>';
-    }).join('');
+    }).join('') +
+    '<button class="rb-view-all" onclick="navTo(\'badgesSection\')">View All Achievements <span class="rb-arrow">&rarr;</span></button>';
   };
 
   // Initial render after data is ready
