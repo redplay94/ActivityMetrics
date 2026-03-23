@@ -25,9 +25,11 @@
   --text-muted:#8896a8;
   --text-dim:  #4a5568;
   --card-shadow: 0 4px 24px rgba(0,0,0,.45);
-  --radius:    12px;
-  --radius-sm: 8px;
-  --transition: .18s ease;
+  --card-glass: rgba(15,15,15,.8);
+  --card-glass-border: rgba(255,255,255,.05);
+  --radius:    20px;
+  --radius-sm: 10px;
+  --transition: .3s ease;
 }
 [data-theme="light"] {
   --bg:        #f1f5f9;
@@ -38,6 +40,8 @@
   --text-muted:#64748b;
   --text-dim:  #94a3b8;
   --card-shadow: 0 4px 24px rgba(0,0,0,.10);
+  --card-glass: rgba(255,255,255,.85);
+  --card-glass-border: rgba(0,0,0,.06);
 }
 html { font-size: 16px; scroll-behavior: smooth; }
 body {
@@ -45,6 +49,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  line-height: 1.5;
   transition: background var(--transition), color var(--transition);
 }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
@@ -53,8 +58,11 @@ a { text-decoration: none; color: inherit; }
 
 /* ─── Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg2); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.18); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.2); }
 
 /* ─── Layout ───────────────────────────────────────────────────── */
 .app { max-width: 1280px; margin: 0 auto; padding: 0 16px 100px; }
@@ -143,15 +151,20 @@ body.modal-open header {
 @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }
 
 .stat-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
+  background: var(--card-glass);
+  border: 1px solid var(--card-glass-border);
   border-radius: var(--radius);
   padding: 20px;
-  box-shadow: var(--card-shadow);
+  box-shadow: none;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   position: relative; overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition);
 }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.35); }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.run:hover   { box-shadow: 0 8px 24px rgba(249,115,22,.12); }
+.stat-card.walk:hover  { box-shadow: 0 8px 24px rgba(34,197,94,.12); }
+.stat-card.cycle:hover { box-shadow: 0 8px 24px rgba(59,130,246,.12); }
+.stat-card.steps-card:hover { box-shadow: 0 8px 24px rgba(168,85,247,.12); }
 .stat-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
 }
@@ -241,7 +254,7 @@ body.modal-open header {
   display: flex; align-items: center; justify-content: space-between;
   margin: 24px 0 14px; flex-wrap: wrap; gap: 8px;
 }
-.section-title { font-size: 1rem; font-weight: 700; }
+.section-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; }
 .section-sub { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
 
 /* ─── Streak Banner ────────────────────────────────────────────── */
@@ -459,7 +472,7 @@ body.modal-open header {
   border-bottom: 1px solid var(--border);
   position: sticky; top: 0; background: var(--bg2); z-index: 1;
 }
-.modal-title { font-size: 1rem; font-weight: 700; }
+.modal-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; }
 .modal-close {
   width: 30px; height: 30px; border-radius: var(--radius-sm);
   background: var(--bg3); color: var(--text-muted);
@@ -681,16 +694,17 @@ body.modal-open header {
 .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-card {
-  background: var(--bg2); border: 1px solid var(--border);
+  background: var(--card-glass); border: 1px solid var(--card-glass-border);
   border-radius: var(--radius); padding: 16px 18px;
-  box-shadow: var(--card-shadow);
+  box-shadow: none;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   opacity: 0; transform: translateY(16px);
-  transition: opacity .4s ease, transform .4s ease;
+  transition: opacity .4s ease, transform .4s ease, box-shadow var(--transition);
 }
 .chart-card.visible { opacity: 1; transform: none; }
 .chart-card.chart-full { grid-column: 1 / -1; }
 .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.chart-title  { font-size: .85rem; font-weight: 700; }
+.chart-title  { font-size: .85rem; font-weight: 700; letter-spacing: -0.02em; }
 .chart-hint   { font-size: .68rem; color: var(--text-muted); }
 .chart-container { position: relative; }
 .chart-skel {
@@ -1300,7 +1314,7 @@ body.modal-open header {
 .no-race-sub { font-size:.82rem; color:var(--text-muted); margin-bottom:16px; }
 
 /* Weekly summary */
-.weekly-summary-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; box-shadow:var(--card-shadow); }
+.weekly-summary-card { background:var(--card-glass); border:1px solid var(--card-glass-border); border-radius:var(--radius); padding:16px 20px; box-shadow:none; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
 .weekly-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
 @media(max-width:560px){ .weekly-row { grid-template-columns:repeat(2,1fr); } }
 .weekly-stat { display:flex; flex-direction:column; gap:3px; }
@@ -1448,7 +1462,7 @@ body.modal-open header {
 .rec-reasoning  { margin-top:14px; padding:10px 14px; background:var(--bg3); border-radius:var(--radius-sm); font-size:.73rem; color:var(--text-muted); line-height:1.5; }
 .rec-reasoning strong { color:var(--text); }
 
-.recovery-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; }
+.recovery-card { background:var(--card-glass); border:1px solid var(--card-glass-border); border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
 .recovery-status-row { display:flex; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
 .recovery-badge { display:inline-flex; align-items:center; gap:7px; padding:7px 16px; border-radius:99px; font-size:.83rem; font-weight:700; }
 .recovery-badge.green  { background:rgba(34,197,94,.15);  color:#22c55e; border:1px solid rgba(34,197,94,.3); }
