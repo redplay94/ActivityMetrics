@@ -65,7 +65,9 @@ header {
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding: 12px 0;
-  backdrop-filter: blur(12px);
+}
+body.modal-open header {
+  z-index: 1 !important;
 }
 .header-inner {
   max-width: 1280px; margin: 0 auto; padding: 0 16px;
@@ -421,7 +423,9 @@ header {
 
 /* ─── Modals ───────────────────────────────────────────────────── */
 .modal-overlay {
-  position: fixed; inset: 0; z-index: 300;
+  position: fixed !important; top: 0 !important; left: 0 !important;
+  width: 100vw !important; height: 100vh !important;
+  z-index: 99999 !important;
   background: rgba(0,0,0,.65);
   backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
@@ -443,7 +447,8 @@ header {
 .modal-overlay.open .modal { transform: none; }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 20px; border-bottom: 1px solid var(--border);
+  padding: 20px 20px; padding-top: max(20px, env(safe-area-inset-top, 20px));
+  border-bottom: 1px solid var(--border);
   position: sticky; top: 0; background: var(--bg2); z-index: 1;
 }
 .modal-title { font-size: 1rem; font-weight: 700; }
@@ -459,6 +464,17 @@ header {
 .modal-footer {
   padding: 14px 20px; border-top: 1px solid var(--border);
   display: flex; gap: 8px; justify-content: flex-end;
+}
+@media (max-width: 600px) {
+  .modal-overlay { padding: 0 !important; }
+  .modal {
+    max-width: 100% !important; max-height: 100vh !important;
+    border-radius: 0 !important; height: 100%;
+  }
+  .modal-close { width: 36px; height: 36px; }
+  .modal-close svg { width: 16px; height: 16px; }
+  .modal-footer { padding: 16px 20px; position: sticky; bottom: 0; background: var(--bg2); }
+  .modal-footer .btn { min-height: 44px; font-size: .85rem; }
 }
 
 /* Form elements */
@@ -7124,9 +7140,13 @@ function openAddModal(prefillDate) {
   selectType('run');
   selectDiff('easy');
   document.getElementById('addModalOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
+  document.body.style.overflow = 'hidden';
 }
 function closeAddModal() {
   document.getElementById('addModalOverlay').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  document.body.style.overflow = '';
 }
 
 function handleOverlayClick(e, id) {
