@@ -934,6 +934,10 @@ body.modal-open header {
 .rb-widget-badge .rb-badge-tier.silver { color:#a0a0a0; }
 .rb-widget-badge .rb-badge-tier.gold { color:#ffd700; }
 .rb-widget-empty { font-size:.7rem; color:var(--text-muted); text-align:center; padding:12px 4px; }
+.rb-view-all { display:block; text-align:center; font-size:.68rem; font-weight:600; color:var(--text-muted); cursor:pointer; padding:6px 0 2px; margin-top:2px; border:none; background:none; width:100%; transition:color var(--transition); }
+.rb-view-all:hover { color:var(--run); }
+.rb-view-all .rb-arrow { display:inline-block; transition:transform .2s; }
+.rb-view-all:hover .rb-arrow { transform:translateX(3px); }
 .rb-widget-toggle { position:fixed; z-index:7999; width:36px; height:36px; border-radius:50%; background:var(--bg2); border:1px solid var(--border); box-shadow:0 4px 16px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; transition:transform .2s; }
 .rb-widget-toggle:hover { transform:scale(1.1); }
 @media(max-width:480px) { .rb-widget { width:160px; } .rb-widget-badge .rb-badge-icon { font-size:1.2rem; } }
@@ -18367,7 +18371,8 @@ function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
           '<div class="rb-badge-name">' + b.name + '</div>' +
           '<div class="rb-badge-tier ' + b.tier + '">' + b.tier + '</div>' +
         '</div></div>';
-    }).join('');
+    }).join('') +
+    '<button class="rb-view-all" onclick="navTo(\'badgesSection\')">View All Achievements <span class="rb-arrow">&rarr;</span></button>';
   };
 
   // Initial render after data is ready
