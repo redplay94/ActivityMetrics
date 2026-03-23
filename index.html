@@ -3825,7 +3825,6 @@ header { padding: 0 !important; z-index: 600 !important; }
         <button class="nav-btn" data-section="logSection" onclick="navTo('logSection')">Activity Log</button>
         <button class="nav-btn" data-section="coachSection" onclick="navTo('coachSection')">Running Coach</button>
         <button class="nav-btn" data-section="paceOverlay" onclick="navTo('paceOverlay')">Pace Calculator</button>
-        <button class="nav-btn" data-section="vo2Overlay" onclick="navTo('vo2Overlay')">VO2 Max Lab</button>
       </div>
       <div class="nav-bar-right">
         <button class="nav-btn pew-nav-btn" id="pewNavBtn" onclick="pewToggle()" title="Pace Editor"><svg class="pew-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="pew-nav-label">Pace Editor</span></button>
@@ -9706,6 +9705,10 @@ function renderAuthHeader() {
           <button class="user-dropdown-item" onclick="navTo('badgesSection');closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
             My Achievements
+          </button>
+          <button class="user-dropdown-item" onclick="navTo('vo2Overlay');closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+            VO2 Max Lab
           </button>
           <div class="settings-divider"></div>
           <button class="user-dropdown-item danger" onclick="confirmReset();closeUserMenu()">
