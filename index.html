@@ -11119,15 +11119,22 @@ function closePhotoLightbox() {
    We also need to patch renderRaces to add "Mark as Completed" button
 ═══════════════════════════════════════ */
 // Override buildRaceCard to add Mark as Completed button
-const _origBuildRaceCard = buildRaceCard;
+
 function buildRaceCard(race, today) {
-  let html = _origBuildRaceCard(race, today);
-  // Inject Mark as Completed button before closing </div> of race-card
-  const completedBtn = `<button class="mark-completed-btn" onclick="markUpcomingAsCompleted('${race.id}')">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-    Mark as Completed
-  </button></div>`;
-  return html.replace(/<\/div>$/, completedBtn);
+ const raceDate = new Date(race.date).toLocaleDateString();
+  return `
+    <div class="race-card" id="race-${race.id}">
+      <div class="race-info">
+        <h4>${race.name}</h4>
+        <p>${raceDate}</p>
+      </div>
+      <button class="mark-completed-btn" onclick="markUpcomingAsCompleted('${race.id}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Mark as Completed
+      </button>
+    </div>`;
 }
 
 function markUpcomingAsCompleted(id) {
