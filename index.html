@@ -95,12 +95,20 @@ body.modal-open header {
   font-size: .78rem; font-weight: 600;
   border: 1.5px solid transparent;
   color: var(--text-muted);
-  transition: all var(--transition);
+  transition: all .2s ease-in-out;
 }
 .tab-btn.active-tab, .tab-btn:hover { color: var(--text); }
+.tab-btn:hover { transform: scale(1.05); }
+.tab-btn:active { transform: scale(0.95); }
+.tab-btn[data-type="run"]:hover   { box-shadow: 0 0 15px rgba(255,165,0,.5); }
+.tab-btn[data-type="walk"]:hover  { box-shadow: 0 0 15px rgba(76,175,80,.5); }
+.tab-btn[data-type="cycle"]:hover { box-shadow: 0 0 15px rgba(33,150,243,.5); }
 .tab-btn[data-type="run"].active-tab   { border-color: var(--run);   background: var(--run-dim);   color: var(--run); }
 .tab-btn[data-type="walk"].active-tab  { border-color: var(--walk);  background: var(--walk-dim);  color: var(--walk); }
 .tab-btn[data-type="cycle"].active-tab { border-color: var(--cycle); background: var(--cycle-dim); color: var(--cycle); }
+.tab-btn[data-type="run"].active-tab:hover   { box-shadow: 0 0 18px rgba(255,165,0,.6); }
+.tab-btn[data-type="walk"].active-tab:hover  { box-shadow: 0 0 18px rgba(76,175,80,.6); }
+.tab-btn[data-type="cycle"].active-tab:hover { box-shadow: 0 0 18px rgba(33,150,243,.6); }
 .tab-btn svg { width: 14px; height: 14px; }
 
 /* Status indicator */
@@ -501,12 +509,19 @@ body.modal-open header {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 10px 6px; border-radius: var(--radius-sm);
   border: 1.5px solid var(--border); background: var(--bg3);
-  cursor: pointer; transition: all var(--transition); font-size: .72rem; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; transition: all .2s ease-in-out; font-size: .72rem; font-weight: 600; color: var(--text-muted);
 }
-.type-opt:hover { border-color: var(--text-muted); color: var(--text); }
+.type-opt:hover { border-color: var(--text-muted); color: var(--text); transform: scale(1.05); }
+.type-opt[data-val="run"]:hover   { box-shadow: 0 0 12px rgba(249,115,22,.25); }
+.type-opt[data-val="walk"]:hover  { box-shadow: 0 0 12px rgba(34,197,94,.25); }
+.type-opt[data-val="cycle"]:hover { box-shadow: 0 0 12px rgba(59,130,246,.25); }
+.type-opt:active { transform: scale(0.95); }
 .type-opt.selected[data-val="run"]   { border-color: var(--run);   background: var(--run-dim);   color: var(--run); }
 .type-opt.selected[data-val="walk"]  { border-color: var(--walk);  background: var(--walk-dim);  color: var(--walk); }
 .type-opt.selected[data-val="cycle"] { border-color: var(--cycle); background: var(--cycle-dim); color: var(--cycle); }
+.type-opt.selected[data-val="run"]:hover   { box-shadow: 0 0 16px rgba(249,115,22,.35); }
+.type-opt.selected[data-val="walk"]:hover  { box-shadow: 0 0 16px rgba(34,197,94,.35); }
+.type-opt.selected[data-val="cycle"]:hover { box-shadow: 0 0 16px rgba(59,130,246,.35); }
 .type-opt svg { width: 22px; height: 22px; }
 
 /* Difficulty selector */
@@ -516,12 +531,16 @@ body.modal-open header {
   border-radius: var(--radius-sm); border: 1.5px solid var(--border);
   background: var(--bg3); cursor: pointer;
   font-size: .75rem; font-weight: 700; color: var(--text-muted);
-  transition: all var(--transition);
+  transition: all .2s ease-in-out;
 }
-.diff-opt:hover { color: var(--text); }
+.diff-opt:hover { color: var(--text); transform: scale(1.05); box-shadow: 0 0 12px rgba(255,255,255,.08); }
+.diff-opt:active { transform: scale(0.95); }
 .diff-opt.selected.easy   { border-color: #22c55e; background: rgba(34,197,94,.12); color: #22c55e; }
 .diff-opt.selected.medium { border-color: #eab308; background: rgba(234,179,8,.12); color: #eab308; }
 .diff-opt.selected.hard   { border-color: #ef4444; background: rgba(239,68,68,.12); color: #ef4444; }
+.diff-opt.selected.easy:hover   { box-shadow: 0 0 16px rgba(34,197,94,.3); }
+.diff-opt.selected.medium:hover { box-shadow: 0 0 16px rgba(234,179,8,.3); }
+.diff-opt.selected.hard:hover   { box-shadow: 0 0 16px rgba(239,68,68,.3); }
 
 .auto-badge {
   font-size: .65rem; background: var(--bg3); border: 1px solid var(--border);
