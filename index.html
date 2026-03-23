@@ -31,19 +31,8 @@
   --radius-sm: 10px;
   --transition: .3s ease;
 }
-[data-theme="light"] {
-  --bg:        #f1f5f9;
-  --bg2:       #ffffff;
-  --bg3:       #e8eef7;
-  --border:    #cbd5e1;
-  --text:      #0f172a;
-  --text-muted:#64748b;
-  --text-dim:  #94a3b8;
-  --card-shadow: 0 4px 24px rgba(0,0,0,.10);
-  --card-glass: rgba(255,255,255,.85);
-  --card-glass-border: rgba(0,0,0,.06);
-}
-html { font-size: 16px; scroll-behavior: smooth; }
+/* Dark theme is the only theme — no light mode */
+html { font-size: 16px; scroll-behavior: smooth; background: #000; }
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: linear-gradient(135deg, #0f0f0f 0%, #000000 100%) fixed;
@@ -52,9 +41,6 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   transition: color var(--transition);
-}
-[data-theme="light"] body {
-  background: var(--bg);
 }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, select, textarea { font-family: inherit; }
@@ -65,8 +51,6 @@ a { text-decoration: none; color: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #444; }
-[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.25); }
 html { scrollbar-color: #333 transparent; }
 
 /* ─── Layout ───────────────────────────────────────────────────── */
@@ -79,10 +63,6 @@ header {
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,.06);
   padding: 12px 0;
-}
-[data-theme="light"] header {
-  background: rgba(241,245,249,.9);
-  border-bottom-color: var(--border);
 }
 body.modal-open header {
   z-index: 1 !important;
@@ -1143,14 +1123,7 @@ body.modal-open header {
 .user-dropdown-item.danger svg { color:#ef4444; }
 
 /* ─── Header Theme Toggle ──────────────────────────────────────── */
-.theme-toggle-wrap {
-  display:flex; align-items:center; gap:6px; flex-shrink:0;
-}
-.theme-icon { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; }
-.theme-icon-sun  { opacity:.4; }
-.theme-icon-moon { opacity:.7; }
-[data-theme="light"] .theme-icon-sun  { opacity:.9; color:#f59e0b; }
-[data-theme="light"] .theme-icon-moon { opacity:.35; }
+/* Theme toggle removed — permanent dark mode */
 
 @media (max-width: 600px) {
   .header-row1-right { gap:6px; }
@@ -1159,7 +1132,6 @@ body.modal-open header {
   .user-pill svg:last-child { display:none; }
   .strava-btn-label { display:none; }
   .strava-nav-btn { padding:6px 8px; }
-  .theme-toggle-wrap .theme-icon { width:12px; height:12px; }
   .user-dropdown.open { left:8px !important; right:8px !important; width:auto !important; min-width:0 !important; }
 }
 
@@ -3431,9 +3403,6 @@ header { padding: 0 !important; z-index: 600 !important; }
   transform:translateY(20px) scale(.97);
   transition:transform .25s ease;
 }
-[data-theme="light"] #advStatsOverlay .adv-modal{
-  background:rgba(255,255,255,.82);
-}
 #advStatsOverlay.open .adv-modal{transform:none}
 .adv-modal-header{
   display:flex;align-items:center;justify-content:space-between;
@@ -3504,10 +3473,6 @@ header { padding: 0 !important; z-index: 600 !important; }
   transition:box-shadow .2s,width .25s,height .25s;
   cursor:grab;user-select:none;
   overflow:hidden;
-}
-[data-theme="light"] #raceCountdownWidget{
-  background:rgba(255,255,255,.78);
-  box-shadow:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
 }
 #raceCountdownWidget.dragging{cursor:grabbing;box-shadow:0 20px 56px rgba(0,0,0,.6)}
 #raceCountdownWidget.minimized{width:48px;height:48px;border-radius:50%;cursor:grab}
@@ -3584,10 +3549,6 @@ header { padding: 0 !important; z-index: 600 !important; }
   transition:box-shadow .2s,width .25s,height .25s;
   cursor:default;user-select:none;
   overflow:hidden;
-}
-[data-theme="light"] #paceEditorWidget{
-  background:rgba(255,255,255,.78);
-  box-shadow:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
 }
 #paceEditorWidget.dragging{cursor:grabbing;box-shadow:0 20px 56px rgba(0,0,0,.6)}
 #paceEditorWidget.minimized{width:48px;height:48px;border-radius:50%;cursor:grab;overflow:hidden}
@@ -3685,10 +3646,6 @@ header { padding: 0 !important; z-index: 600 !important; }
   animation:hgSlideIn .28s cubic-bezier(.4,0,.2,1);
 }
 @keyframes hgSlideIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
-[data-theme="light"] .hg-card{
-  background:rgba(255,255,255,.9);
-  box-shadow:0 32px 80px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.06) inset;
-}
 .hg-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0;
@@ -3865,14 +3822,6 @@ header { padding: 0 !important; z-index: 600 !important; }
         <span class="strava-btn-label">Strava</span>
       </button>
       <div id="authHeaderSection"><!-- populated by renderAuthHeader() --></div>
-      <div class="theme-toggle-wrap" title="Toggle light/dark mode">
-        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <label class="toggle">
-          <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-          <span class="toggle-slider"></span>
-        </label>
-        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </div>
     </div>
   </div>
 
@@ -7157,8 +7106,8 @@ function init() {
   calYear  = now.getFullYear();
   calMonth = now.getMonth();
 
-  setTheme(db.settings.lightMode || false);
-  document.getElementById('themeToggle').checked = !!db.settings.lightMode;
+  /* Dark mode is permanent — no theme toggle */
+  document.documentElement.setAttribute('data-theme', 'dark');
 
   const todayStr = fmtDate(now);
   document.getElementById('formDate').value = todayStr;
@@ -7785,16 +7734,7 @@ document.addEventListener('click', e => {
   }
 });
 
-function toggleTheme() {
-  const light = document.getElementById('themeToggle').checked;
-  setTheme(light);
-  db.settings.lightMode = light;
-  saveData(db);
-  reRenderChartsForTheme();
-}
-function setTheme(light) {
-  document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
-}
+/* toggleTheme/setTheme removed — permanent dark mode */
 
 /* ══════════════════════════════════════════════════════════════
    RESET
