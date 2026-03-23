@@ -2767,10 +2767,34 @@ select.vo2-input { cursor:pointer; }
 /* Monthly Bar Chart */
 .adv-hm-monthly-wrap { margin-top:20px; }
 .adv-hm-monthly-title { font-size:.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
-.adv-hm-monthly-bars { display:flex; align-items:flex-end; gap:4px; height:80px; }
+.adv-hm-monthly-bars { display:flex; align-items:flex-end; gap:4px; height:80px; overflow:hidden; }
 .adv-hm-monthly-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:3px; }
 .adv-hm-monthly-bar { width:100%; border-radius:4px 4px 0 0; min-height:2px; transition:height .4s ease; cursor:pointer; }
 .adv-hm-monthly-bar-lbl { font-size:.55rem; color:var(--text-muted); }
+
+/* Segmented Distance Bar – separated multi-bar layout */
+.adv-hm-segbar-wrap { margin-top:12px; }
+.adv-hm-segbar-header { font-size:.82rem; font-weight:700; color:var(--text); margin-bottom:10px; }
+.adv-hm-segbar-chart { display:flex; gap:8px; align-items:flex-end; height:90px; }
+.adv-hm-segbar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; }
+.adv-hm-segbar-bar { width:100%; border-radius:6px 6px 0 0; transition:height .4s ease; min-height:0; }
+.adv-hm-segbar-val { font-size:.7rem; font-weight:700; color:var(--text); white-space:nowrap; }
+.adv-hm-segbar-lbl { font-size:.65rem; color:var(--text-muted); white-space:nowrap; text-align:center; }
+.adv-hm-segbar-filter-row { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.adv-hm-segbar-filter-btn {
+  padding:6px 14px; border-radius:99px; font-size:.75rem; font-weight:600;
+  border:1.5px solid var(--border); background:var(--bg3); color:var(--text-muted);
+  transition:all .18s ease; cursor:pointer;
+}
+.adv-hm-segbar-filter-btn:hover { color:var(--text); border-color:var(--text-muted); }
+.adv-hm-segbar-filter-btn[data-seg-filter="all"].active   { background:var(--bg2); border-color:var(--text-muted); color:var(--text); }
+.adv-hm-segbar-filter-btn[data-seg-filter="run"].active   { background:rgba(255,140,0,.15); border-color:#FF8C00; color:#FF8C00; }
+.adv-hm-segbar-filter-btn[data-seg-filter="walk"].active  { background:rgba(46,204,113,.15); border-color:#2ECC71; color:#2ECC71; }
+.adv-hm-segbar-filter-btn[data-seg-filter="cycle"].active { background:rgba(52,152,219,.15); border-color:#3498DB; color:#3498DB; }
+@media(max-width:480px){
+  .adv-hm-segbar-filter-btn { padding:8px 16px; font-size:.8rem; }
+  .adv-hm-segbar-chart { gap:6px; height:80px; }
+}
 
 /* Steps DOW chart */
 .adv-hm-dow-bars { display:flex; align-items:flex-end; gap:4px; height:60px; margin-top:8px; }
@@ -3631,7 +3655,17 @@ header { padding: 0 !important; z-index: 600 !important; }
       <!-- Monthly Bar Chart -->
       <div class="adv-hm-monthly-wrap">
         <div class="adv-hm-monthly-title">Monthly Distance Breakdown</div>
-        <div class="adv-hm-monthly-bars" id="advHmMonthlyBars"></div>
+        <div class="adv-hm-segbar-filter-row" id="advHmSegFilterRow">
+          <button class="adv-hm-segbar-filter-btn active" data-seg-filter="all" onclick="advHmSetSegFilter('all')">All</button>
+          <button class="adv-hm-segbar-filter-btn" data-seg-filter="run" onclick="advHmSetSegFilter('run')">🏃 Run</button>
+          <button class="adv-hm-segbar-filter-btn" data-seg-filter="walk" onclick="advHmSetSegFilter('walk')">🚶 Walk / Hike</button>
+          <button class="adv-hm-segbar-filter-btn" data-seg-filter="cycle" onclick="advHmSetSegFilter('cycle')">🚴 Cycling</button>
+        </div>
+        <div class="adv-hm-segbar-wrap">
+          <div class="adv-hm-segbar-header" id="advHmSegHeader"></div>
+          <div class="adv-hm-segbar-chart" id="advHmSegChart"></div>
+        </div>
+        <div class="adv-hm-monthly-bars" id="advHmMonthlyBars" style="margin-top:14px;"></div>
         <div style="display:flex;gap:4px;margin-top:4px;" id="advHmMonthlyLabels"></div>
       </div>
     </div>
@@ -8014,6 +8048,18 @@ function renderPRs() {
     return isNew && prs[k].val > 0 && prs[k].val !== Infinity;
   });
 
+  // Longest streak computation (same logic as renderProfilePRs)
+  const prDateset = new Set(db.activities.map(a=>a.date));
+  const prSorted  = [...prDateset].sort();
+  let prBest=0, prBestStart='', prBestEnd='', prCur=0, prCurStart='';
+  prSorted.forEach((ds,i) => {
+    const prev = i>0 ? prSorted[i-1] : null;
+    const prevDay = prev ? fmtDate(new Date(new Date(prev+'T00:00:00').getTime()+86400000)) : null;
+    if (prev && prevDay===ds) { prCur++; }
+    else { prCur=1; prCurStart=ds; }
+    if (prCur>prBest) { prBest=prCur; prBestStart=prCurStart; prBestEnd=ds; }
+  });
+
   const cards = [
     { key:'longestRun',   trophy:'🏃', label:'Longest Run',          val:prs.longestRun.date   ? prs.longestRun.val.toFixed(1)+' km' : null,   date:prs.longestRun.date },
     { key:'fastestPace',  trophy:'⚡', label:'Fastest Run Pace',      val:prs.fastestPace.date  ? fmtPace(prs.fastestPace.val*1, 1)  : null,   date:prs.fastestPace.date },
@@ -8022,6 +8068,7 @@ function renderPRs() {
     { key:'mostCals',     trophy:'🔥', label:'Most Calories Burned',  val:prs.mostCals.date     ? prs.mostCals.val+' kcal'            : null,   date:prs.mostCals.date },
     { key:'highestElev',  trophy:'⛰️', label:'Highest Elevation Gain',val:prs.highestElev.date  ? prs.highestElev.val.toLocaleString()+' m' : null, date:prs.highestElev.date },
     { key:'mostStepsDay', trophy:'👟', label:'Most Steps in a Day',   val:prs.mostStepsDay.date ? prs.mostStepsDay.val.toLocaleString() : null,  date:prs.mostStepsDay.date },
+    { key:'longestStreak',trophy:'🔥', label:'Longest Streak',        val:prBest>0 ? prBest+' days' : null, date:prBest>0 ? prBestEnd : null, sub:prBest>0 ? prBestStart+' – '+prBestEnd : null },
   ];
 
   grid.innerHTML = cards.map(c => {
@@ -8035,7 +8082,7 @@ function renderPRs() {
       <span class="pr-trophy">${c.trophy}</span>
       <div class="pr-label">${c.label}</div>
       ${c.val
-        ? `<div class="pr-value">${c.val}</div><div class="pr-date">${dateStr}</div>`
+        ? `<div class="pr-value">${c.val}</div>${c.sub ? `<div class="pr-date">${c.sub}</div>` : ''}<div class="pr-date">${dateStr}</div>`
         : `<div class="pr-none">No data yet</div>`}
     </div>`;
   }).join('');
@@ -14963,14 +15010,67 @@ BADGE_DEFS.push(
     barsEl.innerHTML = monthData.map(function(m,i){
       var km=monthKm[i];
       var h=Math.max(2,Math.round((km/maxKm)*72));
-      var dom=m.run>=m.walk&&m.run>=m.cycle?'run':m.walk>=m.cycle?'walk':'cycle';
-      var colors={run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
       return '<div class="adv-hm-monthly-bar-col">'
-        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:'+colors[dom]+';opacity:.8" title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km (Run: '+m.run.toFixed(1)+', Walk: '+m.walk.toFixed(1)+', Cycle: '+m.cycle.toFixed(1)+')"></div>'
+        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:#BDC3C7;opacity:.8" title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km (Run: '+m.run.toFixed(1)+', Walk: '+m.walk.toFixed(1)+', Cycle: '+m.cycle.toFixed(1)+')"></div>'
         +'</div>';
     }).join('');
     lblEl.innerHTML = MONTH_NAMES.map(function(n){
       return '<div style="flex:1;text-align:center;font-size:.55rem;color:var(--text-muted)">'+n+'</div>';
+    }).join('');
+
+    /* ── Separated multi-bar chart (current month of selected year) ── */
+    renderSegChart(monthData);
+  }
+
+  var ADV_HM_SEG_FILTER = 'all';
+
+  window.advHmSetSegFilter = function(filter) {
+    ADV_HM_SEG_FILTER = filter;
+    document.querySelectorAll('.adv-hm-segbar-filter-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-seg-filter') === filter);
+    });
+    renderMonthlyBars();
+  };
+
+  function renderSegChart(monthData) {
+    var headerEl = document.getElementById('advHmSegHeader');
+    var chartEl  = document.getElementById('advHmSegChart');
+    if(!headerEl||!chartEl) return;
+
+    var now = new Date();
+    var segMonth = (ADV_HM_YEAR === now.getFullYear()) ? now.getMonth() : 11;
+    var md = monthData[segMonth];
+    var segColors = {run:'#FF8C00', walk:'#2ECC71', cycle:'#3498DB'};
+    var segLabels = {run:'Run', walk:'Walk / Hike', cycle:'Cycling'};
+    var allSports = ['run','cycle','walk'];
+    var filter = ADV_HM_SEG_FILTER;
+    var visibleSports = filter === 'all' ? allSports : [filter];
+
+    /* header: "This Month: XX km" */
+    var shownKm = 0;
+    visibleSports.forEach(function(s){ shownKm += md[s]; });
+    headerEl.textContent = 'This Month: ' + shownKm.toFixed(1) + ' km';
+
+    /* empty state */
+    var activeSports = visibleSports.filter(function(s){ return md[s] > 0; });
+    if(activeSports.length === 0) {
+      chartEl.innerHTML = '<div style="width:100%;text-align:center;font-size:.75rem;color:var(--text-muted);padding:20px 0;">No distance recorded for ' + MONTH_NAMES[segMonth] + '</div>';
+      return;
+    }
+
+    /* find max for bar height scaling */
+    var maxKm = 0;
+    activeSports.forEach(function(s){ if(md[s] > maxKm) maxKm = md[s]; });
+    if(maxKm === 0) maxKm = 1;
+
+    chartEl.innerHTML = activeSports.map(function(s) {
+      var km = md[s];
+      var h = Math.max(4, Math.round((km / maxKm) * 72));
+      return '<div class="adv-hm-segbar-col">'
+        + '<div class="adv-hm-segbar-val">' + km.toFixed(1) + ' km</div>'
+        + '<div class="adv-hm-segbar-bar" style="height:' + h + 'px;background:' + segColors[s] + '"></div>'
+        + '<div class="adv-hm-segbar-lbl">' + segLabels[s] + '</div>'
+        + '</div>';
     }).join('');
   }
 
