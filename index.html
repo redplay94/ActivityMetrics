@@ -3794,6 +3794,171 @@ header { padding: 0 !important; z-index: 600 !important; }
   .hg-btn{padding:10px 16px;min-height:42px}
   .hg-preview{width:56px;height:56px;border-radius:12px}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV & RESPONSIVE OVERRIDES
+   All rules strictly inside max-width:768px — zero desktop impact
+═══════════════════════════════════════════════════════════════ */
+.mobile-bottom-nav { display:none; }
+.mob-dashboard-top { display:none; }
+
+@media (max-width:768px) {
+  /* ── Bottom Nav Bar ── */
+  .mobile-bottom-nav {
+    display:flex;
+    position:fixed; bottom:0; left:0; right:0;
+    z-index:10000;
+    height:64px;
+    background:rgba(15,15,15,.8);
+    backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px);
+    border-top:1px solid rgba(255,255,255,.06);
+    align-items:flex-end; justify-content:space-around;
+    padding:0 8px env(safe-area-inset-bottom,0);
+  }
+  .mob-nav-item {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; min-width:50px; min-height:50px;
+    color:var(--text-muted); cursor:pointer;
+    transition:all .2s ease; -webkit-tap-highlight-color:transparent;
+    padding:6px 0 8px; flex:1;
+  }
+  .mob-nav-item:active { transform:scale(0.9); }
+  .mob-nav-item svg { width:22px; height:22px; }
+  .mob-nav-item.active { color:var(--run); }
+  .mob-nav-label { font-size:.58rem; font-weight:600; letter-spacing:.3px; }
+
+  /* ── Central Add Button ── */
+  .mob-nav-add {
+    display:flex; align-items:center; justify-content:center;
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg,var(--run),#fb923c);
+    color:#fff; border:none; cursor:pointer;
+    margin-top:-20px;
+    box-shadow:0 4px 20px rgba(249,115,22,.4), 0 0 0 4px rgba(249,115,22,.1);
+    transition:all .2s ease; -webkit-tap-highlight-color:transparent;
+    flex-shrink:0;
+  }
+  .mob-nav-add:active { transform:scale(0.9); }
+  .mob-nav-add svg { width:28px; height:28px; }
+
+  /* ── Header: brand left | strava + avatar right ── */
+  .header-row1-center { display:none !important; }
+  .nav-bar { display:none !important; }
+  .user-greeting { display:none !important; }
+  .user-pill svg:last-child { display:none !important; }
+  .user-pill {
+    padding:3px !important; border-radius:50% !important;
+    width:36px; height:36px; justify-content:center;
+  }
+  .tagline { display:none !important; }
+  .brand-badge { display:none !important; }
+  .brand-title { font-size:1.15rem !important; }
+  .header-row1-right { gap:10px !important; }
+  .strava-nav-btn {
+    width:36px !important; height:36px !important; padding:0 !important;
+    border-radius:50% !important; justify-content:center;
+    background:rgba(249,115,22,.12) !important; border:1px solid rgba(249,115,22,.2) !important;
+    color:var(--run) !important;
+  }
+  .strava-nav-btn:active { transform:scale(0.95); }
+  .strava-btn-label { display:none !important; }
+  .strava-nav-btn svg { width:18px !important; height:18px !important; }
+
+  /* ── Hide floating elements (redundant on mobile) ── */
+  .rb-widget { display:none !important; }
+  .rb-widget-toggle { display:none !important; }
+  #paceEditorWidget { display:none !important; }
+
+  /* ── Mobile Performance Hub ── */
+  .mob-dashboard-top { display:block; padding:8px 12px 0; }
+
+  /* Section label */
+  .mob-hub-label {
+    font-size:.6rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:1px; color:var(--text-dim); margin-bottom:8px;
+    padding-left:2px;
+  }
+
+  /* Sport Analytics Tabs (top row: Run, Walk, Cycle, Rest) */
+  .mob-sport-tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .mob-sport-tab {
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    gap:4px; padding:10px 2px; min-height:50px;
+    background:rgba(20,20,20,.65);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:16px;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    cursor:pointer; transition:all .25s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mob-sport-tab:active { transform:scale(0.95); }
+  .mob-sport-tab svg { width:22px; height:22px; }
+  .mob-sport-tab .mob-tab-label { font-size:.62rem; font-weight:700; color:var(--text-muted); }
+  .mob-sport-tab .mob-tab-sub { font-size:.5rem; color:var(--text-dim); letter-spacing:.3px; }
+
+  /* Sport tab color variants */
+  .mob-sport-tab[data-sport="run"]   svg { color:var(--run); }
+  .mob-sport-tab[data-sport="walk"]  svg { color:var(--walk); }
+  .mob-sport-tab[data-sport="cycle"] svg { color:var(--cycle); }
+  .mob-sport-tab[data-sport="rest"]  svg { color:var(--text-muted); }
+
+  /* Active glow state */
+  .mob-sport-tab.mob-tab-active[data-sport="run"] {
+    border-color:rgba(249,115,22,.3); background:rgba(249,115,22,.08);
+    box-shadow:0 0 16px rgba(249,115,22,.15);
+  }
+  .mob-sport-tab.mob-tab-active[data-sport="walk"] {
+    border-color:rgba(34,197,94,.3); background:rgba(34,197,94,.08);
+    box-shadow:0 0 16px rgba(34,197,94,.15);
+  }
+  .mob-sport-tab.mob-tab-active[data-sport="cycle"] {
+    border-color:rgba(59,130,246,.3); background:rgba(59,130,246,.08);
+    box-shadow:0 0 16px rgba(59,130,246,.15);
+  }
+  .mob-sport-tab.mob-tab-active .mob-tab-label { color:var(--text); }
+
+  /* Tools Row (Pace Calc, Heart Rate, Coach, Help) */
+  .mob-tools-grid {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+    margin-bottom:14px;
+  }
+  .mob-tool-btn {
+    display:flex; align-items:center; gap:10px;
+    min-height:50px; padding:12px 14px;
+    background:rgba(20,20,20,.5);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:14px;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    color:var(--text-muted); cursor:pointer;
+    transition:all .2s ease; -webkit-tap-highlight-color:transparent;
+  }
+  .mob-tool-btn:active { transform:scale(0.95); }
+  .mob-tool-btn svg { width:20px; height:20px; flex-shrink:0; }
+  .mob-tool-btn span { font-size:.68rem; font-weight:600; }
+
+  /* ── Layout Overrides ── */
+  .app { padding:0 12px 110px !important; }
+
+  .stats-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; }
+  .charts-grid { grid-template-columns:1fr !important; }
+  .badges-grid { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+  .challenges-grid { grid-template-columns:1fr !important; }
+  .races-grid { grid-template-columns:1fr !important; }
+  .pace-grid { grid-template-columns:1fr !important; }
+
+  .stat-card { border-radius:16px; padding:16px; }
+  .chart-card { border-radius:16px; }
+
+  /* ── Heatmap horizontal scroll ── */
+  .heatmap-wrap,
+  .adv-hm-grid-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* ── Section spacing ── */
+  .section-header { margin:16px 0 10px; }
+
+  /* ── Race countdown widget: above bottom nav ── */
+  #raceCountdownWidget { bottom:80px !important; }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -19031,6 +19196,53 @@ document.addEventListener('keydown', function(e) {
   }, { passive: true });
 })();
 
+/* ── Mobile Sport Analytics Tab ── */
+function mobSportTab(sport) {
+  // Toggle active glow on the tab
+  document.querySelectorAll('.mob-sport-tab').forEach(function(el) { el.classList.remove('mob-tab-active'); });
+  var tab = document.querySelector('.mob-sport-tab[data-sport="' + sport + '"]');
+  if (tab) tab.classList.add('mob-tab-active');
+  // Open the advanced stats modal for this sport
+  if (typeof showAdvancedStats === 'function') showAdvancedStats(sport);
+}
+
+/* ── Mobile Bottom Nav Logic ── */
+function mobNavTo(target) {
+  // Update active state on bottom nav items
+  document.querySelectorAll('.mob-nav-item').forEach(function(el) { el.classList.remove('active'); });
+  var btn = document.querySelector('.mob-nav-item[data-mob-nav="' + target + '"]');
+  if (btn) btn.classList.add('active');
+  // All targets route through the existing navTo system
+  navTo(target);
+}
+
+/* ── Rest Day quick-log for mobile ── */
+function mobLogRestDay() {
+  var today = fmtDate(new Date());
+  // Check if a rest day is already logged for today
+  var existing = db.activities.find(function(a) { return a.date === today && a.type === 'walk' && a.distance === 0 && a.notes === 'Rest Day'; });
+  if (existing) {
+    showToast('Rest day already logged for today', 'info');
+    return;
+  }
+  var entry = {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    date: today,
+    type: 'walk',
+    distance: 0,
+    duration: 0,
+    elevation: 0,
+    steps: 0,
+    calories: 0,
+    difficulty: 'easy',
+    notes: 'Rest Day'
+  };
+  db.activities.push(entry);
+  saveData(db);
+  renderAll();
+  showToast('Rest day logged! Recovery is training too.', 'success');
+}
+
 </script>
 
 <!-- Advanced Stats Modal -->
@@ -19265,6 +19477,78 @@ document.addEventListener('keydown', function(e) {
       </select>
       <div class="rcw-quote-display" id="rcwQuoteDisplay"></div>
     </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <div class="mob-nav-item active" data-mob-nav="dashboard" onclick="mobNavTo('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="mob-nav-label">Home</span>
+  </div>
+  <div class="mob-nav-item" data-mob-nav="statsSection" onclick="mobNavTo('statsSection')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span class="mob-nav-label">Stats</span>
+  </div>
+  <button class="mob-nav-add" onclick="openAddModal()" title="Add Activity">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <div class="mob-nav-item" data-mob-nav="racesOverlay" onclick="mobNavTo('racesOverlay')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+    <span class="mob-nav-label">Races</span>
+  </div>
+  <div class="mob-nav-item" data-mob-nav="logSection" onclick="mobNavTo('logSection')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <span class="mob-nav-label">Log</span>
+  </div>
+</nav>
+
+<!-- Mobile Performance Hub (hidden on desktop) -->
+<div class="mob-dashboard-top" id="mobDashboardTop">
+  <!-- Sport Analytics Tabs -->
+  <div class="mob-hub-label">Analytics</div>
+  <div class="mob-sport-tabs">
+    <button class="mob-sport-tab" data-sport="run" onclick="mobSportTab('run')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
+      <span class="mob-tab-label">Run</span>
+      <span class="mob-tab-sub">Stats</span>
+    </button>
+    <button class="mob-sport-tab" data-sport="walk" onclick="mobSportTab('walk')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
+      <span class="mob-tab-label">Walk</span>
+      <span class="mob-tab-sub">Stats</span>
+    </button>
+    <button class="mob-sport-tab" data-sport="cycle" onclick="mobSportTab('cycle')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-5l-3 6h11.5M10 6l2 6"/></svg>
+      <span class="mob-tab-label">Cycle</span>
+      <span class="mob-tab-sub">Stats</span>
+    </button>
+    <button class="mob-sport-tab" data-sport="rest" onclick="mobLogRestDay()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span class="mob-tab-label">Rest</span>
+      <span class="mob-tab-sub">Log</span>
+    </button>
+  </div>
+
+  <!-- Tools & Data Grid -->
+  <div class="mob-hub-label">Tools</div>
+  <div class="mob-tools-grid">
+    <button class="mob-tool-btn" onclick="mobNavTo('paceOverlay')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Pace Calc</span>
+    </button>
+    <button class="mob-tool-btn" onclick="mobNavTo('hrSection')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Heart Rate</span>
+    </button>
+    <button class="mob-tool-btn" onclick="mobNavTo('coachSection')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-6 0v4"/><path d="M18 21H6a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2z"/><circle cx="12" cy="16" r="1"/></svg>
+      <span>Coach</span>
+    </button>
+    <button class="mob-tool-btn" onclick="helpGuidesOpen()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Help</span>
+    </button>
   </div>
 </div>
 
