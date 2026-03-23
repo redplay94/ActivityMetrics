@@ -1062,6 +1062,7 @@ body.modal-open header {
   cursor:pointer; transition:all var(--transition);
 }
 .user-pill:hover { border-color:var(--text-muted); }
+.user-pill.pill-active { border-color:var(--run); box-shadow:0 0 0 1px var(--run); }
 .user-pill svg { width:12px; height:12px; color:var(--text-muted); }
 .user-avatar-sm {
   width:28px; height:28px; border-radius:50%;
@@ -9926,6 +9927,7 @@ function openProfile() {
   el.style.top = '0';
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  _setNavActive('profileOverlay');
   startProfileCountdown();
 }
 function closeProfile() {
@@ -11172,6 +11174,7 @@ function openFriendsPage() {
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  _setNavActive('friendsOverlay');
   var src = document.getElementById('friendsSection');
   var dst = document.getElementById('friendsSectionStandalone');
   if (src && dst) {
@@ -11221,6 +11224,7 @@ function openCalendarPage() {
   var headerH = document.querySelector('header').offsetHeight || 88;
   el.style.top = headerH + 'px';
   el.classList.add('open');
+  _setNavActive('calendarOverlay');
   renderCalendar();
 }
 function closeCalendarPage() {
@@ -17881,10 +17885,17 @@ function _navReturnSection() {
   _navSectionOrigNext   = null;
 }
 
+var _pillSections = ['profileOverlay','calendarOverlay','friendsOverlay','goalsSection','challengesSection','badgesSection','vo2Overlay'];
+
 function _setNavActive(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.querySelector('.nav-btn[data-section="' + sectionId + '"]');
   if (btn) btn.classList.add('active');
+  // Toggle profile pill active state
+  var pill = document.getElementById('userPillBtn');
+  if (pill) {
+    pill.classList.toggle('pill-active', _pillSections.indexOf(sectionId) !== -1);
+  }
 }
 
 function _navRerenderSection(id) {
