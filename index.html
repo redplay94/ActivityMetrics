@@ -3503,7 +3503,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 #paceEditorWidget{
   position:fixed;bottom:96px;left:24px;z-index:499;
   display:none;
-  width:270px;
+  width:286px;
   background:rgba(22,27,39,.78);
   border:1px solid var(--border);
   border-radius:var(--radius);
@@ -3567,13 +3567,26 @@ header { padding: 0 !important; z-index: 600 !important; }
   opacity:0;transition:opacity .3s;margin-top:6px;
 }
 .pew-sync-msg.visible{opacity:1}
+.pew-input.pew-invalid{border-color:#ef4444;background:rgba(239,68,68,.06)}
+.pew-input.pew-range{border-color:rgba(249,115,22,.45)}
+.pew-hint{font-size:.6rem;color:var(--text-dim);text-align:center;margin-top:2px;line-height:1.3}
+.pew-range-note{
+  font-size:.62rem;color:var(--text-dim);text-align:center;
+  margin-bottom:8px;padding:0 4px;line-height:1.4;
+}
 #paceEditorWidget.snapping{transition:left .3s cubic-bezier(.4,0,.2,1),top .3s cubic-bezier(.4,0,.2,1)}
 @media(max-width:600px){
-  #paceEditorWidget{width:220px;bottom:80px;left:12px}
+  #paceEditorWidget{width:240px;bottom:80px;left:12px}
   #paceEditorWidget.minimized{width:42px;height:42px}
   .pew-body{padding:10px}
-  .pew-input{font-size:.75rem;padding:6px 8px}
+  .pew-input{font-size:.82rem;padding:9px 8px;min-height:40px}
 }
+
+/* ─── Pace Editor Nav Button ──────────────────────────────── */
+.pew-nav-btn{display:inline-flex;align-items:center;gap:6px}
+.pew-nav-btn.pew-active{background:rgba(249,115,22,.12);color:var(--run);border-color:var(--run)}
+.pew-nav-icon{width:15px;height:15px;flex-shrink:0}
+@media(max-width:480px){.pew-nav-label{display:none}}
 
 /* ─── Help Guides Nav Button ──────────────────────────────── */
 .hg-nav-btn{display:inline-flex;align-items:center;gap:6px}
@@ -3807,7 +3820,8 @@ header { padding: 0 !important; z-index: 600 !important; }
       <button class="nav-btn" data-section="advHeatmapSection" onclick="navTo('advHeatmapSection')">Heatmap</button>
       <button class="nav-btn" data-section="prSection" onclick="navTo('prSection')">Personal Records</button>
       <button class="nav-btn" data-section="goalsSection" onclick="navTo('goalsSection')">Goals</button>
-      <button class="nav-btn hg-nav-btn" onclick="helpGuidesOpen()" title="Help Guides" style="margin-left:auto"><svg class="hg-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="hg-nav-label">Help Guides</span></button>
+      <button class="nav-btn pew-nav-btn" id="pewNavBtn" onclick="pewToggle()" title="Pace Editor" style="margin-left:auto"><svg class="pew-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="pew-nav-label">Pace Editor</span></button>
+      <button class="nav-btn hg-nav-btn" onclick="helpGuidesOpen()" title="Help Guides"><svg class="hg-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="hg-nav-label">Help Guides</span></button>
     </div>
   </div>
 </header>
@@ -7090,7 +7104,6 @@ function init() {
   if (!db.bucketList)      { db.bucketList      = []; saveData(db); }
 
   renderAll();
-  pewShow();
   // Init badge tracking after first render
   prevBadgeState = Object.fromEntries(Object.entries(computeBadges()).filter(([,v])=>v));
   setupChartObserver();
@@ -10757,9 +10770,12 @@ function renderCoachPaces() {
   const avgPace     = getAvgRunPaceSec();
   const pt = db.settings && db.settings.paceTargets;
   const easyPace    = pt ? pt.easy   : avgPace + 70;
+  const easyHi      = pt && pt.easyHi && pt.easyHi !== pt.easy ? pt.easyHi : null;
   const longPace    = pt ? Math.round((pt.easy + pt.medium) / 2) : avgPace + 50;
   const tempoPace   = pt ? pt.medium : Math.max(180, avgPace - 25);
+  const tempoHi     = pt && pt.mediumHi && pt.mediumHi !== pt.medium ? pt.mediumHi : null;
   const intervalPace= pt ? pt.hard   : Math.max(150, avgPace - 55);
+  const intervalHi  = pt && pt.hardHi && pt.hardHi !== pt.hard ? pt.hardHi : null;
 
   // Best ~5K run for Riegel reference
   const best5k = runs.filter(a=>a.distance>=4.5&&a.distance<=5.5)
@@ -10775,19 +10791,20 @@ function renderCoachPaces() {
     const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const sec=Math.round(s%60);
     return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}:${String(sec).padStart(2,'0')}`;
   };
-  const card = (cls,type,pace,desc) =>
-    `<div class="pace-card ${cls}"><div class="pace-type">${type}</div><div class="pace-value">${paceSecToStr(pace)}</div><div class="pace-desc">${desc}</div></div>`;
+  const fmtPaceRange = (lo, hi) => hi ? `${paceSecToStr(lo)} – ${paceSecToStr(hi)}` : paceSecToStr(lo);
+  const card = (cls,type,paceStr,desc) =>
+    `<div class="pace-card ${cls}"><div class="pace-type">${type}</div><div class="pace-value">${paceStr}</div><div class="pace-desc">${desc}</div></div>`;
 
   el.innerHTML = `
     <div class="pace-grid">
-      ${card('easy-pace',     'Easy Run',           easyPace,      'Conversational pace — talk in full sentences. Builds aerobic base.')}
-      ${card('long-pace',     'Long Run',           longPace,      'Slow &amp; steady — the backbone of endurance training.')}
-      ${card('tempo-pace',    'Tempo Run',          tempoPace,     'Comfortably hard — sustainable for 20–40 minutes. Raises lactate threshold.')}
-      ${card('interval-pace', 'Intervals (400m)',   intervalPace,  'Short hard efforts. 6×400m with 200m jog recovery. Builds VO2max.')}
-      ${card('race-pace',     '5K Race Pace',       est5k/5,       `Est. finish: ${fmtT(est5k)}`)}
-      ${card('race-pace',     '10K Race Pace',      est10k/10,     `Est. finish: ${fmtT(est10k)}`)}
-      ${card('race-pace',     'Half Marathon Pace', estHM/21.097,  `Est. finish: ${fmtT(estHM)}`)}
-      ${card('race-pace',     'Marathon Pace',      estMar/42.195, `Est. finish: ${fmtT(estMar)}`)}
+      ${card('easy-pace',     'Easy Run',           fmtPaceRange(easyPace, easyHi),      'Conversational pace — talk in full sentences. Builds aerobic base.')}
+      ${card('long-pace',     'Long Run',           paceSecToStr(longPace),               'Slow &amp; steady — the backbone of endurance training.')}
+      ${card('tempo-pace',    'Tempo Run',          fmtPaceRange(tempoPace, tempoHi),     'Comfortably hard — sustainable for 20–40 minutes. Raises lactate threshold.')}
+      ${card('interval-pace', 'Intervals (400m)',   fmtPaceRange(intervalPace, intervalHi),'Short hard efforts. 6×400m with 200m jog recovery. Builds VO2max.')}
+      ${card('race-pace',     '5K Race Pace',       paceSecToStr(est5k/5),       `Est. finish: ${fmtT(est5k)}`)}
+      ${card('race-pace',     '10K Race Pace',      paceSecToStr(est10k/10),     `Est. finish: ${fmtT(est10k)}`)}
+      ${card('race-pace',     'Half Marathon Pace', paceSecToStr(estHM/21.097),  `Est. finish: ${fmtT(estHM)}`)}
+      ${card('race-pace',     'Marathon Pace',      paceSecToStr(estMar/42.195), `Est. finish: ${fmtT(estMar)}`)}
     </div>
     <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:16px">
       ${pt ? 'Using custom pace targets from Pace Editor.' : `Based on avg pace of <strong>${paceSecToStr(avgPace)}</strong> across ${runs.length} runs.`}
@@ -17719,11 +17736,10 @@ function _closeAllStandaloneOverlays() {
   if (document.getElementById('vo2Overlay')?.classList.contains('open'))      closeVo2Page();
   var zmModal = document.getElementById('hrZoneModal');
   if (zmModal?.classList.contains('open')) zmModal.classList.remove('open');
-  pewHide();
 }
 
 function navTo(sectionId) {
-  if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); hrCloseZoneModal(); _setNavActive('dashboard'); pewShow(); return; }
+  if (sectionId === 'dashboard') { closeNavSection(); _closeAllStandaloneOverlays(); hrCloseZoneModal(); _setNavActive('dashboard'); return; }
   // Advanced Heatmap lives on the dashboard — scroll to it instead of opening overlay
   if (sectionId === 'advHeatmapSection') {
     closeNavSection(); _closeAllStandaloneOverlays();
@@ -18654,40 +18670,70 @@ function rcwSelectQuote(val) {
 })();
 
 /* ══════════════════════════════════════════════════════════════
-   FLOATING PACE EDITOR WIDGET
+   FLOATING PACE EDITOR WIDGET (with range support)
 ══════════════════════════════════════════════════════════════ */
 function pewShow() {
   var w = document.getElementById('paceEditorWidget');
   if (!w) return;
   w.style.display = 'block';
   pewLoadValues();
+  var btn = document.getElementById('pewNavBtn');
+  if (btn) btn.classList.add('pew-active');
 }
 function pewHide() {
   var w = document.getElementById('paceEditorWidget');
   if (w) w.style.display = 'none';
+  var btn = document.getElementById('pewNavBtn');
+  if (btn) btn.classList.remove('pew-active');
+}
+function pewToggle() {
+  var w = document.getElementById('paceEditorWidget');
+  if (!w) return;
+  if (w.style.display === 'none' || !w.style.display) {
+    pewShow();
+  } else {
+    pewHide();
+  }
 }
 function pewToggleMinimize() {
   var w = document.getElementById('paceEditorWidget');
   if (w) w.classList.toggle('minimized');
 }
 
+/* ── Format helpers ── */
+function _pewFmtSec(sec) {
+  if (!sec || !isFinite(sec) || sec <= 0) return '';
+  var m = Math.floor(sec / 60);
+  var s = Math.round(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+function _pewFmtRange(lo, hi) {
+  var a = _pewFmtSec(lo);
+  if (!a) return '';
+  if (hi && hi !== lo) return a + '-' + _pewFmtSec(hi);
+  return a;
+}
+
+/* ── Load saved values into inputs ── */
 function pewLoadValues() {
   if (!db.settings.paceTargets) {
     var avg = getAvgRunPaceSec();
     db.settings.paceTargets = {
-      easy: Math.round(avg + 70),
-      medium: Math.round(avg),
-      hard: Math.round(Math.max(150, avg - 55))
+      easy: Math.round(avg + 70), easyHi: Math.round(avg + 110),
+      medium: Math.round(avg),    mediumHi: Math.round(avg + 30),
+      hard: Math.round(Math.max(150, avg - 55)), hardHi: Math.round(Math.max(180, avg - 25))
     };
     saveData(db);
   }
   var t = db.settings.paceTargets;
-  document.getElementById('pewEasy').value   = paceSecToStr(t.easy).replace('/km','');
-  document.getElementById('pewMedium').value = paceSecToStr(t.medium).replace('/km','');
-  document.getElementById('pewHard').value   = paceSecToStr(t.hard).replace('/km','');
+  document.getElementById('pewEasy').value   = _pewFmtRange(t.easy, t.easyHi);
+  document.getElementById('pewMedium').value = _pewFmtRange(t.medium, t.mediumHi);
+  document.getElementById('pewHard').value   = _pewFmtRange(t.hard, t.hardHi);
+  _pewValidateInputs();
 }
 
-function pewParsePace(str) {
+/* ── Parse a single m:ss token ── */
+function pewParseSingle(str) {
   str = (str || '').trim();
   var parts = str.split(':');
   if (parts.length !== 2) return null;
@@ -18697,28 +18743,81 @@ function pewParsePace(str) {
   return m * 60 + s;
 }
 
+/* ── Parse "m:ss" or "m:ss-m:ss" ── */
+function pewParseField(str) {
+  str = (str || '').trim();
+  if (!str) return null;
+  // Check for range (hyphen separator)
+  var rangeParts = str.split('-');
+  if (rangeParts.length === 2) {
+    var lo = pewParseSingle(rangeParts[0]);
+    var hi = pewParseSingle(rangeParts[1]);
+    if (lo === null || hi === null) return null;
+    // Ensure lo <= hi (swap if user typed faster pace first)
+    if (lo > hi) { var tmp = lo; lo = hi; hi = tmp; }
+    return { lo: lo, hi: hi };
+  }
+  if (rangeParts.length === 1) {
+    var val = pewParseSingle(rangeParts[0]);
+    if (val === null) return null;
+    return { lo: val, hi: val };
+  }
+  return null;
+}
+
+/* ── Visual validation on inputs ── */
+function _pewValidateInputs() {
+  ['pewEasy', 'pewMedium', 'pewHard'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var val = el.value.trim();
+    if (!val) { el.classList.remove('pew-invalid', 'pew-range'); return; }
+    var parsed = pewParseField(val);
+    if (parsed === null) {
+      el.classList.add('pew-invalid');
+      el.classList.remove('pew-range');
+    } else {
+      el.classList.remove('pew-invalid');
+      el.classList.toggle('pew-range', parsed.lo !== parsed.hi);
+    }
+  });
+}
+
+/* ── Debounced auto-save on input ── */
 var _pewDebounce = null;
 function pewOnInput() {
+  _pewValidateInputs();
   if (_pewDebounce) clearTimeout(_pewDebounce);
   _pewDebounce = setTimeout(pewSync, 600);
 }
 
+/* ── Save & global re-render ── */
 function pewSync() {
-  var easy   = pewParsePace(document.getElementById('pewEasy').value);
-  var medium = pewParsePace(document.getElementById('pewMedium').value);
-  var hard   = pewParsePace(document.getElementById('pewHard').value);
+  var easy   = pewParseField(document.getElementById('pewEasy').value);
+  var medium = pewParseField(document.getElementById('pewMedium').value);
+  var hard   = pewParseField(document.getElementById('pewHard').value);
+  // All three fields must be valid
   if (easy === null || medium === null || hard === null) return;
+
   if (!db.settings.paceTargets) db.settings.paceTargets = {};
-  db.settings.paceTargets.easy   = easy;
-  db.settings.paceTargets.medium = medium;
-  db.settings.paceTargets.hard   = hard;
+  db.settings.paceTargets.easy     = easy.lo;
+  db.settings.paceTargets.easyHi   = easy.hi;
+  db.settings.paceTargets.medium   = medium.lo;
+  db.settings.paceTargets.mediumHi = medium.hi;
+  db.settings.paceTargets.hard     = hard.lo;
+  db.settings.paceTargets.hardHi   = hard.hi;
   saveData(db);
-  // Re-render all affected sections
-  renderCoach();
-  renderRacesPreview();
-  if (typeof renderRacesPage === 'function') renderRacesPage();
+
+  // ── Global re-render: call every function that consumes pace data ──
+  if (typeof renderCoach === 'function')        renderCoach();
+  if (typeof renderRacesPreview === 'function')  renderRacesPreview();
+  if (typeof renderRacesPage === 'function')     renderRacesPage();
   if (typeof renderCharts === 'function' && chartsRendered) renderCharts();
-  if (typeof renderDashWeekly === 'function') renderDashWeekly();
+  if (typeof renderDashWeekly === 'function')    renderDashWeekly();
+  if (typeof renderYTD === 'function')           renderYTD();
+  if (typeof renderStatus === 'function')        renderStatus();
+  if (typeof renderRbWidget === 'function')      renderRbWidget();
+
   // Flash sync confirmation
   var msg = document.getElementById('pewSyncMsg');
   if (msg) {
@@ -18881,19 +18980,20 @@ document.addEventListener('keydown', function(e) {
     <div class="pew-mini-icon" onclick="pewToggleMinimize()" title="Expand pace editor">&#9201;</div>
   </div>
   <div class="pew-body">
+    <div class="pew-range-note">Single pace or range &mdash; e.g. <strong>5:30</strong> or <strong>5:30-6:00</strong></div>
     <div class="pew-row">
       <span class="pew-label easy">Easy</span>
-      <input class="pew-input" id="pewEasy" type="text" placeholder="6:30" oninput="pewOnInput()">
+      <input class="pew-input" id="pewEasy" type="text" inputmode="text" placeholder="6:00-7:00" oninput="pewOnInput()" autocomplete="off">
       <span class="pew-unit">/km</span>
     </div>
     <div class="pew-row">
       <span class="pew-label medium">Medium</span>
-      <input class="pew-input" id="pewMedium" type="text" placeholder="5:30" oninput="pewOnInput()">
+      <input class="pew-input" id="pewMedium" type="text" inputmode="text" placeholder="5:00-5:45" oninput="pewOnInput()" autocomplete="off">
       <span class="pew-unit">/km</span>
     </div>
     <div class="pew-row">
       <span class="pew-label hard">Hard</span>
-      <input class="pew-input" id="pewHard" type="text" placeholder="4:45" oninput="pewOnInput()">
+      <input class="pew-input" id="pewHard" type="text" inputmode="text" placeholder="4:15-4:45" oninput="pewOnInput()" autocomplete="off">
       <span class="pew-unit">/km</span>
     </div>
     <div class="pew-sync-msg" id="pewSyncMsg">Synced &amp; re-rendered</div>
