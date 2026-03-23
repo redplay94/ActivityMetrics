@@ -1334,10 +1334,10 @@ body.modal-open header {
 .heatmap-week { display:flex; flex-direction:column; gap:3px; }
 .heatmap-cell {
   width:11px; height:11px; border-radius:2px;
-  cursor:pointer; transition:transform .12s ease;
+  cursor:pointer; transition:transform .2s ease, filter .2s ease;
   position:relative;
 }
-.heatmap-cell:hover { transform:scale(1.5); z-index:5; }
+.heatmap-cell:hover { transform:scale(1.3); z-index:5; filter:brightness(1.5); }
 .heatmap-cell.empty  { background:var(--bg3); border:1px solid var(--border); }
 .heatmap-cell.run-1  { background:rgba(249,115,22,.22); }
 .heatmap-cell.run-2  { background:rgba(249,115,22,.5);  }
@@ -1352,8 +1352,8 @@ body.modal-open header {
 .heatmap-cell.cycle-3 { background:rgba(59,130,246,.76);}
 .heatmap-cell.cycle-4 { background:rgba(59,130,246,1);  }
 .heatmap-day-labels { display:flex; flex-direction:column; gap:3px; margin-right:4px; padding-top:18px; }
-.heatmap-day-label { font-size:.58rem; color:var(--text-muted); height:11px; display:flex; align-items:center; }
-.heatmap-legend { display:flex; align-items:center; gap:5px; margin-top:8px; font-size:.65rem; color:var(--text-muted); }
+.heatmap-day-label { font-size:.58rem; color:#a0a0a0; height:11px; display:flex; align-items:center; }
+.heatmap-legend { display:flex; align-items:center; gap:5px; margin-top:8px; font-size:.65rem; color:#a0a0a0; }
 .heatmap-tooltip {
   position:fixed; z-index:9999;
   background:var(--bg2); border:1px solid var(--border);
@@ -2641,7 +2641,15 @@ select.vo2-input { cursor:pointer; }
 /* ══════════════════════════════════════════════════════════════
    ADVANCED HEATMAP SECTION
 ══════════════════════════════════════════════════════════════ */
-#advHeatmapSection { margin-top: 24px; }
+#advHeatmapSection {
+  margin-top: 24px;
+  background: rgba(15,15,15,.5);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(76,175,80,.08);
+}
 
 /* Heatmap Tabs */
 .adv-hm-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
@@ -2680,24 +2688,24 @@ select.vo2-input { cursor:pointer; }
 .adv-hm-grid-wrap { overflow-x:auto; padding-bottom:8px; }
 .adv-hm-grid-inner { display:inline-flex; gap:4px; }
 .adv-hm-day-col { display:flex; flex-direction:column; gap:3px; margin-right:4px; padding-top:22px; }
-.adv-hm-day-lbl { font-size:.58rem; color:var(--text-muted); height:14px; display:flex; align-items:center; }
+.adv-hm-day-lbl { font-size:.58rem; color:#a0a0a0; height:14px; display:flex; align-items:center; }
 .adv-hm-months-row { display:flex; gap:3px; margin-bottom:3px; }
-.adv-hm-month-lbl { font-size:.6rem; color:var(--text-muted); font-weight:600; white-space:nowrap; overflow:visible; }
+.adv-hm-month-lbl { font-size:.6rem; color:#a0a0a0; font-weight:600; white-space:nowrap; overflow:visible; }
 .adv-hm-weeks { display:flex; gap:3px; }
 .adv-hm-week  { display:flex; flex-direction:column; gap:3px; }
 .adv-hm-cell {
   width:14px; height:14px; border-radius:3px; cursor:pointer;
-  transition: transform .1s ease, opacity .3s ease;
+  transition: transform .2s ease, filter .2s ease, opacity .3s ease;
   position:relative; flex-shrink:0;
 }
-.adv-hm-cell:hover { transform:scale(1.5); z-index:5; }
+.adv-hm-cell:hover { transform:scale(1.3); z-index:5; filter:brightness(1.5); }
 .adv-hm-cell.adv-empty { background:var(--bg3); border:1px solid var(--border); }
 .adv-hm-cell.adv-future { opacity:0; pointer-events:none; }
 @keyframes advCellWave { from { opacity:0; transform:scaleY(.3); } to { opacity:1; transform:scaleY(1); } }
 .adv-hm-cell.wave { animation: advCellWave .25s ease forwards; }
 
 /* Legend */
-.adv-hm-legend { display:flex; align-items:center; gap:5px; margin-top:10px; font-size:.65rem; color:var(--text-muted); flex-wrap:wrap; }
+.adv-hm-legend { display:flex; align-items:center; gap:5px; margin-top:10px; font-size:.65rem; color:#a0a0a0; flex-wrap:wrap; }
 .adv-hm-legend-cell { width:13px; height:13px; border-radius:3px; cursor:default; flex-shrink:0; }
 
 /* Tooltip */
