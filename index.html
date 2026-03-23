@@ -3328,6 +3328,73 @@ header { padding: 0 !important; z-index: 600 !important; }
 @media (max-width: 500px) {
   .tab-btn .tab-label { display: none; }
 }
+/* ─── Advanced Stats Modal ─────────────────────────────────── */
+#advStatsOverlay {
+  position:fixed;top:0;left:0;width:100vw;height:100vh;
+  z-index:1000002;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease;
+}
+#advStatsOverlay.open{opacity:1;pointer-events:all}
+#advStatsOverlay .adv-modal{
+  background:rgba(22,27,39,.82);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;
+  transform:translateY(20px) scale(.97);
+  transition:transform .25s ease;
+}
+[data-theme="light"] #advStatsOverlay .adv-modal{
+  background:rgba(255,255,255,.82);
+}
+#advStatsOverlay.open .adv-modal{transform:none}
+.adv-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:inherit;z-index:1;border-radius:var(--radius) var(--radius) 0 0;
+}
+.adv-modal-header .modal-title{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.adv-modal-header .sport-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.adv-modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
+.adv-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.adv-stat-item{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px;position:relative;overflow:hidden;
+}
+.adv-stat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.adv-stat-item.accent-run::before{background:var(--run)}
+.adv-stat-item.accent-walk::before{background:var(--walk)}
+.adv-stat-item.accent-cycle::before{background:var(--cycle)}
+.adv-stat-label{font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.adv-stat-val{font-size:1.5rem;font-weight:800;letter-spacing:-.5px;line-height:1}
+.adv-stat-unit{font-size:.75rem;font-weight:500;color:var(--text-muted);margin-left:2px}
+.adv-stat-item.full{grid-column:1/-1}
+.adv-ytd-section{margin-top:4px}
+.adv-ytd-title{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.adv-ytd-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.adv-ytd-row:last-child{border-bottom:none}
+.adv-ytd-key{font-size:.82rem;color:var(--text-muted)}
+.adv-ytd-val{font-size:.92rem;font-weight:700}
+@media(max-width:600px){
+  #advStatsOverlay{padding:0;align-items:flex-end}
+  #advStatsOverlay .adv-modal{
+    max-width:100%;max-height:92vh;
+    border-radius:20px 20px 0 0;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  #advStatsOverlay.open .adv-modal{transform:translateY(0)}
+  .adv-modal-body{padding:20px 16px}
+  .adv-stat-val{font-size:1.3rem}
+  .adv-stat-grid{gap:8px}
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -3348,15 +3415,15 @@ header { padding: 0 !important; z-index: 600 !important; }
 
     <div class="header-row1-center">
       <div class="activity-tabs">
-        <button class="tab-btn active-tab" data-type="run" onclick="filterTab('run')">
+        <button class="tab-btn active-tab" data-type="run" onclick="filterTab('run');showAdvancedStats('run')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
           <span class="tab-label">Run</span>
         </button>
-        <button class="tab-btn" data-type="walk" onclick="filterTab('walk')">
+        <button class="tab-btn" data-type="walk" onclick="filterTab('walk');showAdvancedStats('walk')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
           <span class="tab-label">Walk / Hike</span>
         </button>
-        <button class="tab-btn" data-type="cycle" onclick="filterTab('cycle')">
+        <button class="tab-btn" data-type="cycle" onclick="filterTab('cycle');showAdvancedStats('cycle')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-5l-3 6h11.5M10 6l2 6"/></svg>
           <span class="tab-label">Cycle</span>
         </button>
@@ -17730,6 +17797,145 @@ function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
   if (typeof db !== 'undefined' && db.activities) renderRbWidget();
 })();
 
+/* ══════════════════════════════════════════════════════════════
+   ADVANCED STATS MODAL
+══════════════════════════════════════════════════════════════ */
+function showAdvancedStats(sport) {
+  var data = (typeof db !== 'undefined' && db) ? db : (typeof loadData === 'function' ? loadData() : null);
+  if (!data || !data.activities || !data.activities.length) return;
+
+  var sportLabel = { run: 'Run', walk: 'Walk / Hike', cycle: 'Cycle' };
+  var sportColor = { run: 'var(--run)', walk: 'var(--walk)', cycle: 'var(--cycle)' };
+  var accentClass = 'accent-' + sport;
+
+  // Filter activities for this sport
+  var acts = data.activities.filter(function(a) { return a.type === sport; });
+
+  // All-time totals
+  var totalDist = 0, totalSecs = 0;
+  acts.forEach(function(a) {
+    totalDist += (Number(a.distance) || 0);
+    var dur = Number(a.duration) || 0;
+    if (typeof a.duration === 'string' && a.duration.indexOf(':') !== -1) {
+      var parts = a.duration.split(':');
+      dur = (Number(parts[0]) || 0) * 3600 + (Number(parts[1]) || 0) * 60 + (Number(parts[2]) || 0);
+    }
+    totalSecs += dur;
+  });
+  var sessionCount = acts.length;
+
+  // Format duration
+  var hrs = Math.floor(totalSecs / 3600);
+  var mins = Math.floor((totalSecs % 3600) / 60);
+  var durStr = hrs > 0 ? hrs + 'h ' + mins + 'm' : mins + 'm';
+
+  // Average pace/speed
+  var paceStr = '—';
+  if (totalDist > 0 && totalSecs > 0) {
+    if (sport === 'cycle') {
+      var kmh = totalDist / (totalSecs / 3600);
+      paceStr = kmh.toFixed(1) + ' km/h';
+    } else {
+      var minPerKm = (totalSecs / 60) / totalDist;
+      var pMin = Math.floor(minPerKm);
+      var pSec = Math.round((minPerKm - pMin) * 60);
+      if (pSec === 60) { pMin++; pSec = 0; }
+      paceStr = pMin + ':' + (pSec < 10 ? '0' : '') + pSec + ' /km';
+    }
+  }
+
+  // YTD calculations
+  var now = new Date();
+  var yearStart = now.getFullYear() + '-01-01';
+  var ytdActs = acts.filter(function(a) { return a.date >= yearStart; });
+  var ytdDist = 0, ytdSecs = 0;
+  ytdActs.forEach(function(a) {
+    ytdDist += (Number(a.distance) || 0);
+    var dur = Number(a.duration) || 0;
+    if (typeof a.duration === 'string' && a.duration.indexOf(':') !== -1) {
+      var parts = a.duration.split(':');
+      dur = (Number(parts[0]) || 0) * 3600 + (Number(parts[1]) || 0) * 60 + (Number(parts[2]) || 0);
+    }
+    ytdSecs += dur;
+  });
+  var ytdHrs = Math.floor(ytdSecs / 3600);
+  var ytdMins = Math.floor((ytdSecs % 3600) / 60);
+  var ytdDurStr = ytdHrs > 0 ? ytdHrs + 'h ' + ytdMins + 'm' : ytdMins + 'm';
+  var ytdPaceStr = '—';
+  if (ytdDist > 0 && ytdSecs > 0) {
+    if (sport === 'cycle') {
+      ytdPaceStr = (ytdDist / (ytdSecs / 3600)).toFixed(1) + ' km/h';
+    } else {
+      var yMinPerKm = (ytdSecs / 60) / ytdDist;
+      var yP = Math.floor(yMinPerKm);
+      var yS = Math.round((yMinPerKm - yP) * 60);
+      if (yS === 60) { yP++; yS = 0; }
+      ytdPaceStr = yP + ':' + (yS < 10 ? '0' : '') + yS + ' /km';
+    }
+  }
+
+  // Set title
+  var titleEl = document.getElementById('advStatsTitle');
+  titleEl.innerHTML = '<span class="sport-dot" style="background:' + sportColor[sport] + '"></span>' +
+    (sportLabel[sport] || sport) + ' — Advanced Stats';
+
+  // Build body
+  var paceLabel = sport === 'cycle' ? 'Avg Speed' : 'Avg Pace';
+  var html = '<div class="adv-stat-grid">' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Total Distance</div>' +
+      '<div class="adv-stat-val" style="color:' + sportColor[sport] + '">' + totalDist.toFixed(1) + '<span class="adv-stat-unit">km</span></div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Total Duration</div>' +
+      '<div class="adv-stat-val" style="color:' + sportColor[sport] + '">' + durStr + '</div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">' + paceLabel + '</div>' +
+      '<div class="adv-stat-val" style="color:' + sportColor[sport] + '">' + paceStr + '</div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Sessions</div>' +
+      '<div class="adv-stat-val" style="color:' + sportColor[sport] + '">' + sessionCount + '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="adv-ytd-section">' +
+    '<div class="adv-ytd-title">Year-to-Date (' + now.getFullYear() + ')</div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Distance</span><span class="adv-ytd-val" style="color:' + sportColor[sport] + '">' + ytdDist.toFixed(1) + ' km</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Duration</span><span class="adv-ytd-val" style="color:' + sportColor[sport] + '">' + ytdDurStr + '</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">' + paceLabel + '</span><span class="adv-ytd-val" style="color:' + sportColor[sport] + '">' + ytdPaceStr + '</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Sessions</span><span class="adv-ytd-val" style="color:' + sportColor[sport] + '">' + ytdActs.length + '</span></div>' +
+  '</div>';
+
+  document.getElementById('advStatsBody').innerHTML = html;
+  document.getElementById('advStatsOverlay').classList.add('open');
+}
+
+function closeAdvancedStats() {
+  document.getElementById('advStatsOverlay').classList.remove('open');
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('advStatsOverlay').classList.contains('open')) {
+    closeAdvancedStats();
+  }
+});
+
 </script>
+
+<!-- Advanced Stats Modal -->
+<div id="advStatsOverlay" onclick="if(event.target===this)closeAdvancedStats()">
+  <div class="adv-modal" role="dialog" aria-modal="true" aria-labelledby="advStatsTitle">
+    <div class="adv-modal-header">
+      <div class="modal-title" id="advStatsTitle"></div>
+      <button class="modal-close" onclick="closeAdvancedStats()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="adv-modal-body" id="advStatsBody"></div>
+  </div>
+</div>
+
 </body>
 </html>
