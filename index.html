@@ -3267,16 +3267,26 @@ header { padding: 0 !important; z-index: 600 !important; }
 }
 .nav-bar::-webkit-scrollbar { display: none; }
 .nav-bar-inner {
-  display: flex; align-items: center; gap: 3px;
+  display: flex; align-items: center; gap: 0;
   max-width: 1280px; margin: 0 auto; padding: 5px 16px;
   min-width: 100%;
-  justify-content: center;
+  justify-content: space-between;
+}
+.nav-bar-left {
+  display: flex; align-items: center; gap: 6px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; flex: 1; min-width: 0;
+}
+.nav-bar-left::-webkit-scrollbar { display: none; }
+.nav-bar-right {
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0; margin-left: 12px;
 }
 @media (max-width: 767px) {
   .nav-bar-inner {
     justify-content: flex-start;
-    width: max-content;
   }
+  .nav-bar-left { width: max-content; }
 }
 .nav-btn {
   display: flex; align-items: center; white-space: nowrap;
@@ -3807,21 +3817,23 @@ header { padding: 0 !important; z-index: 600 !important; }
   <!-- Row 2: Navigation Bar -->
   <div class="nav-bar">
     <div class="nav-bar-inner">
-      <button class="nav-btn active" data-section="dashboard" onclick="navTo('dashboard')">Dashboard</button>
-      <button class="nav-btn" data-section="statsSection" onclick="navTo('statsSection')">My Stats</button>
-      <button class="nav-btn" data-section="racesOverlay" onclick="navTo('racesOverlay')">My Races</button>
-      <button class="nav-btn" data-section="hrSection" onclick="navTo('hrSection')">Heart Rate</button>
-      <button class="nav-btn" data-section="logSection" onclick="navTo('logSection')">Activity Log</button>
-      <button class="nav-btn" data-section="coachSection" onclick="navTo('coachSection')">Running Coach</button>
-      <button class="nav-btn" data-section="paceOverlay" onclick="navTo('paceOverlay')">Pace Calculator</button>
-      <button class="nav-btn" data-section="vo2Overlay" onclick="navTo('vo2Overlay')">VO2 Max Lab</button>
-      <button class="nav-btn" data-section="badgesSection" onclick="navTo('badgesSection')">Achievements</button>
-      <button class="nav-btn" data-section="challengesSection" onclick="navTo('challengesSection')">Challenges</button>
-      <button class="nav-btn" data-section="advHeatmapSection" onclick="navTo('advHeatmapSection')">Heatmap</button>
-      <button class="nav-btn" data-section="prSection" onclick="navTo('prSection')">Personal Records</button>
-      <button class="nav-btn" data-section="goalsSection" onclick="navTo('goalsSection')">Goals</button>
-      <button class="nav-btn pew-nav-btn" id="pewNavBtn" onclick="pewToggle()" title="Pace Editor" style="margin-left:auto"><svg class="pew-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="pew-nav-label">Pace Editor</span></button>
-      <button class="nav-btn hg-nav-btn" onclick="helpGuidesOpen()" title="Help Guides"><svg class="hg-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="hg-nav-label">Help Guides</span></button>
+      <div class="nav-bar-left">
+        <button class="nav-btn active" data-section="dashboard" onclick="navTo('dashboard')">Dashboard</button>
+        <button class="nav-btn" data-section="statsSection" onclick="navTo('statsSection')">My Stats</button>
+        <button class="nav-btn" data-section="racesOverlay" onclick="navTo('racesOverlay')">My Races</button>
+        <button class="nav-btn" data-section="hrSection" onclick="navTo('hrSection')">Heart Rate</button>
+        <button class="nav-btn" data-section="logSection" onclick="navTo('logSection')">Activity Log</button>
+        <button class="nav-btn" data-section="coachSection" onclick="navTo('coachSection')">Running Coach</button>
+        <button class="nav-btn" data-section="paceOverlay" onclick="navTo('paceOverlay')">Pace Calculator</button>
+        <button class="nav-btn" data-section="vo2Overlay" onclick="navTo('vo2Overlay')">VO2 Max Lab</button>
+        <button class="nav-btn" data-section="badgesSection" onclick="navTo('badgesSection')">Achievements</button>
+        <button class="nav-btn" data-section="challengesSection" onclick="navTo('challengesSection')">Challenges</button>
+        <button class="nav-btn" data-section="goalsSection" onclick="navTo('goalsSection')">Goals</button>
+      </div>
+      <div class="nav-bar-right">
+        <button class="nav-btn pew-nav-btn" id="pewNavBtn" onclick="pewToggle()" title="Pace Editor"><svg class="pew-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="pew-nav-label">Pace Editor</span></button>
+        <button class="nav-btn hg-nav-btn" onclick="helpGuidesOpen()" title="Help Guides"><svg class="hg-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="hg-nav-label">Help Guides</span></button>
+      </div>
     </div>
   </div>
 </header>
