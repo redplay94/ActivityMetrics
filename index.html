@@ -3328,6 +3328,89 @@ header { padding: 0 !important; z-index: 600 !important; }
 @media (max-width: 500px) {
   .tab-btn .tab-label { display: none; }
 }
+/* ─── Advanced Stats Modal ─────────────────────────────────── */
+#advStatsOverlay {
+  position:fixed;top:0;left:0;width:100vw;height:100vh;
+  z-index:1000002;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease;
+}
+#advStatsOverlay.open{opacity:1;pointer-events:all}
+#advStatsOverlay .adv-modal{
+  background:rgba(22,27,39,.82);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;
+  transform:translateY(20px) scale(.97);
+  transition:transform .25s ease;
+}
+[data-theme="light"] #advStatsOverlay .adv-modal{
+  background:rgba(255,255,255,.82);
+}
+#advStatsOverlay.open .adv-modal{transform:none}
+.adv-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:inherit;z-index:1;border-radius:var(--radius) var(--radius) 0 0;
+}
+.adv-modal-header .modal-title{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.adv-modal-header .sport-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.adv-modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
+.adv-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.adv-stat-item{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px;position:relative;overflow:hidden;
+}
+.adv-stat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.adv-stat-item.accent-run::before{background:var(--run)}
+.adv-stat-item.accent-walk::before{background:var(--walk)}
+.adv-stat-item.accent-cycle::before{background:var(--cycle)}
+.adv-stat-label{font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.adv-stat-val{font-size:1.5rem;font-weight:800;letter-spacing:-.5px;line-height:1}
+.adv-stat-unit{font-size:.75rem;font-weight:500;color:var(--text-muted);margin-left:2px}
+.adv-stat-item.full{grid-column:1/-1}
+.adv-ytd-section{margin-top:4px}
+.adv-ytd-title{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.adv-ytd-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.adv-ytd-row:last-child{border-bottom:none}
+.adv-ytd-key{font-size:.82rem;color:var(--text-muted)}
+.adv-ytd-val{font-size:.92rem;font-weight:700}
+/* Filter bar */
+.adv-filter-bar{display:flex;gap:8px;flex-wrap:wrap}
+.adv-filter-bar select{
+  flex:1;min-width:0;
+  appearance:none;-webkit-appearance:none;
+  background:var(--bg3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238896a8'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:.78rem;font-weight:600;
+  padding:10px 28px 10px 12px;
+  cursor:pointer;transition:border-color var(--transition);
+}
+.adv-filter-bar select:focus{outline:none;border-color:var(--text-muted)}
+.adv-filter-bar select option{background:var(--bg2);color:var(--text)}
+.adv-no-data{text-align:center;padding:32px 16px;color:var(--text-muted);font-size:.88rem}
+@media(max-width:600px){
+  #advStatsOverlay{padding:0;align-items:flex-end}
+  #advStatsOverlay .adv-modal{
+    max-width:100%;max-height:92vh;
+    border-radius:20px 20px 0 0;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  #advStatsOverlay.open .adv-modal{transform:translateY(0)}
+  .adv-modal-body{padding:20px 16px}
+  .adv-stat-val{font-size:1.3rem}
+  .adv-stat-grid{gap:8px}
+  .adv-filter-bar{gap:6px}
+  .adv-filter-bar select{padding:12px 28px 12px 12px;font-size:.82rem;min-height:44px}
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -3348,15 +3431,15 @@ header { padding: 0 !important; z-index: 600 !important; }
 
     <div class="header-row1-center">
       <div class="activity-tabs">
-        <button class="tab-btn active-tab" data-type="run" onclick="filterTab('run')">
+        <button class="tab-btn active-tab" data-type="run" onclick="filterTab('run');showAdvancedStats('run')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 20l3-7 2 3 3-5 3 6"/></svg>
           <span class="tab-label">Run</span>
         </button>
-        <button class="tab-btn" data-type="walk" onclick="filterTab('walk')">
+        <button class="tab-btn" data-type="walk" onclick="filterTab('walk');showAdvancedStats('walk')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m6 8 3 1 2 4-2 3v4M15 20l-1-4 2-4 1-2-4-1"/></svg>
           <span class="tab-label">Walk / Hike</span>
         </button>
-        <button class="tab-btn" data-type="cycle" onclick="filterTab('cycle')">
+        <button class="tab-btn" data-type="cycle" onclick="filterTab('cycle');showAdvancedStats('cycle')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-5l-3 6h11.5M10 6l2 6"/></svg>
           <span class="tab-label">Cycle</span>
         </button>
@@ -17730,6 +17813,192 @@ function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
   if (typeof db !== 'undefined' && db.activities) renderRbWidget();
 })();
 
+/* ══════════════════════════════════════════════════════════════
+   ADVANCED STATS MODAL (with filters)
+══════════════════════════════════════════════════════════════ */
+var _advCurrentSport = null;
+
+function _advGetData() {
+  return (typeof db !== 'undefined' && db) ? db : (typeof loadData === 'function' ? loadData() : null);
+}
+
+function _advParseDuration(dur) {
+  if (typeof dur === 'number') return dur;
+  if (typeof dur === 'string' && dur.indexOf(':') !== -1) {
+    var p = dur.split(':');
+    return (Number(p[0]) || 0) * 3600 + (Number(p[1]) || 0) * 60 + (Number(p[2]) || 0);
+  }
+  return Number(dur) || 0;
+}
+
+function _advFormatDuration(secs) {
+  var h = Math.floor(secs / 3600);
+  var m = Math.floor((secs % 3600) / 60);
+  return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+}
+
+function _advFormatPace(sport, dist, secs) {
+  if (dist <= 0 || secs <= 0) return '—';
+  if (sport === 'cycle') return (dist / (secs / 3600)).toFixed(1) + ' km/h';
+  var mPk = (secs / 60) / dist;
+  var mm = Math.floor(mPk);
+  var ss = Math.round((mPk - mm) * 60);
+  if (ss === 60) { mm++; ss = 0; }
+  return mm + ':' + (ss < 10 ? '0' : '') + ss + ' /km';
+}
+
+function showAdvancedStats(sport) {
+  var data = _advGetData();
+  if (!data || !data.activities || !data.activities.length) return;
+  _advCurrentSport = sport;
+
+  var sportLabel = { run: 'Run', walk: 'Walk / Hike', cycle: 'Cycle' };
+  var sportColor = { run: 'var(--run)', walk: 'var(--walk)', cycle: 'var(--cycle)' };
+
+  // Set title
+  document.getElementById('advStatsTitle').innerHTML =
+    '<span class="sport-dot" style="background:' + sportColor[sport] + '"></span>' +
+    (sportLabel[sport] || sport) + ' — Advanced Stats';
+
+  // Collect available years from this sport's activities
+  var sportActs = data.activities.filter(function(a) { return a.type === sport; });
+  var yearsSet = {};
+  sportActs.forEach(function(a) {
+    if (a.date) yearsSet[a.date.substring(0, 4)] = true;
+  });
+  var years = Object.keys(yearsSet).sort().reverse();
+
+  // Build filter bar + stats container
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var filterHtml = '<div class="adv-filter-bar">' +
+    '<select id="advFilterYear" onchange="_advUpdateStats()"><option value="all">All Years</option>';
+  years.forEach(function(y) { filterHtml += '<option value="' + y + '">' + y + '</option>'; });
+  filterHtml += '</select>' +
+    '<select id="advFilterMonth" onchange="_advUpdateStats()"><option value="all">All Months</option>';
+  months.forEach(function(m, i) {
+    filterHtml += '<option value="' + (i < 9 ? '0' : '') + (i + 1) + '">' + m + '</option>';
+  });
+  filterHtml += '</select>' +
+    '<select id="advFilterIntensity" onchange="_advUpdateStats()">' +
+      '<option value="all">All Intensities</option>' +
+      '<option value="easy">Easy</option>' +
+      '<option value="medium">Medium</option>' +
+      '<option value="hard">Hard</option>' +
+    '</select>' +
+  '</div>' +
+  '<div id="advStatsContent"></div>';
+
+  document.getElementById('advStatsBody').innerHTML = filterHtml;
+  _advUpdateStats();
+  document.getElementById('advStatsOverlay').classList.add('open');
+}
+
+function _advUpdateStats() {
+  var sport = _advCurrentSport;
+  if (!sport) return;
+  var data = _advGetData();
+  if (!data || !data.activities) return;
+
+  var sportColor = { run: 'var(--run)', walk: 'var(--walk)', cycle: 'var(--cycle)' };
+  var color = sportColor[sport];
+  var accentClass = 'accent-' + sport;
+  var paceLabel = sport === 'cycle' ? 'Avg Speed' : 'Avg Pace';
+
+  var yearVal = document.getElementById('advFilterYear').value;
+  var monthVal = document.getElementById('advFilterMonth').value;
+  var intVal = document.getElementById('advFilterIntensity').value;
+
+  // Filter activities
+  var acts = data.activities.filter(function(a) {
+    if (a.type !== sport) return false;
+    if (yearVal !== 'all' && (!a.date || a.date.substring(0, 4) !== yearVal)) return false;
+    if (monthVal !== 'all' && (!a.date || a.date.substring(5, 7) !== monthVal)) return false;
+    if (intVal !== 'all') {
+      var diff = (a.difficulty || '').toLowerCase();
+      if (diff !== intVal) return false;
+    }
+    return true;
+  });
+
+  // No data state
+  if (acts.length === 0) {
+    document.getElementById('advStatsContent').innerHTML =
+      '<div class="adv-no-data">No activities match these filters.</div>';
+    return;
+  }
+
+  // Calculate totals
+  var totalDist = 0, totalSecs = 0;
+  acts.forEach(function(a) {
+    totalDist += (Number(a.distance) || 0);
+    totalSecs += _advParseDuration(a.duration);
+  });
+
+  // YTD subset (current year)
+  var thisYear = String(new Date().getFullYear());
+  var ytdActs = acts.filter(function(a) { return a.date && a.date.substring(0, 4) === thisYear; });
+  var ytdDist = 0, ytdSecs = 0;
+  ytdActs.forEach(function(a) {
+    ytdDist += (Number(a.distance) || 0);
+    ytdSecs += _advParseDuration(a.duration);
+  });
+
+  // Build HTML
+  var html = '<div class="adv-stat-grid">' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Total Distance</div>' +
+      '<div class="adv-stat-val" style="color:' + color + '">' + totalDist.toFixed(1) + '<span class="adv-stat-unit">km</span></div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Total Duration</div>' +
+      '<div class="adv-stat-val" style="color:' + color + '">' + _advFormatDuration(totalSecs) + '</div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">' + paceLabel + '</div>' +
+      '<div class="adv-stat-val" style="color:' + color + '">' + _advFormatPace(sport, totalDist, totalSecs) + '</div>' +
+    '</div>' +
+    '<div class="adv-stat-item ' + accentClass + '">' +
+      '<div class="adv-stat-label">Sessions</div>' +
+      '<div class="adv-stat-val" style="color:' + color + '">' + acts.length + '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="adv-ytd-section">' +
+    '<div class="adv-ytd-title">Year-to-Date (' + thisYear + ')</div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Distance</span><span class="adv-ytd-val" style="color:' + color + '">' + ytdDist.toFixed(1) + ' km</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Duration</span><span class="adv-ytd-val" style="color:' + color + '">' + _advFormatDuration(ytdSecs) + '</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">' + paceLabel + '</span><span class="adv-ytd-val" style="color:' + color + '">' + _advFormatPace(sport, ytdDist, ytdSecs) + '</span></div>' +
+    '<div class="adv-ytd-row"><span class="adv-ytd-key">Sessions</span><span class="adv-ytd-val" style="color:' + color + '">' + ytdActs.length + '</span></div>' +
+  '</div>';
+
+  document.getElementById('advStatsContent').innerHTML = html;
+}
+
+function closeAdvancedStats() {
+  document.getElementById('advStatsOverlay').classList.remove('open');
+  _advCurrentSport = null;
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('advStatsOverlay').classList.contains('open')) {
+    closeAdvancedStats();
+  }
+});
+
 </script>
+
+<!-- Advanced Stats Modal -->
+<div id="advStatsOverlay" onclick="if(event.target===this)closeAdvancedStats()">
+  <div class="adv-modal" role="dialog" aria-modal="true" aria-labelledby="advStatsTitle">
+    <div class="adv-modal-header">
+      <div class="modal-title" id="advStatsTitle"></div>
+      <button class="modal-close" onclick="closeAdvancedStats()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="adv-modal-body" id="advStatsBody"></div>
+  </div>
+</div>
+
 </body>
 </html>
