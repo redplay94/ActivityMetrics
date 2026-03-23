@@ -1301,6 +1301,17 @@ body.modal-open header {
 .weekly-bar-tooltip { position:fixed; background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.68rem;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25); }
 .weekly-bar-legend { display:flex; gap:10px; justify-content:center; margin-top:6px; font-size:.58rem; color:var(--text-muted); }
 .weekly-bar-legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:3px; vertical-align:middle; background:var(--c); }
+.chart-placeholder {
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:56px; gap:8px; z-index:1;
+}
+.chart-placeholder-text { font-size:.82rem; color:var(--text-muted); }
+.chart-placeholder-btn {
+  padding:5px 14px; border-radius:8px; font-size:.72rem; font-weight:700;
+  color:var(--run); background:none; border:1.5px solid var(--run);
+  cursor:pointer; transition:all var(--transition);
+}
+.chart-placeholder-btn:hover { background:var(--run); color:#fff; }
 
 /* Activity Heatmap */
 .heatmap-wrap { overflow-x:auto; padding-bottom:8px; }
@@ -17979,8 +17990,14 @@ function renderDashWeekly() {
     +'<div class="weekly-stat"><div class="weekly-stat-label">Steps</div><div class="weekly-stat-val">'+(tw.steps/1000).toFixed(1)+'k</div>'+cmpHtml(tw.steps,lw.steps)+'</div>'
     +'</div>'
     +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
-    +'<div class="weekly-bar-chart">'+barsHtml+'</div>'
-    +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div></div>';
+    +(tw.dist > 0
+      ? '<div class="weekly-bar-chart">'+barsHtml+'</div>'
+       +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div>'
+      : '<div class="chart-placeholder">'
+       +'<div class="chart-placeholder-text">No activities logged this week.</div>'
+       +'<button class="chart-placeholder-btn" onclick="openAddModal()">[+] Add Activity</button>'
+       +'</div>')
+    +'</div>';
 }
 
 /* ══════════════════════════════════════════════════════════════
