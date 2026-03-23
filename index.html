@@ -42,6 +42,15 @@ body {
   line-height: 1.5;
   transition: color var(--transition);
 }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,165,0,.04), transparent 45%);
+  transition: background .15s ease;
+}
+.app, header, .modal-overlay { position: relative; z-index: 1; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, select, textarea { font-family: inherit; }
 a { text-decoration: none; color: inherit; }
@@ -19004,6 +19013,21 @@ document.addEventListener('keydown', function(e) {
       else helpGuidesPrev();
     }
     el = null;
+  }, { passive: true });
+})();
+
+/* ── Mouse-following ambient glow ── */
+(function() {
+  var root = document.documentElement;
+  var ticking = false;
+  window.addEventListener('mousemove', function(e) {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      root.style.setProperty('--mouse-x', e.clientX + 'px');
+      root.style.setProperty('--mouse-y', e.clientY + 'px');
+      ticking = false;
+    });
   }, { passive: true });
 })();
 
