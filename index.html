@@ -55,14 +55,20 @@
     </header>
 
     <!-- How It Works -->
-    <section class="py-24 bg-orange-600">
-        <div class="max-w-7xl mx-auto px-4">
+    <section class="pt-20 pb-16 bg-orange-600 relative overflow-hidden">
+        <!-- Background texture: athlete in motion -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
+            <img src="https://images.unsplash.com/photo-1547447137-512c85b1d441?auto=format&fit=crop&q=80&w=1600"
+                 alt="" class="w-full h-full object-cover grayscale brightness-75">
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4 text-white">How It <span class="text-black">Works</span></h2>
                 <p class="text-black/70 text-lg max-w-2xl mx-auto">ActivityMetrics is simple, intuitive, and designed for athletes of all levels.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
                 <!-- Step 1 -->
                 <div class="text-center group">
@@ -106,10 +112,15 @@
 
             </div>
 
-            <div class="text-center">
-                <a href="#join" class="inline-block bg-white hover:bg-gray-100 text-black px-12 py-5 rounded-full font-black text-lg uppercase tracking-widest transition-all duration-300 transform hover:scale-105">
-                    Start Your Journey
-                </a>
+            <!-- Closing tagline -->
+            <div class="flex flex-col items-center pt-16">
+                <div class="w-12 h-px bg-black/20 mb-8"></div>
+                <p class="text-xl md:text-2xl font-black uppercase tracking-widest text-black/80">
+                    Run. Hike. Bike. Conquer.
+                </p>
+                <p class="text-base italic text-black/60 mt-2">
+                    Master Your Metrics.
+                </p>
             </div>
         </div>
     </section>
