@@ -4141,6 +4141,113 @@ header { padding: 0 !important; z-index: 600 !important; }
 
   /* BA detail overlay also full-screen */
   .ba-detail-overlay { z-index:1000002 !important; }
+
+  /* ── Friends Leaderboard: Mobile Centering & Polish ── */
+  #leaderboardModalOverlay {
+    position:fixed !important; inset:0 !important;
+    z-index:1000000 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    padding:12px !important;
+  }
+  #leaderboardModalOverlay .friends-inner-modal {
+    width:95% !important; max-width:100% !important;
+    max-height:80vh !important;
+    border-radius:20px !important;
+    background:rgba(22,27,39,.72) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    overflow-y:auto;
+    transform:none !important;
+  }
+  #leaderboardModalOverlay .modal-header {
+    position:sticky; top:0; z-index:3;
+    background:rgba(22,27,39,.95);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    padding:18px 20px 14px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  #leaderboardModalOverlay .modal-title { font-size:.95rem; }
+  #leaderboardModalOverlay .modal-body { padding:16px !important; }
+  #leaderboardModalOverlay #lbList {
+    max-height:52vh; overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    margin-bottom:20px;
+  }
+
+  /* Tighter leaderboard rows on mobile */
+  #leaderboardModalOverlay .lb-row {
+    gap:8px; padding:10px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;
+  }
+  #leaderboardModalOverlay .lb-row.you-row {
+    background:var(--teal-dim);
+    border-color:var(--teal);
+  }
+  #leaderboardModalOverlay .lb-rank { min-width:26px; font-size:.85rem; }
+  #leaderboardModalOverlay .lb-name { font-size:.82rem; }
+  #leaderboardModalOverlay .lb-km { font-size:.82rem; min-width:50px; }
+  #leaderboardModalOverlay .lb-avatar { width:30px; height:30px; }
+  #leaderboardModalOverlay .lb-toggle-row { justify-content:center; }
+  #leaderboardModalOverlay .lb-category-row { justify-content:center; }
+  #leaderboardModalOverlay .lb-rank-summary { margin-bottom:12px; font-size:.76rem; }
+
+  /* ── Monthly Distance Breakdown: Compact & Interactive ── */
+  /* Filter buttons: single horizontal row, no wrap */
+  .adv-hm-segbar-filter-row {
+    flex-wrap:nowrap !important; overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; padding-bottom:2px;
+  }
+  .adv-hm-segbar-filter-row::-webkit-scrollbar { display:none; }
+  .adv-hm-segbar-filter-btn {
+    padding:6px 12px !important; font-size:.72rem !important;
+    white-space:nowrap; flex-shrink:0;
+  }
+
+  /* Hide the "This Month: XX km" header text */
+  .adv-hm-segbar-header { display:none !important; }
+
+  /* Monthly bars: tappable look */
+  .adv-hm-monthly-bar {
+    cursor:pointer;
+    transition:height .4s ease, opacity .2s ease, box-shadow .2s ease;
+  }
+  .adv-hm-monthly-bar:active { opacity:1 !important; box-shadow:0 0 10px rgba(255,255,255,.15); }
+
+  /* Tap tooltip for monthly bars */
+  .adv-hm-bar-tooltip {
+    position:absolute; bottom:calc(100% + 8px); left:50%;
+    transform:translateX(-50%) translateY(6px); opacity:0;
+    pointer-events:none;
+    min-width:140px; padding:10px 12px;
+    background:rgba(22,27,39,.88);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;
+    box-shadow:0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03) inset;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    font-size:.72rem; color:var(--text); line-height:1.6;
+    z-index:20; text-align:left;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .adv-hm-bar-tooltip.visible {
+    opacity:1; pointer-events:all;
+    transform:translateX(-50%) translateY(0);
+  }
+  .adv-hm-bar-tooltip-title {
+    font-weight:700; font-size:.78rem; margin-bottom:4px;
+    border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:4px;
+  }
+  .adv-hm-bar-tooltip-row { display:flex; justify-content:space-between; gap:10px; }
+  .adv-hm-bar-tooltip-sport { color:var(--text-muted); }
+  .adv-hm-bar-tooltip-km { font-weight:700; }
+
+  /* Bar column needs relative for tooltip positioning */
+  .adv-hm-monthly-bar-col { position:relative; }
 }
 </style>
 
@@ -16094,7 +16201,11 @@ BADGE_DEFS.push(
       var km=monthKm[i];
       var h=Math.max(2,Math.round((km/maxKm)*72));
       return '<div class="adv-hm-monthly-bar-col">'
-        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:#BDC3C7;opacity:.8" title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km (Run: '+m.run.toFixed(1)+', Walk: '+m.walk.toFixed(1)+', Cycle: '+m.cycle.toFixed(1)+')"></div>'
+        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:#BDC3C7;opacity:.8"'
+        +' title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km"'
+        +' data-month="'+i+'" data-total="'+km.toFixed(1)+'"'
+        +' data-run="'+m.run.toFixed(1)+'" data-walk="'+m.walk.toFixed(1)+'" data-cycle="'+m.cycle.toFixed(1)+'"'
+        +' onclick="advHmBarTap(this,event)"></div>'
         +'</div>';
     }).join('');
     lblEl.innerHTML = MONTH_NAMES.map(function(n){
@@ -16156,6 +16267,44 @@ BADGE_DEFS.push(
         + '</div>';
     }).join('');
   }
+
+  /* ── Monthly bar tap tooltip (mobile) ── */
+  var _advHmBarTooltipActive = null;
+  window.advHmBarTap = function(barEl, e) {
+    e.stopPropagation();
+    // Only show tooltip on mobile
+    if (window.innerWidth > 768) return;
+    var col = barEl.parentElement;
+    // Close any existing tooltip
+    advHmBarTooltipClose();
+    var mi   = parseInt(barEl.getAttribute('data-month'));
+    var total= barEl.getAttribute('data-total');
+    var run  = barEl.getAttribute('data-run');
+    var walk = barEl.getAttribute('data-walk');
+    var cyc  = barEl.getAttribute('data-cycle');
+    var tip = document.createElement('div');
+    tip.className = 'adv-hm-bar-tooltip';
+    tip.innerHTML = '<div class="adv-hm-bar-tooltip-title">' + MONTH_NAMES[mi] + ' — ' + total + ' km</div>'
+      + (parseFloat(run)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#FF8C00">🏃 Run</span><span class="adv-hm-bar-tooltip-km">' + run + ' km</span></div>' : '')
+      + (parseFloat(walk)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#2ECC71">🚶 Walk</span><span class="adv-hm-bar-tooltip-km">' + walk + ' km</span></div>' : '')
+      + (parseFloat(cyc)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#3498DB">🚴 Cycle</span><span class="adv-hm-bar-tooltip-km">' + cyc + ' km</span></div>' : '');
+    col.appendChild(tip);
+    // Highlight tapped bar
+    barEl.style.opacity = '1';
+    barEl.style.boxShadow = '0 0 10px rgba(255,255,255,.15)';
+    _advHmBarTooltipActive = { tip:tip, bar:barEl, col:col };
+    requestAnimationFrame(function(){ tip.classList.add('visible'); });
+  };
+  function advHmBarTooltipClose() {
+    if (!_advHmBarTooltipActive) return;
+    var t = _advHmBarTooltipActive;
+    t.tip.classList.remove('visible');
+    t.bar.style.opacity = '';
+    t.bar.style.boxShadow = '';
+    setTimeout(function(){ if(t.tip.parentNode) t.tip.parentNode.removeChild(t.tip); }, 200);
+    _advHmBarTooltipActive = null;
+  }
+  document.addEventListener('click', function(){ advHmBarTooltipClose(); });
 
   /* ── Steps grid ── */
   function renderStepsGrid() {
@@ -16833,10 +16982,12 @@ BADGE_DEFS.push(
   /* ── Leaderboard Modal ── */
   window.openLeaderboardModal = function(){
     document.getElementById('leaderboardModalOverlay')?.classList.add('open');
+    document.body.classList.add('modal-open');
     renderLeaderboard();
   };
   window.closeLeaderboardModal = function(){
     document.getElementById('leaderboardModalOverlay')?.classList.remove('open');
+    document.body.classList.remove('modal-open');
   };
 
   window.friendsSetView = function(view){
@@ -17487,7 +17638,7 @@ BADGE_DEFS.push(
         <div class="lb-rank ${rc}">${rl}</div>
         <div class="lb-avatar">${fAvHtml(e.avatar,32)}</div>
         <div class="lb-name-wrap">
-          <div class="lb-name">${escHtml(e.name)}${e.isMe?'<span class="lb-you-tag">You</span>':''}</div>
+          <div class="lb-name">${escHtml(e.name)}${e.isMe?'<span class="lb-you-tag">You</span>':''}${rank<=3?' 🔥':''}</div>
           <div class="lb-acts">${e.acts} activities</div>
         </div>
         <div class="lb-km">${e.km.toFixed(1)} km</div>
