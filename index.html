@@ -87,63 +87,183 @@
     </section>
 
     <section id="join" class="py-20 bg-orange-600 text-center">
-        <div class="max-w-3xl mx-auto px-4">
+        <div class="max-w-xl mx-auto px-4">
             <h2 class="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter text-white">Ready to elevate?</h2>
-            <div class="glass-card p-10 rounded-[3rem] border-white/20">
-                <h3 class="text-2xl font-bold mb-6 uppercase">Sign Up</h3>
-                <div id="signupError" class="hidden text-red-400 text-sm font-bold mb-4"></div>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="joinFirst" placeholder="First Name" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
-                        <input type="text" id="joinLast" placeholder="Last Name" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
-                    </div>
-                    <input type="email" id="joinEmail" placeholder="Email Address" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
-                    <input type="password" id="joinPassword" placeholder="Password (min 6 characters)" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
-                    <button onclick="handleSignUp()" class="w-full bg-white text-orange-600 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-black hover:text-white transition">Join Us</button>
+            <div class="glass-card p-8 md:p-10 rounded-[2rem] border-white/20">
+
+                <!-- Tab Toggle -->
+                <div class="flex mb-8 bg-white/10 rounded-xl p-1">
+                    <button id="tabLogin" onclick="switchTab('login')"
+                        class="flex-1 py-3 rounded-lg font-black text-sm uppercase tracking-widest transition-all duration-300">
+                        Log In
+                    </button>
+                    <button id="tabSignup" onclick="switchTab('signup')"
+                        class="flex-1 py-3 rounded-lg font-black text-sm uppercase tracking-widest transition-all duration-300">
+                        Sign Up
+                    </button>
                 </div>
+
+                <!-- Error Message -->
+                <div id="authError" class="hidden text-red-400 text-sm font-bold mb-4 bg-red-400/10 border border-red-400/30 rounded-lg p-3"></div>
+
+                <!-- Form Fields -->
+                <div class="space-y-4">
+                    <!-- Sign Up Only: First Name -->
+                    <div id="fieldFirst" class="hidden">
+                        <input type="text" id="joinFirst" placeholder="First Name"
+                            class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-orange-500 transition bg-white/10 placeholder-gray-400">
+                    </div>
+
+                    <!-- Email -->
+                    <input type="email" id="joinEmail" placeholder="Email Address"
+                        class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-orange-500 transition bg-white/10 placeholder-gray-400">
+
+                    <!-- Password -->
+                    <div class="relative">
+                        <input type="password" id="joinPassword" placeholder="Password"
+                            class="w-full p-4 pr-12 rounded-xl text-white outline-none border border-white/20 focus:border-orange-500 transition bg-white/10 placeholder-gray-400">
+                        <button type="button" onclick="togglePwd('joinPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 hover:text-orange-400 transition">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Sign Up Only: Confirm Password -->
+                    <div id="fieldConfirm" class="hidden relative">
+                        <input type="password" id="joinConfirm" placeholder="Confirm Password"
+                            class="w-full p-4 pr-12 rounded-xl text-white outline-none border border-white/20 focus:border-orange-500 transition bg-white/10 placeholder-gray-400">
+                        <button type="button" onclick="togglePwd('joinConfirm', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 hover:text-orange-400 transition">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="authSubmitBtn" onclick="handleAuth()"
+                        class="w-full bg-white text-orange-600 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">
+                        Log In
+                    </button>
+                </div>
+
             </div>
         </div>
     </section>
 
     <script>
-    function handleSignUp() {
-        const first = document.getElementById('joinFirst').value.trim();
-        const last  = document.getElementById('joinLast').value.trim();
-        const email = document.getElementById('joinEmail').value.trim();
-        const pwd   = document.getElementById('joinPassword').value;
-        const errEl = document.getElementById('signupError');
+    let authMode = 'login';
+
+    function switchTab(mode) {
+        authMode = mode;
+        const loginTab  = document.getElementById('tabLogin');
+        const signupTab = document.getElementById('tabSignup');
+        const fieldFirst   = document.getElementById('fieldFirst');
+        const fieldConfirm = document.getElementById('fieldConfirm');
+        const submitBtn    = document.getElementById('authSubmitBtn');
+        const errEl        = document.getElementById('authError');
         errEl.classList.add('hidden');
 
-        if (!first || !last || !email || !pwd) {
-            errEl.textContent = 'Please fill in all fields.';
-            errEl.classList.remove('hidden');
+        if (mode === 'signup') {
+            signupTab.classList.add('bg-orange-500', 'text-white');
+            signupTab.classList.remove('text-white/60');
+            loginTab.classList.remove('bg-orange-500', 'text-white');
+            loginTab.classList.add('text-white/60');
+            fieldFirst.classList.remove('hidden');
+            fieldConfirm.classList.remove('hidden');
+            submitBtn.textContent = 'Sign Up';
+        } else {
+            loginTab.classList.add('bg-orange-500', 'text-white');
+            loginTab.classList.remove('text-white/60');
+            signupTab.classList.remove('bg-orange-500', 'text-white');
+            signupTab.classList.add('text-white/60');
+            fieldFirst.classList.add('hidden');
+            fieldConfirm.classList.add('hidden');
+            submitBtn.textContent = 'Log In';
+        }
+    }
+
+    function togglePwd(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.innerHTML = isHidden
+            ? '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            : '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    }
+
+    function handleAuth() {
+        const errEl = document.getElementById('authError');
+        errEl.classList.add('hidden');
+
+        const email = document.getElementById('joinEmail').value.trim();
+        const pwd   = document.getElementById('joinPassword').value;
+
+        if (!email || !pwd) {
+            showError('Please fill in all fields.');
             return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            errEl.textContent = 'Please enter a valid email address.';
-            errEl.classList.remove('hidden');
+            showError('Please enter a valid email address.');
             return;
         }
         if (pwd.length < 6) {
-            errEl.textContent = 'Password must be at least 6 characters.';
-            errEl.classList.remove('hidden');
+            showError('Password must be at least 6 characters.');
             return;
         }
 
-        const user = {
-            firstName: first,
-            lastName: last,
-            email: email,
-            password: pwd,
-            avatar: '🏃',
-            units: 'km',
-            memberSince: new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
-        };
-        localStorage.setItem('actmtr_user', JSON.stringify(user));
-        localStorage.setItem('actmtr_session', JSON.stringify({ email: email }));
-        localStorage.setItem('userFirstName', first);
+        if (authMode === 'signup') {
+            const first   = document.getElementById('joinFirst').value.trim();
+            const confirm = document.getElementById('joinConfirm').value;
+
+            if (!first) {
+                showError('Please enter your first name.');
+                return;
+            }
+            if (pwd !== confirm) {
+                showError('Passwords do not match.');
+                return;
+            }
+
+            const user = {
+                firstName: first,
+                lastName: '',
+                email: email,
+                password: pwd,
+                avatar: '\u{1F3C3}',
+                units: 'km',
+                memberSince: new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+            };
+            localStorage.setItem('actmtr_user', JSON.stringify(user));
+            localStorage.setItem('actmtr_session', JSON.stringify({ email: email }));
+            localStorage.setItem('userFirstName', first);
+        } else {
+            const stored = localStorage.getItem('actmtr_user');
+            if (stored) {
+                const u = JSON.parse(stored);
+                if (u.email.toLowerCase() !== email.toLowerCase() || u.password !== pwd) {
+                    showError('Invalid email or password.');
+                    return;
+                }
+                localStorage.setItem('actmtr_session', JSON.stringify({ email: email }));
+                localStorage.setItem('userFirstName', u.firstName);
+            } else {
+                showError('No account found. Please sign up first.');
+                return;
+            }
+        }
+
         window.location.href = 'dashboard.html';
     }
+
+    function showError(msg) {
+        const errEl = document.getElementById('authError');
+        errEl.textContent = msg;
+        errEl.classList.remove('hidden');
+    }
+
+    // Initialize with Login tab active
+    switchTab('login');
     </script>
 
     <section id="contact" class="py-20 max-w-3xl mx-auto px-4">
