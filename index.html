@@ -3994,7 +3994,7 @@ header { padding: 0 !important; z-index: 600 !important; }
   /* ── Mobile Pace Editor Full-Screen Modal ── */
   .pew-modal-overlay {
     position:fixed; top:0; left:0; width:100vw; height:100vh;
-    z-index:10002;
+    z-index:1000010;
     background:rgba(10,10,10,.95);
     backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
     display:flex; align-items:center; justify-content:center;
@@ -4050,9 +4050,9 @@ header { padding: 0 !important; z-index: 600 !important; }
   body.modal-open .mobile-bottom-nav { display:none !important; }
   body.modal-open header { z-index:1 !important; }
 
-  /* All modal overlays above bottom nav (10000) */
+  /* All modal overlays above bottom nav (10000) AND profile overlay (999999) */
   .modal-overlay {
-    z-index:10001 !important;
+    z-index:1000010 !important;
     position:fixed !important; top:0 !important; left:0 !important;
     width:100vw !important; height:100vh !important;
   }
@@ -4068,39 +4068,39 @@ header { padding: 0 !important; z-index: 600 !important; }
   }
 
   /* Pace Calculator overlay */
-  .pace-overlay { z-index:10001 !important; }
+  .pace-overlay { z-index:1000010 !important; }
   .pace-overlay.open { position:fixed; inset:0; height:100vh; overflow-y:auto; }
   .pace-page { padding-top:20px; padding-bottom:80px; }
 
   /* Nav section overlay (HR zones, Coach, etc.) */
-  .nav-section-overlay { z-index:10001 !important; top:0 !important; height:100vh; }
+  .nav-section-overlay { z-index:1000010 !important; top:0 !important; height:100vh; }
 
   /* Help Guides overlay */
-  #helpGuidesOverlay { z-index:10001 !important; }
+  #helpGuidesOverlay { z-index:1000010 !important; }
 
   /* Advanced Stats overlay */
-  #advStatsOverlay { z-index:10001 !important; }
+  #advStatsOverlay { z-index:1000010 !important; }
 
   /* Heatmap day-detail modal */
-  .adv-hm-modal-overlay { z-index:10001 !important; }
+  .adv-hm-modal-overlay { z-index:1000010 !important; }
 
-  /* Best Activity & Race modals (already high, keep above) */
+  /* Best Activity & Race modals (must be above profile overlay z:999999) */
   #baModalOverlay, .ba-detail-overlay,
   #raceModalOverlay, #completedRaceModalOverlay,
-  #bucketModalOverlay { z-index:10002 !important; }
+  #bucketModalOverlay { z-index:1000010 !important; }
 
   /* Strava import modal */
-  #stravaModalOverlay { z-index:10001 !important; }
+  #stravaModalOverlay { z-index:1000010 !important; }
 
-  /* Profile edit modal */
-  .profile-edit-modal-overlay { z-index:10001 !important; }
+  /* Profile edit modal (inside profile overlay, position:absolute - z-index relative to parent) */
+  .profile-edit-modal-overlay { z-index:10 !important; }
 
   /* Stats range picker */
-  .stats-range-overlay { z-index:10001 !important; }
+  .stats-range-overlay { z-index:1000010 !important; }
 
-  /* PR detail/edit overlays */
-  .pr-detail-overlay { z-index:10002 !important; }
-  .pr-edit-overlay { z-index:10003 !important; }
+  /* PR detail/edit overlays (must be above profile overlay z:999999) */
+  .pr-detail-overlay { z-index:1000010 !important; }
+  .pr-edit-overlay { z-index:1000020 !important; }
 
   /* ── Best Activity: Action Button Styling ── */
   .ba-add-btn {
@@ -4223,7 +4223,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 
   /* ── Full-Screen Monthly Stats Modal ── */
   .monthly-stats-modal-overlay {
-    position:fixed; inset:0; z-index:10002;
+    position:fixed; inset:0; z-index:1000010;
     background:rgba(10,10,10,.95);
     backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
     display:flex; align-items:flex-end; justify-content:center;
@@ -4313,6 +4313,89 @@ header { padding: 0 !important; z-index: 600 !important; }
     height:100%; border-radius:99px;
     transition:width .5s ease;
   }
+
+  /* ── Stats Range Modal: Full-Screen on Mobile ── */
+  .stats-range-overlay {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .stats-range-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:24px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .stats-range-overlay.open .stats-range-modal { transform:translateY(0) !important; }
+  .stats-range-modal h3 { font-size:1.05rem; text-align:center; margin-bottom:20px; }
+  .stats-range-field input[type="date"] {
+    min-height:46px; font-size:.88rem;
+    border-radius:12px; padding:12px;
+  }
+  .stats-range-actions { margin-top:20px; }
+  .stats-range-actions button { min-height:46px; border-radius:12px; font-size:.85rem; }
+
+  /* ── PR Detail Modal: Full-Screen on Mobile ── */
+  .pr-detail-overlay {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .pr-detail-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:28px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    max-height:90vh; overflow-y:auto;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0) !important; }
+  .pr-detail-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.1) !important;
+  }
+
+  /* ── PR Edit Modal: Full-Screen on Mobile ── */
+  .pr-edit-overlay {
+    z-index:1000020 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .pr-edit-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:28px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    max-height:92vh; overflow-y:auto;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0) !important; }
+  .pr-edit-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.1) !important;
+  }
+  .pr-edit-form .form-input {
+    min-height:46px; font-size:.88rem;
+    border-radius:12px; padding:12px;
+  }
+  .pr-edit-actions { margin-top:12px; }
+  .pr-edit-actions .btn { min-height:46px; border-radius:12px; font-size:.85rem; }
 }
 </style>
 
@@ -10636,9 +10719,11 @@ function openStatsRangeModal() {
   document.getElementById('statsRangeStart').value = range.start || '';
   document.getElementById('statsRangeEnd').value   = range.end   || '';
   document.getElementById('statsRangeOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 function closeStatsRangeModal() {
   document.getElementById('statsRangeOverlay').classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 function saveStatsRange() {
   const start = document.getElementById('statsRangeStart').value;
@@ -18714,6 +18799,7 @@ function openPRDetail(icon, label, val, date, activityKey) {
       <div class="pr-detail-congrats">${congratMsg}</div>
     </div>`;
   requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.body.classList.add('modal-open');
   document.addEventListener('keydown', prDetailEscHandler);
 }
 function closePRDetail() {
@@ -18722,6 +18808,7 @@ function closePRDetail() {
     overlay.classList.remove('open');
     setTimeout(function() { overlay.remove(); }, 200);
   }
+  document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', prDetailEscHandler);
 }
 function prDetailEscHandler(e) { if (e.key === 'Escape') closePRDetail(); }
@@ -18803,6 +18890,7 @@ function openPREdit(key, icon, label) {
       </div>
     </div>`;
   requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.body.classList.add('modal-open');
   document.addEventListener('keydown', prEditEscHandler);
 }
 
@@ -18858,6 +18946,7 @@ function closePREdit() {
     overlay.classList.remove('open');
     setTimeout(function() { overlay.remove(); }, 200);
   }
+  document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', prEditEscHandler);
 }
 function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
