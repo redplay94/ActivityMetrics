@@ -4046,9 +4046,11 @@ header { padding: 0 !important; z-index: 600 !important; }
   .pew-modal-body .pew-range-note { margin-bottom:14px; font-size:.68rem; }
 
   /* ── Z-Index Fix: Forms & Modals Above Nav Bars ── */
-  /* Hide bottom nav when any modal/overlay is active */
+  /* Hide bottom nav & sub-header when any modal/overlay is active */
+  body.modal-open { overflow:hidden !important; }
   body.modal-open .mobile-bottom-nav { display:none !important; }
   body.modal-open header { z-index:1 !important; }
+  body.modal-open .mob-dashboard-top { display:none !important; }
 
   /* All modal overlays above bottom nav (10000) AND profile overlay (999999) */
   .modal-overlay {
@@ -4065,6 +4067,40 @@ header { padding: 0 !important; z-index: 600 !important; }
   .modal-overlay .modal .modal-footer {
     position:sticky; bottom:0; z-index:2;
     background:var(--bg2); padding:16px 20px;
+  }
+
+  /* ── HR Modal: Full-screen mobile override ── */
+  #hrDataModal {
+    z-index:99999 !important;
+    background:rgba(10,10,10,.95) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+  }
+  #hrDataModal .modal {
+    background:rgba(10,10,10,.95) !important;
+    border:none !important; border-radius:0 !important;
+    height:100% !important; max-height:100vh !important;
+    box-shadow:none !important;
+  }
+  #hrDataModal .modal-header {
+    padding-top:max(24px, env(safe-area-inset-top, 24px)) !important;
+    background:rgba(10,10,10,.95) !important;
+  }
+  #hrDataModal .modal-close {
+    width:40px !important; height:40px !important;
+    border-radius:50% !important;
+    background:rgba(255,255,255,.1) !important;
+    border:1px solid rgba(255,255,255,.15) !important;
+  }
+  #hrDataModal .modal-close svg { width:18px !important; height:18px !important; }
+  #hrDataModal .modal-footer {
+    background:rgba(10,10,10,.95) !important;
+  }
+
+  /* HR Zone Modal: same treatment */
+  .hr-zone-modal-backdrop {
+    z-index:99999 !important;
+    background:rgba(10,10,10,.95) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
   }
 
   /* Pace Calculator overlay */
