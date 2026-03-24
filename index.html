@@ -4198,12 +4198,19 @@ header { padding: 0 !important; z-index: 600 !important; }
   #leaderboardModalOverlay .lb-rank-summary { margin-bottom:12px; font-size:.76rem; }
 
   /* ── Monthly Distance Breakdown: Compact & Interactive ── */
+  /* Vertical spacing for the whole section */
+  .adv-hm-monthly-wrap {
+    display:flex; flex-direction:column; gap:0;
+  }
+
   /* Filter buttons: single horizontal row, no wrap, no overlap */
   .adv-hm-segbar-filter-row {
     flex-wrap:nowrap !important; overflow-x:auto;
     gap:12px !important;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:none; padding-bottom:10px;
+    scrollbar-width:none;
+    padding-bottom:15px;
+    margin-bottom:0;
   }
   .adv-hm-segbar-filter-row::-webkit-scrollbar { display:none; }
   .adv-hm-segbar-filter-btn {
@@ -4213,6 +4220,11 @@ header { padding: 0 !important; z-index: 600 !important; }
 
   /* Hide the "This Month: XX km" header text */
   .adv-hm-segbar-header { display:none !important; }
+
+  /* Push the segmented chart (km values + bars) down from the filters */
+  .adv-hm-segbar-wrap { margin-top:20px !important; }
+  .adv-hm-segbar-chart { height:90px; }
+  .adv-hm-segbar-val { font-size:.82rem !important; font-weight:800; }
 
   /* Monthly bars: tappable look */
   .adv-hm-monthly-bar {
