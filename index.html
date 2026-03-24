@@ -4457,6 +4457,46 @@ header { padding: 0 !important; z-index: 600 !important; }
     padding:9px 14px !important; min-height:38px !important;
     border-radius:10px !important; font-size:.74rem !important;
   }
+
+  /* ── Heart Rate Zone Modal: Full-Screen on Mobile ── */
+  .hr-zone-modal-backdrop {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .hr-zone-modal {
+    max-width:100% !important; width:100% !important;
+    max-height:100vh !important; height:100%;
+    border-radius:0 !important;
+    background:rgba(18,18,18,.98) !important;
+    border:none !important;
+    box-shadow:none !important;
+    animation:none !important;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .hr-zone-modal-header {
+    position:sticky; top:0; z-index:3;
+    background:rgba(18,18,18,.95) !important;
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    padding:20px 20px 14px !important;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .hr-zone-modal-header h3 { font-size:.95rem; }
+  .hr-zone-modal-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important;
+    border:1px solid rgba(255,255,255,.1) !important;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hr-zone-modal-close:active { transform:scale(.9); }
+  .hr-zone-modal-body { padding:16px 20px 30px !important; }
+  .hr-zm-option { padding:14px 16px; border-radius:14px; margin-bottom:10px; }
+  .hr-zm-confirm-btn {
+    padding:14px 0 !important; border-radius:14px !important;
+    font-size:.88rem !important; min-height:48px;
+    margin-bottom:env(safe-area-inset-bottom, 0);
+  }
 }
 </style>
 
@@ -14240,6 +14280,7 @@ function hrOpenZoneModal() {
     if (hi && mz[i-1]) hi.value = mz[i-1][1] || '';
   }
   modal.classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function hrCloseZoneModal() {
@@ -14247,6 +14288,7 @@ function hrCloseZoneModal() {
   if (!modal) return;
   const wasOpen = modal.classList.contains('open');
   modal.classList.remove('open');
+  document.body.classList.remove('modal-open');
   // If the HR section is not currently displayed, return to dashboard
   if (wasOpen && !_navCurrentSection) {
     _setNavActive('dashboard');
@@ -15089,10 +15131,12 @@ function hrOpenAddHRModal(preselect) {
   hrModalActivityChanged();
   hrBuildModalZoneInputs();
   document.getElementById('hrDataModal').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function closeHRModal() {
   document.getElementById('hrDataModal').classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 
 function hrBuildModalZoneInputs() {
