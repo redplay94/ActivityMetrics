@@ -3637,6 +3637,9 @@ header { padding: 0 !important; z-index: 600 !important; }
 .pew-nav-btn.pew-active{background:rgba(249,115,22,.12);color:var(--run);border-color:var(--run)}
 .pew-nav-icon{width:15px;height:15px;flex-shrink:0}
 @media(max-width:480px){.pew-nav-label{display:none}}
+/* Modal hidden by default (only shown via mobile media query) */
+.pew-modal-overlay{display:none}
+@media(max-width:768px){.pew-modal-overlay{display:flex}}
 
 /* ─── Help Guides Nav Button ──────────────────────────────── */
 .hg-nav-btn{display:inline-flex;align-items:center;gap:6px}
@@ -3870,6 +3873,7 @@ header { padding: 0 !important; z-index: 600 !important; }
   .rb-widget { display:none !important; }
   .rb-widget-toggle { display:none !important; }
   #paceEditorWidget { display:none !important; }
+  .fab { display:none !important; }
 
   /* ── Mobile Performance Hub (Sub-Header) ── */
   .mob-dashboard-top {
@@ -3982,6 +3986,63 @@ header { padding: 0 !important; z-index: 600 !important; }
 
   /* ── Race countdown widget: above bottom nav ── */
   #raceCountdownWidget { bottom:80px !important; }
+
+  /* ── Pace Editor dropdown item: faded icon ── */
+  .mob-pew-item svg { opacity:.35 !important; }
+
+  /* ── Mobile Pace Editor Full-Screen Modal ── */
+  .pew-modal-overlay {
+    position:fixed; top:0; left:0; width:100vw; height:100vh;
+    z-index:10002;
+    background:rgba(10,10,10,.95);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .pew-modal-overlay.open { opacity:1; pointer-events:all; }
+  .pew-modal {
+    width:92%; max-width:400px;
+    background:rgba(22,27,39,.65);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;
+    box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    transform:translateY(40px); opacity:0;
+    transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .35s ease;
+  }
+  .pew-modal-overlay.open .pew-modal { transform:none; opacity:1; }
+  .pew-modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 20px 14px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .pew-modal-title-wrap {
+    display:flex; align-items:center; gap:10px;
+    font-size:.85rem; font-weight:700; color:var(--text);
+    text-transform:uppercase; letter-spacing:.8px;
+  }
+  .pew-modal-title-wrap svg { color:var(--run); opacity:.8; }
+  .pew-modal-close {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    color:var(--text-muted); cursor:pointer;
+    transition:all .2s ease; -webkit-tap-highlight-color:transparent;
+  }
+  .pew-modal-close:active { transform:scale(.9); background:rgba(255,255,255,.1); }
+  .pew-modal-close svg { width:18px; height:18px; }
+  .pew-modal-body {
+    padding:20px 20px 24px;
+  }
+  .pew-modal-body .pew-row { margin-bottom:14px; }
+  .pew-modal-body .pew-input {
+    font-size:.88rem; padding:12px 12px; min-height:46px;
+    border-radius:10px;
+  }
+  .pew-modal-body .pew-label { font-size:.76rem; width:60px; }
+  .pew-modal-body .pew-unit { font-size:.7rem; }
+  .pew-modal-body .pew-range-note { margin-bottom:14px; font-size:.68rem; }
 }
 </style>
 
@@ -4042,7 +4103,7 @@ header { padding: 0 !important; z-index: 600 !important; }
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-6 0v4"/><path d="M18 21H6a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2z"/><circle cx="12" cy="16" r="1"/></svg>
             Running Coach
           </button>
-          <button class="mob-tools-menu-item" onclick="pewToggle();mobToolsClose()">
+          <button class="mob-tools-menu-item mob-pew-item" onclick="pewModalOpen();mobToolsClose()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
             Pace Editor
           </button>
@@ -18166,6 +18227,7 @@ function _navRerenderSection(id) {
 // Escape key closes nav overlay, pace, or VO2
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    if (document.getElementById('pewModalOverlay')?.classList.contains('open')) { pewModalClose(); return; }
     if (document.getElementById('paceOverlay')?.classList.contains('open')) { closePacePage(); return; }
     if (document.getElementById('vo2Overlay')?.classList.contains('open'))  { closeVo2Page();  return; }
     var overlay = document.getElementById('navSectionOverlay');
@@ -18994,6 +19056,45 @@ function pewToggleMinimize() {
   if (w) w.classList.toggle('minimized');
 }
 
+/* ── Mobile Pace Editor Modal ── */
+function pewModalOpen() {
+  var overlay = document.getElementById('pewModalOverlay');
+  if (!overlay) return;
+  // Sync values from desktop inputs into modal inputs
+  var fields = ['Easy', 'Medium', 'Hard'];
+  fields.forEach(function(f) {
+    var src = document.getElementById('pew' + f);
+    var dst = document.getElementById('pew' + f + 'Mob');
+    if (src && dst) dst.value = src.value;
+  });
+  overlay.classList.add('open');
+  document.body.classList.add('modal-open');
+}
+function pewModalClose() {
+  var overlay = document.getElementById('pewModalOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  document.body.classList.remove('modal-open');
+}
+function pewModalSync() {
+  // Mirror mobile modal inputs back to the desktop widget and trigger re-render
+  var fields = ['Easy', 'Medium', 'Hard'];
+  fields.forEach(function(f) {
+    var mob = document.getElementById('pew' + f + 'Mob');
+    var desk = document.getElementById('pew' + f);
+    if (mob && desk) desk.value = mob.value;
+  });
+  // Trigger the existing pace editor input handler
+  if (typeof pewOnInput === 'function') pewOnInput();
+  // Show sync confirmation in modal
+  var msg = document.getElementById('pewSyncMsgMob');
+  if (msg) {
+    msg.classList.add('visible');
+    clearTimeout(msg._t);
+    msg._t = setTimeout(function() { msg.classList.remove('visible'); }, 1500);
+  }
+}
+
 /* ── Format helpers ── */
 function _pewFmtSec(sec) {
   if (!sec || !isFinite(sec) || sec <= 0) return '';
@@ -19382,6 +19483,40 @@ function mobLogRestDay() {
   </div>
 </div>
 
+<!-- Mobile Pace Editor Modal -->
+<div id="pewModalOverlay" class="pew-modal-overlay" onclick="if(event.target===this)pewModalClose()">
+  <div class="pew-modal">
+    <div class="pew-modal-header">
+      <div class="pew-modal-title-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span>Pace Editor</span>
+      </div>
+      <button class="pew-modal-close" onclick="pewModalClose()" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="pew-modal-body">
+      <div class="pew-range-note">Single pace or range &mdash; e.g. <strong>5:30</strong> or <strong>5:30-6:00</strong></div>
+      <div class="pew-row">
+        <span class="pew-label easy">Easy</span>
+        <input class="pew-input" id="pewEasyMob" type="text" inputmode="text" placeholder="6:00-7:00" oninput="pewModalSync()" autocomplete="off">
+        <span class="pew-unit">/km</span>
+      </div>
+      <div class="pew-row">
+        <span class="pew-label medium">Medium</span>
+        <input class="pew-input" id="pewMediumMob" type="text" inputmode="text" placeholder="5:00-5:45" oninput="pewModalSync()" autocomplete="off">
+        <span class="pew-unit">/km</span>
+      </div>
+      <div class="pew-row">
+        <span class="pew-label hard">Hard</span>
+        <input class="pew-input" id="pewHardMob" type="text" inputmode="text" placeholder="4:15-4:45" oninput="pewModalSync()" autocomplete="off">
+        <span class="pew-unit">/km</span>
+      </div>
+      <div class="pew-sync-msg" id="pewSyncMsgMob">Synced &amp; re-rendered</div>
+    </div>
+  </div>
+</div>
+
 <!-- Help Guides Overlay -->
 <div id="helpGuidesOverlay" onclick="if(event.target===this)helpGuidesClose()">
   <div class="hg-card">
@@ -19595,7 +19730,7 @@ function mobLogRestDay() {
   </div>
   <div class="mob-nav-item" data-mob-nav="logSection" onclick="mobNavTo('logSection')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-    <span class="mob-nav-label">Log</span>
+    <span class="mob-nav-label">Activities</span>
   </div>
 </nav>
 
