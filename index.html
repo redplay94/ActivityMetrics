@@ -3637,9 +3637,10 @@ header { padding: 0 !important; z-index: 600 !important; }
 .pew-nav-btn.pew-active{background:rgba(249,115,22,.12);color:var(--run);border-color:var(--run)}
 .pew-nav-icon{width:15px;height:15px;flex-shrink:0}
 @media(max-width:480px){.pew-nav-label{display:none}}
-/* Modal hidden by default (only shown via mobile media query) */
+/* Modals hidden by default (only shown via mobile media query) */
 .pew-modal-overlay{display:none}
-@media(max-width:768px){.pew-modal-overlay{display:flex}}
+.monthly-stats-modal-overlay{display:none}
+@media(max-width:768px){.pew-modal-overlay{display:flex}.monthly-stats-modal-overlay{display:flex}}
 
 /* ─── Help Guides Nav Button ──────────────────────────────── */
 .hg-nav-btn{display:inline-flex;align-items:center;gap:6px}
@@ -3993,7 +3994,7 @@ header { padding: 0 !important; z-index: 600 !important; }
   /* ── Mobile Pace Editor Full-Screen Modal ── */
   .pew-modal-overlay {
     position:fixed; top:0; left:0; width:100vw; height:100vh;
-    z-index:10002;
+    z-index:1000010;
     background:rgba(10,10,10,.95);
     backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
     display:flex; align-items:center; justify-content:center;
@@ -4049,9 +4050,9 @@ header { padding: 0 !important; z-index: 600 !important; }
   body.modal-open .mobile-bottom-nav { display:none !important; }
   body.modal-open header { z-index:1 !important; }
 
-  /* All modal overlays above bottom nav (10000) */
+  /* All modal overlays above bottom nav (10000) AND profile overlay (999999) */
   .modal-overlay {
-    z-index:10001 !important;
+    z-index:1000010 !important;
     position:fixed !important; top:0 !important; left:0 !important;
     width:100vw !important; height:100vh !important;
   }
@@ -4067,39 +4068,39 @@ header { padding: 0 !important; z-index: 600 !important; }
   }
 
   /* Pace Calculator overlay */
-  .pace-overlay { z-index:10001 !important; }
+  .pace-overlay { z-index:1000010 !important; }
   .pace-overlay.open { position:fixed; inset:0; height:100vh; overflow-y:auto; }
   .pace-page { padding-top:20px; padding-bottom:80px; }
 
   /* Nav section overlay (HR zones, Coach, etc.) */
-  .nav-section-overlay { z-index:10001 !important; top:0 !important; height:100vh; }
+  .nav-section-overlay { z-index:1000010 !important; top:0 !important; height:100vh; }
 
   /* Help Guides overlay */
-  #helpGuidesOverlay { z-index:10001 !important; }
+  #helpGuidesOverlay { z-index:1000010 !important; }
 
   /* Advanced Stats overlay */
-  #advStatsOverlay { z-index:10001 !important; }
+  #advStatsOverlay { z-index:1000010 !important; }
 
   /* Heatmap day-detail modal */
-  .adv-hm-modal-overlay { z-index:10001 !important; }
+  .adv-hm-modal-overlay { z-index:1000010 !important; }
 
-  /* Best Activity & Race modals (already high, keep above) */
+  /* Best Activity & Race modals (must be above profile overlay z:999999) */
   #baModalOverlay, .ba-detail-overlay,
   #raceModalOverlay, #completedRaceModalOverlay,
-  #bucketModalOverlay { z-index:10002 !important; }
+  #bucketModalOverlay { z-index:1000010 !important; }
 
   /* Strava import modal */
-  #stravaModalOverlay { z-index:10001 !important; }
+  #stravaModalOverlay { z-index:1000010 !important; }
 
-  /* Profile edit modal */
-  .profile-edit-modal-overlay { z-index:10001 !important; }
+  /* Profile edit modal (inside profile overlay, position:absolute - z-index relative to parent) */
+  .profile-edit-modal-overlay { z-index:10 !important; }
 
   /* Stats range picker */
-  .stats-range-overlay { z-index:10001 !important; }
+  .stats-range-overlay { z-index:1000010 !important; }
 
-  /* PR detail/edit overlays */
-  .pr-detail-overlay { z-index:10002 !important; }
-  .pr-edit-overlay { z-index:10003 !important; }
+  /* PR detail/edit overlays (must be above profile overlay z:999999) */
+  .pr-detail-overlay { z-index:1000010 !important; }
+  .pr-edit-overlay { z-index:1000020 !important; }
 
   /* ── Best Activity: Action Button Styling ── */
   .ba-add-btn {
@@ -4197,57 +4198,305 @@ header { padding: 0 !important; z-index: 600 !important; }
   #leaderboardModalOverlay .lb-rank-summary { margin-bottom:12px; font-size:.76rem; }
 
   /* ── Monthly Distance Breakdown: Compact & Interactive ── */
-  /* Filter buttons: single horizontal row, no wrap */
+  /* Vertical spacing for the whole section */
+  .adv-hm-monthly-wrap {
+    display:flex; flex-direction:column; gap:0;
+  }
+
+  /* Filter buttons: single horizontal row, no wrap, no overlap */
   .adv-hm-segbar-filter-row {
     flex-wrap:nowrap !important; overflow-x:auto;
+    gap:12px !important;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:none; padding-bottom:2px;
+    scrollbar-width:none;
+    padding-bottom:15px;
+    margin-bottom:0;
   }
   .adv-hm-segbar-filter-row::-webkit-scrollbar { display:none; }
   .adv-hm-segbar-filter-btn {
-    padding:6px 12px !important; font-size:.72rem !important;
+    padding:6px 14px !important; font-size:.73rem !important;
     white-space:nowrap; flex-shrink:0;
   }
 
   /* Hide the "This Month: XX km" header text */
   .adv-hm-segbar-header { display:none !important; }
 
+  /* Push the segmented chart (km values + bars) down from the filters */
+  .adv-hm-segbar-wrap { margin-top:20px !important; }
+  .adv-hm-segbar-chart { height:90px; }
+  .adv-hm-segbar-val { font-size:.82rem !important; font-weight:800; }
+
   /* Monthly bars: tappable look */
   .adv-hm-monthly-bar {
     cursor:pointer;
     transition:height .4s ease, opacity .2s ease, box-shadow .2s ease;
   }
-  .adv-hm-monthly-bar:active { opacity:1 !important; box-shadow:0 0 10px rgba(255,255,255,.15); }
+  .adv-hm-monthly-bar:active { opacity:1 !important; box-shadow:0 0 12px rgba(255,255,255,.2); }
 
-  /* Tap tooltip for monthly bars */
-  .adv-hm-bar-tooltip {
-    position:absolute; bottom:calc(100% + 8px); left:50%;
-    transform:translateX(-50%) translateY(6px); opacity:0;
-    pointer-events:none;
-    min-width:140px; padding:10px 12px;
-    background:rgba(22,27,39,.88);
-    border:1px solid rgba(255,255,255,.1);
-    border-radius:12px;
-    box-shadow:0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03) inset;
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    font-size:.72rem; color:var(--text); line-height:1.6;
-    z-index:20; text-align:left;
-    transition:opacity .2s ease, transform .2s ease;
+  /* ── Full-Screen Monthly Stats Modal ── */
+  .monthly-stats-modal-overlay {
+    position:fixed; inset:0; z-index:1000010;
+    background:rgba(10,10,10,.95);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
   }
-  .adv-hm-bar-tooltip.visible {
-    opacity:1; pointer-events:all;
-    transform:translateX(-50%) translateY(0);
+  .monthly-stats-modal-overlay.open { opacity:1; pointer-events:all; }
+  .monthly-stats-modal {
+    width:100%; max-height:92vh;
+    background:rgba(22,27,39,.72);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:24px 24px 0 0;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04) inset;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    transform:translateY(100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
   }
-  .adv-hm-bar-tooltip-title {
-    font-weight:700; font-size:.78rem; margin-bottom:4px;
-    border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:4px;
+  .monthly-stats-modal-overlay.open .monthly-stats-modal { transform:translateY(0); }
+  .monthly-stats-modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 20px 16px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    position:sticky; top:0; z-index:2;
+    background:rgba(22,27,39,.95);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
   }
-  .adv-hm-bar-tooltip-row { display:flex; justify-content:space-between; gap:10px; }
-  .adv-hm-bar-tooltip-sport { color:var(--text-muted); }
-  .adv-hm-bar-tooltip-km { font-weight:700; }
+  .monthly-stats-modal-title {
+    font-size:.9rem; font-weight:700; color:var(--text);
+    text-transform:uppercase; letter-spacing:.6px;
+  }
+  .monthly-stats-modal-close {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    color:var(--text-muted); cursor:pointer;
+    transition:all .2s ease; -webkit-tap-highlight-color:transparent;
+  }
+  .monthly-stats-modal-close:active { transform:scale(.9); background:rgba(255,255,255,.12); }
+  .monthly-stats-modal-close svg { width:18px; height:18px; }
+  .monthly-stats-modal-body { padding:24px 20px 40px; }
+  .monthly-stats-total {
+    text-align:center; margin-bottom:24px;
+  }
+  .monthly-stats-total-value {
+    font-size:2.4rem; font-weight:800; color:var(--text);
+    line-height:1.1;
+  }
+  .monthly-stats-total-unit {
+    font-size:.85rem; font-weight:600; color:var(--text-muted);
+    margin-left:4px;
+  }
+  .monthly-stats-total-label {
+    font-size:.72rem; color:var(--text-muted); margin-top:4px;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+  .monthly-stats-cards {
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .monthly-stats-card {
+    display:flex; align-items:center; gap:14px;
+    padding:16px; border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .monthly-stats-card-icon {
+    width:44px; height:44px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; flex-shrink:0;
+  }
+  .monthly-stats-card-info { flex:1; }
+  .monthly-stats-card-sport {
+    font-size:.78rem; font-weight:700; color:var(--text);
+    margin-bottom:2px;
+  }
+  .monthly-stats-card-km {
+    font-size:1.1rem; font-weight:800;
+  }
+  .monthly-stats-card-pct {
+    font-size:.65rem; color:var(--text-muted); margin-top:2px;
+  }
+  .monthly-stats-card-bar {
+    height:4px; border-radius:99px; background:rgba(255,255,255,.06);
+    margin-top:8px; overflow:hidden;
+  }
+  .monthly-stats-card-bar-fill {
+    height:100%; border-radius:99px;
+    transition:width .5s ease;
+  }
 
-  /* Bar column needs relative for tooltip positioning */
-  .adv-hm-monthly-bar-col { position:relative; }
+  /* ── Stats Range Modal: Full-Screen on Mobile ── */
+  .stats-range-overlay {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .stats-range-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:24px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .stats-range-overlay.open .stats-range-modal { transform:translateY(0) !important; }
+  .stats-range-modal h3 { font-size:1.05rem; text-align:center; margin-bottom:20px; }
+  .stats-range-field input[type="date"] {
+    min-height:46px; font-size:.88rem;
+    border-radius:12px; padding:12px;
+  }
+  .stats-range-actions { margin-top:20px; }
+  .stats-range-actions button { min-height:46px; border-radius:12px; font-size:.85rem; }
+
+  /* ── PR Detail Modal: Full-Screen on Mobile ── */
+  .pr-detail-overlay {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .pr-detail-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:28px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    max-height:90vh; overflow-y:auto;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0) !important; }
+  .pr-detail-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.1) !important;
+  }
+
+  /* ── PR Edit Modal: Full-Screen on Mobile ── */
+  .pr-edit-overlay {
+    z-index:1000020 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .pr-edit-modal {
+    max-width:100% !important; width:100% !important;
+    border-radius:24px 24px 0 0 !important;
+    padding:28px 20px 30px !important;
+    background:rgba(22,27,39,.82) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
+    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
+    max-height:92vh; overflow-y:auto;
+    transform:translateY(100%) !important;
+    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0) !important; }
+  .pr-edit-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.1) !important;
+  }
+  .pr-edit-form .form-input {
+    min-height:46px; font-size:.88rem;
+    border-radius:12px; padding:12px;
+  }
+  .pr-edit-actions { margin-top:12px; }
+  .pr-edit-actions .btn { min-height:46px; border-radius:12px; font-size:.85rem; }
+
+  /* ── Help Guides: Compact Centered Card ── */
+  #helpGuidesOverlay {
+    z-index:1000010 !important;
+    background:rgba(0,0,0,.7) !important;
+    backdrop-filter:blur(14px) !important; -webkit-backdrop-filter:blur(14px) !important;
+    align-items:center !important; justify-content:center !important;
+  }
+  .hg-card {
+    width:90% !important; max-width:420px !important;
+    height:auto !important; max-height:70vh !important;
+    border-radius:20px !important;
+    background:rgba(22,27,39,.88) !important;
+    border:1px solid rgba(255,255,255,.1) !important;
+    box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset !important;
+    backdrop-filter:blur(24px) !important; -webkit-backdrop-filter:blur(24px) !important;
+    display:flex; flex-direction:column;
+  }
+  .hg-header {
+    padding:16px 18px !important;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    flex-shrink:0;
+  }
+  .hg-header-title { font-size:.78rem !important; }
+  .hg-close-btn {
+    width:32px !important; height:32px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important;
+    border:1px solid rgba(255,255,255,.1) !important;
+  }
+  .hg-slide-viewport { flex:1; min-height:0; overflow:hidden; }
+  .hg-slide { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .hg-slide-inner {
+    padding:18px 18px 12px !important;
+  }
+  .hg-preview { width:50px !important; height:50px !important; margin-bottom:12px; }
+  .hg-slide-title { font-size:.95rem !important; margin-bottom:8px !important; }
+  .hg-slide-desc { font-size:.76rem !important; line-height:1.55 !important; }
+  .hg-tip { font-size:.72rem !important; margin-top:10px !important; padding:8px 10px !important; }
+  .hg-footer {
+    padding:12px 18px !important;
+    border-top:1px solid rgba(255,255,255,.06);
+    flex-shrink:0; gap:10px;
+  }
+  .hg-dots { gap:5px; }
+  .hg-dot { width:6px; height:6px; }
+  .hg-btn {
+    padding:9px 14px !important; min-height:38px !important;
+    border-radius:10px !important; font-size:.74rem !important;
+  }
+
+  /* ── Heart Rate Zone Modal: Full-Screen on Mobile ── */
+  .hr-zone-modal-backdrop {
+    z-index:1000010 !important;
+    background:rgba(10,10,10,.92) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  .hr-zone-modal {
+    max-width:100% !important; width:100% !important;
+    max-height:100vh !important; height:100%;
+    border-radius:0 !important;
+    background:rgba(18,18,18,.98) !important;
+    border:none !important;
+    box-shadow:none !important;
+    animation:none !important;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .hr-zone-modal-header {
+    position:sticky; top:0; z-index:3;
+    background:rgba(18,18,18,.95) !important;
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    padding:20px 20px 14px !important;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .hr-zone-modal-header h3 { font-size:.95rem; }
+  .hr-zone-modal-close {
+    width:36px !important; height:36px !important; border-radius:50% !important;
+    background:rgba(255,255,255,.06) !important;
+    border:1px solid rgba(255,255,255,.1) !important;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hr-zone-modal-close:active { transform:scale(.9); }
+  .hr-zone-modal-body { padding:16px 20px 30px !important; }
+  .hr-zm-option { padding:14px 16px; border-radius:14px; margin-bottom:10px; }
+  .hr-zm-confirm-btn {
+    padding:14px 0 !important; border-radius:14px !important;
+    font-size:.88rem !important; min-height:48px;
+    margin-bottom:env(safe-area-inset-bottom, 0);
+  }
 }
 </style>
 
@@ -10571,9 +10820,11 @@ function openStatsRangeModal() {
   document.getElementById('statsRangeStart').value = range.start || '';
   document.getElementById('statsRangeEnd').value   = range.end   || '';
   document.getElementById('statsRangeOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 function closeStatsRangeModal() {
   document.getElementById('statsRangeOverlay').classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 function saveStatsRange() {
   const start = document.getElementById('statsRangeStart').value;
@@ -14029,6 +14280,7 @@ function hrOpenZoneModal() {
     if (hi && mz[i-1]) hi.value = mz[i-1][1] || '';
   }
   modal.classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function hrCloseZoneModal() {
@@ -14036,6 +14288,7 @@ function hrCloseZoneModal() {
   if (!modal) return;
   const wasOpen = modal.classList.contains('open');
   modal.classList.remove('open');
+  document.body.classList.remove('modal-open');
   // If the HR section is not currently displayed, return to dashboard
   if (wasOpen && !_navCurrentSection) {
     _setNavActive('dashboard');
@@ -14878,10 +15131,12 @@ function hrOpenAddHRModal(preselect) {
   hrModalActivityChanged();
   hrBuildModalZoneInputs();
   document.getElementById('hrDataModal').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function closeHRModal() {
   document.getElementById('hrDataModal').classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 
 function hrBuildModalZoneInputs() {
@@ -16268,43 +16523,58 @@ BADGE_DEFS.push(
     }).join('');
   }
 
-  /* ── Monthly bar tap tooltip (mobile) ── */
-  var _advHmBarTooltipActive = null;
+  /* ── Monthly bar tap → full-screen modal (mobile) ── */
   window.advHmBarTap = function(barEl, e) {
     e.stopPropagation();
-    // Only show tooltip on mobile
+    // Only open modal on mobile
     if (window.innerWidth > 768) return;
-    var col = barEl.parentElement;
-    // Close any existing tooltip
-    advHmBarTooltipClose();
-    var mi   = parseInt(barEl.getAttribute('data-month'));
-    var total= barEl.getAttribute('data-total');
-    var run  = barEl.getAttribute('data-run');
-    var walk = barEl.getAttribute('data-walk');
-    var cyc  = barEl.getAttribute('data-cycle');
-    var tip = document.createElement('div');
-    tip.className = 'adv-hm-bar-tooltip';
-    tip.innerHTML = '<div class="adv-hm-bar-tooltip-title">' + MONTH_NAMES[mi] + ' — ' + total + ' km</div>'
-      + (parseFloat(run)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#FF8C00">🏃 Run</span><span class="adv-hm-bar-tooltip-km">' + run + ' km</span></div>' : '')
-      + (parseFloat(walk)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#2ECC71">🚶 Walk</span><span class="adv-hm-bar-tooltip-km">' + walk + ' km</span></div>' : '')
-      + (parseFloat(cyc)>0 ? '<div class="adv-hm-bar-tooltip-row"><span class="adv-hm-bar-tooltip-sport" style="color:#3498DB">🚴 Cycle</span><span class="adv-hm-bar-tooltip-km">' + cyc + ' km</span></div>' : '');
-    col.appendChild(tip);
-    // Highlight tapped bar
-    barEl.style.opacity = '1';
-    barEl.style.boxShadow = '0 0 10px rgba(255,255,255,.15)';
-    _advHmBarTooltipActive = { tip:tip, bar:barEl, col:col };
-    requestAnimationFrame(function(){ tip.classList.add('visible'); });
+    var mi    = parseInt(barEl.getAttribute('data-month'));
+    var total = parseFloat(barEl.getAttribute('data-total'));
+    var run   = parseFloat(barEl.getAttribute('data-run'));
+    var walk  = parseFloat(barEl.getAttribute('data-walk'));
+    var cyc   = parseFloat(barEl.getAttribute('data-cycle'));
+    openMonthlyStatsModal(mi, total, run, walk, cyc);
   };
-  function advHmBarTooltipClose() {
-    if (!_advHmBarTooltipActive) return;
-    var t = _advHmBarTooltipActive;
-    t.tip.classList.remove('visible');
-    t.bar.style.opacity = '';
-    t.bar.style.boxShadow = '';
-    setTimeout(function(){ if(t.tip.parentNode) t.tip.parentNode.removeChild(t.tip); }, 200);
-    _advHmBarTooltipActive = null;
-  }
-  document.addEventListener('click', function(){ advHmBarTooltipClose(); });
+  window.openMonthlyStatsModal = function(mi, total, run, walk, cyc) {
+    var overlay = document.getElementById('monthlyStatsModalOverlay');
+    var titleEl = document.getElementById('monthlyStatsTitle');
+    var bodyEl  = document.getElementById('monthlyStatsBody');
+    if (!overlay || !titleEl || !bodyEl) return;
+    titleEl.textContent = 'Statistics for ' + MONTH_NAMES[mi] + ' ' + ADV_HM_YEAR;
+    var sports = [
+      { key:'run',   label:'Running',     icon:'🏃', color:'#FF8C00', km:run },
+      { key:'walk',  label:'Walk / Hike', icon:'🚶', color:'#2ECC71', km:walk },
+      { key:'cycle', label:'Cycling',      icon:'🚴', color:'#3498DB', km:cyc }
+    ];
+    var maxSport = Math.max(run, walk, cyc, 1);
+    var html = '<div class="monthly-stats-total">'
+      + '<div><span class="monthly-stats-total-value">' + total.toFixed(1) + '</span>'
+      + '<span class="monthly-stats-total-unit">km</span></div>'
+      + '<div class="monthly-stats-total-label">Total Distance</div>'
+      + '</div>'
+      + '<div class="monthly-stats-cards">';
+    sports.forEach(function(s) {
+      var pct = total > 0 ? Math.round((s.km / total) * 100) : 0;
+      var barPct = Math.round((s.km / maxSport) * 100);
+      html += '<div class="monthly-stats-card">'
+        + '<div class="monthly-stats-card-icon" style="background:' + s.color + '20;color:' + s.color + '">' + s.icon + '</div>'
+        + '<div class="monthly-stats-card-info">'
+        + '<div class="monthly-stats-card-sport">' + s.label + '</div>'
+        + '<div class="monthly-stats-card-km" style="color:' + s.color + '">' + s.km.toFixed(1) + ' km</div>'
+        + '<div class="monthly-stats-card-pct">' + pct + '% of total</div>'
+        + '<div class="monthly-stats-card-bar"><div class="monthly-stats-card-bar-fill" style="width:' + barPct + '%;background:' + s.color + '"></div></div>'
+        + '</div></div>';
+    });
+    html += '</div>';
+    bodyEl.innerHTML = html;
+    overlay.classList.add('open');
+    document.body.classList.add('modal-open');
+  };
+  window.closeMonthlyStatsModal = function() {
+    var overlay = document.getElementById('monthlyStatsModalOverlay');
+    if (overlay) overlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  };
 
   /* ── Steps grid ── */
   function renderStepsGrid() {
@@ -18484,6 +18754,7 @@ function _navRerenderSection(id) {
 // Escape key closes nav overlay, pace, or VO2
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    if (document.getElementById('monthlyStatsModalOverlay')?.classList.contains('open')) { closeMonthlyStatsModal(); return; }
     if (document.getElementById('pewModalOverlay')?.classList.contains('open')) { pewModalClose(); return; }
     if (document.getElementById('paceOverlay')?.classList.contains('open')) { closePacePage(); return; }
     if (document.getElementById('vo2Overlay')?.classList.contains('open'))  { closeVo2Page();  return; }
@@ -18633,6 +18904,7 @@ function openPRDetail(icon, label, val, date, activityKey) {
       <div class="pr-detail-congrats">${congratMsg}</div>
     </div>`;
   requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.body.classList.add('modal-open');
   document.addEventListener('keydown', prDetailEscHandler);
 }
 function closePRDetail() {
@@ -18641,6 +18913,7 @@ function closePRDetail() {
     overlay.classList.remove('open');
     setTimeout(function() { overlay.remove(); }, 200);
   }
+  document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', prDetailEscHandler);
 }
 function prDetailEscHandler(e) { if (e.key === 'Escape') closePRDetail(); }
@@ -18722,6 +18995,7 @@ function openPREdit(key, icon, label) {
       </div>
     </div>`;
   requestAnimationFrame(function() { overlay.classList.add('open'); });
+  document.body.classList.add('modal-open');
   document.addEventListener('keydown', prEditEscHandler);
 }
 
@@ -18777,6 +19051,7 @@ function closePREdit() {
     overlay.classList.remove('open');
     setTimeout(function() { overlay.remove(); }, 200);
   }
+  document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', prEditEscHandler);
 }
 function prEditEscHandler(e) { if (e.key === 'Escape') closePREdit(); }
@@ -19741,6 +20016,19 @@ function mobLogRestDay() {
       <span class="pew-unit">/km</span>
     </div>
     <div class="pew-sync-msg" id="pewSyncMsg">Synced &amp; re-rendered</div>
+  </div>
+</div>
+
+<!-- Mobile Monthly Stats Modal -->
+<div class="monthly-stats-modal-overlay" id="monthlyStatsModalOverlay" onclick="if(event.target===this)closeMonthlyStatsModal()">
+  <div class="monthly-stats-modal">
+    <div class="monthly-stats-modal-header">
+      <div class="monthly-stats-modal-title" id="monthlyStatsTitle">Statistics for January</div>
+      <button class="monthly-stats-modal-close" onclick="closeMonthlyStatsModal()" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="monthly-stats-modal-body" id="monthlyStatsBody"></div>
   </div>
 </div>
 
