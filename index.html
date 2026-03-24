@@ -90,15 +90,61 @@
         <div class="max-w-3xl mx-auto px-4">
             <h2 class="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter text-white">Ready to elevate?</h2>
             <div class="glass-card p-10 rounded-[3rem] border-white/20">
-                <h3 class="text-2xl font-bold mb-6 uppercase">Login / Sign Up</h3>
+                <h3 class="text-2xl font-bold mb-6 uppercase">Sign Up</h3>
+                <div id="signupError" class="hidden text-red-400 text-sm font-bold mb-4"></div>
                 <div class="space-y-4">
-                    <input type="email" placeholder="Email Address" class="w-full p-4 rounded-full text-white outline-none focus:ring-2 focus:ring-white">
-                    <input type="password" placeholder="Password" class="w-full p-4 rounded-full text-white outline-none focus:ring-2 focus:ring-white">
-                    <button class="w-full bg-white text-orange-600 font-black py-4 rounded-full uppercase tracking-widest hover:bg-black hover:text-white transition">Enter Dashboard</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="joinFirst" placeholder="First Name" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
+                        <input type="text" id="joinLast" placeholder="Last Name" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
+                    </div>
+                    <input type="email" id="joinEmail" placeholder="Email Address" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
+                    <input type="password" id="joinPassword" placeholder="Password (min 6 characters)" class="w-full p-4 rounded-xl text-white outline-none border border-white/20 focus:border-white transition bg-white/10">
+                    <button onclick="handleSignUp()" class="w-full bg-white text-orange-600 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-black hover:text-white transition">Join Us</button>
                 </div>
             </div>
         </div>
     </section>
+
+    <script>
+    function handleSignUp() {
+        const first = document.getElementById('joinFirst').value.trim();
+        const last  = document.getElementById('joinLast').value.trim();
+        const email = document.getElementById('joinEmail').value.trim();
+        const pwd   = document.getElementById('joinPassword').value;
+        const errEl = document.getElementById('signupError');
+        errEl.classList.add('hidden');
+
+        if (!first || !last || !email || !pwd) {
+            errEl.textContent = 'Please fill in all fields.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errEl.textContent = 'Please enter a valid email address.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+        if (pwd.length < 6) {
+            errEl.textContent = 'Password must be at least 6 characters.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        const user = {
+            firstName: first,
+            lastName: last,
+            email: email,
+            password: pwd,
+            avatar: '🏃',
+            units: 'km',
+            memberSince: new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+        };
+        localStorage.setItem('actmtr_user', JSON.stringify(user));
+        localStorage.setItem('actmtr_session', JSON.stringify({ email: email }));
+        localStorage.setItem('userFirstName', first);
+        window.location.href = 'dashboard.html';
+    }
+    </script>
 
     <section id="contact" class="py-20 max-w-3xl mx-auto px-4">
         <h2 class="text-4xl font-black mb-12 text-center uppercase tracking-tighter">Get in <span class="text-orange-500">Touch</span></h2>

@@ -10469,6 +10469,13 @@ function initAuth() {
     const u = loadUser();
     if (u && u.email.toLowerCase() === session.email.toLowerCase()) currentUser = u;
   }
+  if (!currentUser) {
+    const name = localStorage.getItem('userFirstName');
+    if (name) {
+      const u = loadUser();
+      if (u) currentUser = u;
+    }
+  }
   renderAuthHeader();
 }
 
@@ -10657,6 +10664,8 @@ function doSignup() {
 }
 function logOut() {
   clearSession();
+  localStorage.removeItem('actmtr_user');
+  localStorage.removeItem('userFirstName');
   currentUser = null;
   closeUserMenu();
   closeProfile();
