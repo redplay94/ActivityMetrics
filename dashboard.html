@@ -83,9 +83,7 @@ body.modal-open header {
 .brand { display: flex; align-items: baseline; gap: 8px; }
 .brand-title {
   font-size: 1.5rem; font-weight: 800; letter-spacing: -.5px;
-  background: linear-gradient(135deg, var(--run), var(--cycle));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--run);
 }
 .brand-badge {
   font-size: .6rem; font-weight: 700; letter-spacing: 2px;
@@ -10662,8 +10660,7 @@ function logOut() {
   currentUser = null;
   closeUserMenu();
   closeProfile();
-  renderAuthHeader();
-  showToast('Logged out. See you next time! 👋');
+  window.location.href = 'index.html';
 }
 
 /* ── Profile Edit Modal ── */
