@@ -4043,6 +4043,104 @@ header { padding: 0 !important; z-index: 600 !important; }
   .pew-modal-body .pew-label { font-size:.76rem; width:60px; }
   .pew-modal-body .pew-unit { font-size:.7rem; }
   .pew-modal-body .pew-range-note { margin-bottom:14px; font-size:.68rem; }
+
+  /* ── Z-Index Fix: Forms & Modals Above Nav Bars ── */
+  /* Hide bottom nav when any modal/overlay is active */
+  body.modal-open .mobile-bottom-nav { display:none !important; }
+  body.modal-open header { z-index:1 !important; }
+
+  /* All modal overlays above bottom nav (10000) */
+  .modal-overlay {
+    z-index:10001 !important;
+    position:fixed !important; top:0 !important; left:0 !important;
+    width:100vw !important; height:100vh !important;
+  }
+  .modal-overlay .modal {
+    max-height:100vh; overflow-y:auto;
+    padding-bottom:80px;
+  }
+  .modal-overlay .modal .modal-body { padding-bottom:20px; }
+  .modal-overlay .modal .modal-header { position:sticky; top:0; z-index:2; background:var(--bg2); }
+  .modal-overlay .modal .modal-footer {
+    position:sticky; bottom:0; z-index:2;
+    background:var(--bg2); padding:16px 20px;
+  }
+
+  /* Pace Calculator overlay */
+  .pace-overlay { z-index:10001 !important; }
+  .pace-overlay.open { position:fixed; inset:0; height:100vh; overflow-y:auto; }
+  .pace-page { padding-top:20px; padding-bottom:80px; }
+
+  /* Nav section overlay (HR zones, Coach, etc.) */
+  .nav-section-overlay { z-index:10001 !important; top:0 !important; height:100vh; }
+
+  /* Help Guides overlay */
+  #helpGuidesOverlay { z-index:10001 !important; }
+
+  /* Advanced Stats overlay */
+  #advStatsOverlay { z-index:10001 !important; }
+
+  /* Heatmap day-detail modal */
+  .adv-hm-modal-overlay { z-index:10001 !important; }
+
+  /* Best Activity & Race modals (already high, keep above) */
+  #baModalOverlay, .ba-detail-overlay,
+  #raceModalOverlay, #completedRaceModalOverlay,
+  #bucketModalOverlay { z-index:10002 !important; }
+
+  /* Strava import modal */
+  #stravaModalOverlay { z-index:10001 !important; }
+
+  /* Profile edit modal */
+  .profile-edit-modal-overlay { z-index:10001 !important; }
+
+  /* Stats range picker */
+  .stats-range-overlay { z-index:10001 !important; }
+
+  /* PR detail/edit overlays */
+  .pr-detail-overlay { z-index:10002 !important; }
+  .pr-edit-overlay { z-index:10003 !important; }
+
+  /* ── Best Activity: Action Button Styling ── */
+  .ba-add-btn {
+    width:100%; justify-content:center;
+    padding:14px 16px; border-radius:14px;
+    font-size:.88rem; font-weight:700;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .ba-add-btn:active { transform:scale(0.96); opacity:.85; }
+  .ba-add-btn svg { width:15px; height:15px; }
+
+  /* ── Best Activity Modal: Full-Screen on Mobile ── */
+  #baModalOverlay {
+    z-index:1000001 !important;
+    background:rgba(10,10,10,.95) !important;
+    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
+    align-items:flex-end !important; padding:0 !important;
+  }
+  #baModalOverlay .ba-modal {
+    max-height:100vh !important; height:100%;
+    border-radius:0 !important;
+    overflow-y:auto;
+    padding-top:0;
+  }
+  #baModalOverlay .ba-modal .modal-header {
+    position:sticky; top:0; z-index:3;
+    background:rgba(18,18,18,.95);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    padding:20px 20px 14px;
+  }
+  #baModalOverlay .ba-modal .modal-body { padding:16px 20px 20px; }
+  #baModalOverlay .ba-modal .modal-footer {
+    position:sticky; bottom:0; z-index:3;
+    background:rgba(18,18,18,.95);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    padding:16px 20px calc(16px + env(safe-area-inset-bottom,0));
+  }
+
+  /* BA detail overlay also full-screen */
+  .ba-detail-overlay { z-index:1000002 !important; }
 }
 </style>
 
@@ -12432,6 +12530,7 @@ function openPacePage() {
   el.style.top = headerH + 'px';
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
   pcCheckAvgPace();
   rpCheckBestRace();
   if (!gapSegments.length) gapInitSegments();
@@ -12440,6 +12539,7 @@ function openPacePage() {
 function closePacePage(silent) {
   var el = document.getElementById('paceOverlay');
   el.classList.remove('open');
+  document.body.classList.remove('modal-open');
   if (!silent) { document.body.style.overflow = ''; _setNavActive('dashboard'); }
 }
 
@@ -15171,10 +15271,12 @@ function baOpenDetail(type, id) {
   if (!a) return;
   page.innerHTML = baDetailHTML(a, type);
   overlay.classList.add('open');
+  document.body.classList.add('modal-open');
   baUpdateCarousel();
 }
 function baCloseDetail() {
   document.getElementById('baDetailOverlay')?.classList.remove('open');
+  document.body.classList.remove('modal-open');
   baDetailId = null; baDetailType = null;
 }
 
@@ -15438,10 +15540,12 @@ function baOpenModal(type, id) {
     </div>`;
   if (existing?.distance && existing?.duration) baCalcPace();
   overlay.classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function baCloseModal() {
   document.getElementById('baModalOverlay')?.classList.remove('open');
+  document.body.classList.remove('modal-open');
   baEditingId = null; baEditingType = null; baPhotoQueue = [];
 }
 
@@ -18160,6 +18264,7 @@ function openNavSection(sectionId) {
     backdrop.classList.add('open');
   });
   document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
 
   // Re-render section content (charts, data) when needed
   _navRerenderSection(sectionId);
@@ -18176,6 +18281,7 @@ function closeNavSection() {
   overlay.classList.remove('open');
   backdrop.classList.remove('open');
   document.body.style.overflow = '';
+  document.body.classList.remove('modal-open');
 
   // Return section to dashboard after slide-out animation
   setTimeout(function() { _navReturnSection(); }, 360);
@@ -18771,6 +18877,7 @@ function showAdvancedStats(sport) {
   document.getElementById('advStatsBody').innerHTML = filterHtml;
   _advUpdateStats();
   document.getElementById('advStatsOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
 function _advUpdateStats() {
@@ -18855,6 +18962,7 @@ function _advUpdateStats() {
 
 function closeAdvancedStats() {
   document.getElementById('advStatsOverlay').classList.remove('open');
+  document.body.classList.remove('modal-open');
   _advCurrentSport = null;
 }
 
@@ -19289,10 +19397,12 @@ var _hgTotal = 9;
 function helpGuidesOpen() {
   _hgStep = 0;
   document.getElementById('helpGuidesOverlay').classList.add('open');
+  document.body.classList.add('modal-open');
   _hgRender();
 }
 function helpGuidesClose() {
   document.getElementById('helpGuidesOverlay').classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 function helpGuidesNext() {
   if (_hgStep >= _hgTotal - 1) { helpGuidesClose(); return; }
