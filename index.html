@@ -11,6 +11,28 @@
         .runna-title { line-height: 1.1; letter-spacing: -0.04em; }
         .glass-card { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         input, textarea { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+
+        /* Showcase animations */
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.18; transform: scale(1); }
+            50% { opacity: 0.28; transform: scale(1.05); }
+        }
+        .phone-frame {
+            opacity: 0;
+            transform: translateY(2.5rem);
+            transition: opacity 0.8s ease, transform 0.8s ease, filter 0.3s ease;
+        }
+        .phone-frame.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .phone-frame:hover {
+            filter: brightness(1.05);
+            transform: translateY(0) scale(1.02) perspective(800px) rotateY(2deg);
+        }
+        .phone-frame.visible:hover {
+            transform: translateY(0) scale(1.02) perspective(800px) rotateY(2deg);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -52,34 +74,56 @@
     </header>
 
     <!-- Three-Phone Showcase -->
-    <section class="bg-black py-24 px-4 relative overflow-hidden">
-        <!-- Orange radial glow behind center phone -->
+    <section id="showcase" class="bg-black py-28 px-4 relative overflow-hidden">
+        <!-- Pulsing orange radial glow -->
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-            <div class="w-[500px] h-[500px] rounded-full bg-orange-500/15 blur-[120px]"></div>
+            <div class="w-[900px] h-[900px] rounded-full" style="background: radial-gradient(circle, rgba(249,115,22,0.18) 0%, rgba(0,0,0,0) 70%); animation: glow-pulse 6s ease-in-out infinite;"></div>
         </div>
+        <!-- Subdued grid texture -->
+        <div class="absolute inset-0 pointer-events-none opacity-[0.03]" aria-hidden="true" style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E&quot;); background-size: 60px 60px;"></div>
 
         <div class="max-w-6xl mx-auto relative z-10">
-            <h2 class="text-4xl font-black italic uppercase text-orange-500 text-center tracking-tighter mb-20">
+            <h2 class="text-4xl font-black italic uppercase text-orange-500 text-center tracking-tighter mb-4">
                 Analytics at Your Fingertips
             </h2>
+            <p class="text-xs font-light tracking-[0.3em] uppercase text-zinc-500 text-center mt-4 mb-20">
+                Every Split, Every Beat, Perfectly Visualized.
+            </p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6 items-center justify-items-center">
                 <!-- Phone 1 -->
-                <div class="border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full">
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full" data-delay="0">
                     <img src="screen1.jpg" alt="ActivityMetrics Screen 1" class="w-full h-auto block">
                 </div>
 
                 <!-- Phone 2 (focal) -->
-                <div class="border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full md:scale-105 md:z-10 shadow-2xl shadow-orange-500/10">
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full md:scale-105 md:z-10" data-delay="150" style="filter: drop-shadow(0 0 20px rgba(249,115,22,0.3));">
                     <img src="screen2.jpg" alt="ActivityMetrics Screen 2" class="w-full h-auto block">
                 </div>
 
                 <!-- Phone 3 -->
-                <div class="border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full">
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full" data-delay="300">
                     <img src="screen3.jpg" alt="ActivityMetrics Screen 3" class="w-full h-auto block">
                 </div>
             </div>
         </div>
+
+        <script>
+            (function() {
+                const phones = document.querySelectorAll('.phone-frame');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const delay = parseInt(entry.target.dataset.delay) || 0;
+                        if (entry.isIntersecting) {
+                            setTimeout(() => entry.target.classList.add('visible'), delay);
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.15 });
+                phones.forEach(el => observer.observe(el));
+            })();
+        </script>
     </section>
 
     <!-- How It Works -->
