@@ -50,11 +50,33 @@
             box-shadow: 0 0 20px rgba(249,115,22,0.15);
         }
         .feature-icon {
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease-out, filter 0.5s ease-out;
+            position: relative;
+            z-index: 10;
         }
-        .feature-card:hover .feature-icon {
-            filter: drop-shadow(0 0 15px rgba(249,115,22,0.5));
+        /* Desktop only: 3D tilt + glow */
+        @media (hover: hover) and (min-width: 768px) {
+            .feature-icon {
+                transform-style: preserve-3d;
+                transition: transform 0.5s ease-out, filter 0.5s ease-out;
+                will-change: transform, filter;
+            }
+            .feature-card:hover .feature-icon {
+                filter: drop-shadow(0 0 15px rgba(249,115,22,0.5));
+            }
+        }
+        /* Mobile: no transforms, no stuck hover states */
+        @media (hover: none) {
+            .feature-icon {
+                transform: none !important;
+                filter: none !important;
+            }
+            .feature-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            .feature-card.visible:hover {
+                transform: translateY(0);
+            }
         }
 
         /* Features heading reveal */
@@ -331,26 +353,26 @@
 
                 document.querySelectorAll('.features-heading').forEach(el => headingObserver.observe(el));
 
-                // Magnetic 3D tilt on feature icons
-                document.querySelectorAll('.feature-card').forEach(card => {
-                    const icon = card.querySelector('.feature-icon');
-                    if (!icon) return;
+                // Magnetic 3D tilt — desktop only
+                if (window.matchMedia('(hover: hover) and (min-width: 768px)').matches) {
+                    document.querySelectorAll('.feature-card').forEach(card => {
+                        const icon = card.querySelector('.feature-icon');
+                        if (!icon) return;
 
-                    card.addEventListener('mousemove', (e) => {
-                        const rect = icon.getBoundingClientRect();
-                        const cx = rect.left + rect.width / 2;
-                        const cy = rect.top + rect.height / 2;
-                        const dx = (e.clientX - cx) / (rect.width / 2);
-                        const dy = (e.clientY - cy) / (rect.height / 2);
-                        const rotateY = dx * 15;
-                        const rotateX = dy * -15;
-                        icon.style.transform = `scale3d(1.25,1.25,1.25) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    });
+                        card.addEventListener('mousemove', (e) => {
+                            const rect = icon.getBoundingClientRect();
+                            const cx = rect.left + rect.width / 2;
+                            const cy = rect.top + rect.height / 2;
+                            const dx = (e.clientX - cx) / (rect.width / 2);
+                            const dy = (e.clientY - cy) / (rect.height / 2);
+                            icon.style.transform = `scale3d(1.25,1.25,1.25) rotateX(${dy * -15}deg) rotateY(${dx * 15}deg)`;
+                        });
 
-                    card.addEventListener('mouseleave', () => {
-                        icon.style.transform = '';
+                        card.addEventListener('mouseleave', () => {
+                            icon.style.transform = '';
+                        });
                     });
-                });
+                }
             })();
         </script>
     </section>
