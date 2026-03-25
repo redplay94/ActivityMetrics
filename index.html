@@ -11,6 +11,84 @@
         .runna-title { line-height: 1.1; letter-spacing: -0.04em; }
         .glass-card { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         input, textarea { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+
+        /* Showcase animations */
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.18; transform: scale(1); }
+            50% { opacity: 0.28; transform: scale(1.05); }
+        }
+        .phone-frame {
+            opacity: 0;
+            transform: translateY(2.5rem);
+            transition: opacity 0.8s ease, transform 0.8s ease, filter 0.3s ease;
+        }
+        .phone-frame.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .phone-frame:hover {
+            filter: brightness(1.05);
+            transform: translateY(0) scale(1.02) perspective(800px) rotateY(2deg);
+        }
+        .phone-frame.visible:hover {
+            transform: translateY(0) scale(1.02) perspective(800px) rotateY(2deg);
+        }
+
+        /* Feature card animations */
+        .feature-card {
+            opacity: 0;
+            transform: translateY(2rem);
+            perspective: 1000px;
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feature-card:hover {
+            transform: translateY(-0.5rem);
+            box-shadow: 0 0 20px rgba(249,115,22,0.15);
+        }
+        .feature-icon {
+            position: relative;
+            z-index: 10;
+        }
+        /* Desktop only: 3D tilt + glow */
+        @media (hover: hover) and (min-width: 768px) {
+            .feature-icon {
+                transform-style: preserve-3d;
+                transition: transform 0.5s ease-out, filter 0.5s ease-out;
+                will-change: transform, filter;
+            }
+            .feature-card:hover .feature-icon {
+                filter: drop-shadow(0 0 15px rgba(249,115,22,0.5));
+            }
+        }
+        /* Mobile: no transforms, no stuck hover states */
+        @media (hover: none) {
+            .feature-icon {
+                transform: none !important;
+                filter: none !important;
+            }
+            .feature-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            .feature-card.visible:hover {
+                transform: translateY(0);
+            }
+        }
+
+        /* Features heading reveal */
+        .features-heading {
+            opacity: 0;
+            letter-spacing: -0.08em;
+            transition: opacity 0.8s ease, letter-spacing 0.8s ease;
+        }
+        .features-heading.visible {
+            opacity: 1;
+            letter-spacing: -0.04em;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -49,10 +127,58 @@
                 </a>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto mt-28 mb-8">
-            <img src="hero-trio.png" alt="ActivityMetrics Dashboard Preview" class="w-full h-auto mx-auto shadow-2xl rounded-3xl">
-        </div>
     </header>
+
+    <!-- Three-Phone Showcase -->
+    <section id="showcase" class="bg-black py-28 px-4 relative overflow-hidden">
+        <!-- Subdued shared halo behind all phones -->
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(circle at center, rgba(249,115,22,0.12) 0%, rgba(0,0,0,0) 60%);"></div>
+        <!-- Subdued grid texture -->
+        <div class="absolute inset-0 pointer-events-none opacity-[0.03]" aria-hidden="true" style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E&quot;); background-size: 60px 60px;"></div>
+
+        <div class="max-w-6xl mx-auto relative z-10">
+            <h2 class="text-4xl font-black italic uppercase text-orange-500 text-center tracking-tighter mb-4">
+                Analytics at Your Fingertips
+            </h2>
+            <p class="text-xs font-light tracking-[0.3em] uppercase text-zinc-500 text-center mt-4 mb-20">
+                Every Split, Every Beat, Perfectly Visualized.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6 items-center justify-items-center">
+                <!-- Phone 1 -->
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full" data-delay="0">
+                    <img src="screen1.jpg" alt="ActivityMetrics Screen 1" class="w-full h-auto block">
+                </div>
+
+                <!-- Phone 2 (focal) -->
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full md:scale-105 md:z-10" data-delay="150">
+                    <img src="screen2.jpg" alt="ActivityMetrics Screen 2" class="w-full h-auto block">
+                </div>
+
+                <!-- Phone 3 -->
+                <div class="phone-frame border-[6px] border-zinc-800 rounded-[2.5rem] overflow-hidden max-w-[280px] w-full" data-delay="300">
+                    <img src="screen3.jpg" alt="ActivityMetrics Screen 3" class="w-full h-auto block">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function() {
+                const phones = document.querySelectorAll('.phone-frame');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const delay = parseInt(entry.target.dataset.delay) || 0;
+                        if (entry.isIntersecting) {
+                            setTimeout(() => entry.target.classList.add('visible'), delay);
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.15 });
+                phones.forEach(el => observer.observe(el));
+            })();
+        </script>
+    </section>
 
     <!-- How It Works -->
     <section class="py-24 bg-orange-600 relative overflow-hidden">
@@ -125,14 +251,28 @@
         </div>
     </section>
 
+    <!-- Scrolling Marquee Divider — Glassmorphism -->
+    <div class="bg-black/30 backdrop-blur-md border-t border-b border-orange-500/30 py-5 overflow-hidden whitespace-nowrap">
+        <style>
+            @keyframes marquee-scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+        </style>
+        <div class="inline-flex" style="animation: marquee-scroll 20s linear infinite;">
+            <span class="text-3xl font-black italic uppercase text-orange-500 tracking-wide">TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; </span>
+            <span class="text-3xl font-black italic uppercase text-orange-500 tracking-wide">TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; TRACK. MEASURE. IMPROVE. /&nbsp; </span>
+        </div>
+    </div>
+
     <section id="features" class="py-24 max-w-7xl mx-auto px-4">
-        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center uppercase tracking-tighter">Core <span class="text-orange-500">Features</span></h2>
+        <h2 class="features-heading text-4xl md:text-5xl font-black mb-16 text-center uppercase">Core <span class="text-orange-500">Features</span></h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
             <!-- My Stats -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="0">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">My Stats</h3>
@@ -140,8 +280,8 @@
             </div>
 
             <!-- My Races -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="100">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">My Races</h3>
@@ -149,8 +289,8 @@
             </div>
 
             <!-- Heatmap -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="200">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Heatmap</h3>
@@ -158,8 +298,8 @@
             </div>
 
             <!-- Pace Calculator -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="300">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Pace Calculator</h3>
@@ -167,8 +307,8 @@
             </div>
 
             <!-- Heart Rate -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="400">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Heart Rate</h3>
@@ -176,8 +316,8 @@
             </div>
 
             <!-- Running Coach & VO2 -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="500">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Running Coach & VO2</h3>
@@ -185,6 +325,56 @@
             </div>
 
         </div>
+
+        <script>
+            (function() {
+                const featureObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const delay = parseInt(entry.target.dataset.delay) || 0;
+                        if (entry.isIntersecting) {
+                            setTimeout(() => entry.target.classList.add('visible'), delay);
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.feature-card').forEach(el => featureObserver.observe(el));
+
+                const headingObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.3 });
+
+                document.querySelectorAll('.features-heading').forEach(el => headingObserver.observe(el));
+
+                // Magnetic 3D tilt — desktop only
+                if (window.matchMedia('(hover: hover) and (min-width: 768px)').matches) {
+                    document.querySelectorAll('.feature-card').forEach(card => {
+                        const icon = card.querySelector('.feature-icon');
+                        if (!icon) return;
+
+                        card.addEventListener('mousemove', (e) => {
+                            const rect = icon.getBoundingClientRect();
+                            const cx = rect.left + rect.width / 2;
+                            const cy = rect.top + rect.height / 2;
+                            const dx = (e.clientX - cx) / (rect.width / 2);
+                            const dy = (e.clientY - cy) / (rect.height / 2);
+                            icon.style.transform = `scale3d(1.25,1.25,1.25) rotateX(${dy * -15}deg) rotateY(${dx * 15}deg)`;
+                        });
+
+                        card.addEventListener('mouseleave', () => {
+                            icon.style.transform = '';
+                        });
+                    });
+                }
+            })();
+        </script>
     </section>
 
     <section id="join" class="py-20 bg-orange-600 text-center">
