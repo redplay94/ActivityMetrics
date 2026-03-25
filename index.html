@@ -33,6 +33,38 @@
         .phone-frame.visible:hover {
             transform: translateY(0) scale(1.02) perspective(800px) rotateY(2deg);
         }
+
+        /* Feature card animations */
+        .feature-card {
+            opacity: 0;
+            transform: translateY(2rem);
+            transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feature-card:hover {
+            transform: translateY(-0.5rem);
+            box-shadow: 0 0 20px rgba(249,115,22,0.15);
+        }
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        .feature-icon {
+            transition: transform 0.3s ease;
+        }
+
+        /* Features heading reveal */
+        .features-heading {
+            opacity: 0;
+            letter-spacing: -0.08em;
+            transition: opacity 0.8s ease, letter-spacing 0.8s ease;
+        }
+        .features-heading.visible {
+            opacity: 1;
+            letter-spacing: -0.04em;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -210,13 +242,13 @@
     </div>
 
     <section id="features" class="py-24 max-w-7xl mx-auto px-4">
-        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center uppercase tracking-tighter">Core <span class="text-orange-500">Features</span></h2>
+        <h2 class="features-heading text-4xl md:text-5xl font-black mb-16 text-center uppercase">Core <span class="text-orange-500">Features</span></h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
             <!-- My Stats -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="0">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">My Stats</h3>
@@ -224,8 +256,8 @@
             </div>
 
             <!-- My Races -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="100">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">My Races</h3>
@@ -233,8 +265,8 @@
             </div>
 
             <!-- Heatmap -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="200">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Heatmap</h3>
@@ -242,8 +274,8 @@
             </div>
 
             <!-- Pace Calculator -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="300">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Pace Calculator</h3>
@@ -251,8 +283,8 @@
             </div>
 
             <!-- Heart Rate -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="400">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Heart Rate</h3>
@@ -260,8 +292,8 @@
             </div>
 
             <!-- Running Coach & VO2 -->
-            <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] transition-all duration-300 group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
+            <div class="feature-card glass-card p-8 rounded-3xl border border-white/10 hover:border-orange-500/50 group" data-delay="500">
+                <div class="feature-icon w-14 h-14 rounded-2xl bg-orange-600/15 flex items-center justify-center mb-5 group-hover:bg-orange-600/25 transition-all duration-300">
                     <svg class="w-7 h-7 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>
                 </div>
                 <h3 class="text-lg font-black mb-3 uppercase tracking-wide text-white">Running Coach & VO2</h3>
@@ -269,6 +301,35 @@
             </div>
 
         </div>
+
+        <script>
+            (function() {
+                const featureObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const delay = parseInt(entry.target.dataset.delay) || 0;
+                        if (entry.isIntersecting) {
+                            setTimeout(() => entry.target.classList.add('visible'), delay);
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.feature-card').forEach(el => featureObserver.observe(el));
+
+                const headingObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        } else {
+                            entry.target.classList.remove('visible');
+                        }
+                    });
+                }, { threshold: 0.3 });
+
+                document.querySelectorAll('.features-heading').forEach(el => headingObserver.observe(el));
+            })();
+        </script>
     </section>
 
     <section id="join" class="py-20 bg-orange-600 text-center">
