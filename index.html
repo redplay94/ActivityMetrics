@@ -38,6 +38,7 @@
         .feature-card {
             opacity: 0;
             transform: translateY(2rem);
+            perspective: 1000px;
             transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
         .feature-card.visible {
@@ -48,11 +49,12 @@
             transform: translateY(-0.5rem);
             box-shadow: 0 0 20px rgba(249,115,22,0.15);
         }
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1);
-        }
         .feature-icon {
-            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease-out, filter 0.5s ease-out;
+        }
+        .feature-card:hover .feature-icon {
+            filter: drop-shadow(0 0 15px rgba(249,115,22,0.5));
         }
 
         /* Features heading reveal */
@@ -328,6 +330,27 @@
                 }, { threshold: 0.3 });
 
                 document.querySelectorAll('.features-heading').forEach(el => headingObserver.observe(el));
+
+                // Magnetic 3D tilt on feature icons
+                document.querySelectorAll('.feature-card').forEach(card => {
+                    const icon = card.querySelector('.feature-icon');
+                    if (!icon) return;
+
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = icon.getBoundingClientRect();
+                        const cx = rect.left + rect.width / 2;
+                        const cy = rect.top + rect.height / 2;
+                        const dx = (e.clientX - cx) / (rect.width / 2);
+                        const dy = (e.clientY - cy) / (rect.height / 2);
+                        const rotateY = dx * 15;
+                        const rotateX = dy * -15;
+                        icon.style.transform = `scale3d(1.25,1.25,1.25) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    });
+
+                    card.addEventListener('mouseleave', () => {
+                        icon.style.transform = '';
+                    });
+                });
             })();
         </script>
     </section>
