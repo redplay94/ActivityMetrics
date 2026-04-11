@@ -10487,6 +10487,10 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
 }
 
+function getStravaAthlete() {
+  try { return JSON.parse(localStorage.getItem('strava_athlete')) || null; } catch { return null; }
+}
+
 function initAuth() {
   const session = getSession();
   if (session) {
@@ -10498,6 +10502,19 @@ function initAuth() {
     if (name) {
       const u = loadUser();
       if (u) currentUser = u;
+    }
+  }
+  // Check for Strava login (direct OAuth) if no email-based user
+  if (!currentUser) {
+    var sa = getStravaAthlete();
+    if (sa && sa.name) {
+      currentUser = {
+        firstName: sa.name.split(' ')[0] || sa.name,
+        lastName:  sa.name.split(' ').slice(1).join(' ') || '',
+        email:     'strava_' + sa.id,
+        avatar:    '🏃',
+        stravaId:  sa.id
+      };
     }
   }
   renderAuthHeader();
@@ -10558,7 +10575,7 @@ function renderAuthHeader() {
       </div>`;
   } else {
     section.innerHTML = `
-      <button class="login-btn" onclick="openAuthModal()">
+      <button class="login-btn" onclick="window.location.href='index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Log In
       </button>`;
@@ -10699,6 +10716,8 @@ function logOut() {
   clearSession();
   localStorage.removeItem('actmtr_user');
   localStorage.removeItem('userFirstName');
+  localStorage.removeItem('strava_athlete');
+  localStorage.removeItem(STORAGE_KEY);
   currentUser = null;
   closeUserMenu();
   closeProfile();
@@ -19052,6 +19071,10 @@ async function importFromStrava(tokenData) {
       name: name.trim(),
       token: token
     }));
+
+    // Update header to show logged-in user
+    initAuth();
+    renderAuthHeader();
 
   } catch (err) {
     console.error('[Import] FAILED:', err);
