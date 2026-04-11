@@ -4541,8 +4541,12 @@ header { padding: 0 !important; z-index: 600 !important; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
+
+<!-- ─── Strava Status Banner (hidden by default) ─────────────── -->
+<div id="stravaBanner" style="display:none;padding:14px 20px;font-size:.9rem;font-weight:600;text-align:center;z-index:9999;position:relative;"></div>
 
 <!-- ─── Header ────────────────────────────────────────────────── -->
 <header>
@@ -7713,6 +7717,13 @@ header { padding: 0 !important; z-index: 600 !important; }
 </div>
 
 <script>
+/* ── Capture redirect URL on load ──────────────────────────── */
+console.log('Full URL on load:', window.location.href);
+var _stravaCode = new URLSearchParams(window.location.search).get('code');
+var _stravaError = new URLSearchParams(window.location.search).get('error');
+console.log('[Boot] Strava code:', _stravaCode ? _stravaCode.substring(0, 12) + '...' : 'none');
+console.log('[Boot] Strava error:', _stravaError || 'none');
+
 /* ══════════════════════════════════════════════════════════════
    DATA LAYER
 ══════════════════════════════════════════════════════════════ */
@@ -7897,17 +7908,24 @@ let logPerPage = 30;
 // PR state (tracks previous PRs to detect new ones)
 let lastPRs = {};
 
+function showStravaBanner(msg, type) {
+  var el = document.getElementById('stravaBanner');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? '#dc2626' : type === 'success' ? '#16a34a' : '#d97706';
+  el.style.color = '#fff';
+  el.textContent = msg;
+}
+
 function init() {
   db = loadData();
-  if (!db || (db.activities && db.activities.length === 0)) {
-    db = generateSampleData();
-    saveData(db);
+  if (!db || !db.activities) {
+    db = { activities: [], settings: {} };
   }
-  // If real Strava data exists, purge any demo/sample activities so they never mix
-  if (db.activities && db.activities.some(function(a){ return a.source === 'strava'; })) {
-    var beforeLen = db.activities.length;
+  // Remove any demo/sample data — only real Strava data should appear
+  if (db.activities.length > 0) {
     db.activities = db.activities.filter(function(a){ return a.source !== 'demo'; });
-    if (db.activities.length !== beforeLen) saveData(db);
+    saveData(db);
   }
   const now = new Date();
   calYear  = now.getFullYear();
@@ -8554,8 +8572,8 @@ function closeConfirm() {
   document.getElementById('confirmModalOverlay').classList.remove('open');
 }
 function doReset() {
-  db = generateSampleData();
-  if (!db.settings.goals) db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
+  db = { activities: [], settings: {} };
+  db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
   db.challenges     = [];
   db.races          = [];
   db.completedRaces = [];
@@ -10469,6 +10487,10 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
 }
 
+function getStravaAthlete() {
+  try { return JSON.parse(localStorage.getItem('strava_athlete')) || null; } catch { return null; }
+}
+
 function initAuth() {
   const session = getSession();
   if (session) {
@@ -10480,6 +10502,19 @@ function initAuth() {
     if (name) {
       const u = loadUser();
       if (u) currentUser = u;
+    }
+  }
+  // Check for Strava login (direct OAuth) if no email-based user
+  if (!currentUser) {
+    var sa = getStravaAthlete();
+    if (sa && sa.name) {
+      currentUser = {
+        firstName: sa.name.split(' ')[0] || sa.name,
+        lastName:  sa.name.split(' ').slice(1).join(' ') || '',
+        email:     'strava_' + sa.id,
+        avatar:    '🏃',
+        stravaId:  sa.id
+      };
     }
   }
   renderAuthHeader();
@@ -10540,7 +10575,7 @@ function renderAuthHeader() {
       </div>`;
   } else {
     section.innerHTML = `
-      <button class="login-btn" onclick="openAuthModal()">
+      <button class="login-btn" onclick="window.location.href='index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Log In
       </button>`;
@@ -10681,6 +10716,8 @@ function logOut() {
   clearSession();
   localStorage.removeItem('actmtr_user');
   localStorage.removeItem('userFirstName');
+  localStorage.removeItem('strava_athlete');
+  localStorage.removeItem(STORAGE_KEY);
   currentUser = null;
   closeUserMenu();
   closeProfile();
@@ -18384,6 +18421,7 @@ BADGE_DEFS.push(
 
     return { ok: true, act: act };
   }
+  window.convertActivity = convertActivity;
 
   /* ── Main import ─────────────────────────────────────────── */
   window.stravaStartImport = async function() {
@@ -18883,9 +18921,199 @@ function renderDashWeekly() {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   DIRECT STRAVA OAuth + SUPABASE DATABASE
+   - No Supabase Auth — we go directly to Strava OAuth
+   - Edge Function exchanges code for token (avoids CORS)
+   - Activities saved to Supabase DB via .from('activities').upsert()
+══════════════════════════════════════════════════════════════ */
+const SUPA_URL  = 'https://wqlxetuurqxfzmzbcbxh.supabase.co';
+const SUPA_KEY  = 'sb_publishable_0eguTJuLiXXYipoe8sYz1w_b_znD7ZU';
+const EDGE_FN   = SUPA_URL + '/functions/v1/strava-token-exchange';
+
+var supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ── Exchange code for token via Edge Function ────────────── */
+async function exchangeCodeForToken(code) {
+  console.log('[Auth] Exchanging code via Edge Function...');
+  showStravaBanner('Exchanging authorization code...', 'info');
+
+  var resp = await fetch(EDGE_FN, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + SUPA_KEY
+    },
+    body: JSON.stringify({
+      code: code,
+      redirect_uri: 'http://127.0.0.1:5500/dashboard.html'
+    })
+  });
+
+  var data = await resp.json();
+  if (!resp.ok) {
+    throw new Error('Token exchange failed: ' + (data.error || resp.status) +
+      (data.details ? ' — ' + JSON.stringify(data.details) : ''));
+  }
+
+  console.log('[Auth] Token exchange success! Athlete:', data.athlete?.firstname, data.athlete?.lastname);
+  console.log('[Auth] Athlete ID:', data.athlete?.id);
+  return data; // { access_token, refresh_token, expires_at, athlete: { id, firstname, ... } }
+}
+
+/* ── Fetch activities from Strava API ─────────────────────── */
+async function fetchStravaPage(token, page) {
+  var resp = await fetch(
+    'https://www.strava.com/api/v3/athlete/activities?per_page=100&page=' + page,
+    { headers: { 'Authorization': 'Bearer ' + token } }
+  );
+  if (!resp.ok) throw new Error('Strava API ' + resp.status + ': ' + (await resp.text()));
+  return resp.json();
+}
+
+async function fetchAllStravaActivities(token) {
+  var all = [];
+  for (var page = 1; page <= 10; page++) {
+    showStravaBanner('Fetching activities page ' + page + '...', 'info');
+    var batch = await fetchStravaPage(token, page);
+    if (!batch || batch.length === 0) break;
+    all = all.concat(batch);
+    if (batch.length < 100) break;
+  }
+  return all;
+}
+
+/* ── Save activities to Supabase DB ───────────────────────── */
+async function saveToSupabase(athleteId, activities) {
+  if (!activities.length) return;
+  console.log('[DB] Upserting', activities.length, 'activities for athlete', athleteId);
+  showStravaBanner('Saving ' + activities.length + ' activities to database...', 'info');
+
+  // Build rows for upsert
+  var rows = activities.map(function(a) {
+    return {
+      strava_id:    a.stravaId,
+      athlete_id:   String(athleteId),
+      type:         a.type,
+      date:         a.date,
+      distance_km:  a.distance,
+      duration_sec: a.duration,
+      elevation_m:  a.elevation,
+      name:         a.notes || '',
+      source:       'strava'
+    };
+  });
+
+  // Upsert in batches of 100
+  for (var i = 0; i < rows.length; i += 100) {
+    var batch = rows.slice(i, i + 100);
+    var { error } = await supabaseClient
+      .from('activities')
+      .upsert(batch, { onConflict: 'strava_id' });
+    if (error) {
+      console.error('[DB] Upsert error:', error);
+      // Don't fail the whole flow — local data still works
+    }
+  }
+  console.log('[DB] Upsert complete');
+}
+
+/* ── Full import flow ─────────────────────────────────────── */
+async function importFromStrava(tokenData) {
+  var token     = tokenData.access_token;
+  var athleteId = tokenData.athlete?.id;
+  var name      = (tokenData.athlete?.firstname || '') + ' ' + (tokenData.athlete?.lastname || '');
+
+  showStravaBanner('Welcome ' + name.trim() + '! Fetching activities...', 'info');
+  localStorage.removeItem(STORAGE_KEY);
+
+  try {
+    var raw = await fetchAllStravaActivities(token);
+    console.log('[Import] Fetched', raw.length, 'raw activities');
+
+    if (raw.length === 0) {
+      showStravaBanner('Welcome ' + name.trim() + '! No activities found on Strava.', 'info');
+      db = { activities: [], settings: db?.settings || {} };
+      saveData(db); renderAll();
+      return;
+    }
+
+    var imported = [], skipped = 0, seenIds = new Set();
+    raw.forEach(function(sa) {
+      var r = window.convertActivity(sa);
+      if (!r.ok) { skipped++; return; }
+      if (r.act.stravaId && seenIds.has(r.act.stravaId)) { skipped++; return; }
+      if (r.act.stravaId) seenIds.add(r.act.stravaId);
+      imported.push(r.act);
+    });
+
+    console.log('[Import] Converted:', imported.length, 'Skipped:', skipped);
+
+    // Save to localStorage for immediate UI
+    db = { activities: imported, settings: db?.settings || {} };
+    if (!db.settings.goals) db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
+    if (!db.challenges)     db.challenges = [];
+    if (!db.races)          db.races = [];
+    if (!db.completedRaces) db.completedRaces = [];
+    if (!db.bucketList)     db.bucketList = [];
+    saveData(db);
+    renderAll();
+
+    // Also save to Supabase DB (non-blocking)
+    saveToSupabase(athleteId, imported).catch(function(e) {
+      console.warn('[DB] Background save failed:', e);
+    });
+
+    showStravaBanner('Loaded ' + imported.length + ' activities for ' + name.trim() + '!', 'success');
+
+    // Store athlete info for future sessions
+    localStorage.setItem('strava_athlete', JSON.stringify({
+      id: athleteId,
+      name: name.trim(),
+      token: token
+    }));
+
+    // Update header to show logged-in user
+    initAuth();
+    renderAuthHeader();
+
+  } catch (err) {
+    console.error('[Import] FAILED:', err);
+    showStravaBanner('ERROR fetching activities: ' + err.message, 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════════════════════════ */
+
+// 1. Check for errors from Strava redirect
+if (_stravaError) {
+  showStravaBanner('Strava login failed: ' + _stravaError, 'error');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+// 2. Clear localStorage if arriving with a code (fresh login)
+if (_stravaCode) {
+  localStorage.removeItem(STORAGE_KEY);
+  showStravaBanner('Processing Strava login...', 'info');
+}
+
+// 3. Init dashboard (cached data or empty)
 init();
+
+// 4. If we have a ?code=, exchange it and import
+if (_stravaCode && !_stravaError) {
+  (async function() {
+    try {
+      history.replaceState(null, '', window.location.pathname);
+      var tokenData = await exchangeCodeForToken(_stravaCode);
+      await importFromStrava(tokenData);
+    } catch (err) {
+      console.error('[Boot] Auth flow failed:', err);
+      showStravaBanner('ERROR: ' + err.message, 'error');
+    }
+  })();
+}
 /* ── PR Detail Modal ── */
 function openPRDetail(icon, label, val, date, activityKey) {
   if (!val) return;
