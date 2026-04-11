@@ -678,44 +678,25 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
-      const SB_URL = 'https://vwqcvngzwfkgadxccpkx.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3cWN2bmd6d2ZrZ2FkeHhjcGt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MjY3NzcsImV4cCI6MjA5MTMwMjc3N30.QRIFKMpY-2oAZhXzKJpwQhHYfyrwBMezmAvVfAU9RnQ';
-      const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+      var STRAVA_CLIENT_ID = '213926';
+      var STRAVA_REDIRECT  = 'http://127.0.0.1:5500/dashboard.html';
+      var STRAVA_SCOPE     = 'read,activity:read_all';
 
-      async function signInWithStrava() {
-        console.log("Initiating direct Strava redirect...");
-
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-          provider: 'custom:strava',
-          options: {
-            // Must match Supabase Dashboard exactly
-            redirectTo: 'http://127.0.0.1:5500/dashboard.html',
-            scopes: 'read,activity:read_all',
-            skipBrowserRedirect: false
-          }
-        });
-
-        if (error) {
-          console.error("Auth error:", error.message);
-          alert("Auth error: " + error.message);
-          return;
-        }
-
-        // FORCE REDIRECT: If Supabase doesn't trigger it, we do it manually
-        if (data?.url) {
-          console.log("Manual redirect to:", data.url);
-          window.location.assign(data.url);
-        }
+      function loginWithStrava() {
+        var url = 'https://www.strava.com/oauth/authorize'
+          + '?client_id=' + STRAVA_CLIENT_ID
+          + '&response_type=code'
+          + '&redirect_uri=' + encodeURIComponent(STRAVA_REDIRECT)
+          + '&scope=' + encodeURIComponent(STRAVA_SCOPE)
+          + '&approval_prompt=auto';
+        console.log('Redirecting to Strava:', url);
+        window.location.assign(url);
       }
 
-      // Force attach to the button
-      document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('strava-login-btn');
-        if (btn) {
-          btn.onclick = signInWithStrava;
-        }
+      document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('strava-login-btn');
+        if (btn) btn.onclick = loginWithStrava;
       });
     </script>
 </body>
