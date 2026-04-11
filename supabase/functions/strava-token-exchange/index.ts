@@ -4,7 +4,7 @@ const STRAVA_CLIENT_ID = "213926";
 const STRAVA_CLIENT_SECRET = "d1c48fc41d632c0f22c5b6708c25e0db86ecb285";
 
 const ALLOWED_ORIGINS = [
-  "https://fantastic-heliotrope-4c1e7a.netlify.app",
+  "https://activitymetrics.netlify.app",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
 ];
