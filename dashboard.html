@@ -18945,7 +18945,7 @@ async function exchangeCodeForToken(code) {
     },
     body: JSON.stringify({
       code: code,
-      redirect_uri: 'http://127.0.0.1:5500/dashboard.html'
+      redirect_uri: window.location.origin + '/dashboard.html'
     })
   });
 
