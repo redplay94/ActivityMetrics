@@ -622,6 +622,57 @@ body.modal-open header {
 /* Settings wrapper needs position:relative */
 .settings-wrap { position: relative; }
 
+/* ─── Strava Banner (floating toast) ──────────────────────────── */
+.strava-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  z-index: 9999;
+  padding: 12px 24px;
+  font-size: .85rem;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+  border-radius: 12px;
+  max-width: 420px;
+  width: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .5s ease, transform .5s ease, visibility .5s ease;
+  pointer-events: none;
+}
+.strava-banner.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.strava-banner.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(10px);
+}
+@media (max-width: 768px) {
+  .strava-banner {
+    top: 20px;
+    bottom: auto;
+    left: 16px;
+    right: 16px;
+    transform: translateY(-10px);
+    max-width: none;
+    width: auto;
+    font-size: .8rem;
+    padding: 10px 16px;
+  }
+  .strava-banner.visible {
+    transform: translateY(0);
+  }
+  .strava-banner.fade-out {
+    transform: translateY(-10px);
+  }
+}
+
 /* ─── Toast ────────────────────────────────────────────────────── */
 .toast-container {
   position: fixed; bottom: 90px; right: 20px; z-index: 999;
@@ -4546,7 +4597,7 @@ header { padding: 0 !important; z-index: 600 !important; }
 <body>
 
 <!-- ─── Strava Status Banner (hidden by default) ─────────────── -->
-<div id="stravaBanner" style="display:none;padding:14px 20px;font-size:.9rem;font-weight:600;text-align:center;z-index:9999;position:relative;"></div>
+<div id="stravaBanner" class="strava-banner"></div>
 
 <!-- ─── Header ────────────────────────────────────────────────── -->
 <header>
@@ -7908,13 +7959,33 @@ let logPerPage = 30;
 // PR state (tracks previous PRs to detect new ones)
 let lastPRs = {};
 
+var _stravaBannerTimer = null;
 function showStravaBanner(msg, type) {
   var el = document.getElementById('stravaBanner');
   if (!el) return;
-  el.style.display = 'block';
-  el.style.background = type === 'error' ? '#dc2626' : type === 'success' ? '#16a34a' : '#d97706';
-  el.style.color = '#fff';
+
+  // Clear any pending fade-out
+  if (_stravaBannerTimer) { clearTimeout(_stravaBannerTimer); _stravaBannerTimer = null; }
+  el.classList.remove('fade-out', 'visible');
+
+  el.style.background = type === 'error' ? 'rgba(220,38,38,.92)'
+                       : type === 'success' ? 'rgba(22,163,74,.92)'
+                       : 'rgba(217,119,6,.92)';
   el.textContent = msg;
+
+  // Force reflow so the transition plays from opacity:0 -> 1
+  void el.offsetWidth;
+  el.classList.add('visible');
+
+  // Auto-hide success messages after 4 seconds
+  if (type === 'success') {
+    _stravaBannerTimer = setTimeout(function() {
+      el.classList.add('fade-out');
+      _stravaBannerTimer = setTimeout(function() {
+        el.classList.remove('visible', 'fade-out');
+      }, 500);
+    }, 4000);
+  }
 }
 
 function init() {
