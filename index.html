@@ -112,6 +112,23 @@
             opacity: 1;
             letter-spacing: -0.04em;
         }
+
+        /* Mobile-only: shrink hero background image so it doesn't dominate the screen */
+        @media (max-width: 768px) {
+            header.relative.min-h-screen {
+                min-height: auto;
+                padding-top: 6rem;
+                padding-bottom: 1rem;
+                background-size: 140% auto;
+                background-position: center top;
+                background-repeat: no-repeat;
+                background-color: #000;
+            }
+            /* Tighten the gap between hero and the Analytics showcase section */
+            section#showcase {
+                padding-top: 2rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
