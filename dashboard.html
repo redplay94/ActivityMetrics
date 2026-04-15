@@ -742,6 +742,18 @@ body.modal-open header {
 .filter-pill.active.walk-pill  { color: var(--walk); }
 .filter-pill.active.cycle-pill { color: var(--cycle); }
 
+/* Quick fade-flash when My Stats filters change, so the user sees a refresh */
+@keyframes statsRefreshFade {
+  0%   { opacity:1; }
+  30%  { opacity:.55; }
+  100% { opacity:1; }
+}
+#statsSection.stats-refreshing .chart-card,
+#statsSection.stats-refreshing .stats-grid,
+#statsSection.stats-refreshing .stat-card {
+  animation: statsRefreshFade .35s ease;
+}
+
 .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-card {
@@ -1359,6 +1371,31 @@ body.modal-open header {
 
 /* Weekly summary */
 .weekly-summary-card { background:var(--card-glass); border:1px solid var(--card-glass-border); border-radius:var(--radius); padding:16px 20px; box-shadow:none; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+.weekly-carousel-header { display:flex; align-items:center; gap:10px; }
+.weekly-carousel-header span { flex:0 0 auto; min-width:72px; text-align:center; }
+.weekly-carousel-arrow {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  background:var(--bg2); border:1px solid var(--border);
+  color:var(--text-muted); cursor:pointer;
+  transition:all var(--transition);
+  padding:0;
+}
+.weekly-carousel-arrow:hover:not(:disabled) { border-color:var(--run); color:var(--run); }
+.weekly-carousel-arrow:disabled { opacity:.35; cursor:not-allowed; }
+.weekly-carousel { position:relative; overflow:hidden; border-radius:var(--radius); }
+.weekly-carousel-track {
+  display:flex; width:200%;
+  transform:translateX(0);
+  transition:transform .45s cubic-bezier(.22,.61,.36,1);
+  will-change:transform;
+}
+.weekly-carousel-track.show-prev { transform:translateX(-50%); }
+.weekly-carousel-slide { flex:0 0 50%; min-width:0; }
+@media (max-width:560px){
+  .weekly-carousel-header span { min-width:64px; font-size:.68rem; }
+  .weekly-carousel-arrow { width:30px; height:30px; }
+}
 .weekly-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
 @media(max-width:560px){ .weekly-row { grid-template-columns:repeat(2,1fr); } }
 .weekly-stat { display:flex; flex-direction:column; gap:3px; }
@@ -2905,9 +2942,53 @@ select.vo2-input { cursor:pointer; }
 /* Monthly Bar Chart */
 .adv-hm-monthly-wrap { margin-top:20px; }
 .adv-hm-monthly-title { font-size:.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
-.adv-hm-monthly-bars { display:flex; align-items:flex-end; gap:4px; height:80px; overflow:hidden; }
-.adv-hm-monthly-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:3px; }
-.adv-hm-monthly-bar { width:100%; border-radius:4px 4px 0 0; min-height:2px; transition:height .4s ease; cursor:pointer; }
+.adv-hm-monthly-bars { display:flex; align-items:flex-end; gap:4px; height:80px; overflow:visible; }
+.adv-hm-monthly-bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:3px; cursor:pointer; padding-top:4px; }
+.adv-hm-monthly-bar {
+  width:100%; border-radius:4px 4px 0 0; min-height:2px; opacity:.8;
+  transition:height .4s ease, opacity .25s ease, box-shadow .25s ease, transform .2s ease;
+  cursor:pointer;
+  transform-origin:center bottom;
+}
+@keyframes advHmBarPulse {
+  0%   { transform:scaleY(1)    translateY(0);    box-shadow:0 0 0 0 rgba(255,255,255,0); }
+  50%  { transform:scaleY(1.06) translateY(-2px); box-shadow:0 0 14px 2px rgba(255,255,255,.22); }
+  100% { transform:scaleY(1.04) translateY(-1px); box-shadow:0 0 10px 1px rgba(255,255,255,.16); }
+}
+@media (hover:hover) {
+  .adv-hm-monthly-bar-col:hover .adv-hm-monthly-bar {
+    opacity:1;
+    animation:advHmBarPulse 1.1s ease-in-out infinite alternate;
+  }
+}
+.adv-hm-monthly-bar-col:active .adv-hm-monthly-bar {
+  opacity:1;
+  animation:advHmBarPulse .55s ease-out 1;
+}
+.adv-hm-monthly-list {
+  margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:6px 12px;
+  font-size:.72rem; color:var(--text);
+}
+.adv-hm-monthly-list-item {
+  display:flex; justify-content:space-between; align-items:baseline; gap:6px;
+  padding:5px 9px; border-radius:6px; background:var(--bg2);
+  border:1px solid transparent;
+  transition:border-color .2s ease, background .2s ease;
+  cursor:pointer;
+}
+.adv-hm-monthly-list-item:hover { border-color:currentColor; background:var(--bg3); }
+.adv-hm-monthly-list-item.empty { opacity:.4; }
+.adv-hm-monthly-list-month { font-weight:700; text-transform:uppercase; letter-spacing:.4px; font-size:.62rem; color:var(--text-muted); }
+.adv-hm-monthly-list-val { font-weight:700; font-variant-numeric:tabular-nums; }
+.adv-hm-monthly-list-tag { font-size:.58rem; color:var(--text-muted); margin-left:4px; font-weight:600; }
+@media (max-width:640px){
+  .adv-hm-monthly-list { grid-template-columns:repeat(2,1fr); font-size:.7rem; }
+  .adv-hm-monthly-bars { height:88px; gap:5px; }
+  .adv-hm-monthly-bar-col { min-width:0; }
+}
+@media (max-width:400px){
+  .adv-hm-monthly-list { grid-template-columns:1fr 1fr; gap:5px 8px; }
+}
 .adv-hm-monthly-bar-lbl { font-size:.55rem; color:var(--text-muted); }
 
 /* Segmented Distance Bar – separated multi-bar layout */
@@ -2969,8 +3050,13 @@ select.vo2-input { cursor:pointer; }
   padding:7px 16px; border-radius:8px; background:var(--bg2);
   border:1.5px solid var(--border); color:var(--text-muted);
   font-size:.78rem; font-weight:600; transition:all var(--transition);
+  white-space:nowrap; flex-shrink:0;
 }
 .adv-hm-export-btn:hover { border-color:var(--run); color:var(--run); }
+.adv-hm-export-label { white-space:nowrap; }
+@media (max-width: 480px) {
+  .adv-hm-export-btn { padding:6px 12px; font-size:.72rem; gap:5px; }
+}
 
 /* Diff badge in modal */
 .adv-hm-diff {
@@ -3694,6 +3780,79 @@ header { padding: 0 !important; z-index: 600 !important; }
 .pew-modal-overlay{display:none}
 .monthly-stats-modal-overlay{display:none}
 @media(max-width:768px){.pew-modal-overlay{display:flex}.monthly-stats-modal-overlay{display:flex}}
+
+/* ── Monthly Stats Modal — Desktop (≥769px): centered dialog ── */
+@media (min-width: 769px) {
+  .monthly-stats-modal-overlay {
+    display:flex !important;
+    position:fixed; inset:0; z-index:1000010;
+    align-items:center; justify-content:center;
+    background:rgba(8,10,16,.72);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .monthly-stats-modal-overlay.open { opacity:1; pointer-events:all; }
+  .monthly-stats-modal {
+    width:min(480px, 92vw); max-height:86vh;
+    background:rgba(22,27,39,.92);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;
+    box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    transform:translateY(12px) scale(.98);
+    opacity:0;
+    transition:transform .3s cubic-bezier(.22,.61,.36,1), opacity .25s ease;
+  }
+  .monthly-stats-modal-overlay.open .monthly-stats-modal { transform:translateY(0) scale(1); opacity:1; }
+  .monthly-stats-modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px 14px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    background:rgba(22,27,39,.95);
+  }
+  .monthly-stats-modal-title {
+    font-size:.88rem; font-weight:700; color:var(--text);
+    text-transform:uppercase; letter-spacing:.6px;
+  }
+  .monthly-stats-modal-close {
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    color:var(--text-muted); cursor:pointer;
+    transition:all .2s ease;
+  }
+  .monthly-stats-modal-close:hover { background:rgba(255,255,255,.12); color:var(--text); border-color:rgba(255,255,255,.2); }
+  .monthly-stats-modal-close svg { width:18px; height:18px; }
+  .monthly-stats-modal-body { padding:24px 22px 28px; overflow-y:auto; }
+  .monthly-stats-total { text-align:center; margin-bottom:22px; }
+  .monthly-stats-total-value { font-size:2.4rem; font-weight:800; color:var(--text); line-height:1.1; }
+  .monthly-stats-total-unit  { font-size:.85rem; font-weight:600; color:var(--text-muted); margin-left:4px; }
+  .monthly-stats-total-label { font-size:.72rem; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
+  .monthly-stats-cards { display:flex; flex-direction:column; gap:10px; }
+  .monthly-stats-card {
+    display:flex; align-items:center; gap:14px;
+    padding:14px 16px; border-radius:14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .monthly-stats-card-icon {
+    width:44px; height:44px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; flex-shrink:0;
+  }
+  .monthly-stats-card-info { flex:1; min-width:0; }
+  .monthly-stats-card-sport { font-size:.78rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .monthly-stats-card-km    { font-size:1.1rem; font-weight:800; }
+  .monthly-stats-card-pct   { font-size:.65rem; color:var(--text-muted); margin-top:2px; }
+  .monthly-stats-card-bar {
+    height:4px; border-radius:99px; background:rgba(255,255,255,.06);
+    margin-top:8px; overflow:hidden;
+  }
+  .monthly-stats-card-bar-fill { height:100%; border-radius:99px; transition:width .5s ease; }
+}
 
 /* ─── Help Guides Nav Button ──────────────────────────────── */
 .hg-nav-btn{display:inline-flex;align-items:center;gap:6px}
@@ -4593,6 +4752,8 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -4908,9 +5069,22 @@ header { padding: 0 !important; z-index: 600 !important; }
     <div class="streak-best" id="streakBest">Best: 0</div>
   </div>
 
-  <!-- Dashboard Weekly Summary -->
-  <div class="dash-label">This Week</div>
-  <div id="dashWeeklySummary"></div>
+  <!-- Dashboard Weekly Summary (carousel: This Week / Last Week) -->
+  <div class="dash-label weekly-carousel-header">
+    <button type="button" class="weekly-carousel-arrow" id="weeklyCarouselPrev" onclick="weeklyCarouselShow('prev')" aria-label="Show last week">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span id="weeklyCarouselTitle">This Week</span>
+    <button type="button" class="weekly-carousel-arrow" id="weeklyCarouselNext" onclick="weeklyCarouselShow('next')" aria-label="Show this week" disabled>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+  <div class="weekly-carousel" id="weeklyCarousel">
+    <div class="weekly-carousel-track" id="weeklyCarouselTrack">
+      <div class="weekly-carousel-slide" id="dashWeeklySummary"></div>
+      <div class="weekly-carousel-slide" id="dashWeeklySummaryPrev"></div>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════════
        ADVANCED ACTIVITY HEATMAP SECTION (Dashboard)
@@ -4924,9 +5098,9 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="section-sub">Full-year activity &amp; steps overview</div>
       </div>
-      <button class="adv-hm-export-btn" onclick="advHmExport()" title="Download heatmap as image">
+      <button class="adv-hm-export-btn" onclick="advHmExport()" title="Export heatmap data to Excel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Heatmap
+        <span class="adv-hm-export-label">Export to Excel</span>
       </button>
     </div>
 
@@ -4996,6 +5170,7 @@ header { padding: 0 !important; z-index: 600 !important; }
         </div>
         <div class="adv-hm-monthly-bars" id="advHmMonthlyBars" style="margin-top:14px;"></div>
         <div style="display:flex;gap:4px;margin-top:4px;" id="advHmMonthlyLabels"></div>
+        <div class="adv-hm-monthly-list" id="advHmMonthlyList"></div>
       </div>
     </div>
 
@@ -8964,23 +9139,68 @@ function renderCharts() {
       scales: baseScales }
   });
 
-  /* ── 6. Activity Distribution (doughnut) ─── */
+  /* ── 6. Activity Distribution (doughnut) — time + sport reactive ─── */
   destroyChart('distrib');
   makeChartVisible('chartCardDistrib');
-  const distByType = { run:0, walk:0, cycle:0 };
-  acts.forEach(a => { distByType[a.type] = (distByType[a.type]||0)+a.distance; });
-  chartInstances['distrib'] = new Chart(document.getElementById('chartDistrib'), {
-    type:'doughnut',
-    data:{ labels:['Run','Walk/Hike','Cycle'],
-      datasets:[{ data:[+distByType.run.toFixed(1),+distByType.walk.toFixed(1),+distByType.cycle.toFixed(1)],
-        backgroundColor:['#f97316cc','#22c55ecc','#3b82f6cc'],
-        borderColor:['#f97316','#22c55e','#3b82f6'],
-        borderWidth:2, hoverOffset:8 }]},
-    options:{ responsive:true, maintainAspectRatio:false, animation:{duration:700},
-      cutout:'65%',
-      plugins:{ legend:{position:'right',labels:{color:t.text,usePointStyle:true,padding:14}},
-        tooltip:{callbacks:{label:i=>`${i.label}: ${i.parsed} km (${(i.parsed/Math.max(1,Object.values(distByType).reduce((a,b)=>a+b,0))*100).toFixed(0)}%)`}} } }
-  });
+  const distribCanvas = document.getElementById('chartDistrib');
+  if (distribCanvas) {
+    // Only count activities whose bucketed date falls inside the current time range
+    const labelSet = new Set(labels);
+    const actsInRange = acts.filter(a => a && a.date && labelSet.has(groupFn(a.date)));
+
+    let distribLabels, distribData, distribBg, distribBd, distribHint;
+
+    if (statsType === 'all') {
+      // Overall sport split
+      const distByType = { run:0, walk:0, cycle:0 };
+      actsInRange.forEach(a => {
+        if (distByType[a.type] !== undefined) distByType[a.type] += (a.distance || 0);
+      });
+      distribLabels = ['Run','Walk/Hike','Cycle'];
+      distribData   = [+distByType.run.toFixed(1), +distByType.walk.toFixed(1), +distByType.cycle.toFixed(1)];
+      distribBg     = ['#f97316cc','#22c55ecc','#3b82f6cc'];
+      distribBd     = ['#f97316','#22c55e','#3b82f6'];
+      distribHint   = 'by distance';
+    } else {
+      // Single-sport selected → break down by difficulty
+      const diff = { easy:0, medium:0, hard:0 };
+      actsInRange.forEach(a => {
+        if (a.type === statsType && diff[a.difficulty] !== undefined) {
+          diff[a.difficulty] += (a.distance || 0);
+        }
+      });
+      distribLabels = ['Easy','Medium','Hard'];
+      distribData   = [+diff.easy.toFixed(1), +diff.medium.toFixed(1), +diff.hard.toFixed(1)];
+      distribBg     = ['#22c55ecc','#eab308cc','#ef4444cc'];
+      distribBd     = ['#22c55e','#eab308','#ef4444'];
+      distribHint   = cap(statsType) + ' · by difficulty';
+    }
+
+    // Update the subtitle hint so the user sees what the chart represents
+    const hintEl = document.querySelector('#chartCardDistrib .chart-hint');
+    if (hintEl) hintEl.textContent = distribHint;
+
+    const totalKm = distribData.reduce((a,b)=>a+b,0);
+
+    chartInstances['distrib'] = new Chart(distribCanvas, {
+      type:'doughnut',
+      data:{ labels:distribLabels,
+        datasets:[{
+          data: totalKm > 0 ? distribData : [],
+          backgroundColor: distribBg,
+          borderColor: distribBd,
+          borderWidth:2, hoverOffset:8
+        }]},
+      options:{ responsive:true, maintainAspectRatio:false, animation:{duration:500},
+        cutout:'65%',
+        plugins:{
+          legend:{ position:'right', labels:{ color:t.text, usePointStyle:true, padding:14 } },
+          tooltip:{ callbacks:{
+            label: i => `${i.label}: ${i.parsed} km (${((i.parsed / Math.max(1, totalKm)) * 100).toFixed(0)}%)`
+          }}
+        } }
+    });
+  }
 
   /* ── 7. Difficulty Breakdown (horizontal bar) ─── */
   destroyChart('difficulty');
@@ -9029,19 +9249,36 @@ function linearTrend(data) {
 /* ══════════════════════════════════════════════════════════════
    CHART FILTER CONTROLS
 ══════════════════════════════════════════════════════════════ */
+function _flashStatsSection() {
+  const sec = document.getElementById('statsSection');
+  if (!sec) return;
+  sec.classList.remove('stats-refreshing');
+  // force reflow so the animation restarts on every click
+  void sec.offsetWidth;
+  sec.classList.add('stats-refreshing');
+}
+function _applyStatsFilters() {
+  if (typeof renderCharts !== 'function') return;
+  // Mark charts as rendered so downstream code (theme re-render etc.) behaves correctly
+  chartsRendered = true;
+  try {
+    renderCharts();
+  } catch (err) {
+    console.error('[MyStats] renderCharts failed:', err);
+  }
+  _flashStatsSection();
+}
 function setStatsTime(val) {
   statsTime = val;
-  document.querySelectorAll('#statsTimeFilter .filter-pill').forEach(b => {
-    b.classList.toggle('active', b.dataset.val === val);
-  });
-  if (chartsRendered) renderCharts();
+  const pills = document.querySelectorAll('#statsTimeFilter .filter-pill');
+  if (pills) pills.forEach(b => { if (b && b.dataset) b.classList.toggle('active', b.dataset.val === val); });
+  _applyStatsFilters();
 }
 function setStatsType(val) {
   statsType = val;
-  document.querySelectorAll('#statsTypeFilter .filter-pill').forEach(b => {
-    b.classList.toggle('active', b.dataset.val === val);
-  });
-  if (chartsRendered) renderCharts();
+  const pills = document.querySelectorAll('#statsTypeFilter .filter-pill');
+  if (pills) pills.forEach(b => { if (b && b.dataset) b.classList.toggle('active', b.dataset.val === val); });
+  _applyStatsFilters();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -16580,10 +16817,6 @@ BADGE_DEFS.push(
     var bestDow=dowCounts.indexOf(Math.max.apply(null,dowCounts));
     // Total distance
     var totalKm=0; Object.values(byDate).forEach(function(acts){acts.forEach(function(a){totalKm+=a.distance;});});
-    // Avg per week
-    var weeksActive = Math.max(1,Math.ceil(daysInYear/7));
-    var avgActsPerWeek = (Object.values(byDate).reduce(function(s,acts){return s+acts.length;},0)/weeksActive).toFixed(1);
-
     var longestFmt = longest>1 ? (longestStart&&longestEnd ? longest+' consecutive days ('+fmtDateLong(longestStart).split(',')[1].trim()+' – '+fmtDateLong(longestEnd).split(',')[1].trim()+')' : longest+' days') : (longest+' day');
     var pct = daysInYear>0 ? Math.round(activeDays/daysInYear*100) : 0;
 
@@ -16593,8 +16826,7 @@ BADGE_DEFS.push(
       {l:'Current Streak',v:curStreak+' day'+(curStreak!==1?'s':''),s:'Keep going!'},
       {l:'Most Active Month',v:MONTH_NAMES[bestMonth],s:monthKm[bestMonth].toFixed(1)+' km total'},
       {l:'You Train Most On',v:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][bestDow]+'s',s:''},
-      {l:'Total Distance '+ADV_HM_YEAR,v:totalKm.toFixed(1)+' km',s:''},
-      {l:'Avg Activities / Week',v:avgActsPerWeek,s:''}
+      {l:'Total Distance '+ADV_HM_YEAR,v:totalKm.toFixed(1)+' km',s:''}
     ].map(function(item){
       return '<div class="adv-hm-stat-card">'
         +'<div class="adv-hm-stat-card-label">'+item.l+'</div>'
@@ -16604,10 +16836,15 @@ BADGE_DEFS.push(
     }).join('');
   }
 
-  /* ── Monthly bars ── */
+  /* ── Monthly bars (interactive: sport filter + pulse-on-hover) ── */
+  var ADV_HM_SEG_FILTER = 'all';
+  var SEG_COLORS = {run:'#FF8C00', walk:'#2ECC71', cycle:'#3498DB', all:'#BDC3C7'};
+  var SEG_LABELS = {run:'Run', walk:'Walk / Hike', cycle:'Cycling', all:'All Sports'};
+
   function renderMonthlyBars() {
     var barsEl = document.getElementById('advHmMonthlyBars');
     var lblEl  = document.getElementById('advHmMonthlyLabels');
+    var listEl = document.getElementById('advHmMonthlyList');
     if(!barsEl||!lblEl) return;
     var byDate = getActsByYear(ADV_HM_YEAR);
     var monthData = Array.from({length:12},function(){return {run:0,walk:0,cycle:0};});
@@ -16615,28 +16852,49 @@ BADGE_DEFS.push(
       var m=parseInt(ds.split('-')[1])-1;
       byDate[ds].forEach(function(a){if(monthData[m][a.type]!==undefined)monthData[m][a.type]+=a.distance;});
     });
-    var monthKm = monthData.map(function(m){return m.run+m.walk+m.cycle;});
-    var maxKm = Math.max.apply(null,monthKm)||1;
+
+    var filter = ADV_HM_SEG_FILTER;
+    // Values used by the monthly chart + list respect the active sport filter
+    var monthKm = monthData.map(function(m){
+      return filter === 'all' ? (m.run + m.walk + m.cycle) : m[filter];
+    });
+    var maxKm = Math.max.apply(null, monthKm.concat([0.001])) || 1;
+    var barColor = SEG_COLORS[filter] || SEG_COLORS.all;
+
     barsEl.innerHTML = monthData.map(function(m,i){
-      var km=monthKm[i];
-      var h=Math.max(2,Math.round((km/maxKm)*72));
-      return '<div class="adv-hm-monthly-bar-col">'
-        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:#BDC3C7;opacity:.8"'
-        +' title="'+MONTH_NAMES[i]+': '+km.toFixed(1)+' km"'
-        +' data-month="'+i+'" data-total="'+km.toFixed(1)+'"'
+      var km = monthKm[i];
+      var h  = Math.max(2, Math.round((km / maxKm) * 72));
+      var titleTxt = MONTH_NAMES[i] + ': ' + km.toFixed(1) + ' km'
+                   + (filter !== 'all' ? ' (' + SEG_LABELS[filter] + ')' : '');
+      return '<div class="adv-hm-monthly-bar-col" style="color:'+barColor+'"'
+        +' onclick="advHmMonthTap('+i+',event)" title="'+titleTxt+'">'
+        +'<div class="adv-hm-monthly-bar" style="height:'+h+'px;background:'+barColor+'"'
+        +' data-month="'+i+'" data-total="'+(m.run+m.walk+m.cycle).toFixed(1)+'"'
         +' data-run="'+m.run.toFixed(1)+'" data-walk="'+m.walk.toFixed(1)+'" data-cycle="'+m.cycle.toFixed(1)+'"'
-        +' onclick="advHmBarTap(this,event)"></div>'
+        +'></div>'
         +'</div>';
     }).join('');
     lblEl.innerHTML = MONTH_NAMES.map(function(n){
-      return '<div style="flex:1;text-align:center;font-size:.55rem;color:var(--text-muted)">'+n+'</div>';
+      return '<div style="flex:1;text-align:center;font-size:.55rem;color:var(--text-muted);font-weight:600">'+n+'</div>';
     }).join('');
+
+    /* ── Filtered per-month list ── */
+    if(listEl) {
+      var tag = filter !== 'all' ? ' <span class="adv-hm-monthly-list-tag">('+SEG_LABELS[filter]+')</span>' : '';
+      listEl.style.color = barColor;
+      listEl.innerHTML = MONTH_NAMES.map(function(n,i){
+        var km = monthKm[i];
+        var cls = 'adv-hm-monthly-list-item' + (km <= 0 ? ' empty' : '');
+        return '<div class="'+cls+'" onclick="advHmMonthTap('+i+',event)">'
+          + '<span class="adv-hm-monthly-list-month">'+n+'</span>'
+          + '<span class="adv-hm-monthly-list-val">'+km.toFixed(1)+' km'+tag+'</span>'
+          + '</div>';
+      }).join('');
+    }
 
     /* ── Separated multi-bar chart (current month of selected year) ── */
     renderSegChart(monthData);
   }
-
-  var ADV_HM_SEG_FILTER = 'all';
 
   window.advHmSetSegFilter = function(filter) {
     ADV_HM_SEG_FILTER = filter;
@@ -16644,6 +16902,24 @@ BADGE_DEFS.push(
       b.classList.toggle('active', b.getAttribute('data-seg-filter') === filter);
     });
     renderMonthlyBars();
+  };
+
+  /* Month tap: open the per-sport drill-down modal on all devices (desktop + mobile). */
+  window.advHmMonthTap = function(mi, e) {
+    if(e) e.stopPropagation();
+    var byDate = getActsByYear(ADV_HM_YEAR);
+    var agg = {run:0, walk:0, cycle:0};
+    Object.keys(byDate).forEach(function(ds){
+      if(parseInt(ds.split('-')[1])-1 !== mi) return;
+      byDate[ds].forEach(function(a){ if(agg[a.type]!==undefined) agg[a.type]+=a.distance; });
+    });
+    openMonthlyStatsModal(mi, agg.run+agg.walk+agg.cycle, agg.run, agg.walk, agg.cycle);
+  };
+
+  // Legacy entrypoint kept for any external callers; delegates to the new tap handler.
+  window.advHmBarTap = function(barEl, e) {
+    var mi = parseInt(barEl.getAttribute('data-month'));
+    if(!isNaN(mi)) window.advHmMonthTap(mi, e);
   };
 
   function renderSegChart(monthData) {
@@ -17080,20 +17356,103 @@ BADGE_DEFS.push(
     renderStepsGrid();
   };
 
-  /* ── Export heatmap as PNG ── */
+  /* ── Export heatmap data as Excel (.xlsx) ── */
   window.advHmExport = function() {
-    var wrap = ADV_HM_TAB==='activity' ? document.getElementById('advHmGridWrap') : document.getElementById('advHmStepsGridWrap');
-    if(!wrap) { showToast('Nothing to export','error'); return; }
-    // Use html2canvas if available, else canvas manual
-    if(typeof html2canvas !== 'undefined') {
-      html2canvas(wrap, {backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#0f1117'}).then(function(canvas){
-        var a=document.createElement('a');
-        a.download='actmtr-heatmap-'+ADV_HM_YEAR+'.png';
-        a.href=canvas.toDataURL();
+    if(typeof XLSX === 'undefined') {
+      showToast('Excel library still loading — try again in a moment','error');
+      return;
+    }
+    if(!db || !db.activities || !db.activities.length) {
+      showToast('No activity data to export','error');
+      return;
+    }
+
+    var year = ADV_HM_TAB === 'steps' ? ADV_HM_SYEAR : ADV_HM_YEAR;
+    var rows = db.activities
+      .filter(function(a){
+        if(!a.date || !a.date.startsWith(String(year))) return false;
+        if(ADV_HM_TAB === 'activity' && ADV_HM_FILTER !== 'all' && a.type !== ADV_HM_FILTER) return false;
+        return true;
+      })
+      .sort(function(a,b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+
+    if(!rows.length) {
+      showToast('No activities found for '+year,'error');
+      return;
+    }
+
+    // Compute per-day totals so we can assign a heatmap intensity tier per activity
+    var dayTotals = {};
+    rows.forEach(function(a){
+      dayTotals[a.date] = (dayTotals[a.date]||0) + (a.distance||0);
+    });
+    function intensityTier(km){
+      if(km <= 0)   return '—';
+      if(km < 3)    return 'Low';
+      if(km < 7)    return 'Moderate';
+      if(km < 15)   return 'High';
+      return 'Very High';
+    }
+    function fmtDur(sec){
+      sec = Math.max(0, Math.floor(sec||0));
+      var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+      return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    }
+
+    var data = rows.map(function(a){
+      var distKm = +(a.distance||0);
+      var durSec = +(a.duration||0);
+      var paceMinPerKm = distKm > 0 ? (durSec/60)/distKm : 0;
+      return {
+        'Date'            : a.date,
+        'Activity Type'   : a.type || '',
+        'Name'            : a.name || '',
+        'Duration (hh:mm:ss)': fmtDur(durSec),
+        'Duration (sec)'  : durSec,
+        'Distance (km)'   : +distKm.toFixed(2),
+        'Avg Pace (min/km)': distKm > 0 ? +paceMinPerKm.toFixed(2) : '',
+        'Steps'           : a.steps || '',
+        'Daily Total (km)': +((dayTotals[a.date]||0).toFixed(2)),
+        'Intensity'       : intensityTier(dayTotals[a.date]||0)
+      };
+    });
+
+    var ws = XLSX.utils.json_to_sheet(data);
+    // Column widths for readability
+    ws['!cols'] = [
+      {wch:12},{wch:14},{wch:24},{wch:18},{wch:14},
+      {wch:14},{wch:18},{wch:10},{wch:16},{wch:12}
+    ];
+    var wb = XLSX.utils.book_new();
+    var sheetName = 'Heatmap '+year;
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    var filename = 'actmtr-heatmap-'+ADV_HM_TAB+'-'+year+'.xlsx';
+    try {
+      // XLSX.writeFile handles Blob creation + download trigger and works across
+      // desktop + Android Chrome. For iOS Safari we fall back to a manual Blob flow.
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if(isIOS) {
+        var wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+        var blob  = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+        var url   = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
         a.click();
-      });
-    } else {
-      showToast('Export requires html2canvas library (not loaded)','error');
+        setTimeout(function(){
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 200);
+      } else {
+        XLSX.writeFile(wb, filename);
+      }
+      showToast('Exported '+rows.length+' activities','success');
+    } catch(err) {
+      console.error('Heatmap XLSX export failed:', err);
+      showToast('Export failed','error');
     }
   };
 
@@ -18937,17 +19296,21 @@ document.addEventListener('keydown', function(e) {
   window.closeVo2Page = function() { if (_origCloseVo2)  _origCloseVo2.apply(this,  arguments); _setNavActive('dashboard'); };
 })();
 
-/* ── Dashboard compact weekly summary ── */
+/* ── Dashboard compact weekly summary (carousel: this/last week) ── */
 function renderDashWeekly() {
-  var el = document.getElementById('dashWeeklySummary');
-  if (!el) return;
+  var curEl  = document.getElementById('dashWeeklySummary');
+  var prevEl = document.getElementById('dashWeeklySummaryPrev');
+  if (!curEl) return;
   var now  = new Date();
   var sow  = new Date(now); sow.setDate(now.getDate() - ((now.getDay()+6)%7)); sow.setHours(0,0,0,0);
   var slow = new Date(sow); slow.setDate(slow.getDate() - 7);
   var thisW = db.activities.filter(function(a) { return new Date(a.date+'T00:00:00') >= sow; });
   var lastW = db.activities.filter(function(a) { var d=new Date(a.date+'T00:00:00'); return d>=slow && d<sow; });
+  // Week before last, used as comparison baseline for the 'Last Week' card
+  var swbl  = new Date(slow); swbl.setDate(swbl.getDate() - 7);
+  var wbl   = db.activities.filter(function(a) { var d=new Date(a.date+'T00:00:00'); return d>=swbl && d<slow; });
+
   function sum(arr) { return { acts:arr.length, dist:arr.reduce(function(s,a){return s+a.distance;},0), cals:arr.reduce(function(s,a){return s+(a.calories||0);},0), steps:arr.reduce(function(s,a){return s+(a.steps||0);},0) }; }
-  var tw=sum(thisW), lw=sum(lastW);
   function cmpHtml(cur,prev) {
     if (!prev) return '<span class="weekly-stat-cmp neu">—</span>';
     var pct=Math.round(((cur-prev)/prev)*100);
@@ -18955,41 +19318,71 @@ function renderDashWeekly() {
     if (pct<0)  return '<span class="weekly-stat-cmp down">▼ '+Math.abs(pct)+'%</span>';
     return '<span class="weekly-stat-cmp neu">= same</span>';
   }
-  var daySports=[]; for(var _i=0;_i<7;_i++) daySports.push({run:0,walk:0,cycle:0});
-  thisW.forEach(function(a){ var d=new Date(a.date+'T00:00:00'); var idx=(d.getDay()+6)%7;
-    var t=(a.type==='cycle')?'cycle':(a.type==='walk'||a.type==='walk-hike'||a.type==='hike')?'walk':'run';
-    daySports[idx][t]+=a.distance; });
-  var dayTotals=daySports.map(function(s){return s.run+s.walk+s.cycle;});
-  var maxD=Math.max.apply(null,dayTotals.concat([0.01]));
-  var dLabels=['M','T','W','T','F','S','S'], todayIdx=(now.getDay()+6)%7;
-  var sportColors={run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
-  var sportNames={run:'Run',walk:'Walk/Hike',cycle:'Cycle'};
-  var dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  var barsHtml=dLabels.map(function(lbl,i){
-    var total=dayTotals[i]; var h=Math.max(4,(total/maxD)*48);
-    var bold=i===todayIdx?'color:var(--run);font-weight:700':'';
-    if(total<0.01) return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px"><div class="weekly-bar-seg" style="height:100%;background:var(--bg3)"></div></div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
-    var segs=''; ['run','walk','cycle'].forEach(function(s){ if(daySports[i][s]>0){ var segH=(daySports[i][s]/total)*h;
-      segs+='<div class="weekly-bar-seg" style="height:'+segH+'px;background:'+sportColors[s]+'" onmouseenter="showWeeklyTip(event,\''+dayNames[i]+'\',\''+sportNames[s]+'\','+daySports[i][s].toFixed(1)+')" onmouseleave="hideWeeklyTip()"></div>'; }});
-    return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px">'+segs+'</div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
-  }).join('');
-  el.innerHTML='<div class="weekly-summary-card">'
-    +'<div class="weekly-row">'
-    +'<div class="weekly-stat"><div class="weekly-stat-label">Activities</div><div class="weekly-stat-val">'+tw.acts+'</div>'+cmpHtml(tw.acts,lw.acts)+'</div>'
-    +'<div class="weekly-stat"><div class="weekly-stat-label">Distance</div><div class="weekly-stat-val">'+tw.dist.toFixed(1)+' km</div>'+cmpHtml(tw.dist,lw.dist)+'</div>'
-    +'<div class="weekly-stat"><div class="weekly-stat-label">Calories</div><div class="weekly-stat-val">'+tw.cals.toLocaleString()+' kcal</div>'+cmpHtml(tw.cals,lw.cals)+'</div>'
-    +'<div class="weekly-stat"><div class="weekly-stat-label">Steps</div><div class="weekly-stat-val">'+(tw.steps/1000).toFixed(1)+'k</div>'+cmpHtml(tw.steps,lw.steps)+'</div>'
-    +'</div>'
-    +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
-    +(tw.dist > 0
-      ? '<div class="weekly-bar-chart">'+barsHtml+'</div>'
-       +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div>'
-      : '<div class="chart-placeholder">'
-       +'<div class="chart-placeholder-text">No activities logged this week.</div>'
-       +'<button class="chart-placeholder-btn" onclick="openAddModal()">[+] Add Activity</button>'
-       +'</div>')
-    +'</div>';
+
+  var dLabels  = ['M','T','W','T','F','S','S'];
+  var todayIdx = (now.getDay()+6)%7;
+  var sportColors = {run:'var(--run)',walk:'var(--walk)',cycle:'var(--cycle)'};
+  var sportNames  = {run:'Run',walk:'Walk/Hike',cycle:'Cycle'};
+  var dayNames    = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  function buildCardHtml(weekActs, prevSum, opts) {
+    var cur = sum(weekActs);
+    var daySports=[]; for(var _i=0;_i<7;_i++) daySports.push({run:0,walk:0,cycle:0});
+    weekActs.forEach(function(a){ var d=new Date(a.date+'T00:00:00'); var idx=(d.getDay()+6)%7;
+      var t=(a.type==='cycle')?'cycle':(a.type==='walk'||a.type==='walk-hike'||a.type==='hike')?'walk':'run';
+      daySports[idx][t]+=a.distance; });
+    var dayTotals=daySports.map(function(s){return s.run+s.walk+s.cycle;});
+    var maxD=Math.max.apply(null,dayTotals.concat([0.01]));
+    var barsHtml=dLabels.map(function(lbl,i){
+      var total=dayTotals[i]; var h=Math.max(4,(total/maxD)*48);
+      var bold=(opts.highlightToday && i===todayIdx) ? 'color:var(--run);font-weight:700' : '';
+      if(total<0.01) return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px"><div class="weekly-bar-seg" style="height:100%;background:var(--bg3)"></div></div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
+      var segs=''; ['run','walk','cycle'].forEach(function(s){ if(daySports[i][s]>0){ var segH=(daySports[i][s]/total)*h;
+        segs+='<div class="weekly-bar-seg" style="height:'+segH+'px;background:'+sportColors[s]+'" onmouseenter="showWeeklyTip(event,\''+dayNames[i]+'\',\''+sportNames[s]+'\','+daySports[i][s].toFixed(1)+')" onmouseleave="hideWeeklyTip()"></div>'; }});
+      return '<div class="weekly-bar-wrap"><div class="weekly-bar-stack" style="height:'+h+'px">'+segs+'</div><div class="weekly-bar-day" style="'+bold+'">'+lbl+'</div></div>';
+    }).join('');
+    return '<div class="weekly-summary-card">'
+      +'<div class="weekly-row">'
+      +'<div class="weekly-stat"><div class="weekly-stat-label">Activities</div><div class="weekly-stat-val">'+cur.acts+'</div>'+cmpHtml(cur.acts,prevSum.acts)+'</div>'
+      +'<div class="weekly-stat"><div class="weekly-stat-label">Distance</div><div class="weekly-stat-val">'+cur.dist.toFixed(1)+' km</div>'+cmpHtml(cur.dist,prevSum.dist)+'</div>'
+      +'<div class="weekly-stat"><div class="weekly-stat-label">Calories</div><div class="weekly-stat-val">'+cur.cals.toLocaleString()+' kcal</div>'+cmpHtml(cur.cals,prevSum.cals)+'</div>'
+      +'<div class="weekly-stat"><div class="weekly-stat-label">Steps</div><div class="weekly-stat-val">'+(cur.steps/1000).toFixed(1)+'k</div>'+cmpHtml(cur.steps,prevSum.steps)+'</div>'
+      +'</div>'
+      +'<div style="font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Daily Distance</div>'
+      +(cur.dist > 0
+        ? '<div class="weekly-bar-chart">'+barsHtml+'</div>'
+         +'<div class="weekly-bar-legend"><span style="--c:var(--run)">Run</span><span style="--c:var(--walk)">Walk/Hike</span><span style="--c:var(--cycle)">Cycle</span></div>'
+        : '<div class="chart-placeholder">'
+         +'<div class="chart-placeholder-text">'+opts.emptyMsg+'</div>'
+         +(opts.showAdd ? '<button class="chart-placeholder-btn" onclick="openAddModal()">[+] Add Activity</button>' : '')
+         +'</div>')
+      +'</div>';
+  }
+
+  curEl.innerHTML  = buildCardHtml(thisW, sum(lastW), {highlightToday:true,  emptyMsg:'No activities logged this week.',  showAdd:true});
+  if (prevEl) prevEl.innerHTML = buildCardHtml(lastW, sum(wbl),  {highlightToday:false, emptyMsg:'No activities logged last week.', showAdd:false});
 }
+
+/* ── Weekly carousel toggle ── */
+window.weeklyCarouselShow = function(dir) {
+  var track = document.getElementById('weeklyCarouselTrack');
+  var title = document.getElementById('weeklyCarouselTitle');
+  var prev  = document.getElementById('weeklyCarouselPrev');
+  var next  = document.getElementById('weeklyCarouselNext');
+  if (!track || !title) return;
+  var showingPrev = track.classList.contains('show-prev');
+  if (dir === 'prev' && !showingPrev) {
+    track.classList.add('show-prev');
+    title.textContent = 'Last Week';
+    if (prev) prev.disabled = true;
+    if (next) next.disabled = false;
+  } else if (dir === 'next' && showingPrev) {
+    track.classList.remove('show-prev');
+    title.textContent = 'This Week';
+    if (prev) prev.disabled = false;
+    if (next) next.disabled = true;
+  }
+};
 
 /* ══════════════════════════════════════════════════════════════
    DIRECT STRAVA OAuth + SUPABASE DATABASE
