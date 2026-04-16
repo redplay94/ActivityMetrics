@@ -8014,12 +8014,36 @@ console.log('[Boot] Strava error:', _stravaError || 'none');
    DATA LAYER
 ══════════════════════════════════════════════════════════════ */
 const STORAGE_KEY = 'actmtr_v1';
+const PACE_STORAGE_KEY = 'actmtr_paces';   // isolated from main DB — never wiped by Strava flow
 
 function loadData() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
 }
 function saveData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/* ── Pace Settings: isolated storage that survives Strava login wipe ── */
+function loadPaceSettings() {
+  try { return JSON.parse(localStorage.getItem(PACE_STORAGE_KEY)) || null; } catch { return null; }
+}
+function savePaceSettings(pt) {
+  localStorage.setItem(PACE_STORAGE_KEY, JSON.stringify(pt));
+  // Also mirror into db.settings for backward compat with existing code
+  if (db && db.settings) { db.settings.paceTargets = pt; saveData(db); }
+  // Fire a global event so all components re-sync immediately
+  window.dispatchEvent(new CustomEvent('paceStorageUpdated', { detail: pt }));
+}
+function getPaceTargets() {
+  // Priority: isolated storage > db.settings > null
+  var pt = loadPaceSettings();
+  if (pt && pt.easy && pt.hard) return pt;
+  if (db && db.settings && db.settings.paceTargets && db.settings.paceTargets.easy) {
+    // Migrate: old paceTargets exist in db but not in isolated key — save them
+    savePaceSettings(db.settings.paceTargets);
+    return db.settings.paceTargets;
+  }
+  return null;
 }
 
 /* Generate sample data for first load */
@@ -8148,7 +8172,26 @@ function autoDifficulty(type, dist, secs, elev) {
   const hours = secs / 3600;
   const speed = hours ? dist / hours : 0;
   const paceSecPerKm = dist ? secs / dist : 999;
+
   if (type === 'run') {
+    // Use custom pace targets — reads from isolated localStorage first
+    const pt = typeof getPaceTargets === 'function' ? getPaceTargets() : (db && db.settings && db.settings.paceTargets);
+    if (pt && pt.easy && pt.hard) {
+      // pt values are sec/km — higher value = slower pace
+      // Ranges: Hard [pt.hard – pt.hardHi]  Medium [pt.medium – pt.mediumHi]  Easy [pt.easy – pt.easyHi]
+      // Classification: check range membership first, then use boundary gaps
+      const hardHi   = pt.hardHi   || pt.hard;
+      const easyLo   = pt.easy;                 // fast end of easy range
+      const easyHi   = pt.easyHi   || pt.easy;  // slow end of easy range
+
+      // Within or faster than the hard range → hard
+      if (paceSecPerKm <= hardHi) return 'hard';
+      // Within or slower than the easy range → easy
+      if (paceSecPerKm >= easyLo) return 'easy';
+      // Everything between hardHi and easyLo → medium
+      return 'medium';
+    }
+    // Fallback: hardcoded defaults
     if (paceSecPerKm < 5*60) return 'hard';
     if (paceSecPerKm <= 6.5*60) return 'medium';
     return 'easy';
@@ -8164,6 +8207,25 @@ function autoDifficulty(type, dist, secs, elev) {
     return 'easy';
   }
   return 'medium';
+}
+
+/* ── Re-classify ALL run difficulties using current paceTargets ── */
+function reclassifyAllDifficulties() {
+  if (!db || !db.activities) return;
+  let changed = 0;
+  db.activities.forEach(a => {
+    if (!a.distance || !a.duration) return;
+    const newDiff = autoDifficulty(a.type, a.distance, a.duration, a.elevation || 0);
+    if (newDiff !== a.difficulty) {
+      a.difficulty = newDiff;
+      changed++;
+    }
+  });
+  if (changed > 0) {
+    saveData(db);
+    console.log(`[PaceSync] Reclassified ${changed} activities`);
+  }
+  return changed;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -8252,6 +8314,11 @@ function init() {
   if (!db.races)           { db.races           = []; saveData(db); }
   if (!db.completedRaces)  { db.completedRaces  = []; saveData(db); }
   if (!db.bucketList)      { db.bucketList      = []; saveData(db); }
+
+  // Reclassify activities using saved pace targets before first render
+  if (db.settings && db.settings.paceTargets && typeof reclassifyAllDifficulties === 'function') {
+    reclassifyAllDifficulties();
+  }
 
   renderAll();
   // Init badge tracking after first render
@@ -12144,7 +12211,7 @@ function renderCoachPaces() {
   const estMar = riegelPredict(refSec, refDist, 42.195)  * boostFactor;
 
   /* ── 4. Training paces derived from PB (not average) ── */
-  const pt = db.settings && db.settings.paceTargets;
+  const pt = typeof getPaceTargets === 'function' ? getPaceTargets() : (db.settings && db.settings.paceTargets);
   const easyPace     = pt ? pt.easy   : Math.round(pbPace + 70);
   /* ── 4b. Training paces as RANGES derived from PB ── */
   const easyLo       = pt ? pt.easy     : Math.round(pbPace + 90);
@@ -12238,10 +12305,11 @@ function _planGuideHtml() {
 }
 
 function _getPaceHelpers() {
+  const pt = typeof getPaceTargets === 'function' ? getPaceTargets() : (db && db.settings && db.settings.paceTargets);
   const avgPace      = getAvgRunPaceSec();
-  const easyPace     = avgPace + 70;
-  const tempoPace    = Math.max(180, avgPace - 25);
-  const intervalPace = Math.max(150, avgPace - 55);
+  const easyPace     = pt ? pt.easy     : avgPace + 70;
+  const tempoPace    = pt ? pt.medium   : Math.max(180, avgPace - 25);
+  const intervalPace = pt ? pt.hard     : Math.max(150, avgPace - 55);
   const paceFor      = t => ({easy:easyPace,long:easyPace+15,tempo:tempoPace,hard:intervalPace,recovery:easyPace+30})[t]||null;
   return paceFor;
 }
@@ -19846,7 +19914,23 @@ async function importFromStrava(tokenData) {
   var name      = (tokenData.athlete?.firstname || '') + ' ' + (tokenData.athlete?.lastname || '');
 
   showStravaBanner('Welcome ' + name.trim() + '! Fetching activities...', 'info');
+
+  // Pace settings are in their own key (PACE_STORAGE_KEY) — safe from this wipe.
+  // Preserve other user state that lives inside the main DB key.
+  var savedSettings    = (db && db.settings)       ? JSON.parse(JSON.stringify(db.settings))       : {};
+  var savedCoachPlan   = (db && db.coachPlan)       ? JSON.parse(JSON.stringify(db.coachPlan))       : null;
+  var savedChallenges  = (db && db.challenges)      ? JSON.parse(JSON.stringify(db.challenges))      : [];
+  var savedRaces       = (db && db.races)           ? JSON.parse(JSON.stringify(db.races))           : [];
+  var savedCompRaces   = (db && db.completedRaces)  ? JSON.parse(JSON.stringify(db.completedRaces))  : [];
+  var savedBucketList  = (db && db.bucketList)       ? JSON.parse(JSON.stringify(db.bucketList))       : [];
+  var savedTips        = (db && db.savedTips)        ? JSON.parse(JSON.stringify(db.savedTips))        : [];
+  var savedRhr         = (db && db.rhr)              ? JSON.parse(JSON.stringify(db.rhr))              : [];
+
   localStorage.removeItem(STORAGE_KEY);
+
+  // Ensure paceTargets in settings reflect the isolated key (source of truth)
+  var isolatedPaces = loadPaceSettings();
+  if (isolatedPaces) savedSettings.paceTargets = isolatedPaces;
 
   try {
     var raw = await fetchAllStravaActivities(token);
@@ -19854,7 +19938,7 @@ async function importFromStrava(tokenData) {
 
     if (raw.length === 0) {
       showStravaBanner('Welcome ' + name.trim() + '! No activities found on Strava.', 'info');
-      db = { activities: [], settings: db?.settings || {} };
+      db = { activities: [], settings: savedSettings };
       saveData(db); renderAll();
       return;
     }
@@ -19870,13 +19954,22 @@ async function importFromStrava(tokenData) {
 
     console.log('[Import] Converted:', imported.length, 'Skipped:', skipped);
 
-    // Save to localStorage for immediate UI
-    db = { activities: imported, settings: db?.settings || {} };
+    // ── Rebuild db: fresh activities + preserved settings ──
+    db = { activities: imported, settings: savedSettings };
     if (!db.settings.goals) db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
-    if (!db.challenges)     db.challenges = [];
-    if (!db.races)          db.races = [];
-    if (!db.completedRaces) db.completedRaces = [];
-    if (!db.bucketList)     db.bucketList = [];
+    db.challenges     = savedChallenges.length  ? savedChallenges  : [];
+    db.races          = savedRaces.length        ? savedRaces        : [];
+    db.completedRaces = savedCompRaces.length    ? savedCompRaces    : [];
+    db.bucketList     = savedBucketList.length    ? savedBucketList    : [];
+    db.savedTips      = savedTips.length          ? savedTips          : [];
+    if (savedCoachPlan) db.coachPlan = savedCoachPlan;
+    if (savedRhr.length) db.rhr = savedRhr;
+
+    // Reclassify with user's pace targets before rendering
+    if (db.settings.paceTargets && typeof reclassifyAllDifficulties === 'function') {
+      reclassifyAllDifficulties();
+    }
+
     saveData(db);
     renderAll();
 
@@ -19914,7 +20007,8 @@ if (_stravaError) {
   history.replaceState(null, '', window.location.pathname);
 }
 
-// 2. Clear localStorage if arriving with a code (fresh login)
+// 2. Clear main DB if arriving with a code (fresh login)
+//    Pace settings live in their own key (PACE_STORAGE_KEY) so they survive this wipe.
 if (_stravaCode) {
   localStorage.removeItem(STORAGE_KEY);
   showStravaBanner('Processing Strava login...', 'info');
@@ -19922,6 +20016,23 @@ if (_stravaCode) {
 
 // 3. Init dashboard (cached data or empty)
 init();
+
+// 3b. Global pace sync listener — any component that calls savePaceSettings()
+//     triggers a full reclassify + re-render for all pace-consuming sections.
+window.addEventListener('paceStorageUpdated', function() {
+  if (typeof reclassifyAllDifficulties === 'function') reclassifyAllDifficulties();
+  if (typeof renderLog === 'function')           renderLog();
+  if (typeof renderCoach === 'function')         renderCoach();
+  if (typeof renderCharts === 'function')        { chartsRendered = true; renderCharts(); }
+  if (typeof renderDashWeekly === 'function')    renderDashWeekly();
+  if (typeof renderBadges === 'function')        renderBadges();
+  if (typeof renderYTD === 'function')           renderYTD();
+  if (typeof renderStatus === 'function')        renderStatus();
+  if (typeof renderPRs === 'function')           renderPRs();
+  if (typeof renderRbWidget === 'function')      renderRbWidget();
+  if (typeof renderRacesPreview === 'function')  renderRacesPreview();
+  if (typeof advHmInit === 'function')           advHmInit();
+});
 
 // 4. If we have a ?code=, exchange it and import
 if (_stravaCode && !_stravaError) {
@@ -20752,19 +20863,36 @@ function _pewFmtRange(lo, hi) {
 
 /* ── Load saved values into inputs ── */
 function pewLoadValues() {
-  if (!db.settings.paceTargets) {
+  // Storage-first: check isolated pace key before anything else
+  var t = getPaceTargets();
+
+  if (!t) {
+    // No saved values anywhere — generate defaults from avg pace
     var avg = getAvgRunPaceSec();
-    db.settings.paceTargets = {
+    t = {
       easy: Math.round(avg + 70), easyHi: Math.round(avg + 110),
       medium: Math.round(avg),    mediumHi: Math.round(avg + 30),
-      hard: Math.round(Math.max(150, avg - 55)), hardHi: Math.round(Math.max(180, avg - 25))
+      hard: Math.round(Math.max(150, avg - 55)), hardHi: Math.round(Math.max(180, avg - 25)),
+      _auto: true
     };
-    saveData(db);
+    savePaceSettings(t);
+  } else if (t._auto && !t._userEdited) {
+    // Auto-derived — refresh if avg pace drifted significantly after a Strava import
+    var avg = getAvgRunPaceSec();
+    if (Math.abs(t.easy - (avg + 70)) > 15) {
+      t.easy = Math.round(avg + 70); t.easyHi = Math.round(avg + 110);
+      t.medium = Math.round(avg);    t.mediumHi = Math.round(avg + 30);
+      t.hard = Math.round(Math.max(150, avg - 55)); t.hardHi = Math.round(Math.max(180, avg - 25));
+      savePaceSettings(t);
+    }
   }
-  var t = db.settings.paceTargets;
-  document.getElementById('pewEasy').value   = _pewFmtRange(t.easy, t.easyHi);
-  document.getElementById('pewMedium').value = _pewFmtRange(t.medium, t.mediumHi);
-  document.getElementById('pewHard').value   = _pewFmtRange(t.hard, t.hardHi);
+
+  var easyEl = document.getElementById('pewEasy');
+  var medEl  = document.getElementById('pewMedium');
+  var hardEl = document.getElementById('pewHard');
+  if (easyEl)  easyEl.value  = _pewFmtRange(t.easy, t.easyHi);
+  if (medEl)   medEl.value   = _pewFmtRange(t.medium, t.mediumHi);
+  if (hardEl)  hardEl.value  = _pewFmtRange(t.hard, t.hardHi);
   _pewValidateInputs();
 }
 
@@ -20835,31 +20963,28 @@ function pewSync() {
   // All three fields must be valid
   if (easy === null || medium === null || hard === null) return;
 
-  if (!db.settings.paceTargets) db.settings.paceTargets = {};
-  db.settings.paceTargets.easy     = easy.lo;
-  db.settings.paceTargets.easyHi   = easy.hi;
-  db.settings.paceTargets.medium   = medium.lo;
-  db.settings.paceTargets.mediumHi = medium.hi;
-  db.settings.paceTargets.hard     = hard.lo;
-  db.settings.paceTargets.hardHi   = hard.hi;
-  saveData(db);
-
-  // ── Global re-render: call every function that consumes pace data ──
-  if (typeof renderCoach === 'function')        renderCoach();
-  if (typeof renderRacesPreview === 'function')  renderRacesPreview();
-  if (typeof renderRacesPage === 'function')     renderRacesPage();
-  if (typeof renderCharts === 'function' && chartsRendered) renderCharts();
-  if (typeof renderDashWeekly === 'function')    renderDashWeekly();
-  if (typeof renderYTD === 'function')           renderYTD();
-  if (typeof renderStatus === 'function')        renderStatus();
-  if (typeof renderRbWidget === 'function')      renderRbWidget();
+  // Build the pace object and save to ISOLATED storage (survives Strava wipe)
+  var pt = {
+    easy: easy.lo, easyHi: easy.hi,
+    medium: medium.lo, mediumHi: medium.hi,
+    hard: hard.lo, hardHi: hard.hi,
+    _userEdited: true
+  };
+  // savePaceSettings writes to PACE_STORAGE_KEY, mirrors into db, and fires
+  // the 'paceStorageUpdated' event → the global listener handles reclassification
+  // and re-renders of all pace-consuming sections automatically.
+  savePaceSettings(pt);
 
   // Flash sync confirmation
   var msg = document.getElementById('pewSyncMsg');
-  if (msg) {
-    msg.classList.add('visible');
-    setTimeout(function() { msg.classList.remove('visible'); }, 1500);
-  }
+  var msgMob = document.getElementById('pewSyncMsgMob');
+  var txt = 'Synced & re-rendered';
+  [msg, msgMob].forEach(function(el) {
+    if (!el) return;
+    el.textContent = txt;
+    el.classList.add('visible');
+    setTimeout(function() { el.classList.remove('visible'); }, 2200);
+  });
 }
 
 /* ── Pace Editor Dragging ── */
