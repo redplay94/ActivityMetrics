@@ -1574,6 +1574,8 @@ body.modal-open header {
 .pace-card.race-pace     { border-left-color:#ef4444; }
 .pace-type  { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--text-muted); margin-bottom:5px; }
 .pace-value { font-size:1.3rem; font-weight:800; letter-spacing:-.5px; line-height:1; }
+.pace-range-nowrap { white-space:nowrap; }
+@media (max-width:480px) { .pace-value { font-size:1.05rem; letter-spacing:-.3px; } }
 .pace-card.easy-pace .pace-value     { color:#22c55e; }
 .pace-card.long-pace .pace-value     { color:#22c55e; }
 .pace-card.tempo-pace .pace-value    { color:#eab308; }
@@ -12004,7 +12006,7 @@ function renderCoachRecovery() {
     </div>`;
 }
 
-/* ── Pace Recommendations ── */
+/* ── Pace Recommendations (PB-first + Progression Offset) ── */
 function renderCoachPaces() {
   const el = document.getElementById('coachPaces');
   if (!el) return;
@@ -12013,48 +12015,111 @@ function renderCoachPaces() {
     el.innerHTML = `<div class="recovery-card" style="text-align:center;color:var(--text-muted);font-size:.83rem;padding:24px">Log at least 2 runs to unlock personalized pace recommendations.</div>`;
     return;
   }
-  const avgPace     = getAvgRunPaceSec();
+
+  /* ── 1. Find the best PB across key race distances ── */
+  const RACE_BANDS = [
+    { name:'5K',   dist:5,      lo:4.5,   hi:5.5   },
+    { name:'10K',  dist:10,     lo:9.0,   hi:11.0  },
+    { name:'Half', dist:21.097, lo:19.0,  hi:23.0  },
+    { name:'Mar',  dist:42.195, lo:40.0,  hi:44.0  },
+  ];
+  let pbRun  = null;   // best single run
+  let pbBand = null;   // which RACE_BANDS entry it came from
+  RACE_BANDS.forEach(band => {
+    const candidates = runs.filter(a => a.distance >= band.lo && a.distance <= band.hi)
+                           .sort((a,b) => (a.duration/a.distance) - (b.duration/b.distance));
+    if (candidates.length && (!pbRun || (candidates[0].duration / candidates[0].distance) < (pbRun.duration / pbRun.distance))) {
+      pbRun  = candidates[0];
+      pbBand = band;
+    }
+  });
+  // Fallback: if no race-distance PB, use the single fastest run (by pace) >= 2 km
+  if (!pbRun) {
+    const sorted = runs.filter(a=>a.distance>=2).sort((a,b)=>(a.duration/a.distance)-(b.duration/b.distance));
+    if (sorted.length) {
+      pbRun  = sorted[0];
+      pbBand = { name: pbRun.distance.toFixed(1)+'K', dist: pbRun.distance, lo:0, hi:999 };
+    }
+  }
+  // Final fallback: use average pace × 5 km as a synthetic reference
+  const avgPace = getAvgRunPaceSec();
+  const refSec  = pbRun ? pbRun.duration  : avgPace * 5;
+  const refDist = pbRun ? pbRun.distance  : 5;
+  const pbPace  = refSec / refDist; // sec/km of the reference performance
+  const pbLabel = pbRun ? pbBand.name : 'avg';
+
+  /* ── 2. Progression Offset: compare last-4-week avg pace to PB-period pace ── */
+  const now    = new Date();
+  const ms4w   = 28 * 86400000;
+  const d4wAgo = new Date(now - ms4w);
+  const fmt4w  = d => d.toISOString().slice(0,10);
+  const recentRuns = runs.filter(a => a.date >= fmt4w(d4wAgo));
+  let progressionPct = 0; // positive = getting faster
+  let progressionTag = '';
+  if (recentRuns.length >= 3) {
+    const recentAvgPace = recentRuns.reduce((s,a) => s + a.duration/a.distance, 0) / recentRuns.length;
+    // Compare recent avg pace to PB pace — if recent is faster, progressionPct is positive
+    if (pbPace > 0) {
+      progressionPct = ((pbPace - recentAvgPace) / pbPace) * 100;
+      // Cap the offset to a reasonable ±5% window
+      progressionPct = Math.max(-5, Math.min(5, progressionPct));
+    }
+    if (progressionPct > 1) {
+      progressionTag = `<span style="color:#22c55e;font-weight:700">▲ ${progressionPct.toFixed(1)}% faster</span> — predictions adjusted`;
+    } else if (progressionPct < -1) {
+      progressionTag = `<span style="color:#ef4444;font-weight:700">▼ ${Math.abs(progressionPct).toFixed(1)}% slower</span> — no boost applied`;
+    } else {
+      progressionTag = `<span style="color:var(--text-muted)">≈ consistent form</span>`;
+    }
+  }
+  // Only apply a positive boost (don't penalize), capped at 2%
+  const boostFactor = progressionPct > 1 ? 1 - Math.min(0.02, progressionPct / 100) : 1;
+
+  /* ── 3. Riegel-predict all race distances from PB, then apply boost ── */
+  const est5k  = riegelPredict(refSec, refDist, 5)      * boostFactor;
+  const est10k = riegelPredict(refSec, refDist, 10)      * boostFactor;
+  const estHM  = riegelPredict(refSec, refDist, 21.097)  * boostFactor;
+  const estMar = riegelPredict(refSec, refDist, 42.195)  * boostFactor;
+
+  /* ── 4. Training paces derived from PB (not average) ── */
   const pt = db.settings && db.settings.paceTargets;
-  const easyPace    = pt ? pt.easy   : avgPace + 70;
-  const easyHi      = pt && pt.easyHi && pt.easyHi !== pt.easy ? pt.easyHi : null;
-  const longPace    = pt ? Math.round((pt.easy + pt.medium) / 2) : avgPace + 50;
-  const tempoPace   = pt ? pt.medium : Math.max(180, avgPace - 25);
-  const tempoHi     = pt && pt.mediumHi && pt.mediumHi !== pt.medium ? pt.mediumHi : null;
-  const intervalPace= pt ? pt.hard   : Math.max(150, avgPace - 55);
-  const intervalHi  = pt && pt.hardHi && pt.hardHi !== pt.hard ? pt.hardHi : null;
+  const easyPace     = pt ? pt.easy   : Math.round(pbPace + 70);
+  /* ── 4b. Training paces as RANGES derived from PB ── */
+  const easyLo       = pt ? pt.easy     : Math.round(pbPace + 90);
+  const easyHi       = pt && pt.easyHi  ? pt.easyHi : Math.round(pbPace + 120);
+  const longLo       = pt ? Math.round((pt.easy + pt.medium) / 2) : Math.round(pbPace + 60);
+  const longHi       = Math.round(pbPace + 90);
+  const tempoLo      = pt ? pt.medium   : Math.round(Math.max(180, pbPace + 15));
+  const tempoHi      = pt && pt.mediumHi ? pt.mediumHi : Math.round(Math.max(180, pbPace + 25));
+  const intervalPace = pt ? pt.hard     : Math.round(Math.max(150, pbPace - 55));
+  const intervalHi   = pt && pt.hardHi && pt.hardHi !== pt.hard ? pt.hardHi : null;
 
-  // Best ~5K run for Riegel reference
-  const best5k = runs.filter(a=>a.distance>=4.5&&a.distance<=5.5)
-                     .sort((a,b)=>(a.duration/a.distance)-(b.duration/b.distance))[0];
-  const refSec  = best5k ? best5k.duration  : avgPace * 5;
-  const refDist = best5k ? best5k.distance  : 5;
-  const est5k   = riegelPredict(refSec, refDist, 5);
-  const est10k  = riegelPredict(refSec, refDist, 10);
-  const estHM   = riegelPredict(refSec, refDist, 21.097);
-  const estMar  = riegelPredict(refSec, refDist, 42.195);
-
+  /* ── 5. Render ── */
   const fmtT = s => {
     const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const sec=Math.round(s%60);
     return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}:${String(sec).padStart(2,'0')}`;
   };
-  const fmtPaceRange = (lo, hi) => hi ? `${paceSecToStr(lo)} – ${paceSecToStr(hi)}` : paceSecToStr(lo);
+  const fmtRange = (lo, hi) => `<span class="pace-range-nowrap">${paceSecToStr(lo)} — ${paceSecToStr(hi)}</span>`;
+  const fmtPaceOrRange = (lo, hi) => hi ? fmtRange(lo, hi) : paceSecToStr(lo);
   const card = (cls,type,paceStr,desc) =>
     `<div class="pace-card ${cls}"><div class="pace-type">${type}</div><div class="pace-value">${paceStr}</div><div class="pace-desc">${desc}</div></div>`;
+  const boostBadge = boostFactor < 1 ? ' <span style="color:#22c55e;font-size:.6rem;font-weight:700;vertical-align:middle">⚡ BOOST</span>' : '';
 
   el.innerHTML = `
     <div class="pace-grid">
-      ${card('easy-pace',     'Easy Run',           fmtPaceRange(easyPace, easyHi),      'Conversational pace — talk in full sentences. Builds aerobic base.')}
-      ${card('long-pace',     'Long Run',           paceSecToStr(longPace),               'Slow &amp; steady — the backbone of endurance training.')}
-      ${card('tempo-pace',    'Tempo Run',          fmtPaceRange(tempoPace, tempoHi),     'Comfortably hard — sustainable for 20–40 minutes. Raises lactate threshold.')}
-      ${card('interval-pace', 'Intervals (400m)',   fmtPaceRange(intervalPace, intervalHi),'Short hard efforts. 6×400m with 200m jog recovery. Builds VO2max.')}
-      ${card('race-pace',     '5K Race Pace',       paceSecToStr(est5k/5),       `Est. finish: ${fmtT(est5k)}`)}
-      ${card('race-pace',     '10K Race Pace',      paceSecToStr(est10k/10),     `Est. finish: ${fmtT(est10k)}`)}
-      ${card('race-pace',     'Half Marathon Pace', paceSecToStr(estHM/21.097),  `Est. finish: ${fmtT(estHM)}`)}
-      ${card('race-pace',     'Marathon Pace',      paceSecToStr(estMar/42.195), `Est. finish: ${fmtT(estMar)}`)}
+      ${card('easy-pace',     'Easy Run',           fmtRange(easyLo, easyHi),            'Conversational pace — talk in full sentences. Builds aerobic base.')}
+      ${card('long-pace',     'Long Run',           fmtRange(longLo, longHi),            'Slow &amp; steady — the backbone of endurance training.')}
+      ${card('tempo-pace',    'Tempo Run',          fmtRange(tempoLo, tempoHi),          'Comfortably hard — sustainable for 20–40 minutes. Raises lactate threshold.')}
+      ${card('interval-pace', 'Intervals (400m)',   fmtPaceOrRange(intervalPace, intervalHi), 'Short hard efforts. 6×400m with 200m jog recovery. Builds VO2max.')}
+      ${card('race-pace',     '5K Race Pace'+boostBadge,       paceSecToStr(est5k/5),       `Est. finish: ${fmtT(est5k)}`)}
+      ${card('race-pace',     '10K Race Pace'+boostBadge,      paceSecToStr(est10k/10),     `Est. finish: ${fmtT(est10k)}`)}
+      ${card('race-pace',     'Half Marathon Pace'+boostBadge, paceSecToStr(estHM/21.097),  `Est. finish: ${fmtT(estHM)}`)}
+      ${card('race-pace',     'Marathon Pace'+boostBadge,      paceSecToStr(estMar/42.195), `Est. finish: ${fmtT(estMar)}`)}
     </div>
-    <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:16px">
-      ${pt ? 'Using custom pace targets from Pace Editor.' : `Based on avg pace of <strong>${paceSecToStr(avgPace)}</strong> across ${runs.length} runs.`}
-      Race estimates use the Riegel formula (T₂&nbsp;=&nbsp;T₁&nbsp;×&nbsp;(D₂/D₁)^1.06).
+    <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:16px;line-height:1.8">
+      ${pt ? 'Training paces: custom targets from Pace Editor.' : `Training paces derived from your <strong>${pbLabel}</strong> PB of <strong>${paceSecToStr(pbPace)}</strong>/km.`}<br>
+      Race estimates: Riegel formula (T₂ = T₁ × (D₂/D₁)<sup>1.06</sup>) from ${pbRun ? `${pbBand.name} (${pbRun.distance.toFixed(2)} km in ${fmtT(pbRun.duration)})` : `avg pace × 5 km`}.
+      ${recentRuns.length >= 3 ? `<br>Progression (last 4 wk, ${recentRuns.length} runs): ${progressionTag}.` : ''}
     </div>`;
 }
 
