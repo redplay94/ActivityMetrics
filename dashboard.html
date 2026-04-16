@@ -1621,6 +1621,51 @@ body.modal-open header {
 .plan-export-btn:hover { color:var(--text); border-color:var(--text-muted); }
 .plan-export-btn svg { width:14px; height:14px; }
 
+/* Accept / Discard buttons */
+.plan-decision-row {
+  display:flex; gap:10px; margin-top:16px; margin-bottom:8px;
+}
+.plan-decision-row button {
+  flex:1; padding:13px 18px; border-radius:var(--radius-sm);
+  font-size:.85rem; font-weight:700; cursor:pointer;
+  transition:all .2s ease; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+}
+.plan-accept-btn {
+  background:#22c55e; color:#fff; border:2px solid #22c55e;
+}
+.plan-accept-btn:hover { background:#16a34a; border-color:#16a34a; }
+.plan-discard-btn {
+  background:transparent; color:#ef4444; border:2px solid #ef4444;
+}
+.plan-discard-btn:hover { background:#ef4444; color:#fff; }
+@media (max-width:480px) {
+  .plan-decision-row { flex-direction:column; }
+}
+
+/* Active plan banner */
+.plan-active-banner {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  background:var(--bg2); border:1px solid #22c55e40; border-radius:var(--radius);
+  padding:12px 16px; margin-bottom:14px;
+}
+.plan-active-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#22c55e;
+}
+.plan-active-badge svg { width:14px; height:14px; }
+.plan-active-meta { font-size:.7rem; color:var(--text-muted); font-weight:600; }
+.plan-reset-btn {
+  padding:6px 14px; border-radius:var(--radius-sm);
+  background:transparent; border:1.5px solid var(--border);
+  color:var(--text-muted); font-size:.72rem; font-weight:600;
+  cursor:pointer; transition:all .2s ease;
+}
+.plan-reset-btn:hover { border-color:var(--run); color:var(--run); }
+
+/* Fade-in for newly accepted plan */
+@keyframes planFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.plan-fade-in { animation: planFadeIn .35s ease; }
+
 .next-session-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
 .next-session-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--run); }
 .next-session-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--run); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
@@ -5881,40 +5926,44 @@ header { padding: 0 !important; z-index: 600 !important; }
 
       <!-- Training Plan Generator -->
       <div class="coach-subheader">Training Plan Generator</div>
-      <div class="plan-config">
-        <div class="plan-config-grid">
-          <div class="plan-form-group">
-            <label>Goal</label>
-            <select class="form-select" id="planGoal">
-              <option value="fitness">General Fitness</option>
-              <option value="5k">5K Race</option>
-              <option value="10k">10K Race</option>
-              <option value="half">Half Marathon</option>
-              <option value="marathon">Marathon</option>
-            </select>
+      <!-- Generator form (hidden when an accepted plan is active) -->
+      <div id="planGeneratorForm">
+        <div class="plan-config">
+          <div class="plan-config-grid">
+            <div class="plan-form-group">
+              <label>Goal</label>
+              <select class="form-select" id="planGoal">
+                <option value="fitness">General Fitness</option>
+                <option value="5k">5K Race</option>
+                <option value="10k">10K Race</option>
+                <option value="half">Half Marathon</option>
+                <option value="marathon">Marathon</option>
+              </select>
+            </div>
+            <div class="plan-form-group">
+              <label>Weeks Until Goal</label>
+              <select class="form-select" id="planWeeks">
+                <option value="4">4 weeks</option>
+                <option value="8" selected>8 weeks</option>
+                <option value="12">12 weeks</option>
+                <option value="16">16 weeks</option>
+              </select>
+            </div>
+            <div class="plan-form-group">
+              <label>Current Level</label>
+              <select class="form-select" id="planLevel">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
           </div>
-          <div class="plan-form-group">
-            <label>Weeks Until Goal</label>
-            <select class="form-select" id="planWeeks">
-              <option value="4">4 weeks</option>
-              <option value="8" selected>8 weeks</option>
-              <option value="12">12 weeks</option>
-              <option value="16">16 weeks</option>
-            </select>
-          </div>
-          <div class="plan-form-group">
-            <label>Current Level</label>
-            <select class="form-select" id="planLevel">
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-          </div>
+          <button class="plan-generate-btn" onclick="generateTrainingPlan()">
+            Generate Training Plan
+          </button>
         </div>
-        <button class="plan-generate-btn" onclick="generateTrainingPlan()">
-          Generate Training Plan
-        </button>
       </div>
+      <!-- Plan output + accept/discard buttons, or accepted plan view -->
       <div id="coachPlanOutput"></div>
 
       <!-- Next Session Preview -->
@@ -12020,24 +12069,77 @@ function autoSuggestPlanLevel() {
   else sel.value = 'beginner';
 }
 
-function generateTrainingPlan(silent=false) {
-  const goal  = document.getElementById('planGoal').value;
-  const weeks = parseInt(document.getElementById('planWeeks').value);
-  const level = document.getElementById('planLevel').value;
-  const el    = document.getElementById('coachPlanOutput');
-  if (!el) return;
+/* ── Shared plan-rendering helpers ── */
+const PLAN_TYPE_LABELS = {easy:'Easy Run',tempo:'Tempo Run',hard:'Intervals',long:'Long Run',recovery:'Recovery Run',rest:'Rest',cross:'Cross-Train'};
+const PLAN_TYPE_CLASS  = {easy:'type-easy',tempo:'type-tempo',hard:'type-hard',long:'type-long',recovery:'type-recovery',rest:'type-rest',cross:'type-cross'};
+const PLAN_DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
+function _buildPlanWeeksHtml(planWeeks, paceFor) {
+  return planWeeks.map(w => {
+    const suffix = w.isTaper?'&nbsp;— Taper':w.isRecovery?'&nbsp;— Recovery':'';
+    const daysHtml = w.days.map((d,i) => {
+      if (d.type==='rest') return `<div class="plan-day type-rest"><div class="plan-day-name">${PLAN_DAY_NAMES[i]}</div><div class="plan-day-type">Rest</div><div class="plan-day-dist">—</div></div>`;
+      if (d.type==='cross') return `<div class="plan-day type-cross"><div class="plan-day-name">${PLAN_DAY_NAMES[i]}</div><div class="plan-day-type">Cross-Train</div><div class="plan-day-dist">Bike/Swim</div></div>`;
+      const p = paceFor(d.type);
+      return `<div class="plan-day ${PLAN_TYPE_CLASS[d.type]}">
+        <div class="plan-day-name">${PLAN_DAY_NAMES[i]}</div>
+        <div class="plan-day-type">${PLAN_TYPE_LABELS[d.type]}</div>
+        <div class="plan-day-dist">${d.dist?d.dist.toFixed(1)+' km':''}</div>
+        <div class="plan-day-pace">${p?paceSecToStr(p):''}</div>
+      </div>`;
+    }).join('');
+    return `<div class="plan-week" id="planWeek${w.week}">
+      <div class="plan-week-header" onclick="togglePlanWeek(${w.week})">
+        <div class="plan-week-title">Week ${w.week}${suffix}</div>
+        <div class="plan-week-summary">${w.totalKm} km · ${w.runs} runs</div>
+        <svg class="plan-week-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="plan-week-body"><div class="plan-week-days">${daysHtml}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function _planGuideHtml() {
+  return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;margin-bottom:12px;font-size:.77rem;line-height:1.8;color:var(--text-muted)">
+    <strong style="color:var(--text)">Workout guide —</strong>
+    <span style="color:#22c55e">■ Easy</span>: conversational pace, aerobic base &nbsp;
+    <span style="color:#eab308">■ Tempo</span>: comfortably hard, 20–40 min &nbsp;
+    <span style="color:var(--run)">■ Intervals</span>: short hard efforts + jog recovery &nbsp;
+    <span style="color:#3b82f6">■ Long Run</span>: slow &amp; steady, builds endurance &nbsp;
+    <span style="color:#a855f7">■ Cross-Train</span>: bike, swim, or walk
+  </div>`;
+}
+
+function _getPaceHelpers() {
   const avgPace      = getAvgRunPaceSec();
   const easyPace     = avgPace + 70;
   const tempoPace    = Math.max(180, avgPace - 25);
   const intervalPace = Math.max(150, avgPace - 55);
+  const paceFor      = t => ({easy:easyPace,long:easyPace+15,tempo:tempoPace,hard:intervalPace,recovery:easyPace+30})[t]||null;
+  return paceFor;
+}
+
+/* ── Pending (unsaved) plan data — lives in memory only until accepted ── */
+var _pendingPlan = null;
+
+/* ── Generate a plan preview (NOT saved) ── */
+function generateTrainingPlan() {
+  const goalEl  = document.getElementById('planGoal');
+  const weeksEl = document.getElementById('planWeeks');
+  const levelEl = document.getElementById('planLevel');
+  const el      = document.getElementById('coachPlanOutput');
+  if (!el || !goalEl || !weeksEl || !levelEl) return;
+
+  const goal  = goalEl.value;
+  const weeks = parseInt(weeksEl.value);
+  const level = levelEl.value;
+
+  const paceFor = _getPaceHelpers();
 
   const baseKm = { fitness:{beginner:18,intermediate:25,advanced:35}, '5k':{beginner:20,intermediate:28,advanced:40},
     '10k':{beginner:25,intermediate:35,advanced:48}, half:{beginner:32,intermediate:44,advanced:58}, marathon:{beginner:40,intermediate:55,advanced:70} }[goal][level];
   const maxKm  = { fitness:{beginner:35,intermediate:48,advanced:60}, '5k':{beginner:35,intermediate:50,advanced:65},
     '10k':{beginner:42,intermediate:56,advanced:72}, half:{beginner:55,intermediate:70,advanced:88}, marathon:{beginner:65,intermediate:80,advanced:100} }[goal][level];
-
-  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
   function weekTemplate(w, totalW) {
     const isTaper = w > totalW - 2;
@@ -12087,67 +12189,118 @@ function generateTrainingPlan(silent=false) {
     planWeeks.push({week:w, days, totalKm:+(totalW.toFixed(1)), runs:days.filter(d=>d.type!=='rest'&&d.type!=='cross').length, isTaper, isRecovery});
   }
 
-  db.coachPlan = {goal, weeks, level, generated:fmtDate(new Date()), plan:planWeeks};
-  saveData(db);
+  // Store in memory only — NOT saved to db/localStorage yet
+  _pendingPlan = {goal, weeks, level, generated:fmtDate(new Date()), plan:planWeeks};
 
-  const typeLabels = {easy:'Easy Run',tempo:'Tempo Run',hard:'Intervals',long:'Long Run',recovery:'Recovery Run',rest:'Rest',cross:'Cross-Train'};
-  const typeClass  = {easy:'type-easy',tempo:'type-tempo',hard:'type-hard',long:'type-long',recovery:'type-recovery',rest:'type-rest',cross:'type-cross'};
-  const paceFor    = t => ({easy:easyPace,long:easyPace+15,tempo:tempoPace,hard:intervalPace,recovery:easyPace+30})[t]||null;
-
-  const weeksHtml = planWeeks.map(w => {
-    const suffix = w.isTaper?'&nbsp;— Taper':w.isRecovery?'&nbsp;— Recovery':'';
-    const daysHtml = w.days.map((d,i) => {
-      if (d.type==='rest') return `<div class="plan-day type-rest"><div class="plan-day-name">${DAY_NAMES[i]}</div><div class="plan-day-type">Rest</div><div class="plan-day-dist">—</div></div>`;
-      if (d.type==='cross') return `<div class="plan-day type-cross"><div class="plan-day-name">${DAY_NAMES[i]}</div><div class="plan-day-type">Cross-Train</div><div class="plan-day-dist">Bike/Swim</div></div>`;
-      const p = paceFor(d.type);
-      return `<div class="plan-day ${typeClass[d.type]}">
-        <div class="plan-day-name">${DAY_NAMES[i]}</div>
-        <div class="plan-day-type">${typeLabels[d.type]}</div>
-        <div class="plan-day-dist">${d.dist?d.dist.toFixed(1)+' km':''}</div>
-        <div class="plan-day-pace">${p?paceSecToStr(p):''}</div>
-      </div>`;
-    }).join('');
-    return `<div class="plan-week" id="planWeek${w.week}">
-      <div class="plan-week-header" onclick="togglePlanWeek(${w.week})">
-        <div class="plan-week-title">Week ${w.week}${suffix}</div>
-        <div class="plan-week-summary">${w.totalKm} km · ${w.runs} runs</div>
-        <svg class="plan-week-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div class="plan-week-body"><div class="plan-week-days">${daysHtml}</div></div>
-    </div>`;
-  }).join('');
+  const weeksHtml = _buildPlanWeeksHtml(planWeeks, paceFor);
 
   el.innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;margin-bottom:12px;font-size:.77rem;line-height:1.8;color:var(--text-muted)">
-      <strong style="color:var(--text)">Workout guide —</strong>
-      <span style="color:#22c55e">■ Easy</span>: conversational pace, aerobic base &nbsp;
-      <span style="color:#eab308">■ Tempo</span>: comfortably hard, 20–40 min &nbsp;
-      <span style="color:var(--run)">■ Intervals</span>: short hard efforts + jog recovery &nbsp;
-      <span style="color:#3b82f6">■ Long Run</span>: slow &amp; steady, builds endurance &nbsp;
-      <span style="color:#a855f7">■ Cross-Train</span>: bike, swim, or walk
+    ${_planGuideHtml()}
+    ${weeksHtml}
+    <div class="plan-decision-row">
+      <button class="plan-accept-btn" onclick="acceptTrainingPlan()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Accept Plan
+      </button>
+      <button class="plan-discard-btn" onclick="discardTrainingPlan()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Discard &amp; Regenerate
+      </button>
+    </div>`;
+
+  // Expand week 1
+  const w1 = document.getElementById('planWeek1');
+  if (w1) w1.classList.add('expanded');
+
+  showToast('Plan generated — review and accept or discard','success');
+}
+
+/* ── Accept: save to db, hide form, show active plan view ── */
+function acceptTrainingPlan() {
+  if (!_pendingPlan) return;
+  db.coachPlan = _pendingPlan;
+  db.coachPlan.accepted = true;
+  saveData(db);
+  _pendingPlan = null;
+  _showAcceptedPlan();
+  renderCoachNextSession();
+  showToast('Training plan accepted and saved!','success');
+}
+
+/* ── Discard: clear preview, return to form ── */
+function discardTrainingPlan() {
+  _pendingPlan = null;
+  const el = document.getElementById('coachPlanOutput');
+  if (el) el.innerHTML = '';
+  const form = document.getElementById('planGeneratorForm');
+  if (form) form.style.display = '';
+  showToast('Plan discarded — adjust your settings and try again','success');
+}
+
+/* ── Reset: delete saved plan, return to generator form ── */
+function resetTrainingPlan() {
+  delete db.coachPlan;
+  saveData(db);
+  _pendingPlan = null;
+  const el = document.getElementById('coachPlanOutput');
+  if (el) el.innerHTML = '';
+  const form = document.getElementById('planGeneratorForm');
+  if (form) form.style.display = '';
+  renderCoachNextSession();
+  showToast('Plan removed — create a new one anytime','success');
+}
+
+/* ── Render the accepted/saved plan as the default view ── */
+function _showAcceptedPlan() {
+  const p  = db.coachPlan;
+  const el = document.getElementById('coachPlanOutput');
+  if (!el || !p || !p.plan) return;
+
+  // Hide the generator form
+  const form = document.getElementById('planGeneratorForm');
+  if (form) form.style.display = 'none';
+
+  const paceFor   = _getPaceHelpers();
+  const goalLabel = {fitness:'General Fitness','5k':'5K Race','10k':'10K Race',half:'Half Marathon',marathon:'Marathon'}[p.goal]||p.goal;
+  const weeksHtml = _buildPlanWeeksHtml(p.plan, paceFor);
+
+  el.innerHTML = `
+    <div class="plan-active-banner plan-fade-in">
+      <div>
+        <div class="plan-active-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Active Plan
+        </div>
+        <div class="plan-active-meta">${goalLabel} · ${p.weeks} weeks · ${cap(p.level)} · Created ${p.generated}</div>
+      </div>
+      <button class="plan-reset-btn" onclick="resetTrainingPlan()">Create New Plan</button>
     </div>
+    ${_planGuideHtml()}
     ${weeksHtml}
     <button class="plan-export-btn" onclick="exportTrainingPlan()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export Plan as Text File
     </button>`;
 
-  // Expand week 1 by default
+  // Expand week 1
   const w1 = document.getElementById('planWeek1');
   if (w1) w1.classList.add('expanded');
-
-  renderCoachNextSession();
-  if (!silent) showToast('Training plan generated!','success');
 }
 
+/* ── Restore on page load: show accepted plan if it exists ── */
 function restoreStoredPlan() {
-  // Re-render stored plan without re-generating
   const p = db.coachPlan;
   if (!p || !p.plan) return;
-  document.getElementById('planGoal').value  = p.goal;
-  document.getElementById('planWeeks').value = String(p.weeks);
-  document.getElementById('planLevel').value = p.level;
-  generateTrainingPlan(true); // silent=true — suppresses toast on page load
+  // Populate form values in case the user resets later
+  const goalEl  = document.getElementById('planGoal');
+  const weeksEl = document.getElementById('planWeeks');
+  const levelEl = document.getElementById('planLevel');
+  if (goalEl)  goalEl.value  = p.goal;
+  if (weeksEl) weeksEl.value = String(p.weeks);
+  if (levelEl) levelEl.value = p.level;
+  // Mark old plans (saved before this update) as accepted
+  if (!p.accepted) { p.accepted = true; saveData(db); }
+  _showAcceptedPlan();
 }
 
 function togglePlanWeek(w) {
