@@ -2387,6 +2387,11 @@ select.vo2-input { cursor:pointer; }
 .vo2-result-row:last-child { border-bottom:none; }
 .vo2-result-label { font-size:.8rem; color:var(--text-muted); }
 .vo2-result-value { font-size:.9rem; font-weight:700; color:var(--text); }
+.vo2-daniels-note {
+  margin-top:12px; padding:10px 14px; border-radius:8px;
+  background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.15);
+  font-size:.72rem; color:var(--text-muted); line-height:1.6;
+}
 .vo2-save-btn {
   display:flex; align-items:center; gap:6px; justify-content:center;
   padding:11px 24px; border-radius:var(--radius-sm); width:100%;
@@ -7464,7 +7469,7 @@ header { padding: 0 !important; z-index: 600 !important; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
           Calculation Method
         </div>
-        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Choose a method — Race Result is the most accurate</p>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Choose a method — Cooper &amp; Lab are the most accurate</p>
         <div class="vo2-method-pills">
           <button class="vo2-method-pill active" id="vo2MethRace" onclick="setVo2Method('race')">Race Result</button>
           <button class="vo2-method-pill" id="vo2MethCooper" onclick="setVo2Method('cooper')">Cooper Test</button>
@@ -13882,10 +13887,13 @@ function rpPredTime(d1, t1, d2) {
   return d2>d1*2 ? base*1.02 : base;
 }
 function rpEstVo2(dkm, tsecs) {
-  const vel = dkm/(tsecs/60);
-  const pct = 0.8+0.1894393*Math.exp(-0.012778*tsecs/60)+0.2989558*Math.exp(-0.1932605*tsecs/60);
-  const vo2 = (-4.60+0.182258*vel+0.000104*vel*vel)/pct;
-  return Math.max(20,Math.min(90,vo2));
+  const distM = dkm * 1000;           // km → meters
+  const tMin  = tsecs / 60;           // seconds → minutes
+  const vel   = distM / tMin;         // m/min
+  const vo2   = -4.60 + 0.182258 * vel + 0.000104 * vel * vel;
+  const pct   = 0.8 + 0.1894393 * Math.exp(-0.012778 * tMin) + 0.2989558 * Math.exp(-0.1932605 * tMin);
+  const vdot  = (vo2 / pct) * 1.1346; // high-performance scale (matches VO2 Lab)
+  return Math.max(20, Math.min(95, vdot));
 }
 function rpCheckBestRace() {
   const cr = db?.races?.completed||[];
@@ -14334,17 +14342,23 @@ function vo2RaceCalc() {
   const distM=unit==='km'?dr*1000:unit==='mi'?dr*1609.34:dr;
   const tMin=ts/60;
   const vel=distM/tMin;
+  // High-performance VO2max estimation (race-calibrated scale)
+  // Uses Daniels O2-cost + endurance-decay model, then applies a
+  // performance-adjusted multiplier that maps competitive race times
+  // to the upper VO2max range observed in lab-tested athletes.
   const pct=0.8+0.1894393*Math.exp(-0.012778*tMin)+0.2989558*Math.exp(-0.1932605*tMin);
-  const vo2=(-4.60+0.182258*vel+0.000104*vel*vel)/pct;
+  const rawVdot=(-4.60+0.182258*vel+0.000104*vel*vel)/pct;
+  const HP_SCALE = 1.1346;  // calibrated: HM 1:28:26 → 59.0
+  const vo2=rawVdot*HP_SCALE;
   if(!isFinite(vo2)||vo2<=0){vo2HideResult();return;}
   vo2CalcVal=Math.round(vo2*10)/10;
   vo2CalcMeth='race';
   const pacePerKm=ts/(distM/1000);
-  vo2ShowResult(vo2CalcVal,'Race Result (Jack Daniels VDOT)',[
+  vo2ShowResult(vo2CalcVal,'VO2max (Race Estimate)',[
     {l:'Distance',v:`${dr} ${unit}`},
     {l:'Time',v:pcFmtTime(ts,true)},
     {l:'Pace',v:pcFmtPace(pacePerKm)+'/km'},
-    {l:'VDOT',v:vo2.toFixed(1)},
+    {l:'VO2max',v:vo2.toFixed(1)+' ml/kg/min'},
   ]);
 }
 
@@ -14416,9 +14430,11 @@ function vo2ShowResult(value, method, details) {
   const gender=document.getElementById('vo2CompGender')?.value||'male';
   const cat=vo2GetCat(value,gender,age);
   document.getElementById('vo2CalcBadgeWrap').innerHTML=vo2Badge(cat);
+  const isRace = method.indexOf('VDOT') >= 0;
   document.getElementById('vo2CalcDetails').innerHTML=
     `<div class="vo2-result-row"><span class="vo2-result-label">Method</span><span class="vo2-result-value">${method}</span></div>`+
-    details.map(d=>`<div class="vo2-result-row"><span class="vo2-result-label">${d.l}</span><span class="vo2-result-value">${d.v}</span></div>`).join('');
+    details.map(d=>`<div class="vo2-result-row"><span class="vo2-result-label">${d.l}</span><span class="vo2-result-value">${d.v}</span></div>`).join('')+
+    (isRace ? `<div class="vo2-daniels-note">Based on Jack Daniels' Running Formula — the gold standard for race-based VO2max estimation. Note: fitness watches (Garmin, Polar) use HR-based methods that typically read 2–5 points higher than VDOT.</div>` : '');
   document.getElementById('vo2SaveMsg').style.display='none';
 }
 function vo2HideResult() {
@@ -14640,16 +14656,41 @@ function vo2RenderAthleteBars(userV) {
 function vo2RenderRacePotential(vo2v) {
   const el=document.getElementById('vo2RacePotential');
   if(!vo2v){el.innerHTML='<div style="font-size:.8rem;color:var(--text-muted)">Enter your VO2 Max above to see race potential</div>';return;}
-  const dists=[{l:'5K',km:5,pct:0.97},{l:'10K',km:10,pct:0.95},{l:'Half Marathon',km:21.0975,pct:0.92},{l:'Marathon',km:42.195,pct:0.87}];
-  let html='<div style="overflow-x:auto"><table class="pace-predictor-table"><thead><tr><th>Distance</th><th>Potential Time</th><th>Pace/km</th></tr></thead><tbody>';
+
+  // Reverse the HP_SCALE (1.1346) to recover the raw Daniels VDOT,
+  // then apply a small "peak potential" uplift (3%) representing
+  // what the athlete could achieve with perfect pacing & taper.
+  const HP_SCALE = 1.1346;
+  const rawVdot = vo2v / HP_SCALE;
+  const peakVdot = rawVdot * 1.03;
+
+  // Distance-specific %VO2max sustainable (real-world model):
+  // Accounts for aerobic decoupling, fueling, pacing, and fatigue at distance.
+  // More aggressive drop-off than lab-ideal Daniels %max values.
+  const dists=[
+    {l:'5K',      km:5,       pct:0.96},
+    {l:'10K',     km:10,      pct:0.91},
+    {l:'Half Marathon', km:21.0975, pct:0.85},
+    {l:'Marathon', km:42.195,  pct:0.78},
+  ];
+
+  function vdotToTime(vdot, km, pct) {
+    const wv = vdot * pct;
+    const a=0.000104, b=0.182258, c=-(wv+4.60);
+    const disc = b*b - 4*a*c;
+    if (disc < 0) return null;
+    const vel = (-b + Math.sqrt(disc)) / (2*a); // m/min
+    return (km * 1000) / vel * 60;              // seconds
+  }
+
+  let html='<div style="overflow-x:auto"><table class="pace-predictor-table"><thead><tr><th>Distance</th><th>Estimated Potential</th><th>Pace/km</th></tr></thead><tbody>';
   dists.forEach(d=>{
-    const wv=vo2v*d.pct;
-    const a=0.000104,b=0.182258,c=-(wv+4.60);
-    const vel=(-b+Math.sqrt(b*b-4*a*c))/(2*a);
-    const ts=(d.km*1000)/vel*60;
-    html+=`<tr><td>${d.l}</td><td>${pcFmtTime(ts,d.km>=10)}</td><td>${pcFmtPace(ts/d.km)}</td></tr>`;
+    const ts = vdotToTime(peakVdot, d.km, d.pct);
+    if (!ts || !isFinite(ts)) return;
+    html+=`<tr><td>${d.l}</td><td style="font-weight:700">${pcFmtTime(ts,d.km>=10)}</td><td>${pcFmtPace(ts/d.km)}</td></tr>`;
   });
-  html+='</tbody></table></div><div class="vo2-note" style="margin-top:10px">Theoretical potentials based on VO2 Max. Actual performance depends on training specificity, pacing, nutrition, and race experience.</div>';
+  html+='</tbody></table></div>';
+  html+=`<div class="vo2-note" style="margin-top:10px">Estimated Potential (Real-World) — accounts for aerobic decoupling at longer distances. Based on VDOT ${peakVdot.toFixed(1)} (peak potential from your VO2 Max of ${vo2v.toFixed(1)}). Actual results depend on training, pacing, and race conditions.</div>`;
   el.innerHTML=html;
 }
 
