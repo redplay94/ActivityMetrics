@@ -811,6 +811,14 @@ body.modal-open header {
 .log-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: middle; }
 .log-table tr:last-child td { border-bottom: none; }
 .log-table tr:hover td { background: var(--bg3); }
+.log-hr-val { display:inline-flex; align-items:center; gap:3px; font-variant-numeric:tabular-nums; font-weight:600; color:#ef4444; font-size:.78rem; }
+.log-hr-icon { font-size:.7rem; }
+.log-hr-link { font-size:.72rem; font-weight:600; color:#ef4444; cursor:pointer; transition:opacity .2s; text-decoration:none; white-space:nowrap; }
+.log-hr-link:hover { opacity:.75; text-decoration:underline; }
+@media (max-width:768px) {
+  .log-hr-col { min-width:60px; }
+  .log-hr-val { font-size:.72rem; }
+}
 .td-actions { display: flex; gap: 5px; }
 .tbl-btn {
   width: 26px; height: 26px; border-radius: var(--radius-sm);
@@ -5779,6 +5787,7 @@ header { padding: 0 !important; z-index: 600 !important; }
               <th class="sortable" data-col="calories" onclick="setLogSort('calories')">Calories <span class="sort-arrow"></span></th>
               <th class="sortable" data-col="steps" onclick="setLogSort('steps')">Steps <span class="sort-arrow"></span></th>
               <th class="sortable" data-col="elevation" onclick="setLogSort('elevation')">Elev. <span class="sort-arrow"></span></th>
+              <th class="sortable log-hr-col" data-col="avgHR" onclick="setLogSort('avgHR')">❤️ BPM <span class="sort-arrow"></span></th>
               <th class="sortable" data-col="difficulty" onclick="setLogSort('difficulty')">Difficulty <span class="sort-arrow"></span></th>
               <th></th>
             </tr>
@@ -9380,6 +9389,7 @@ function getLogActivities() {
     if (logSortCol === 'difficulty') { va = DIFF_ORDER[va]||0; vb = DIFF_ORDER[vb]||0; }
     if (logSortCol === 'type') { va = va||''; vb = vb||''; }
     if (logSortCol === 'date') { va = va||''; vb = vb||''; }
+    if (logSortCol === 'avgHR') { va = va||0; vb = vb||0; }
     if (typeof va === 'string') return logSortDir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va);
     return logSortDir === 'asc' ? va - vb : vb - va;
   });
@@ -9397,7 +9407,7 @@ function renderLog() {
   if (logPage > totalPages) logPage = totalPages;
 
   if (!totalCount) {
-    tbody.innerHTML = `<tr><td colspan="10" class="log-empty">No activities match the current filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="log-empty">No activities match the current filters.</td></tr>`;
     if (footer) footer.textContent = '0 activities';
     renderLogPagination(0, 0);
     return;
@@ -9424,6 +9434,9 @@ function renderLog() {
       <td>${a.calories} <span style="color:var(--text-muted);font-size:.72rem">kcal</span></td>
       <td>${a.type==='cycle'?'—':(a.steps||0).toLocaleString()}</td>
       <td>${a.elevation||0} <span style="color:var(--text-muted);font-size:.72rem">m</span></td>
+      <td class="log-hr-col">${a.avgHR
+        ? `<span class="log-hr-val" title="Avg ${a.avgHR} · Max ${a.maxHR||'—'}"><span class="log-hr-icon">❤️</span>${a.avgHR}${a.maxHR ? `<span style="color:var(--text-muted);font-size:.68rem"> / ${a.maxHR}</span>` : ''}</span>`
+        : `<span style="color:var(--text-muted)">—</span>`}</td>
       <td><span class="difficulty-badge ${diffClasses[a.difficulty]}">${cap(a.difficulty)}</span></td>
       <td><div class="td-actions">
         <button class="tbl-btn tbl-edit-btn" onclick="openEditModal('${a.id}')" title="Edit">
@@ -9445,8 +9458,10 @@ function renderLog() {
   });
 
   const totalDist = allActs.reduce((s,a)=>s+a.distance,0);
+  const hrCount = allActs.filter(a=>a.avgHR).length;
   if (footer) footer.innerHTML = `<span>${totalCount} activit${totalCount!==1?'ies':'y'}</span>
-    <span>Total: <strong>${totalDist.toFixed(1)} km</strong></span>`;
+    <span>Total: <strong>${totalDist.toFixed(1)} km</strong></span>`
+    + (hrCount > 0 ? `<a class="log-hr-link" onclick="navTo('hrSection')" title="${hrCount} activities with HR data">❤️ View Heart Rate Analysis →</a>` : '');
 
   renderLogPagination(totalCount, totalPages);
 }
@@ -12003,6 +12018,53 @@ function renderCoachRecovery() {
           <div class="load-legend-item"><div class="load-legend-dot" style="background:var(--run)"></div>Hard</div>
         </div>
       </div>
+      ${_buildHrInsightHtml()}
+    </div>`;
+}
+
+/* ── HR-based fitness insight for Recovery Monitor ── */
+function _buildHrInsightHtml() {
+  const runs = db.activities.filter(a => a.type==='run' && a.avgHR && a.distance>0 && a.duration>0);
+  if (runs.length < 4) return '';
+
+  // Compare HR efficiency (pace per BPM) — recent 4 weeks vs older
+  const now = new Date();
+  const d4w = fmtDate(new Date(now - 28*86400000));
+  const d12w = fmtDate(new Date(now - 84*86400000));
+  const recent = runs.filter(a => a.date >= d4w);
+  const older  = runs.filter(a => a.date >= d12w && a.date < d4w);
+
+  if (recent.length < 2 || older.length < 2) return '';
+
+  // Efficiency = avg pace (sec/km) / avg HR → lower = more efficient (faster at same HR)
+  const eff = arr => {
+    const avgPace = arr.reduce((s,a)=>s+a.duration/a.distance,0)/arr.length;
+    const avgHr   = arr.reduce((s,a)=>s+a.avgHR,0)/arr.length;
+    return { ratio: avgPace/avgHr, avgHr: Math.round(avgHr), avgPace };
+  };
+  const recentEff = eff(recent);
+  const olderEff  = eff(older);
+  const changePct = ((olderEff.ratio - recentEff.ratio) / olderEff.ratio * 100);
+
+  let badge, label, detail;
+  if (changePct > 3) {
+    badge = 'green'; label = '❤️ Fitness Improving';
+    detail = `Your heart is ${changePct.toFixed(1)}% more efficient — same pace at lower HR (avg ${recentEff.avgHr} bpm vs ${olderEff.avgHr} bpm).`;
+  } else if (changePct > 0) {
+    badge = 'yellow'; label = '❤️ Fitness Stable';
+    detail = `HR efficiency steady over the past 4 weeks (avg ${recentEff.avgHr} bpm).`;
+  } else {
+    badge = 'orange'; label = '❤️ Increased Effort';
+    detail = `Your heart is working ${Math.abs(changePct).toFixed(1)}% harder for the same pace (avg ${recentEff.avgHr} bpm vs ${olderEff.avgHr} bpm). Consider more easy runs.`;
+  }
+
+  return `
+    <div class="hr-insight-row" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="recovery-badge ${badge}" style="font-size:.76rem;padding:5px 12px">${label}</div>
+        <div style="font-size:.73rem;color:var(--text-muted);flex:1;min-width:180px">${detail}</div>
+      </div>
+      <a class="log-hr-link" onclick="navTo('hrSection')" style="margin-top:8px;display:inline-block">View Detailed Heart Rate Analysis →</a>
     </div>`;
 }
 
@@ -15421,7 +15483,7 @@ function hrRenderPaceScatter() {
         tooltip:{callbacks:{
           label:c=>{
             const mm=Math.floor(c.raw.x),ss=Math.round((c.raw.x-mm)*60).toString().padStart(2,'0');
-            return ` ${mm}:${ss}/km — ${c.raw.y} bpm (${c.raw.date})`;
+            return ` Pace: ${mm}:${ss}/km  |  HR: ${c.raw.y} bpm  |  ${c.raw.dist.toFixed(1)} km  |  ${c.raw.date}`;
           }
         }}
       },
@@ -15459,7 +15521,7 @@ function hrRenderPaceScatter() {
   }
 }
 
-/* ── Aerobic Efficiency ───────────────────────────────────── */
+/* ── Aerobic Efficiency (Pace-at-target-HR + EF trend) ──── */
 function hrRenderAerobicEfficiency() {
   const TARGET_HR = 145;
   const acts = (db?.activities||[]).filter(a=>a.type==='run'&&a.avgHR&&a.distance>1&&a.duration>60)
@@ -15475,86 +15537,162 @@ function hrRenderAerobicEfficiency() {
     return;
   }
 
-  // Group by month, estimate pace at 145 bpm using linear interpolation
-  const monthly = {};
+  /* ── Group by week (ISO week label) for finer-grained EF tracking ── */
+  const byWeek = {};
   acts.forEach(a=>{
-    const mo = a.date.slice(0,7);
-    if (!monthly[mo]) monthly[mo]=[];
-    monthly[mo].push(a);
+    const d = new Date(a.date+'T00:00:00');
+    const jan1 = new Date(d.getFullYear(),0,1);
+    const wk = Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+    const label = a.date.slice(0,4)+'-W'+String(wk).padStart(2,'0');
+    if(!byWeek[label]) byWeek[label]=[];
+    byWeek[label].push(a);
   });
 
-  const effPoints = Object.entries(monthly).map(([mo,arr])=>{
-    const avgPace = arr.reduce((s,a)=>s+a.duration/60/a.distance,0)/arr.length;
-    const avgHR   = arr.reduce((s,a)=>s+a.avgHR,0)/arr.length;
-    // estimate pace at TARGET_HR: assume linear relationship with HR
-    const sorted = arr.sort((a,b)=>a.avgHR-b.avgHR);
-    const below  = sorted.filter(a=>a.avgHR<=TARGET_HR);
-    const above  = sorted.filter(a=>a.avgHR> TARGET_HR);
-    let paceAt145 = avgPace;
-    if (below.length && above.length) {
-      const b1=below[below.length-1], a1=above[0];
+  /* ── Compute EF per week: EF = speed (m/min) / avgHR ── */
+  const efPoints = Object.entries(byWeek).map(([wk,arr])=>{
+    const avgSpeed = arr.reduce((s,a)=>s+(a.distance*1000)/(a.duration/60),0)/arr.length; // m/min
+    const avgHR    = arr.reduce((s,a)=>s+a.avgHR,0)/arr.length;
+    const ef       = avgHR>0 ? +(avgSpeed/avgHR).toFixed(3) : 0;
+    return { wk, ef, avgHR:Math.round(avgHR), runs:arr.length, avgSpeed };
+  }).filter(p=>p.ef>0);
+
+  /* ── Also compute monthly pace-at-target-HR (existing approach, kept) ── */
+  const monthly = {};
+  acts.forEach(a=>{ const mo=a.date.slice(0,7); if(!monthly[mo])monthly[mo]=[]; monthly[mo].push(a); });
+
+  const pacePoints = Object.entries(monthly).map(([mo,arr])=>{
+    const avgPace=arr.reduce((s,a)=>s+a.duration/60/a.distance,0)/arr.length;
+    const avgHR=arr.reduce((s,a)=>s+a.avgHR,0)/arr.length;
+    const sorted=[...arr].sort((a,b)=>a.avgHR-b.avgHR);
+    const below=sorted.filter(a=>a.avgHR<=TARGET_HR);
+    const above=sorted.filter(a=>a.avgHR>TARGET_HR);
+    let paceAt145=avgPace;
+    if(below.length&&above.length){
+      const b1=below[below.length-1],a1=above[0];
       const t=(TARGET_HR-b1.avgHR)/(a1.avgHR-b1.avgHR);
-      const pb=b1.duration/60/b1.distance, pa=a1.duration/60/a1.distance;
-      paceAt145 = pb + t*(pa-pb);
-    } else {
-      // scale: if all runs are at lower HR, pace will be faster; scale proportionally
-      paceAt145 = avgPace * (avgHR / TARGET_HR);
-    }
+      paceAt145=b1.duration/60/b1.distance+t*(a1.duration/60/a1.distance-b1.duration/60/b1.distance);
+    } else { paceAt145=avgPace*(avgHR/TARGET_HR); }
     return { mo, paceAt145, runs:arr.length };
   }).filter(p=>p.paceAt145>2&&p.paceAt145<20);
 
-  if (effPoints.length < 2) {
-    el.innerHTML='<div style="color:var(--text-muted);font-size:.8rem">Need more data across multiple months for efficiency tracking.</div>';
+  const fmt = p=>{const m=Math.floor(p),s=Math.round((p-m)*60).toString().padStart(2,'0');return`${m}:${s}/km`;};
+
+  /* ── Build EF summary table ── */
+  // Show last 8 weekly data points for EF
+  const efRecent = efPoints.slice(-8);
+  let html = '';
+
+  if (efRecent.length >= 2) {
+    const efFirst = efRecent[0], efLast = efRecent[efRecent.length-1];
+    const efChange = ((efLast.ef - efFirst.ef) / efFirst.ef * 100);
+    const efTrend = efChange > 2 ? `<span style="color:#22c55e;font-weight:700">▲ ${efChange.toFixed(1)}% improvement</span>`
+                  : efChange < -2 ? `<span style="color:#ef4444;font-weight:700">▼ ${Math.abs(efChange).toFixed(1)}% decline</span>`
+                  : `<span style="color:var(--text-muted);font-weight:700">→ stable</span>`;
+
+    html += `<div style="margin-bottom:14px">
+      <div style="font-size:.78rem;font-weight:700;margin-bottom:6px;color:var(--text)">Efficiency Factor (EF) — Weekly Trend</div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">EF = Speed (m/min) ÷ Avg HR. A rising EF means you're running faster at the same heart rate — a key sign of aerobic fitness gains.</div>
+      <table class="hr-efficiency-table"><thead><tr><th>Week</th><th>EF Score</th><th>Avg HR</th><th>Runs</th><th>Trend</th></tr></thead><tbody>`;
+    efRecent.forEach((p,i)=>{
+      const prev=i>0?efRecent[i-1]:null;
+      const delta=prev?p.ef-prev.ef:0;
+      const trend=delta>0.01?'<span style="color:#22c55e">↑</span>':delta<-0.01?'<span style="color:#ef4444">↓</span>':'<span style="color:var(--text-muted)">→</span>';
+      html+=`<tr><td style="font-size:.73rem">${p.wk}</td><td style="font-weight:700;color:#ef4444">${p.ef.toFixed(2)}</td><td>${p.avgHR} bpm</td><td>${p.runs}</td><td>${i>0?trend:'—'}</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+    html+=`<div class="hr-insight" style="margin-top:8px">📈 EF over last ${efRecent.length} weeks: ${efTrend} (${efFirst.ef.toFixed(2)} → ${efLast.ef.toFixed(2)})</div>`;
+  }
+
+  /* ── Pace-at-target-HR table ── */
+  if (pacePoints.length >= 2) {
+    html += `<div style="margin-top:18px;margin-bottom:8px;font-size:.78rem;font-weight:700;color:var(--text)">Estimated Pace at ${TARGET_HR} bpm — Monthly</div>
+      <table class="hr-efficiency-table"><thead><tr><th>Month</th><th>Pace at ${TARGET_HR} bpm</th><th>Runs</th><th>Trend</th></tr></thead><tbody>`;
+    pacePoints.forEach((p,i)=>{
+      const prev=i>0?pacePoints[i-1]:null;
+      const delta=prev?p.paceAt145-prev.paceAt145:0;
+      const trend=delta<-0.1?'<span style="color:#22c55e">↑ Faster</span>':delta>0.1?'<span style="color:#ef4444">↓ Slower</span>':'<span style="color:var(--text-muted)">→ Same</span>';
+      html+=`<tr><td>${p.mo}</td><td style="font-weight:700;color:#ef4444">${fmt(p.paceAt145)}</td><td>${p.runs}</td><td>${i>0?trend:'—'}</td></tr>`;
+    });
+    html+='</tbody></table>';
+
+    const first=pacePoints[0], last=pacePoints[pacePoints.length-1];
+    const improvement=(first.paceAt145-last.paceAt145)/first.paceAt145*100;
+    if(improvement>2){
+      html+=`<div class="hr-insight">📈 <strong>Pace at ${TARGET_HR} bpm improved ${improvement.toFixed(1)}%</strong> — from ${fmt(first.paceAt145)} to ${fmt(last.paceAt145)}. Excellent progress!</div>`;
+    }
+  }
+
+  if (!html) {
+    html='<div style="color:var(--text-muted);font-size:.8rem">Need more data across multiple weeks for efficiency tracking.</div>';
     if(ctx) ctx.style.display='none';
+    el.innerHTML=html;
     return;
   }
 
-  const fmt = p => {
-    const m=Math.floor(p), s=Math.round((p-m)*60).toString().padStart(2,'0');
-    return `${m}:${s}/km`;
-  };
+  el.innerHTML = html;
 
-  let tableHTML = `<div style="margin-bottom:8px;font-size:.78rem;color:var(--text-muted)">Estimated pace at ${TARGET_HR} bpm:</div>
-    <table class="hr-efficiency-table"><thead><tr><th>Month</th><th>Pace at ${TARGET_HR} bpm</th><th>Runs</th><th>Trend</th></tr></thead><tbody>`;
-  effPoints.forEach((p,i)=>{
-    const prev  = i>0?effPoints[i-1]:null;
-    const delta = prev?p.paceAt145-prev.paceAt145:0;
-    const trend = delta<-0.1?'<span style="color:#22c55e">↑ Faster</span>':delta>0.1?'<span style="color:#ef4444">↓ Slower</span>':'<span style="color:var(--text-muted)">→ Same</span>';
-    tableHTML += `<tr><td>${p.mo}</td><td style="font-weight:700;color:#ef4444">${fmt(p.paceAt145)}</td><td>${p.runs}</td><td>${i>0?trend:'—'}</td></tr>`;
-  });
-  tableHTML += '</tbody></table>';
-
-  const first = effPoints[0], last = effPoints[effPoints.length-1];
-  const improvement = (first.paceAt145 - last.paceAt145) / first.paceAt145 * 100;
-  if (improvement > 2) {
-    tableHTML += `<div class="hr-insight">📈 <strong>Your aerobic efficiency improved ${improvement.toFixed(1)}% over ${effPoints.length} months</strong> — from ${fmt(first.paceAt145)} to ${fmt(last.paceAt145)} at ${TARGET_HR} bpm. Excellent progress!</div>`;
-  }
-  el.innerHTML = tableHTML;
-
-  if (ctx) {
+  /* ── Chart: dual-axis — EF (line, left) + Pace-at-HR (line, right, inverted) ── */
+  if (ctx && efRecent.length >= 2) {
     ctx.style.display='';
     if (hrEffChartInst) { hrEffChartInst.destroy(); hrEffChartInst=null; }
+
+    const datasets = [{
+      label:'EF Score',
+      data: efRecent.map(p=>p.ef),
+      borderColor:'#22c55e',
+      backgroundColor:'rgba(34,197,94,.12)',
+      tension:.35, fill:true,
+      pointBackgroundColor:'#22c55e',
+      yAxisID:'yEF',
+    }];
+    const scales = {
+      x:{ticks:{color:'#8896a8',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
+      yEF:{position:'left',ticks:{color:'#22c55e',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'},
+           title:{display:true,text:'EF (higher = fitter)',color:'#22c55e',font:{size:10}}},
+    };
+
+    // Add pace-at-HR dataset if we have matching months
+    if (pacePoints.length >= 2) {
+      // Map pace points to the weekly x-axis by repeating the monthly value across its weeks
+      const paceMap = {};
+      pacePoints.forEach(p=>{ paceMap[p.mo]=p.paceAt145; });
+      const paceData = efRecent.map(p=>{
+        const mo=p.wk.slice(0,4)+'-'+String(Math.ceil(parseInt(p.wk.split('W')[1]||1)*7/30)).padStart(2,'0');
+        // find closest month
+        const closest = pacePoints.reduce((best,pp)=>Math.abs(pp.mo.localeCompare(p.wk.slice(0,7)))<Math.abs(best.mo.localeCompare(p.wk.slice(0,7)))?pp:best);
+        return closest.paceAt145;
+      });
+      datasets.push({
+        label:`Pace at ${TARGET_HR} bpm`,
+        data: paceData,
+        borderColor:'#ef4444',
+        backgroundColor:'rgba(239,68,68,.08)',
+        tension:.35, fill:false, borderDash:[5,3],
+        pointBackgroundColor:'#ef4444',
+        yAxisID:'yPace',
+      });
+      scales.yPace = {
+        position:'right', reverse:true,
+        ticks:{color:'#ef4444',font:{size:11},callback:v=>{const m=Math.floor(v),s=Math.round((v-m)*60).toString().padStart(2,'0');return`${m}:${s}`;}},
+        grid:{drawOnChartArea:false},
+        title:{display:true,text:'min/km (lower = faster)',color:'#ef4444',font:{size:10}}
+      };
+    }
+
     hrEffChartInst = new Chart(ctx, {
       type:'line',
-      data:{
-        labels: effPoints.map(p=>p.mo),
-        datasets:[{
-          label:`Pace at ${TARGET_HR} bpm`,
-          data: effPoints.map(p=>p.paceAt145),
-          borderColor:'#ef4444',
-          backgroundColor:'rgba(239,68,68,.12)',
-          tension:.35, fill:true,
-          pointBackgroundColor:'#ef4444',
-        }]
-      },
+      data:{ labels: efRecent.map(p=>p.wk), datasets },
       options:{
         responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const m=Math.floor(c.raw),s=Math.round((c.raw-m)*60).toString().padStart(2,'0');return` ${m}:${s}/km`;} }}},
-        scales:{
-          x:{ticks:{color:'#8896a8',font:{size:11}},grid:{color:'rgba(255,255,255,.05)'}},
-          y:{reverse:true,ticks:{color:'#8896a8',font:{size:11},callback:v=>{const m=Math.floor(v),s=Math.round((v-m)*60).toString().padStart(2,'0');return`${m}:${s}`;}},
-             grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'min/km (lower = faster)',color:'#8896a8',font:{size:10}}}
-        }
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{position:'bottom',labels:{color:'#8896a8',font:{size:11},boxWidth:12}},
+          tooltip:{callbacks:{label:c=>{
+            if(c.dataset.yAxisID==='yPace'){const m=Math.floor(c.raw),s=Math.round((c.raw-m)*60).toString().padStart(2,'0');return` Pace: ${m}:${s}/km`;}
+            return` EF: ${c.raw.toFixed(3)}`;
+          }}}
+        },
+        scales
       }
     });
   }
@@ -15667,12 +15805,14 @@ function hrRenderSummaryDashboard() {
   const rhr  = hrGetRHR();
   const zones = HR_ZONE_MODELS[hrCurrentModel];
 
-  // This month
+  // Last 30 days for exercise HR + all-time for records
   const now = new Date(), mo = fmtDate(now).slice(0,7);
+  const d30ago = fmtDate(new Date(now - 30*86400000));
+  const last30Acts = acts.filter(a=>a.date>=d30ago&&a.avgHR);
   const thisMonthActs = acts.filter(a=>a.date.startsWith(mo)&&a.avgHR);
   const allHRActs     = acts.filter(a=>a.avgHR);
 
-  const avgExHR  = thisMonthActs.length ? Math.round(thisMonthActs.reduce((s,a)=>s+a.avgHR,0)/thisMonthActs.length) : null;
+  const avgExHR  = last30Acts.length ? Math.round(last30Acts.reduce((s,a)=>s+a.avgHR,0)/last30Acts.length) : null;
   const highestHR = allHRActs.length ? Math.max(...allHRActs.map(a=>a.maxHR||a.avgHR)) : null;
   const highestAct = highestHR ? allHRActs.find(a=>(a.maxHR||a.avgHR)===highestHR) : null;
   const rhrCur   = rhr.length ? rhr[rhr.length-1] : null;
@@ -15702,9 +15842,9 @@ function hrRenderSummaryDashboard() {
     </div>
     <div class="hr-summary-item">
       <div class="hr-summary-icon">🏃</div>
-      <div class="hr-summary-label">Avg Exercise HR</div>
+      <div class="hr-summary-label">Avg Workout HR (30d)</div>
       <div class="hr-summary-value">${avgExHR?avgExHR+' bpm':'—'}</div>
-      <div class="hr-summary-sub">${thisMonthActs.length} activities this month</div>
+      <div class="hr-summary-sub">${last30Acts.length} activities in last 30 days</div>
     </div>
     <div class="hr-summary-item">
       <div class="hr-summary-icon">🔺</div>
@@ -17470,7 +17610,7 @@ BADGE_DEFS.push(
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">'+paceLabel+'</div><div class="adv-hm-act-stat-val">'+paceOrSpeed+'</div></div>'
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(a.calories||0)+' kcal</div></div>'
             +(a.steps ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Steps</div><div class="adv-hm-act-stat-val">'+a.steps.toLocaleString()+'</div></div>' : '')
-            +(a.hrAvg ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Heart Rate</div><div class="adv-hm-act-stat-val">'+a.hrAvg+' bpm</div></div>' : '')
+            +(a.avgHR ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Heart Rate</div><div class="adv-hm-act-stat-val">'+a.avgHR+' bpm</div></div>' : '')
             +((a.elevation||0)>0 ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Elevation</div><div class="adv-hm-act-stat-val">'+a.elevation+' m</div></div>' : '')
             +(a.notes ? '<div style="grid-column:1/-1"><div class="adv-hm-act-stat-label">Notes</div><div class="adv-hm-act-stat-val" style="font-size:.8rem;font-weight:400">'+a.notes+'</div></div>' : '')
             +'</div></div>';
@@ -19063,8 +19203,8 @@ BADGE_DEFS.push(
       source:   'strava'
     };
 
-    if (sa.has_heartrate && sa.average_heartrate) act.hrAvg = Math.round(sa.average_heartrate);
-    if (sa.has_heartrate && sa.max_heartrate)     act.hrMax = Math.round(sa.max_heartrate);
+    if (sa.has_heartrate && sa.average_heartrate) act.avgHR = Math.round(sa.average_heartrate);
+    if (sa.has_heartrate && sa.max_heartrate)     act.maxHR = Math.round(sa.max_heartrate);
     if (sa.average_cadence)                        act.cadence = Math.round(sa.average_cadence);
 
     return { ok: true, act: act };
