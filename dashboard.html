@@ -1111,7 +1111,21 @@ body.modal-open header {
 .bucket-edit-btn{width:28px;height:28px;border-radius:var(--radius-sm);background:rgba(59,130,246,.1);color:var(--cycle);display:flex;align-items:center;justify-content:center;border:1px solid rgba(59,130,246,.2);transition:all var(--transition);flex-shrink:0;font-size:0}
 .bucket-edit-btn:hover{background:rgba(59,130,246,.25)}
 .bucket-edit-btn svg{width:12px;height:12px}
-@media(max-width:600px){.race-edit-btn,.race-delete-btn,.bucket-edit-btn{width:34px;height:34px;min-width:34px}}
+.race-download-btn{width:28px;height:28px;border-radius:var(--radius-sm);background:rgba(34,197,94,.1);color:#22c55e;display:flex;align-items:center;justify-content:center;border:1px solid rgba(34,197,94,.22);transition:all var(--transition);flex-shrink:0;cursor:pointer;position:relative}
+.race-download-btn:hover{background:rgba(34,197,94,.22)}
+.race-download-btn:disabled{opacity:.5;cursor:wait}
+.race-download-btn svg{width:13px;height:13px}
+.race-download-btn .dl-icon{display:flex;align-items:center;justify-content:center}
+.race-download-btn .dl-spin{display:none;width:13px;height:13px;border:2px solid rgba(34,197,94,.3);border-top-color:#22c55e;border-radius:50%;animation:dlSpin .7s linear infinite}
+.race-download-btn.loading .dl-icon{display:none}
+.race-download-btn.loading .dl-spin{display:inline-block}
+@keyframes dlSpin{to{transform:rotate(360deg)}}
+.race-download-btn::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;background:var(--bg3);color:var(--text);font-size:.62rem;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);white-space:nowrap;pointer-events:none;z-index:5;font-weight:600;opacity:0;transform:translateY(2px);transition:opacity .15s ease,transform .15s ease}
+.race-download-btn:hover::after{opacity:1;transform:translateY(0)}
+.race-card.capturing .race-action-btns,.race-card.capturing .mark-completed-btn,.race-card.capturing .race-breakdown-toggle,.completed-race-card.capturing .comp-race-delete-btn,.completed-race-card.capturing .comp-race-expand-btn,.completed-race-card.capturing .race-download-btn{visibility:hidden!important}
+.race-capture-brand{display:none;font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);text-align:center;padding:10px 0 2px;font-weight:700}
+.race-card.capturing .race-capture-brand,.completed-race-card.capturing .race-capture-brand{display:block}
+@media(max-width:600px){.race-edit-btn,.race-delete-btn,.bucket-edit-btn,.race-download-btn,.comp-race-delete-btn{width:34px;height:34px;min-width:34px}.race-download-btn svg{width:15px;height:15px}.race-download-btn::after{display:none}}
 .race-countdown { margin-bottom:8px; }
 .race-days-num  { font-size:1.8rem; font-weight:800; color:var(--cycle); line-height:1; }
 .race-days-label{ font-size:.63rem; color:var(--text-muted); }
@@ -8020,12 +8034,51 @@ console.log('[Boot] Strava error:', _stravaError || 'none');
 ══════════════════════════════════════════════════════════════ */
 const STORAGE_KEY = 'actmtr_v1';
 const PACE_STORAGE_KEY = 'actmtr_paces';   // isolated from main DB — never wiped by Strava flow
+const RACES_KEY = 'actmtr_races_v1';       // isolated races/completed/bucketList — survives any main-DB wipe
+
+/* Isolated race-data helpers. The main DB key can be wiped by Strava re-import,
+   logout, or accidental bugs. This isolated key is the source of truth for
+   My Races data so a refresh, auth redirect, or import never erases it. */
+function loadIsolatedRaces() {
+  try {
+    var v = JSON.parse(localStorage.getItem(RACES_KEY));
+    if (v && typeof v === 'object') return v;
+  } catch {}
+  return null;
+}
+function saveIsolatedRaces(data) {
+  if (!data) return;
+  try {
+    localStorage.setItem(RACES_KEY, JSON.stringify({
+      races:          Array.isArray(data.races)          ? data.races          : [],
+      completedRaces: Array.isArray(data.completedRaces) ? data.completedRaces : [],
+      bucketList:     Array.isArray(data.bucketList)     ? data.bucketList     : [],
+      _ts: Date.now()
+    }));
+  } catch (e) { console.warn('[Races] isolated key write failed:', e); }
+}
 
 function loadData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
+  var main = null;
+  try { main = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { main = null; }
+
+  // Hydrate races from the isolated key whenever main is missing or has empty arrays.
+  // This covers: Strava callback edge cases, a cleared main key, or first render during redirect.
+  var iso = loadIsolatedRaces();
+  if (iso) {
+    if (!main) main = { activities: [], settings: {} };
+    if ((!Array.isArray(main.races)          || main.races.length          === 0) && iso.races          && iso.races.length)          main.races          = iso.races;
+    if ((!Array.isArray(main.completedRaces) || main.completedRaces.length === 0) && iso.completedRaces && iso.completedRaces.length) main.completedRaces = iso.completedRaces;
+    if ((!Array.isArray(main.bucketList)     || main.bucketList.length     === 0) && iso.bucketList     && iso.bucketList.length)     main.bucketList     = iso.bucketList;
+  }
+  return main || null;
 }
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch (e) { console.error('[saveData] main key failed:', e); }
+  // Mirror race arrays into the isolated key on every write.
+  // Every add/edit/delete already goes through saveData(db), so this stays in sync automatically.
+  if (data) saveIsolatedRaces(data);
 }
 
 /* ── Pace Settings: isolated storage that survives Strava login wipe ── */
@@ -8326,6 +8379,14 @@ function init() {
   }
 
   renderAll();
+  // Diagnostic: prove persistence is live (check DevTools console on refresh).
+  try {
+    console.log('[Races] hydrated on boot →',
+      'upcoming:',  (db.races          || []).length,
+      'completed:', (db.completedRaces || []).length,
+      'bucket:',    (db.bucketList     || []).length,
+      '| isolated key present:', !!localStorage.getItem(RACES_KEY));
+  } catch(_){}
   // Init badge tracking after first render
   prevBadgeState = Object.fromEntries(Object.entries(computeBadges()).filter(([,v])=>v));
   setupChartObserver();
@@ -8956,6 +9017,7 @@ function doReset() {
   db.races          = [];
   db.completedRaces = [];
   db.bucketList     = [];
+  try { localStorage.removeItem(RACES_KEY); } catch {}
   saveData(db);
   closeConfirm();
   selectedDay = null;
@@ -11164,6 +11226,7 @@ function logOut() {
   localStorage.removeItem('userFirstName');
   localStorage.removeItem('strava_athlete');
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(RACES_KEY);
   currentUser = null;
   closeUserMenu();
   closeProfile();
@@ -13047,6 +13110,101 @@ function toggleCompletedRaceDetails(id) {
   if (btn) btn.textContent = el.classList.contains('open') ? '▲ Less' : '▼ More details';
 }
 
+async function downloadRaceCard(btn) {
+  const cardId   = btn && btn.dataset ? btn.dataset.cardId : null;
+  const raceName = btn && btn.dataset ? (btn.dataset.raceName || 'race') : 'race';
+  const card = cardId ? document.getElementById(cardId) : null;
+  if (!card) {
+    if (typeof showToast === 'function') showToast('Race card not found', 'error');
+    return;
+  }
+  if (typeof html2canvas === 'undefined') {
+    if (typeof showToast === 'function') showToast('Image library not loaded yet, try again in a moment', 'error');
+    return;
+  }
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.classList.add('loading');
+  card.classList.add('capturing');
+  try {
+    // Wait for fonts + images inside the card before capture
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_){} }
+    const imgs = Array.from(card.querySelectorAll('img'));
+    await Promise.all(imgs.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(resolve => {
+        const done = () => resolve();
+        img.addEventListener('load',  done, { once:true });
+        img.addEventListener('error', done, { once:true });
+        // Safety timeout so a broken CORS image can't hang the capture
+        setTimeout(done, 2500);
+      });
+    }));
+
+    const styles = getComputedStyle(document.documentElement);
+    const bg = (styles.getPropertyValue('--bg').trim()
+            || styles.getPropertyValue('--bg2').trim()
+            || '#0a0a0a');
+    const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 2));
+
+    const canvas = await html2canvas(card, {
+      backgroundColor: bg,
+      scale: scale,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      imageTimeout: 4000,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      windowWidth:  document.documentElement.clientWidth,
+      windowHeight: document.documentElement.clientHeight
+    });
+
+    const slug = String(raceName).toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 50) || 'race';
+    const filename = 'my-race-card-' + slug + '.png';
+
+    // Prefer blob URL — best compatibility on iOS Safari & Android Chrome
+    const triggerDownload = (href, revoke) => {
+      const a = document.createElement('a');
+      a.href = href;
+      a.download = filename;
+      a.rel = 'noopener';
+      a.target = '_blank'; // iOS fallback when download attr is ignored
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      if (revoke) setTimeout(() => URL.revokeObjectURL(href), 2000);
+    };
+
+    if (typeof canvas.toBlob === 'function') {
+      await new Promise(resolve => {
+        canvas.toBlob(blob => {
+          if (blob) {
+            triggerDownload(URL.createObjectURL(blob), true);
+          } else {
+            triggerDownload(canvas.toDataURL('image/png'), false);
+          }
+          resolve();
+        }, 'image/png', 1.0);
+      });
+    } else {
+      triggerDownload(canvas.toDataURL('image/png'), false);
+    }
+
+    if (typeof showToast === 'function') showToast('Race card downloaded', 'success');
+  } catch (e) {
+    console.error('[downloadRaceCard] failed', e);
+    if (typeof showToast === 'function') showToast('Could not generate image', 'error');
+  } finally {
+    card.classList.remove('capturing');
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
 function renderCompletedRaces() {
   const statsEl = document.getElementById('completedRacesStats');
   const listEl  = document.getElementById('completedRacesContainer');
@@ -13126,9 +13284,15 @@ function buildCompletedRaceCard(r) {
             ${r.isPb?'<span class="pb-badge">🏅 PB</span>':''}
           </div>
         </div>
-        <button class="comp-race-delete-btn" onclick="deleteCompletedRace('${r.id}')" title="Delete">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-        </button>
+        <div style="display:flex;gap:6px;flex-shrink:0;align-self:flex-start">
+          <button class="race-download-btn" data-tip="Download Card" data-card-id="crcard-${r.id}" data-race-name="${escHtml(r.name)}" onclick="downloadRaceCard(this)" title="Download Card" aria-label="Download race card as image">
+            <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+            <span class="dl-spin" aria-hidden="true"></span>
+          </button>
+          <button class="comp-race-delete-btn" onclick="deleteCompletedRace('${r.id}')" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </button>
+        </div>
       </div>
       <div class="comp-race-time">${raceTimeFmt(r)}</div>
       <div class="comp-race-pace">Avg Pace: ${paceStr}</div>
@@ -13152,6 +13316,7 @@ function buildCompletedRaceCard(r) {
     <div class="comp-race-details" id="crdetails-${r.id}">
       ${r.notes?`<div class="comp-race-notes">${escHtml(r.notes)}</div>`:'<div style="font-size:.78rem;color:var(--text-dim)">No race report added.</div>'}
     </div>
+    <div class="race-capture-brand">🏅 activitymetrics</div>
   </div>`;
 }
 
@@ -13191,6 +13356,10 @@ function buildRaceCard(race, today) {
         <span class="race-type-badge">${typeLabel}</span>
       </div>
       <div class="race-action-btns">
+        <button class="race-download-btn" data-tip="Download Card" data-card-id="race-${race.id}" data-race-name="${escHtml(race.name)}" onclick="downloadRaceCard(this)" title="Download Card" aria-label="Download race card as image">
+          <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+          <span class="dl-spin" aria-hidden="true"></span>
+        </button>
         <button class="race-edit-btn" onclick="editRace('${race.id}')" title="Edit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
@@ -13229,6 +13398,7 @@ function buildRaceCard(race, today) {
       </svg>
       Mark as Completed
     </button>
+    <div class="race-capture-brand">🏅 activitymetrics</div>
   </div>`;
 }
 
@@ -19980,6 +20150,14 @@ async function importFromStrava(tokenData) {
     if (raw.length === 0) {
       showStravaBanner('Welcome ' + name.trim() + '! No activities found on Strava.', 'info');
       db = { activities: [], settings: savedSettings };
+      // Preserve all non-activity user data even when Strava returns zero activities.
+      db.challenges     = savedChallenges.length  ? savedChallenges  : [];
+      db.races          = savedRaces.length       ? savedRaces       : [];
+      db.completedRaces = savedCompRaces.length   ? savedCompRaces   : [];
+      db.bucketList     = savedBucketList.length  ? savedBucketList  : [];
+      db.savedTips      = savedTips.length        ? savedTips        : [];
+      if (savedCoachPlan) db.coachPlan = savedCoachPlan;
+      if (savedRhr.length) db.rhr = savedRhr;
       saveData(db); renderAll();
       return;
     }
@@ -20048,10 +20226,11 @@ if (_stravaError) {
   history.replaceState(null, '', window.location.pathname);
 }
 
-// 2. Clear main DB if arriving with a code (fresh login)
-//    Pace settings live in their own key (PACE_STORAGE_KEY) so they survive this wipe.
+// 2. Announce Strava login — do NOT wipe STORAGE_KEY here.
+//    importFromStrava() reads db.races / db.completedRaces / db.bucketList into local vars
+//    BEFORE wiping and rebuilding, so the wipe must happen there, not earlier.
+//    Wiping before init() caused manually-added races to be permanently lost on re-login.
 if (_stravaCode) {
-  localStorage.removeItem(STORAGE_KEY);
   showStravaBanner('Processing Strava login...', 'info');
 }
 
@@ -20073,6 +20252,35 @@ window.addEventListener('paceStorageUpdated', function() {
   if (typeof renderRbWidget === 'function')      renderRbWidget();
   if (typeof renderRacesPreview === 'function')  renderRacesPreview();
   if (typeof advHmInit === 'function')           advHmInit();
+});
+
+// Mobile-safe persistence flush. iOS Safari and Android Chrome can kill a
+// backgrounded tab without firing beforeunload; pagehide + visibilitychange
+// cover that path. Every mutation already calls saveData(db) synchronously,
+// so this is belt-and-suspenders — but cheap, and guarantees the isolated
+// RACES_KEY is current if the tab is killed mid-session.
+function _flushRaceState() {
+  try { if (typeof db !== 'undefined' && db) saveData(db); } catch(_){}
+}
+window.addEventListener('pagehide', _flushRaceState);
+window.addEventListener('beforeunload', _flushRaceState);
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') _flushRaceState();
+});
+// Cross-tab sync: if another tab writes the isolated key, pick it up here
+// so manual races stay consistent across multiple open tabs.
+window.addEventListener('storage', function(e) {
+  if (e.key !== RACES_KEY || !e.newValue || typeof db === 'undefined' || !db) return;
+  try {
+    var iso = JSON.parse(e.newValue);
+    if (iso.races)          db.races          = iso.races;
+    if (iso.completedRaces) db.completedRaces = iso.completedRaces;
+    if (iso.bucketList)     db.bucketList     = iso.bucketList;
+    if (typeof renderRaces === 'function')          renderRaces();
+    if (typeof renderCompletedRaces === 'function') renderCompletedRaces();
+    if (typeof renderBucketList === 'function')     renderBucketList();
+    if (typeof renderRacesPreview === 'function')   renderRacesPreview();
+  } catch(_){}
 });
 
 // 4. If we have a ?code=, exchange it and import
