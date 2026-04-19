@@ -351,6 +351,63 @@ body.modal-open header {
 .dot.cycle { background: var(--cycle); }
 @media (max-width: 400px) { .dot { width: 5px; height: 5px; } }
 
+/* ─── Calendar Mini Cards & Motivation Quote ───────────────────── */
+.cal-day { aspect-ratio: auto; }
+.cal-mini-cards {
+  display: flex; flex-direction: column; gap: 3px;
+  width: 100%; margin-top: 4px;
+}
+.cal-mini-card {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: .62rem; font-weight: 600;
+  background: var(--bg3);
+  border-left: 2px solid var(--border);
+  color: var(--text);
+  line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer;
+  transition: transform var(--transition), background var(--transition);
+}
+.cal-mini-card:hover { background: var(--bg4, var(--bg3)); transform: translateX(1px); }
+.cal-mini-card.run   { border-left-color: var(--run); }
+.cal-mini-card.walk  { border-left-color: var(--walk); }
+.cal-mini-card.cycle { border-left-color: var(--cycle); }
+.cal-mini-icon { font-size: .7rem; flex-shrink: 0; }
+.cal-mini-dist { color: var(--text-muted); font-weight: 700; font-size: .6rem; }
+.cal-mini-more {
+  font-size: .58rem; color: var(--text-muted);
+  text-align: center; font-style: italic;
+}
+.cal-motivation {
+  margin-top: 4px; width: 100%;
+  font-size: .75rem; line-height: 1.2;
+  font-style: italic; color: var(--text-dim);
+  text-align: center; opacity: .9;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cal-motivation.easy   { color: var(--walk, #16a34a); }
+.cal-motivation.medium { color: var(--cycle, #38bdf8); }
+.cal-motivation.hard   { color: var(--run, #f97316); }
+.cal-modal-motivation {
+  margin-top: 12px; padding: 10px 14px;
+  border-left: 3px solid var(--run);
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  font-size: .75rem; font-style: italic;
+  color: var(--text-muted);
+  text-align: center;
+}
+.cal-modal-motivation.easy   { border-left-color: var(--walk, #16a34a); }
+.cal-modal-motivation.medium { border-left-color: var(--cycle, #38bdf8); }
+.cal-modal-motivation.hard   { border-left-color: var(--run, #f97316); }
+@media (max-width: 720px) {
+  .cal-mini-cards, .cal-motivation { display: none; }
+  .cal-day { aspect-ratio: 1; }
+}
+
 /* ─── Detail Panel (slide-in) ──────────────────────────────────── */
 .detail-panel {
   background: var(--bg2);
@@ -8768,6 +8825,48 @@ function renderStreak() {
 ══════════════════════════════════════════════════════════════ */
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+const CAL_MOTIVATIONAL_QUOTES = {
+  easy: [
+    'Recovery is key!',
+    'Light and steady!',
+    'Great active recovery!',
+    'Keep the rhythm!'
+  ],
+  medium: [
+    'Solid effort!',
+    'Steady progress!',
+    'Finding your flow!',
+    'Great consistency!'
+  ],
+  hard: [
+    'You crushed it!',
+    'Unstoppable effort!',
+    'Hard work pays off!',
+    'Legendary intensity!'
+  ]
+};
+
+const CAL_INTENSITY_RANK = { easy: 1, medium: 2, hard: 3 };
+
+function getHardestIntensity(acts) {
+  let top = 'easy';
+  for (const a of acts) {
+    const i = getIntensity(a) || 'medium';
+    if ((CAL_INTENSITY_RANK[i] || 2) > (CAL_INTENSITY_RANK[top] || 1)) top = i;
+  }
+  return top;
+}
+
+// Seed chosen by date.getDate() so the quote is stable across a given day.
+function getCalMotivationalQuote(dateObj, acts) {
+  const tier = getHardestIntensity(acts);
+  const pool = CAL_MOTIVATIONAL_QUOTES[tier] || CAL_MOTIVATIONAL_QUOTES.medium;
+  const seed = dateObj.getDate();
+  return pool[seed % pool.length];
+}
+
+const CAL_TYPE_ICON = { run: '🏃', walk: '🥾', cycle: '🚴' };
+
 function renderCalendar() {
   document.getElementById('calMonthLabel').textContent = `${MONTHS[calMonth]} ${calYear}`;
 
@@ -8778,9 +8877,13 @@ function renderCalendar() {
   const startDow = firstDay.getDay(); // 0=Sun
   const daysInMonth = lastDay.getDate();
 
-  // Build lookup: date -> [activities]
+  // Build lookup: date -> [activities] (filtered, for dots)
   const lookup = {};
+  // Unfiltered lookup: ALL activities per date, for mini-cards
+  const allLookup = {};
   db.activities.forEach(a => {
+    if (!allLookup[a.date]) allLookup[a.date] = [];
+    allLookup[a.date].push(a);
     if (!activeFilter || a.type === activeFilter) {
       if (!lookup[a.date]) lookup[a.date] = [];
       lookup[a.date].push(a);
@@ -8803,22 +8906,48 @@ function renderCalendar() {
   for (let d = 1; d <= daysInMonth; d++) {
     const dateObj = new Date(calYear, calMonth, d);
     const dateStr = fmtDate(dateObj);
-    const acts = lookup[dateStr] || [];
+    const acts    = lookup[dateStr]    || [];
+    const allActs = allLookup[dateStr] || [];
     const cell = document.createElement('div');
 
     let cls = 'cal-day';
     if (dateStr === todayStr) cls += ' today';
-    else if (!acts.length) cls += ' no-activity';
+    else if (!allActs.length) cls += ' no-activity';
     if (dateStr === selectedDay) cls += ' selected';
     cell.className = cls;
     cell.dataset.date = dateStr;
     cell.onclick = () => toggleDay(dateStr);
 
-    // Dots (unique types)
+    // Dots (unique types, respects filter)
     const types = [...new Set(acts.map(a => a.type))];
     const dotsHtml = types.map(t => `<span class="dot ${t}"></span>`).join('');
 
-    cell.innerHTML = `<span class="day-num">${d}</span><div class="activity-dots">${dotsHtml}</div>`;
+    // Mini-cards (ALL activities, unfiltered) — desktop only via CSS
+    let miniHtml = '';
+    if (allActs.length) {
+      const shown = allActs.slice(0, 3);
+      const extra = allActs.length - shown.length;
+      const cards = shown.map(a => {
+        const icon = CAL_TYPE_ICON[a.type] || '•';
+        const dist = (a.distance || 0).toFixed(1);
+        return `<div class="cal-mini-card ${a.type}" title="${escHtml((a.name||'') + ' ' + dist + ' km')}">
+          <span class="cal-mini-icon">${icon}</span>
+          <span class="cal-mini-dist">${dist}km</span>
+        </div>`;
+      }).join('');
+      const more = extra > 0 ? `<div class="cal-mini-more">+${extra} more</div>` : '';
+      miniHtml = `<div class="cal-mini-cards">${cards}${more}</div>`;
+    }
+
+    // Motivational quote — tier based on day's hardest activity (only if activities exist)
+    const quoteHtml = allActs.length
+      ? (function(){
+          const tier = getHardestIntensity(allActs);
+          return `<div class="cal-motivation ${tier}">${escHtml(getCalMotivationalQuote(dateObj, allActs))}</div>`;
+        })()
+      : '';
+
+    cell.innerHTML = `<span class="day-num">${d}</span>${miniHtml}${quoteHtml}<div class="activity-dots">${dotsHtml}</div>`;
     container.appendChild(cell);
   }
 
@@ -8911,7 +9040,10 @@ function showDayModal(dateStr) {
       ${totalSteps ? `<div class="cal-modal-sum-item"><div class="cal-modal-sum-label">Steps</div><div class="cal-modal-sum-value">${totalSteps.toLocaleString()}</div></div>` : ''}
     </div>` : '';
 
-    body.innerHTML = rows + summary;
+    const modalTier = getHardestIntensity(acts);
+    const motivation = `<div class="cal-modal-motivation ${modalTier}">💪 ${escHtml(getCalMotivationalQuote(d, acts))}</div>`;
+
+    body.innerHTML = rows + summary + motivation;
   }
 
   backdrop.classList.add('open');
