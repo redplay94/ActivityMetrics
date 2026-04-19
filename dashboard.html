@@ -1856,6 +1856,359 @@ body.modal-open header {
 .mark-planned-btn:hover { background:rgba(249,115,22,.18); }
 .mark-planned-btn.done { background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.35); color:#22c55e; }
 
+/* ── Context-Aware Coach · Next Session ─────────────────────── */
+.next-session-card.intensity-green  { background:linear-gradient(180deg, rgba(34,197,94,.05), var(--bg2) 40%); }
+.next-session-card.intensity-amber  { background:linear-gradient(180deg, rgba(234,179,8,.05), var(--bg2) 40%); }
+.next-session-card.intensity-red    { background:linear-gradient(180deg, rgba(239,68,68,.05), var(--bg2) 40%); }
+.next-session-card.intensity-blue   { background:linear-gradient(180deg, rgba(56,189,248,.05), var(--bg2) 40%); }
+.next-session-card.intensity-green::before  { background:#22c55e !important; }
+.next-session-card.intensity-amber::before  { background:#eab308 !important; }
+.next-session-card.intensity-red::before    { background:#ef4444 !important; }
+.next-session-card.intensity-blue::before   { background:#38bdf8 !important; }
+
+.ns-phase-tag {
+  margin-left:8px;
+  font-size:.6rem; font-weight:700; letter-spacing:.5px;
+  padding:2px 8px; border-radius:99px;
+  background:var(--bg3); color:var(--text-muted);
+  border:1px solid var(--border);
+  text-transform:uppercase;
+}
+.ns-intensity-badge {
+  margin-left:auto;
+  font-size:.58rem; font-weight:800; letter-spacing:.8px;
+  padding:3px 9px; border-radius:99px;
+  text-transform:uppercase;
+  line-height:1.2;
+}
+.ns-intensity-badge.green { background:rgba(34,197,94,.18);  color:#22c55e; border:1px solid rgba(34,197,94,.45); }
+.ns-intensity-badge.amber { background:rgba(234,179,8,.18);  color:#eab308; border:1px solid rgba(234,179,8,.45); }
+.ns-intensity-badge.red   { background:rgba(239,68,68,.18);  color:#ef4444; border:1px solid rgba(239,68,68,.45); }
+.ns-intensity-badge.blue  { background:rgba(56,189,248,.18); color:#38bdf8; border:1px solid rgba(56,189,248,.45); }
+.next-session-label { flex-wrap:wrap; }
+
+.coach-adjust-bar {
+  margin-bottom:12px;
+  display:flex; flex-direction:column; gap:8px;
+  padding-top:12px;
+  border-top:1px dashed var(--border);
+}
+.coach-adjust-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; flex-wrap:wrap;
+}
+.coach-adjust-label {
+  font-size:.68rem; font-weight:700; letter-spacing:.6px;
+  text-transform:uppercase; color:var(--text-muted);
+}
+.coach-adjust-btns {
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+.coach-adj-btn {
+  font-size:.72rem; font-weight:700;
+  padding:6px 11px; border-radius:99px;
+  background:var(--bg3); color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+  white-space:nowrap;
+}
+.coach-adj-btn:hover { color:var(--text); border-color:var(--text-muted); }
+.coach-adj-btn.harder.active { background:rgba(239,68,68,.18); color:#ef4444; border-color:rgba(239,68,68,.5); }
+.coach-adj-btn.easier.active { background:rgba(56,189,248,.18); color:#38bdf8; border-color:rgba(56,189,248,.5); }
+.coach-adj-btn.rest.active   { background:rgba(148,163,184,.2); color:#cbd5e1; border-color:rgba(148,163,184,.5); }
+
+.coach-why-btn {
+  align-self:flex-start;
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:.72rem; font-weight:600;
+  padding:5px 10px; border-radius:99px;
+  background:transparent; color:var(--text-muted);
+  border:1px dashed var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+}
+.coach-why-btn:hover { color:var(--text); border-color:var(--text-muted); background:var(--bg3); }
+.coach-why-btn svg { flex-shrink:0; }
+
+.coach-why-panel {
+  margin-bottom:12px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-left:3px solid #38bdf8;
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+}
+.coach-why-title {
+  font-size:.68rem; font-weight:800; letter-spacing:.7px;
+  text-transform:uppercase; color:#38bdf8;
+  margin-bottom:6px;
+}
+.coach-why-list {
+  margin:0; padding-left:18px;
+  display:flex; flex-direction:column; gap:4px;
+  font-size:.8rem; line-height:1.5; color:var(--text);
+}
+.coach-why-list li::marker { color:#38bdf8; }
+
+/* Mobile — prominence and touch targets */
+@media (max-width:720px) {
+  /* Coach AI tab flex-column lets us lift the schedule card to the top. */
+  #coachTabAi { display:flex; flex-direction:column; }
+  #coachTabAi #coachNextSession         { order:-2; }
+  #coachTabAi .coach-subheader:has(+ #coachNextSession) { order:-3; }
+
+  .coach-adj-btn { font-size:.75rem; padding:8px 12px; min-height:36px; }
+  .coach-adjust-row { gap:6px; }
+  .coach-adjust-label { flex:1 1 100%; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Suggested Training Schedule — 4-day carousel
+══════════════════════════════════════════════════════════════ */
+.sts-wrap { margin-bottom:16px; }
+.sts-carousel {
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:12px;
+  padding-bottom:4px;
+}
+.sts-card {
+  position:relative;
+  min-width:0;
+  padding:14px;
+  border-radius:var(--radius);
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  cursor:pointer;
+  transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  display:flex; flex-direction:column; gap:6px;
+  box-shadow:var(--card-shadow);
+}
+.sts-card:hover, .sts-card:focus-visible {
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(0,0,0,.28);
+  outline:none;
+}
+.sts-card.intensity-green { background:linear-gradient(180deg, rgba(34,197,94,.10), var(--bg2) 55%); border-color:rgba(34,197,94,.4); }
+.sts-card.intensity-amber { background:linear-gradient(180deg, rgba(234,179,8,.12), var(--bg2) 55%); border-color:rgba(234,179,8,.45); }
+.sts-card.intensity-red   { background:linear-gradient(180deg, rgba(239,68,68,.12), var(--bg2) 55%); border-color:rgba(239,68,68,.45); }
+.sts-card.intensity-blue  { background:linear-gradient(180deg, rgba(56,189,248,.10), var(--bg2) 55%); border-color:rgba(56,189,248,.4); }
+
+.sts-card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:6px; margin-bottom:2px;
+}
+.sts-day {
+  font-size:.65rem; font-weight:800; letter-spacing:.6px;
+  text-transform:uppercase; color:var(--text-muted);
+}
+.sts-intensity {
+  font-size:.58rem; font-weight:800; letter-spacing:.7px;
+  padding:3px 8px; border-radius:99px;
+  text-transform:uppercase;
+  line-height:1.2;
+}
+.sts-intensity.green { background:rgba(34,197,94,.18);  color:#22c55e; border:1px solid rgba(34,197,94,.45); }
+.sts-intensity.amber { background:rgba(234,179,8,.18);  color:#eab308; border:1px solid rgba(234,179,8,.45); }
+.sts-intensity.red   { background:rgba(239,68,68,.18);  color:#ef4444; border:1px solid rgba(239,68,68,.45); }
+.sts-intensity.blue  { background:rgba(56,189,248,.18); color:#38bdf8; border:1px solid rgba(56,189,248,.45); }
+
+.sts-phase {
+  display:inline-block; align-self:flex-start;
+  font-size:.56rem; font-weight:700; letter-spacing:.5px;
+  padding:2px 7px; border-radius:99px;
+  background:var(--bg3); color:var(--text-dim);
+  border:1px solid var(--border);
+  text-transform:uppercase;
+}
+.sts-title { font-size:.95rem; font-weight:800; color:var(--text); line-height:1.25; }
+.sts-desc  { font-size:.75rem; color:var(--text-muted); line-height:1.45; min-height:2.6em; }
+.sts-stats { font-size:.72rem; font-weight:700; color:var(--text); margin-top:2px; }
+.sts-pace-offset {
+  font-size:.62rem; font-weight:700;
+  color:var(--text-dim);
+  margin-left:2px;
+  letter-spacing:.2px;
+}
+.sts-basis {
+  font-size:.6rem; font-weight:600;
+  color:var(--text-dim);
+  font-style:italic;
+  margin-top:1px;
+  line-height:1.3;
+}
+.coach-sd-basis {
+  font-size:.72rem; font-style:italic;
+  color:var(--text-dim);
+  margin:-6px 0 12px;
+  text-align:left;
+}
+
+.sts-actions {
+  display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;
+}
+.sts-act-btn {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:.7rem; font-weight:700;
+  padding:5px 9px; border-radius:99px;
+  background:var(--bg3); color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+}
+.sts-act-btn:hover, .sts-act-btn[aria-expanded="true"] {
+  color:var(--text); border-color:var(--text-muted);
+}
+.sts-act-btn svg { flex-shrink:0; }
+
+.sts-why {
+  margin-top:4px;
+  background:rgba(56,189,248,.08);
+  border:1px solid rgba(56,189,248,.25);
+  border-left:3px solid #38bdf8;
+  border-radius:var(--radius-sm);
+  padding:8px 10px;
+}
+.sts-why ul { margin:0; padding-left:16px; display:flex; flex-direction:column; gap:3px;
+              font-size:.72rem; line-height:1.4; color:var(--text); }
+.sts-why li::marker { color:#38bdf8; }
+
+.sts-adjust {
+  margin-top:4px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:8px 10px;
+}
+.sts-adjust-title { font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:6px; }
+.sts-adjust-btns { display:flex; flex-wrap:wrap; gap:4px; }
+.sts-adjust-btns button {
+  font-size:.68rem; font-weight:700;
+  padding:5px 8px; border-radius:99px;
+  background:var(--bg2); color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+}
+.sts-adjust-btns button:hover { color:var(--text); border-color:var(--text-muted); }
+.sts-adjust-btns .sts-adj-auto {
+  background:rgba(56,189,248,.12); color:#38bdf8; border-color:rgba(56,189,248,.35);
+}
+
+.sts-swipe-hint { display:none; }
+.sts-week-adjust {
+  margin-top:14px; padding-top:12px;
+  border-top:1px dashed var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+/* Mobile carousel — swipeable with peek */
+@media (max-width:720px) {
+  .sts-carousel {
+    display:flex;
+    grid-template-columns:none;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scroll-padding:4px;
+    padding:2px 4px 8px;
+    margin:0 -4px;
+    gap:10px;
+    /* Hide native scrollbar for a cleaner look */
+    scrollbar-width:thin;
+  }
+  .sts-carousel::-webkit-scrollbar { height:6px; }
+  .sts-carousel::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+  .sts-card {
+    flex:0 0 78%;
+    min-width:240px;
+    scroll-snap-align:start;
+  }
+  .sts-swipe-hint {
+    display:block;
+    text-align:center;
+    font-size:.62rem; font-weight:700; letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-top:4px;
+  }
+  .sts-title { font-size:.9rem; }
+  .sts-desc  { font-size:.72rem; min-height:auto; }
+  .sts-act-btn { font-size:.72rem; padding:6px 10px; min-height:30px; }
+  .sts-adjust-btns button { font-size:.7rem; padding:6px 10px; min-height:30px; }
+}
+
+/* ── Session detail modal ─────────────────────────────────── */
+.coach-sd-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);
+  z-index:1000005;
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+  opacity:0; transition:opacity .2s ease;
+}
+.coach-sd-overlay.open { display:flex; opacity:1; }
+.coach-sd-modal {
+  position:relative;
+  max-width:460px; width:100%;
+  max-height:88vh; overflow-y:auto;
+  background:var(--bg2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px 22px 20px;
+  box-shadow:0 24px 60px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.05) inset;
+  z-index:1000;
+}
+.coach-sd-close {
+  position:absolute; top:10px; right:10px;
+  width:32px; height:32px; border-radius:50%;
+  background:var(--bg3); color:var(--text-muted);
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all var(--transition);
+}
+.coach-sd-close:hover { color:var(--text); border-color:var(--text-muted); }
+.coach-sd-close svg  { width:14px; height:14px; }
+.coach-sd-head {
+  margin-bottom:14px; padding:12px 14px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  display:flex; flex-direction:column; gap:6px;
+}
+.coach-sd-head.intensity-green { background:rgba(34,197,94,.10); border-color:rgba(34,197,94,.35); }
+.coach-sd-head.intensity-amber { background:rgba(234,179,8,.10); border-color:rgba(234,179,8,.35); }
+.coach-sd-head.intensity-red   { background:rgba(239,68,68,.10); border-color:rgba(239,68,68,.35); }
+.coach-sd-head.intensity-blue  { background:rgba(56,189,248,.10); border-color:rgba(56,189,248,.35); }
+.coach-sd-day   { font-size:.68rem; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--text-muted); }
+.coach-sd-title { font-size:1.1rem; font-weight:800; color:var(--text); }
+.coach-sd-tags  { display:flex; gap:6px; flex-wrap:wrap; }
+.coach-sd-purpose { font-size:.85rem; color:var(--text-muted); line-height:1.55; margin-bottom:14px; }
+.coach-sd-meta    { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:14px; }
+.coach-sd-tips    { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.coach-sd-why     {
+  background:rgba(56,189,248,.06);
+  border:1px solid rgba(56,189,248,.25);
+  border-left:3px solid #38bdf8;
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+}
+.coach-sd-why-title { font-size:.68rem; font-weight:800; letter-spacing:.7px; text-transform:uppercase; color:#38bdf8; margin-bottom:6px; }
+.coach-sd-why ul    { margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px;
+                      font-size:.8rem; line-height:1.5; color:var(--text); }
+.coach-sd-why li::marker { color:#38bdf8; }
+@media (max-width:480px) {
+  .coach-sd-modal   { padding:20px 18px 18px; }
+  .coach-sd-title   { font-size:1rem; }
+  .coach-sd-purpose { font-size:.8rem; }
+  .coach-sd-tips    { grid-template-columns:1fr; }
+  .coach-sd-why ul  { font-size:.76rem; }
+}
+
 .tip-of-day { background:linear-gradient(135deg,rgba(249,115,22,.09),rgba(234,179,8,.06)); border:1.5px solid rgba(249,115,22,.28); border-radius:var(--radius); padding:16px 18px; margin-bottom:18px; position:relative; overflow:hidden; }
 .tip-of-day::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--run),#eab308); }
 .tod-label { font-size:.68rem; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--run); margin-bottom:7px; display:flex; align-items:center; gap:6px; }
@@ -1891,6 +2244,36 @@ body.modal-open header {
 .tip-accordion.open .tip-accordion-body { max-height:500px; opacity:1; }
 .tip-accordion-content { padding:14px; border-top:1px solid var(--border); font-size:.82rem; color:var(--text-muted); line-height:1.75; }
 .no-tips-found { padding:28px; text-align:center; color:var(--text-muted); font-size:.85rem; }
+
+/* ── Rich body formatting inside tip accordions ──────────────── */
+.tip-body-list {
+  margin:10px 0 4px; padding-left:20px;
+  display:flex; flex-direction:column; gap:6px;
+  list-style:disc;
+}
+.tip-body-list li { line-height:1.55; color:var(--text-muted); }
+.tip-body-list li b { color:var(--text); font-weight:700; }
+.tip-body-divider {
+  border:none;
+  border-top:1px dashed var(--border);
+  margin:12px 0 10px;
+}
+.tip-body-callout {
+  background:linear-gradient(135deg, rgba(56,189,248,.08), rgba(56,189,248,.02));
+  border:1px solid rgba(56,189,248,.25);
+  border-left:3px solid #38bdf8;
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  color:var(--text);
+  line-height:1.55;
+  font-size:.82rem;
+}
+.tip-body-callout b { color:#38bdf8; }
+@media (max-width:480px) {
+  .tip-body-list { padding-left:18px; }
+  .tip-body-list li { font-size:.78rem; line-height:1.5; }
+  .tip-body-callout { padding:9px 11px; font-size:.78rem; line-height:1.5; word-wrap:break-word; overflow-wrap:anywhere; }
+}
 
 /* ── Warning / Callout Tip (Overtraining, etc.) ───────────────── */
 .tip-accordion.tip-warning {
@@ -6244,8 +6627,8 @@ header { padding: 0 !important; z-index: 600 !important; }
       <!-- Plan output + accept/discard buttons, or accepted plan view -->
       <div id="coachPlanOutput"></div>
 
-      <!-- Next Session Preview -->
-      <div class="coach-subheader">Next Training Session</div>
+      <!-- Suggested Training Schedule (4-day carousel) -->
+      <div class="coach-subheader">Suggested Training Schedule</div>
       <div id="coachNextSession"></div>
 
     </div><!-- /coachTabAi -->
@@ -12572,6 +12955,17 @@ const RUNNING_TIPS = [
   { id:'rd4', cat:'Race Day', icon:'💧', title:'Walk the Aid Stations',
     preview:'Walking through water stations is perfectly fine',
     body:'It\'s perfectly fine to walk through water stations. You\'ll hydrate better and lose only 5-10 seconds. Trying to drink while running often leads to choking and spilling — and you\'ll be left just as thirsty. Slow down, drink well, then pick it back up.' },
+  { id:'rd5', cat:'Race Day', icon:'⚡', title:'Race Day Reality vs. Training',
+    preview:'Race pace feels heavier in training than on race day — taper, fuel, adrenaline, and mindset all compound',
+    body:'Do not panic if your goal race pace feels heavy or difficult during your training blocks. On race day, the conditions change significantly:' +
+      '<ul class="tip-body-list">' +
+      '<li><b>Fresh Legs:</b> Your taper has allowed your muscles to fully recover and store maximum energy.</li>' +
+      '<li><b>Fueling:</b> You are fully carb-loaded with glycogen stores primed for performance.</li>' +
+      '<li><b>Psychological Shift:</b> The &ldquo;locked-in&rdquo; mindset of race day narrows your focus and blocks out discomfort.</li>' +
+      '<li><b>External Boost:</b> Adrenaline, crowd energy, noise, and competition provide a genuine performance lift that you cannot replicate in a solo training session.</li>' +
+      '</ul>' +
+      '<hr class="tip-body-divider">' +
+      '<div class="tip-body-callout"><b>Trust the Process:</b> If you have hit your target pace in practice, you are ready. Your body will feel different on race day.</div>' },
 
   { id:'tp1', cat:'Training Principles', icon:'⚖️', title:'The 80/20 Rule',
     preview:'80% easy, 20% hard — polarized training works best',
@@ -13370,72 +13764,608 @@ function exportTrainingPlan() {
 }
 
 /* ── Next Session Preview ── */
+/* ══════════════════════════════════════════════════════════════
+   CONTEXT-AWARE AI TRAINING (Coach · Next Session)
+══════════════════════════════════════════════════════════════ */
+
+const COACH_ADJUST_TTL_MS = 7 * 86400 * 1000; // adjustment remembered for 1 week
+
+function _coachNextUpcomingRaceDate() {
+  const today = fmtDate(new Date());
+  const all = (db && Array.isArray(db.races)) ? db.races : [];
+  const future = all
+    .filter(r => r && r.date && r.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return future.length ? future[0].date : null;
+}
+
+function _coachLastPastRaceDaysAgo() {
+  const today = new Date();
+  const todayStr = fmtDate(today);
+  const past = [].concat(
+    (db && Array.isArray(db.completedRaces)) ? db.completedRaces : [],
+    (db && Array.isArray(db.races)) ? db.races.filter(r => r && r.date && r.date < todayStr) : []
+  );
+  let minDays = null;
+  past.forEach(r => {
+    if (!r || !r.date) return;
+    const d = new Date(r.date + 'T00:00:00');
+    if (isNaN(d)) return;
+    const days = Math.floor((today - d) / 86400000);
+    if (days >= 0 && (minDays === null || days < minDays)) minDays = days;
+  });
+  return minDays;
+}
+
+function _coachGetPrefs() {
+  const p = (db && db.coachPrefs) ? db.coachPrefs : {};
+  if (!p || !p.ts || (Date.now() - p.ts) > COACH_ADJUST_TTL_MS) return { adj: null };
+  return { adj: p.adj || null, ts: p.ts };
+}
+
+/**
+ * suggestNextSession(history, nextRaceDate)
+ * Context-aware recommendation factoring in:
+ *   - Last 7/14 days of training load and hard-session count
+ *   - Upcoming race date (taper window ≤ 10 days)
+ *   - Last past race (post-race recovery window ≤ 7 days)
+ *   - Persisted user adjustment (harder/easier/rest) for this week
+ * Returns { type, title, dist, pace, estDurMin, estCals, purpose, warm, cool,
+ *           intensity, color, phase, reason[], dayName }
+ */
+/* ── Performance-based Reference Pace ─────────────────────────
+ * Picks the best available proxy for the runner's current Half-Marathon pace,
+ * so training targets scale to actual race-ready fitness — not slow joggers.
+ * Priority (first match wins):
+ *   1. HM-distance PB (runs between 20–22 km) — direct HM pace.
+ *   2. 10K PB (runs 9–11 km) — adjusted +15 s/km for HM equivalence.
+ *   3. Fastest run ≥ 5 km in the last 30 days — current form proxy.
+ *   4. Fallback: running average minus 30 s/km (biased toward quality).
+ * Returns { paceSec, basis, label }.
+ */
+function _coachReferencePace() {
+  const all = (db && Array.isArray(db.activities)) ? db.activities : [];
+  const runs = all.filter(a => a && a.type === 'run' && a.distance > 0 && a.duration > 0);
+
+  const fastestOf = (list) => list.reduce((best, a) => {
+    const p = a.duration / a.distance;
+    return (!best || p < best.pace) ? { pace: p, date: a.date } : best;
+  }, null);
+
+  // 1) HM-distance PB
+  const hmRuns = runs.filter(a => a.distance >= 20 && a.distance <= 22);
+  const hmBest = fastestOf(hmRuns);
+  if (hmBest && isFinite(hmBest.pace)) {
+    return { paceSec: Math.round(hmBest.pace), basis: 'hm-pb', label: 'Based on your HM PB' };
+  }
+
+  // 2) 10K PB (convert to HM-equivalent pace: +15 s/km)
+  const tenK = runs.filter(a => a.distance >= 9 && a.distance <= 11);
+  const tenBest = fastestOf(tenK);
+  if (tenBest && isFinite(tenBest.pace)) {
+    return { paceSec: Math.round(tenBest.pace + 15), basis: '10k-pb', label: 'Based on your 10K PB (+15s → HM)' };
+  }
+
+  // 3) Fastest ≥5 km run in last 30 days
+  const today = new Date();
+  const recent = runs.filter(a => {
+    if (a.distance < 5) return false;
+    const d = new Date(a.date + 'T00:00:00');
+    if (isNaN(d)) return false;
+    const days = (today - d) / 86400000;
+    return days >= 0 && days <= 30;
+  });
+  const recentBest = fastestOf(recent);
+  if (recentBest && isFinite(recentBest.pace)) {
+    return { paceSec: Math.round(recentBest.pace), basis: '30d-fastest', label: 'Based on your 30-day fastest run' };
+  }
+
+  // 4) Fallback — avg minus 30s so quality sessions do not default to jog pace
+  const avg = (typeof getAvgRunPaceSec === 'function') ? getAvgRunPaceSec() : 360;
+  return { paceSec: Math.max(180, Math.round(avg - 30)), basis: 'avg', label: 'Based on average pace (no PB yet)' };
+}
+window._coachReferencePace = _coachReferencePace;
+
+/* ── Module-scope session metadata (paces derived from reference pace) ── */
+function _coachMeta() {
+  const ref     = _coachReferencePace();
+  const refPace = ref.paceSec;
+
+  // Offsets from reference HM pace (negative = faster, positive = slower).
+  let tempoPace    = refPace -  5;   //  −0:05/km  (threshold)
+  let hardPace     = refPace - 20;   //  −0:20/km  (VO2 Max)
+  let easyPace     = refPace + 80;   //  +1:20/km  (Zone 2 middle of +1:15..+1:30)
+  let longPace     = refPace + 60;   //  +1:00/km  (long run)
+  let recoveryPace = refPace + 100;  //  +1:40/km  (recovery)
+
+  // Safety clamps — threshold must never be slower than HM ref pace,
+  // hard must be at least 15 s/km faster than threshold. Absolute floors
+  // guard against nonsense sub-elite numbers if reference is very fast.
+  if (tempoPace > refPace)     tempoPace = refPace - 5;
+  if (hardPace  > tempoPace)   hardPace  = tempoPace - 15;
+  if (tempoPace < 180)         tempoPace = 180;
+  if (hardPace  < 150)         hardPace  = 150;
+
+  // Human-readable offset label shown next to pace in the UI.
+  const offLabel = (sec) => {
+    const sign = sec < 0 ? '−' : '+';
+    const s = Math.abs(sec);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return m > 0 ? `${sign}${m}:${String(r).padStart(2,'0')}` : `${sign}${r}s`;
+  };
+
+  return {
+    _ref: ref,
+    _basis: ref.label,
+    recovery: { title:'Active Recovery',   pace:recoveryPace, dist:4,
+      intensity:'easy',   color:'green',
+      paceOffsetSec: recoveryPace - refPace, paceOffsetLabel: offLabel(recoveryPace - refPace),
+      short:'Embarrassingly easy — let the body repair.',
+      purpose:'Promote blood flow and active recovery. Should feel almost embarrassingly easy — this is where fitness is built.',
+      warm:'None — just start very slowly', cool:'5 min walk + gentle stretching' },
+    easy:     { title:'Easy / Zone 2 Run', pace:easyPace, dist:5,
+      intensity:'easy',   color:'green',
+      paceOffsetSec: easyPace - refPace, paceOffsetLabel: offLabel(easyPace - refPace),
+      short:'Conversational pace. Aerobic base work.',
+      purpose:'Build the aerobic base at a comfortable, conversational pace. You should feel fresher after than before.',
+      warm:'5–10 min walk + dynamic stretches', cool:'5 min easy jog + static stretches' },
+    long:     { title:'Long Run',          pace:longPace, dist:12,
+      intensity:'medium', color:'blue',
+      paceOffsetSec: longPace - refPace, paceOffsetLabel: offLabel(longPace - refPace),
+      short:'Slow long distance. Build endurance.',
+      purpose:'Build endurance and mental toughness at a slow, conversational pace. The cornerstone of distance training.',
+      warm:'10 min very easy walk + dynamic stretches', cool:'10 min easy walk + thorough stretching' },
+    tempo:    { title:'Tempo / Threshold', pace:tempoPace, dist:6,
+      intensity:'medium', color:'amber',
+      paceOffsetSec: tempoPace - refPace, paceOffsetLabel: offLabel(tempoPace - refPace),
+      short:'Comfortably hard. Threshold work — slightly faster than HM pace.',
+      purpose:'Raise your lactate threshold. Run at HM pace minus ~5 s/km — comfortably hard, not a race. Leave something in the tank.',
+      warm:'10 min easy jog + 4×30s strides', cool:'10 min easy jog + thorough stretching' },
+    hard:     { title:'VO2 Max Intervals', pace:hardPace, dist:6,
+      intensity:'hard',   color:'red',
+      paceOffsetSec: hardPace - refPace, paceOffsetLabel: offLabel(hardPace - refPace),
+      short:'Hard intervals — ~20 s/km faster than HM pace.',
+      purpose:'Short, controlled hard efforts (e.g. 6×800m) at HM pace minus ~20 s/km. Finish feeling you could have done one more — never destroy yourself.',
+      warm:'10 min easy jog + 4×30s strides + dynamic stretches', cool:'10 min easy jog + static stretches' },
+    rest:     { title:'Rest Day',          pace:0, dist:0,
+      intensity:'easy',   color:'green',
+      paceOffsetSec: null, paceOffsetLabel: '',
+      short:'No running. Full recovery.',
+      purpose:'Full rest. No running — sleep, eat, hydrate, let the nervous system reset.',
+      warm:'—', cool:'—' },
+    race:     { title:'Race Day',          pace:0, dist:0,
+      intensity:'hard',   color:'red',
+      paceOffsetSec: null, paceOffsetLabel: '',
+      short:'Race day — trust the taper.',
+      purpose:'Race day. Execute the plan, start conservatively, finish strong.',
+      warm:'15 min easy jog + strides', cool:'Walk, hydrate, refuel within 30 min' }
+  };
+}
+
+function _coachBuild(type, extra) {
+  const META = _coachMeta();
+  const m = META[type] || META.easy;
+  const dist = (extra && typeof extra.dist === 'number') ? extra.dist : m.dist;
+  return {
+    type,
+    title:            m.title,
+    short:            m.short,
+    dist,
+    pace:             m.pace,
+    paceBasis:        META._basis,            // e.g. "Based on your HM PB"
+    paceOffsetLabel:  m.paceOffsetLabel || '', // e.g. "−0:05" / "+1:20"
+    paceOffsetSec:    m.paceOffsetSec,
+    refPaceSec:       META._ref.paceSec,
+    estDurMin:        m.pace ? Math.round((m.pace * dist) / 60) : 0,
+    estCals:          Math.round(dist * 65),
+    purpose:          (extra && extra.purpose) || m.purpose,
+    warm:             m.warm,
+    cool:             m.cool,
+    intensity:        m.intensity,
+    color:            m.color,
+    phase:            (extra && extra.phase) || 'normal',
+    reason:           (extra && extra.reason) || [],
+    dayName:          extra && extra.dayName,
+    date:             extra && extra.date
+  };
+}
+
+function suggestNextSession(history, nextRaceDate) {
+  const today = new Date();
+  const runs = (Array.isArray(history) ? history : []).filter(a => a && a.type === 'run' && a.date);
+  const daysAgo = (dateStr) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d)) return 9999;
+    return Math.floor((today - d) / 86400000);
+  };
+  const runs14 = runs.filter(a => daysAgo(a.date) <= 14 && daysAgo(a.date) >= 0);
+  const runs7  = runs14.filter(a => daysAgo(a.date) <= 7);
+  const runs3  = runs7.filter(a => daysAgo(a.date) <= 3);
+  const intOf = (a) => (a && (a.difficulty || (typeof getIntensity==='function' ? getIntensity(a) : 'medium'))) || 'medium';
+  const hardCount7 = runs7.filter(a => intOf(a) === 'hard').length;
+  const hardCount3 = runs3.filter(a => intOf(a) === 'hard').length;
+  const noHard7    = hardCount7 === 0;
+
+  // ── Decision tree (priority order) ──────────────────────────
+  const pastRaceDays = _coachLastPastRaceDaysAgo();
+  if (pastRaceDays !== null && pastRaceDays <= 7) {
+    return _coachBuild('recovery', { phase:'post-race', reason:[
+      `You raced ${pastRaceDays === 0 ? 'today' : pastRaceDays + ' day' + (pastRaceDays===1?'':'s') + ' ago'} — recovery is the only priority right now.`,
+      'Hard sessions in the post-race window delay healing. Active recovery rebuilds capacity without adding stress.'
+    ]});
+  }
+
+  let raceDays = null;
+  if (nextRaceDate) {
+    const rd = new Date(nextRaceDate + 'T00:00:00');
+    if (!isNaN(rd)) raceDays = Math.ceil((rd - today) / 86400000);
+  }
+  if (raceDays !== null && raceDays >= 0 && raceDays <= 10) {
+    const t = raceDays <= 2 ? 'recovery' : raceDays <= 5 ? 'easy' : 'tempo';
+    const scale = raceDays <= 2 ? 0.35 : raceDays <= 5 ? 0.55 : 0.75;
+    const baseDist = _coachMeta()[t].dist;
+    return _coachBuild(t, { phase:'taper', dist: +(baseDist * scale).toFixed(1), reason:[
+      `Race in ${raceDays === 0 ? 'today' : raceDays + ' day' + (raceDays===1?'':'s')} — you are in taper.`,
+      'Volume drops sharply so muscles fully recover and glycogen stores stay topped up for race day.',
+      'Short, easy sessions keep the engine warm without adding any fatigue.'
+    ]});
+  }
+
+  if (hardCount7 >= 3 || hardCount3 >= 2) {
+    return _coachBuild('recovery', { phase:'recovery-needed', reason:[
+      `You have had ${hardCount7} hard session${hardCount7===1?'':'s'} in the last 7 days${hardCount3>=2?' ('+hardCount3+' of them in the last 3)':''}.`,
+      'Today is recovery to optimize supercompensation — fitness is built during rest, not during the run itself.',
+      'Stacking another hard session here turns training into chronic stress.'
+    ]});
+  }
+
+  const prefs = _coachGetPrefs();
+  if (prefs.adj) {
+    if (prefs.adj === 'rest') {
+      return _coachBuild('recovery', { phase:'user-override', reason:[
+        'You asked for rest this week — honoring that with an active recovery day.',
+        'Listening to the body is a skill — well played.'
+      ]});
+    }
+    if (prefs.adj === 'harder' && hardCount7 < 2) {
+      return _coachBuild('hard', { phase:'user-override', reason:[
+        'You asked to go harder this week — here is a VO2 Max interval session.',
+        'Only one hard day so far, so you have room to push.'
+      ]});
+    }
+    if (prefs.adj === 'easier') {
+      return _coachBuild('easy', { phase:'user-override', reason:[
+        'You asked to back off this week — keeping it easy and aerobic today.'
+      ]});
+    }
+  }
+
+  if (runs3.length >= 2 && noHard7) {
+    return _coachBuild('hard', { phase:'progress', reason:[
+      'Your last few days were all easy and you have no hard sessions in the last 7 days.',
+      'The body is ready for a hard stimulus — a VO2 Max interval session here maximizes return on investment.'
+    ]});
+  }
+
+  if (!runs7.length) {
+    return _coachBuild('easy', { phase:'normal', reason:[
+      'No runs logged in the last 7 days — ease back in with a short Zone 2 run.',
+      'Rebuilding the habit matters more than the pace.'
+    ]});
+  }
+
+  const lastType = intOf(runs7[0]);
+  if (lastType === 'hard')   return _coachBuild('easy',  { phase:'normal', reason:[`Your last session was hard — today should be easy to let supercompensation happen.`] });
+  if (lastType === 'easy')   return _coachBuild('tempo', { phase:'normal', reason:[`A couple of easy days behind you and no hard load accumulated — time to sharpen the threshold.`] });
+  return _coachBuild('easy', { phase:'normal', reason:[`Balancing the recent load with a moderate easy session today.`] });
+}
+window.suggestNextSession = suggestNextSession;
+
+/**
+ * suggestTrainingSchedule(history, nextRaceDate, daysAhead=4)
+ * Builds a forward-looking schedule reusing suggestNextSession for day 0
+ * and applying taper + rotation rules for subsequent days.
+ * Per-date overrides (db.coachPrefs.dayOverrides[YYYY-MM-DD]) are honored first.
+ */
+function suggestTrainingSchedule(history, nextRaceDate, daysAhead) {
+  const N = (typeof daysAhead === 'number' && daysAhead > 0) ? daysAhead : 4;
+  const today = new Date();
+  const dayShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const overrides = (db && db.coachPrefs && db.coachPrefs.dayOverrides && typeof db.coachPrefs.dayOverrides === 'object') ? db.coachPrefs.dayOverrides : {};
+  const META = _coachMeta();
+  const schedule = [];
+
+  for (let i = 0; i < N; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    const dateStr = fmtDate(d);
+    const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dayShort[d.getDay()];
+
+    // Race proximity from THIS future date
+    let raceDays = null;
+    if (nextRaceDate) {
+      const rd = new Date(nextRaceDate + 'T00:00:00');
+      if (!isNaN(rd)) raceDays = Math.ceil((rd - d) / 86400000);
+    }
+
+    let session;
+    const manual = overrides[dateStr];
+
+    if (manual && META[manual]) {
+      session = _coachBuild(manual, { phase:'user-override', reason:[`You manually set ${dayLabel} to ${META[manual].title}.`] });
+    } else if (raceDays === 0) {
+      session = _coachBuild('race', { phase:'race-day', reason:['Race day — execute the plan you trained for.'] });
+    } else if (i === 0) {
+      session = suggestNextSession(history, nextRaceDate);
+    } else if (raceDays !== null && raceDays > 0 && raceDays <= 10) {
+      const t = raceDays <= 2 ? 'recovery' : raceDays <= 5 ? 'easy' : 'tempo';
+      const scale = raceDays <= 2 ? 0.35 : raceDays <= 5 ? 0.55 : 0.75;
+      session = _coachBuild(t, { phase:'taper', dist:+(META[t].dist * scale).toFixed(1), reason:[
+        `Race in ${raceDays} day${raceDays===1?'':'s'} — still in taper.`,
+        'Low volume, sharp and easy.'
+      ]});
+    } else {
+      const prev = schedule[i-1];
+      const prevType = prev ? prev.type : 'easy';
+      let type, reason;
+      if (prevType === 'hard') {
+        type = 'easy';
+        reason = ['Yesterday was hard — easy today so supercompensation can happen.'];
+      } else if (prevType === 'tempo') {
+        type = 'easy';
+        reason = ['Recovery-easy day after threshold work.'];
+      } else if (prevType === 'recovery' || prevType === 'rest') {
+        type = 'easy';
+        reason = ['Light build back into training.'];
+      } else if (prevType === 'long') {
+        type = 'recovery';
+        reason = ['Active recovery after the long run.'];
+      } else { // prev easy
+        const runs7count = (history||[]).filter(a => a && a.type==='run' && a.date && ((today - new Date(a.date+'T00:00:00'))/86400000) <= 7).length;
+        const hardCount7 = (history||[]).filter(a => {
+          if (!a || a.type !== 'run' || !a.date) return false;
+          const daysBack = (today - new Date(a.date+'T00:00:00'))/86400000;
+          if (daysBack > 7 || daysBack < 0) return false;
+          const it = a.difficulty || (typeof getIntensity==='function' ? getIntensity(a) : 'medium');
+          return it === 'hard';
+        }).length;
+        if (i === 3) {
+          type = 'long';
+          reason = ['Long aerobic run to build endurance — the cornerstone of distance training.'];
+        } else if (hardCount7 === 0) {
+          type = 'hard';
+          reason = ['Fresh legs after easy days — a VO2 Max stimulus maximizes return on investment.'];
+        } else {
+          type = 'tempo';
+          reason = ['Quality day — threshold intensity to raise race-pace comfort.'];
+        }
+      }
+      session = _coachBuild(type, { phase:'normal', reason });
+    }
+
+    session.date = dateStr;
+    session.dayLabel = dayLabel;
+    schedule.push(session);
+  }
+
+  return schedule;
+}
+window.suggestTrainingSchedule = suggestTrainingSchedule;
+
+/* ── UI render · Suggested Training Schedule (4-day carousel) ─ */
+const PHASE_LABELS = {
+  'post-race':        'Post-Race Recovery',
+  'taper':            'Taper',
+  'race-day':         'Race Day',
+  'recovery-needed':  'Recovery Needed',
+  'user-override':    'Your Choice',
+  'progress':         'Build',
+  'normal':           'On Plan'
+};
+
 function renderCoachNextSession() {
   const el = document.getElementById('coachNextSession');
   if (!el) return;
-  const avgPace      = getAvgRunPaceSec();
-  const easyPace     = avgPace + 70;
-  const tempoPace    = Math.max(180, avgPace - 25);
-  const intervalPace = Math.max(150, avgPace - 55);
+  const nextRace = _coachNextUpcomingRaceDate();
+  const schedule = suggestTrainingSchedule((db && db.activities) ? db.activities : [], nextRace, 4);
+  window._coachSchedule = schedule;
 
-  const sessionMeta = {
-    easy:     { title:'Easy Run',          pace:easyPace,     purpose:'Build your aerobic base at a comfortable, conversational pace. You should be able to hold a full conversation.', warm:'5–10 min easy walk + dynamic stretches (leg swings, high knees, butt kicks)', cool:'5 min easy jog + static stretches (hold 30s each)' },
-    tempo:    { title:'Tempo Run',         pace:tempoPace,    purpose:'Improve your lactate threshold and race pace comfort. Comfortably hard — you should be able to say a few words, not full sentences.', warm:'10 min easy jog + 4×30s strides', cool:'10 min easy jog + thorough static stretching' },
-    hard:     { title:'Interval Session',  pace:intervalPace, purpose:'Improve VO2max and running economy with short, controlled hard efforts. You should feel like you could not have done another rep.', warm:'10 min easy jog + 4×30s strides + dynamic stretches', cool:'10 min easy jog + static stretches' },
-    long:     { title:'Long Run',          pace:easyPace+15,  purpose:'Build endurance and mental toughness at a slow, conversational pace. The long run is the cornerstone of distance training.', warm:'10 min very easy walk + dynamic stretches', cool:'10 min easy walk + thorough static stretching' },
-    recovery: { title:'Recovery Run',      pace:easyPace+30,  purpose:'Promote blood flow and active recovery after hard efforts. This should feel almost embarrassingly easy.', warm:'None needed — just start very slowly', cool:'5 min walk + gentle stretching' },
-  };
+  const planned = db && db.nextSessionPlanned;
+  const prefs   = _coachGetPrefs();
 
-  let session = null;
-  // Try to pull from stored plan
-  if (db.coachPlan && db.coachPlan.plan && db.coachPlan.plan.length) {
-    const w1 = db.coachPlan.plan[0];
-    const todayDOW = new Date().getDay(); // 0=Sun, 1=Mon...
-    const monOffset = (todayDOW + 6) % 7;
-    for (let i = monOffset; i < 7; i++) {
-      const d = w1.days[i];
-      if (d && d.type !== 'rest' && d.type !== 'cross') {
-        const meta = sessionMeta[d.type] || sessionMeta.easy;
-        const dist = d.dist || 5;
-        session = { ...meta, dist, estDurMin:Math.round(meta.pace*dist/60), estCals:Math.round(dist*65), dayName:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i] };
-        break;
-      }
-    }
-  }
-  // Fallback
-  if (!session) {
-    const runs7 = getRunActivitiesLast(7);
-    const hasHard = runs7.some(a => a.difficulty==='hard');
-    const type = (!hasHard && runs7.length >= 2) ? 'tempo' : 'easy';
-    const dist = type==='tempo' ? 6 : 5;
-    const meta = sessionMeta[type];
-    session = { ...meta, dist, estDurMin:Math.round(meta.pace*dist/60), estCals:Math.round(dist*65) };
-  }
+  const cards = schedule.map((s, i) => {
+    const paceStr = s.pace > 0 && typeof paceSecToStr === 'function' ? paceSecToStr(s.pace) : null;
+    const offsetTag = (paceStr && s.paceOffsetLabel) ? ` <span class="sts-pace-offset">(HM PB ${s.paceOffsetLabel})</span>` : '';
+    const statLine = s.type === 'rest' || s.type === 'race'
+      ? (s.type === 'race' ? 'Race day' : 'Full rest')
+      : `${s.dist.toFixed(1)} km · ~${s.estDurMin} min${paceStr?' · '+paceStr+offsetTag:''}`;
+    const phaseTag = PHASE_LABELS[s.phase] || '';
+    const intLabel = s.intensity === 'easy' ? 'Easy'
+                   : s.intensity === 'medium' ? 'Medium'
+                   : s.intensity === 'hard' ? 'Hard' : s.intensity;
+    return `
+      <div class="sts-card intensity-${s.color}" data-idx="${i}" role="button" tabindex="0"
+           onclick="coachOpenSessionDetail(${i})"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();coachOpenSessionDetail(${i});}">
+        <div class="sts-card-head">
+          <span class="sts-day">${escHtml(s.dayLabel || '')}</span>
+          <span class="sts-intensity ${s.color}">${escHtml(intLabel)}</span>
+        </div>
+        ${phaseTag ? `<span class="sts-phase">${escHtml(phaseTag)}</span>` : ''}
+        <div class="sts-title">${escHtml(s.title)}</div>
+        <div class="sts-desc">${escHtml(s.short || (s.purpose || '').slice(0,90))}</div>
+        <div class="sts-stats">${statLine}</div>
+        ${(paceStr && s.paceBasis) ? `<div class="sts-basis">${escHtml(s.paceBasis)}</div>` : ''}
+        <div class="sts-actions" onclick="event.stopPropagation()">
+          <button class="sts-act-btn" onclick="coachScheduleWhy(${i})" id="stsWhyBtn${i}" aria-expanded="false" title="Why this session?">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Why
+          </button>
+          <button class="sts-act-btn" onclick="coachScheduleAdjust(${i})" id="stsAdjBtn${i}" aria-expanded="false" title="Adjust this session">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Adjust
+          </button>
+        </div>
+        <div class="sts-why" id="stsWhy${i}" hidden>
+          <ul>${(s.reason&&s.reason.length)?s.reason.map(r=>`<li>${escHtml(r)}</li>`).join(''):'<li>Balanced recommendation based on recent load.</li>'}</ul>
+        </div>
+        <div class="sts-adjust" id="stsAdjust${i}" hidden onclick="event.stopPropagation()">
+          <div class="sts-adjust-title">Set ${escHtml(s.dayLabel||'this day')} to:</div>
+          <div class="sts-adjust-btns">
+            <button onclick="coachSetOverride(${i},'recovery')">Recovery</button>
+            <button onclick="coachSetOverride(${i},'easy')">Easy</button>
+            <button onclick="coachSetOverride(${i},'tempo')">Medium</button>
+            <button onclick="coachSetOverride(${i},'hard')">Hard</button>
+            <button onclick="coachSetOverride(${i},'long')">Long</button>
+            <button onclick="coachSetOverride(${i},'rest')">Rest</button>
+            <button class="sts-adj-auto" onclick="coachSetOverride(${i},null)">Auto</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 
-  const planned = db.nextSessionPlanned;
   el.innerHTML = `
-    <div class="next-session-card">
-      <div class="next-session-label">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Next Session${session.dayName?' — '+session.dayName:''}
-      </div>
-      <div class="next-session-title">${session.title} — ${session.dist.toFixed(1)} km @ ${paceSecToStr(session.pace)}</div>
-      <div class="next-session-purpose">${session.purpose}</div>
-      <div class="next-session-meta">
-        <div class="nss"><div class="nss-label">Distance</div><div class="nss-value">${session.dist.toFixed(1)} km</div></div>
-        <div class="nss"><div class="nss-label">Est. Duration</div><div class="nss-value">${session.estDurMin} min</div></div>
-        <div class="nss"><div class="nss-label">Est. Calories</div><div class="nss-value">~${session.estCals} kcal</div></div>
-        <div class="nss"><div class="nss-label">Target Pace</div><div class="nss-value">${paceSecToStr(session.pace)}</div></div>
-      </div>
-      <div class="next-session-tips">
-        <div class="nst-box"><div class="nst-label">Warm-up</div><div class="nst-text">${session.warm}</div></div>
-        <div class="nst-box"><div class="nst-label">Cool-down</div><div class="nst-text">${session.cool}</div></div>
+    <div class="sts-wrap">
+      <div class="sts-carousel" id="stsCarousel">${cards}</div>
+      <div class="sts-swipe-hint" aria-hidden="true">← swipe to see more →</div>
+      <div class="sts-week-adjust">
+        <span class="coach-adjust-label">Week bias</span>
+        <div class="coach-adjust-btns">
+          <button class="coach-adj-btn harder ${prefs.adj==='harder'?'active':''}" onclick="coachAdjust('harder')" title="Make the week harder">↑ Harder</button>
+          <button class="coach-adj-btn easier ${prefs.adj==='easier'?'active':''}" onclick="coachAdjust('easier')" title="Back off this week">↓ Easier</button>
+          <button class="coach-adj-btn rest   ${prefs.adj==='rest'  ?'active':''}" onclick="coachAdjust('rest')"   title="Rest day">😴 Rest</button>
+        </div>
       </div>
       <button class="mark-planned-btn ${planned?'done':''}" onclick="toggleNextSessionPlanned()">
-        ${planned ? '✓ Marked as Planned' : '+ Mark as Planned'}
+        ${planned ? '✓ Today Marked as Planned' : '+ Mark Today as Planned'}
       </button>
-    </div>`;
+    </div>
+  `;
 }
+
+function coachScheduleWhy(idx) {
+  const panel = document.getElementById('stsWhy' + idx);
+  const btn   = document.getElementById('stsWhyBtn' + idx);
+  if (!panel) return;
+  // Close the Adjust panel on the same card if open
+  const adj = document.getElementById('stsAdjust' + idx);
+  if (adj && !adj.hasAttribute('hidden')) { adj.setAttribute('hidden',''); const ab=document.getElementById('stsAdjBtn'+idx); ab && ab.setAttribute('aria-expanded','false'); }
+  if (panel.hasAttribute('hidden')) { panel.removeAttribute('hidden'); btn && btn.setAttribute('aria-expanded','true'); }
+  else { panel.setAttribute('hidden',''); btn && btn.setAttribute('aria-expanded','false'); }
+}
+window.coachScheduleWhy = coachScheduleWhy;
+
+function coachScheduleAdjust(idx) {
+  const panel = document.getElementById('stsAdjust' + idx);
+  const btn   = document.getElementById('stsAdjBtn' + idx);
+  if (!panel) return;
+  // Close the Why panel on the same card if open
+  const why = document.getElementById('stsWhy' + idx);
+  if (why && !why.hasAttribute('hidden')) { why.setAttribute('hidden',''); const wb=document.getElementById('stsWhyBtn'+idx); wb && wb.setAttribute('aria-expanded','false'); }
+  if (panel.hasAttribute('hidden')) { panel.removeAttribute('hidden'); btn && btn.setAttribute('aria-expanded','true'); }
+  else { panel.setAttribute('hidden',''); btn && btn.setAttribute('aria-expanded','false'); }
+}
+window.coachScheduleAdjust = coachScheduleAdjust;
+
+function coachSetOverride(idx, type) {
+  const s = (window._coachSchedule || [])[idx];
+  if (!s || !s.date) return;
+  if (!db.coachPrefs) db.coachPrefs = {};
+  if (!db.coachPrefs.dayOverrides || typeof db.coachPrefs.dayOverrides !== 'object') db.coachPrefs.dayOverrides = {};
+  if (type === null) delete db.coachPrefs.dayOverrides[s.date];
+  else db.coachPrefs.dayOverrides[s.date] = type;
+  saveData(db);
+  renderCoachNextSession();
+  showToast(type ? `${s.dayLabel} set to ${type}` : `${s.dayLabel} back to auto`, 'success');
+}
+window.coachSetOverride = coachSetOverride;
+
+/* ── Session detail modal (injected once, reused) ──────────── */
+function _coachEnsureDetailModal() {
+  let overlay = document.getElementById('coachSessionDetailOverlay');
+  if (overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'coachSessionDetailOverlay';
+  overlay.className = 'coach-sd-overlay';
+  overlay.setAttribute('onclick', "if(event.target===this)coachCloseSessionDetail()");
+  overlay.innerHTML = `
+    <div class="coach-sd-modal" role="dialog" aria-modal="true">
+      <button class="coach-sd-close" onclick="coachCloseSessionDetail()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="coach-sd-body" id="coachSessionDetailBody"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function coachOpenSessionDetail(idx) {
+  const s = (window._coachSchedule || [])[idx];
+  if (!s) return;
+  const overlay = _coachEnsureDetailModal();
+  const body = overlay.querySelector('#coachSessionDetailBody');
+  const paceStr = s.pace > 0 && typeof paceSecToStr === 'function' ? paceSecToStr(s.pace) : null;
+  const phaseTag = PHASE_LABELS[s.phase] || '';
+  const intLabel = s.intensity === 'easy' ? 'Easy' : s.intensity === 'medium' ? 'Medium' : s.intensity === 'hard' ? 'Hard' : s.intensity;
+  body.innerHTML = `
+    <div class="coach-sd-head intensity-${s.color}">
+      <div class="coach-sd-day">${escHtml(s.dayLabel||'')}${s.date?' · '+escHtml(s.date):''}</div>
+      <div class="coach-sd-title">${escHtml(s.title)}</div>
+      <div class="coach-sd-tags">
+        <span class="sts-intensity ${s.color}">${escHtml(intLabel)}</span>
+        ${phaseTag?`<span class="sts-phase">${escHtml(phaseTag)}</span>`:''}
+      </div>
+    </div>
+    <div class="coach-sd-purpose">${escHtml(s.purpose || '')}</div>
+    ${(s.type!=='rest' && s.type!=='race') ? `
+    <div class="coach-sd-meta">
+      <div class="nss"><div class="nss-label">Distance</div><div class="nss-value">${s.dist.toFixed(1)} km</div></div>
+      <div class="nss"><div class="nss-label">Est. Duration</div><div class="nss-value">${s.estDurMin} min</div></div>
+      <div class="nss"><div class="nss-label">Est. Calories</div><div class="nss-value">~${s.estCals} kcal</div></div>
+      ${paceStr?`<div class="nss"><div class="nss-label">Target Pace</div><div class="nss-value">${paceStr}${s.paceOffsetLabel?` <span class="sts-pace-offset">(HM PB ${escHtml(s.paceOffsetLabel)})</span>`:''}</div></div>`:''}
+    </div>
+    ${s.paceBasis ? `<div class="coach-sd-basis">${escHtml(s.paceBasis)}</div>` : ''}` : ''}
+    <div class="coach-sd-tips">
+      <div class="nst-box"><div class="nst-label">Warm-up</div><div class="nst-text">${escHtml(s.warm || '—')}</div></div>
+      <div class="nst-box"><div class="nst-label">Cool-down</div><div class="nst-text">${escHtml(s.cool || '—')}</div></div>
+    </div>
+    ${(s.reason&&s.reason.length)?`
+    <div class="coach-sd-why">
+      <div class="coach-sd-why-title">Why this session?</div>
+      <ul>${s.reason.map(r=>`<li>${escHtml(r)}</li>`).join('')}</ul>
+    </div>`:''}
+  `;
+  overlay.classList.add('open');
+  document.body.classList.add('modal-open');
+}
+window.coachOpenSessionDetail = coachOpenSessionDetail;
+
+function coachCloseSessionDetail() {
+  const overlay = document.getElementById('coachSessionDetailOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.classList.remove('modal-open');
+}
+window.coachCloseSessionDetail = coachCloseSessionDetail;
+
+function coachAdjust(level) {
+  if (!['harder','easier','rest'].includes(level)) return;
+  if (!db.coachPrefs) db.coachPrefs = {};
+  // Toggle off if user taps the already-active button
+  if (db.coachPrefs.adj === level) {
+    db.coachPrefs = Object.assign({}, db.coachPrefs, { adj: null, ts: 0 });
+  } else {
+    db.coachPrefs = Object.assign({}, db.coachPrefs, { adj: level, ts: Date.now() });
+  }
+  saveData(db);
+  renderCoachNextSession();
+  showToast(
+    db.coachPrefs.adj === 'harder' ? 'Coach will push harder this week' :
+    db.coachPrefs.adj === 'easier' ? 'Coach will back off this week' :
+    db.coachPrefs.adj === 'rest'   ? 'Coach scheduled recovery this week' :
+    'Adjustment cleared', 'success');
+}
+window.coachAdjust = coachAdjust;
+
 function toggleNextSessionPlanned() {
   db.nextSessionPlanned = !db.nextSessionPlanned;
   saveData(db);
@@ -21034,6 +21964,7 @@ async function importFromStrava(tokenData) {
   // Preserve other user state that lives inside the main DB key.
   var savedSettings    = (db && db.settings)       ? JSON.parse(JSON.stringify(db.settings))       : {};
   var savedCoachPlan   = (db && db.coachPlan)       ? JSON.parse(JSON.stringify(db.coachPlan))       : null;
+  var savedCoachPrefs  = (db && db.coachPrefs)      ? JSON.parse(JSON.stringify(db.coachPrefs))      : null;
   var savedChallenges  = (db && db.challenges)      ? JSON.parse(JSON.stringify(db.challenges))      : [];
   var savedRaces       = (db && db.races)           ? JSON.parse(JSON.stringify(db.races))           : [];
   var savedCompRaces   = (db && db.completedRaces)  ? JSON.parse(JSON.stringify(db.completedRaces))  : [];
@@ -21072,6 +22003,7 @@ async function importFromStrava(tokenData) {
       db.bucketList     = savedBucketList.length  ? savedBucketList  : [];
       db.savedTips      = savedTips.length        ? savedTips        : [];
       if (savedCoachPlan) db.coachPlan = savedCoachPlan;
+      if (savedCoachPrefs) db.coachPrefs = savedCoachPrefs;
       if (savedRhr.length) db.rhr = savedRhr;
       saveData(db); renderAll();
       return;
