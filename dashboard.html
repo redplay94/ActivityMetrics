@@ -559,6 +559,13 @@ body.modal-open header {
   font-size: .65rem; background: var(--bg3); border: 1px solid var(--border);
   color: var(--text-muted); padding: 2px 7px; border-radius: 99px; font-style: italic;
 }
+.diff-reset-btn {
+  font-size: .65rem; font-weight: 600;
+  background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.25);
+  color: var(--cycle); padding: 3px 9px; border-radius: 99px; cursor: pointer;
+  transition: all var(--transition); white-space: nowrap;
+}
+.diff-reset-btn:hover { background: rgba(59,130,246,.22); }
 .diff-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* Btn styles */
@@ -6127,6 +6134,7 @@ header { padding: 0 !important; z-index: 600 !important; }
             <button class="diff-opt hard"   data-val="hard"   onclick="selectDiff('hard')">Hard</button>
           </div>
           <span class="auto-badge" id="diffAutoBadge">auto-suggested</span>
+          <button type="button" class="diff-reset-btn" id="diffResetBtn" onclick="resetDiffToAuto()" style="display:none" title="Let the Pace Editor set intensity again based on pace">↺ Reset to automatic</button>
         </div>
       </div>
       <!-- Notes -->
@@ -8081,6 +8089,114 @@ function saveData(data) {
   if (data) saveIsolatedRaces(data);
 }
 
+/* ── Activity overrides: survive Strava re-import ─────────────
+   When the user edits a Strava-imported activity (difficulty, notes, stats),
+   the chosen field values are stored keyed by activity id in a dedicated
+   isolated localStorage entry. On re-import, Strava supplies fresh base data
+   and these overrides are re-applied on top — so user intent always wins.
+   Pure manual activities (no 'strava' source) don't need overrides: they're
+   preserved wholesale in db.activities across imports. */
+const ACTIVITY_OVERRIDES_KEY = 'actmtr_activity_overrides_v1';
+const ACTIVITY_OVERRIDE_FIELDS = ['type','date','distance','duration','elevation','steps','calories','difficulty','notes'];
+
+function loadActivityOverrides() {
+  try {
+    var v = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY));
+    return (v && typeof v === 'object') ? v : {};
+  } catch { return {}; }
+}
+function saveActivityOverrides(ov) {
+  try { localStorage.setItem(ACTIVITY_OVERRIDES_KEY, JSON.stringify(ov || {})); }
+  catch (e) { console.warn('[ActivityOverrides] write failed:', e); }
+}
+function recordActivityOverride(activity) {
+  if (!activity || activity.source !== 'strava') return;
+  var ov = loadActivityOverrides();
+  var rec = { _ts: Date.now(), manualOverride: true };
+  ACTIVITY_OVERRIDE_FIELDS.forEach(function(f) { rec[f] = activity[f]; });
+  ov[activity.id] = rec;
+  saveActivityOverrides(ov);
+}
+function clearActivityOverride(id) {
+  if (!id) return;
+  var ov = loadActivityOverrides();
+  if (ov[id]) { delete ov[id]; saveActivityOverrides(ov); }
+}
+function applyActivityOverrides(activities) {
+  if (!Array.isArray(activities)) return activities;
+  var ov = loadActivityOverrides();
+  var keys = Object.keys(ov);
+  if (!keys.length) return activities;
+  activities.forEach(function(a) {
+    var rec = ov[a.id];
+    if (!rec) return;
+    ACTIVITY_OVERRIDE_FIELDS.forEach(function(f) {
+      if (rec[f] !== undefined) a[f] = rec[f];
+    });
+    a._userEdited = true;
+  });
+  return activities;
+}
+
+/* Auto classification from pace — thin wrapper so the intensity pipeline
+   has a named entry point that matches the override-first contract below. */
+function calculateIntensityFromPace(activity) {
+  if (!activity || !activity.distance || !activity.duration) return activity && activity.difficulty || 'medium';
+  return autoDifficulty(activity.type, activity.distance, activity.duration, activity.elevation || 0);
+}
+
+/* CANONICAL intensity read. Strict precedence:
+     1. If overrides[id].manualOverride === true → return the saved category
+     2. Otherwise → fall back to the Pace Editor classifier
+   Every UI site that renders a difficulty badge must use this function so
+   there is exactly one place where priority is decided. */
+function getIntensity(activity) {
+  if (!activity) return 'medium';
+  var overrides;
+  try { overrides = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY) || '{}') || {}; }
+  catch { overrides = {}; }
+  var rec = overrides[activity.id];
+  if (rec && rec.manualOverride === true && rec.difficulty) {
+    if (window._debugIntensity) console.log('[getIntensity] using override for:', activity.id, '→', rec.difficulty);
+    return rec.difficulty;
+  }
+  return calculateIntensityFromPace(activity);
+}
+// Expose globally for inline handlers and DevTools inspection.
+window.getIntensity = getIntensity;
+window.calculateIntensityFromPace = calculateIntensityFromPace;
+// Flip this in the console to enable/disable the override debug log:
+//   window._debugIntensity = true
+window._debugIntensity = window._debugIntensity === undefined ? true : window._debugIntensity;
+
+/* CANONICAL calorie read for display. Strict precedence:
+     1. overrides[id].manualOverride === true && rec.calories > 0 → user's saved value
+     2. activity.calories (raw Strava value, or manually entered for non-Strava)
+     3. If Strava-sourced and still 0/missing → return null so UI renders 'N/A'
+   No formulas, no MET math, no distance multipliers. */
+function displayCalories(activity) {
+  if (!activity) return null;
+  // 1. Manual override wins (user edited in the modal)
+  try {
+    var ov = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY) || '{}') || {};
+    var rec = ov[activity.id];
+    if (rec && rec.manualOverride === true && typeof rec.calories === 'number' && rec.calories > 0) {
+      return rec.calories;
+    }
+  } catch {}
+  // 2. Direct Strava field (what /activities/{id} returns)
+  if (typeof activity.calories === 'number' && activity.calories > 0) return activity.calories;
+  // 3. Defensive aliases — Strava doesn't send these, but some third-party
+  //    exports or future API versions might. Cheap check, safe to keep.
+  if (typeof activity.kilocalories === 'number' && activity.kilocalories > 0) return activity.kilocalories;
+  if (typeof activity.kcal === 'number' && activity.kcal > 0) return activity.kcal;
+  // 4. Still nothing: explicit N/A for Strava-sourced, otherwise the stored
+  //    value (which may legitimately be 0 for a manual entry).
+  if (activity.source === 'strava') return null;
+  return activity.calories || 0;
+}
+window.displayCalories = displayCalories;
+
 /* ── Pace Settings: isolated storage that survives Strava login wipe ── */
 function loadPaceSettings() {
   try { return JSON.parse(localStorage.getItem(PACE_STORAGE_KEY)) || null; } catch { return null; }
@@ -8267,12 +8383,19 @@ function autoDifficulty(type, dist, secs, elev) {
   return 'medium';
 }
 
-/* ── Re-classify ALL run difficulties using current paceTargets ── */
+/* ── Re-classify ALL run difficulties using current paceTargets ──
+   Precedence (highest wins):
+     1. overrides[id].manualOverride === true → user's choice is locked in
+     2. autoDifficulty(pace, type, elev)      → recomputed on every pace change
+   This is the single source of truth for intensity. The Pace Editor only
+   affects rule 2; rule 1 is immune until the user hits "Reset to Automatic". */
 function reclassifyAllDifficulties() {
   if (!db || !db.activities) return;
+  const ov = loadActivityOverrides();
   let changed = 0;
   db.activities.forEach(a => {
     if (!a.distance || !a.duration) return;
+    if (ov[a.id] && ov[a.id].manualOverride === true) return;
     const newDiff = autoDifficulty(a.type, a.distance, a.duration, a.elevation || 0);
     if (newDiff !== a.difficulty) {
       a.difficulty = newDiff;
@@ -8281,7 +8404,7 @@ function reclassifyAllDifficulties() {
   });
   if (changed > 0) {
     saveData(db);
-    console.log(`[PaceSync] Reclassified ${changed} activities`);
+    console.log(`[PaceSync] Reclassified ${changed} activities (manual overrides preserved)`);
   }
   return changed;
 }
@@ -8353,6 +8476,11 @@ function init() {
     db.activities = db.activities.filter(function(a){ return a.source !== 'demo'; });
     saveData(db);
   }
+  // Re-apply any manual activity overrides on top of the loaded activities.
+  // Normally the stored db already has them applied, but this keeps the UI
+  // consistent if the override file was edited out-of-band or if a Strava
+  // cache write beat the override write during a prior session.
+  applyActivityOverrides(db.activities);
   const now = new Date();
   calYear  = now.getFullYear();
   calMonth = now.getMonth();
@@ -8381,11 +8509,16 @@ function init() {
   renderAll();
   // Diagnostic: prove persistence is live (check DevTools console on refresh).
   try {
-    console.log('[Races] hydrated on boot →',
-      'upcoming:',  (db.races          || []).length,
-      'completed:', (db.completedRaces || []).length,
-      'bucket:',    (db.bucketList     || []).length,
-      '| isolated key present:', !!localStorage.getItem(RACES_KEY));
+    var _ov = loadActivityOverrides();
+    var _manualActs = (db.activities||[]).filter(function(a){ return a && a.source !== 'strava' && a.source !== 'demo'; }).length;
+    console.log('[Persistence] hydrated on boot →',
+      'upcoming:',      (db.races          || []).length,
+      'completed:',     (db.completedRaces || []).length,
+      'bucket:',        (db.bucketList     || []).length,
+      'manual acts:',   _manualActs,
+      'act overrides:', Object.keys(_ov).length,
+      '| isolated races key:', !!localStorage.getItem(RACES_KEY),
+      '| overrides key:',      !!localStorage.getItem(ACTIVITY_OVERRIDES_KEY));
   } catch(_){}
   // Init badge tracking after first render
   prevBadgeState = Object.fromEntries(Object.entries(computeBadges()).filter(([,v])=>v));
@@ -8719,14 +8852,14 @@ function showDayModal(dateStr) {
       return `<div class="activity-row ${a.type}">
         <div class="activity-row-header">
           <span class="activity-type-badge ${a.type}">${typeLabels[a.type]}</span>
-          <span class="difficulty-badge ${a.difficulty}">${cap(a.difficulty)}</span>
+          <span class="difficulty-badge ${getIntensity(a)}">${cap(getIntensity(a))}</span>
         </div>
         ${nameHtml}
         <div class="activity-stats">
           <div class="act-stat"><div class="act-stat-label">Distance</div><div class="act-stat-value">${a.distance.toFixed(2)} km</div></div>
           <div class="act-stat"><div class="act-stat-label">Duration</div><div class="act-stat-value">${fmtDuration(a.duration)}</div></div>
           <div class="act-stat"><div class="act-stat-label">${paceLabel}</div><div class="act-stat-value">${paceVal}</div></div>
-          <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${a.calories} kcal</div></div>
+          <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()}</div></div>
           ${a.type !== 'cycle' ? `<div class="act-stat"><div class="act-stat-label">Steps</div><div class="act-stat-value">${(a.steps||0).toLocaleString()}</div></div>` : ''}
           <div class="act-stat"><div class="act-stat-label">Elevation</div><div class="act-stat-value">${a.elevation||0} m</div></div>
           ${hrHtml}
@@ -8770,7 +8903,7 @@ function buildActivityRow(a) {
   <div class="activity-row ${a.type}">
     <div class="activity-row-header">
       <span class="activity-type-badge ${a.type}">${typeLabel}</span>
-      <span class="difficulty-badge ${a.difficulty}">${cap(a.difficulty)}</span>
+      <span class="difficulty-badge ${getIntensity(a)}">${cap(getIntensity(a))}</span>
       <button class="activity-delete-btn" onclick="deleteActivity('${a.id}')" title="Delete">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
       </button>
@@ -8779,7 +8912,7 @@ function buildActivityRow(a) {
       <div class="act-stat"><div class="act-stat-label">Distance</div><div class="act-stat-value">${a.distance.toFixed(2)} km</div></div>
       <div class="act-stat"><div class="act-stat-label">Duration</div><div class="act-stat-value">${fmtDuration(a.duration)}</div></div>
       <div class="act-stat"><div class="act-stat-label">${paceLabel}</div><div class="act-stat-value">${paceOrSpeed}</div></div>
-      <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${a.calories} kcal</div></div>
+      <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()}</div></div>
       ${a.type !== 'cycle' ? `<div class="act-stat"><div class="act-stat-label">Steps</div><div class="act-stat-value">${(a.steps||0).toLocaleString()}</div></div>` : ''}
       <div class="act-stat"><div class="act-stat-label">Elevation</div><div class="act-stat-value">${a.elevation || 0} m</div></div>
     </div>
@@ -8791,6 +8924,7 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
 function deleteActivity(id) {
   db.activities = db.activities.filter(a => a.id !== id);
+  clearActivityOverride(id);
   saveData(db);
   if (selectedDay) showDetail(selectedDay);
   renderAll();
@@ -8838,6 +8972,9 @@ function openAddModal(prefillDate) {
   document.getElementById('calsHint').textContent  = '';
   selectType('run');
   selectDiff('easy');
+  // Hide the "Reset to automatic" button — it only applies to Edit mode.
+  var _rb = document.getElementById('diffResetBtn');
+  if (_rb) _rb.style.display = 'none';
   document.getElementById('addModalOverlay').classList.add('open');
   document.body.classList.add('modal-open');
   document.body.style.overflow = 'hidden';
@@ -8943,7 +9080,24 @@ function saveActivity() {
 
   if (editingId) {
     const idx = db.activities.findIndex(a => a.id === editingId);
-    if (idx !== -1) db.activities[idx] = activity;
+    if (idx !== -1) {
+      const prior = db.activities[idx];
+      // Preserve Strava-only metadata so edits don't strip stravaId / HR / cadence
+      if (prior.source === 'strava') {
+        activity.id       = prior.id;
+        activity.source   = 'strava';
+        activity.stravaId = prior.stravaId;
+        if (prior.avgHR   !== undefined) activity.avgHR   = prior.avgHR;
+        if (prior.maxHR   !== undefined) activity.maxHR   = prior.maxHR;
+        if (prior.cadence !== undefined) activity.cadence = prior.cadence;
+        activity._userEdited = true;
+        // Record edit in isolated overrides — survives Strava re-import
+        recordActivityOverride(activity);
+      } else if (prior.source) {
+        activity.source = prior.source;
+      }
+      db.activities[idx] = activity;
+    }
     editingId = null;
   } else {
     db.activities.push(activity);
@@ -9018,6 +9172,7 @@ function doReset() {
   db.completedRaces = [];
   db.bucketList     = [];
   try { localStorage.removeItem(RACES_KEY); } catch {}
+  try { localStorage.removeItem(ACTIVITY_OVERRIDES_KEY); } catch {}
   saveData(db);
   closeConfirm();
   selectedDay = null;
@@ -9565,13 +9720,13 @@ function renderLog() {
       <td><strong>${a.distance.toFixed(2)}</strong> <span style="color:var(--text-muted);font-size:.72rem">km</span></td>
       <td style="font-variant-numeric:tabular-nums">${fmtDuration(a.duration)}</td>
       <td style="color:var(--text-muted)">${paceSpeed}</td>
-      <td>${a.calories} <span style="color:var(--text-muted);font-size:.72rem">kcal</span></td>
+      <td>${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' <span style="color:var(--text-muted);font-size:.72rem">kcal</span>');})()}</td>
       <td>${a.type==='cycle'?'—':(a.steps||0).toLocaleString()}</td>
       <td>${a.elevation||0} <span style="color:var(--text-muted);font-size:.72rem">m</span></td>
       <td class="log-hr-col">${a.avgHR
         ? `<span class="log-hr-val" title="Avg ${a.avgHR} · Max ${a.maxHR||'—'}"><span class="log-hr-icon">❤️</span>${a.avgHR}${a.maxHR ? `<span style="color:var(--text-muted);font-size:.68rem"> / ${a.maxHR}</span>` : ''}</span>`
         : `<span style="color:var(--text-muted)">—</span>`}</td>
-      <td><span class="difficulty-badge ${diffClasses[a.difficulty]}">${cap(a.difficulty)}</span></td>
+      <td><span class="difficulty-badge ${diffClasses[getIntensity(a)]}">${cap(getIntensity(a))}</span></td>
       <td><div class="td-actions">
         <button class="tbl-btn tbl-edit-btn" onclick="openEditModal('${a.id}')" title="Edit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -9694,9 +9849,48 @@ function openEditModal(id) {
   selectDiff(a.difficulty);
   diffUserOverride = true;
   document.getElementById('diffAutoBadge').style.display = 'none';
+  // Show "Reset to automatic" only when this activity already has a manual
+  // override locked in. The button clears the flag so the Pace Editor can
+  // take control again for this activity.
+  var _ov = loadActivityOverrides();
+  var _resetBtn = document.getElementById('diffResetBtn');
+  if (_resetBtn) _resetBtn.style.display = (_ov[id] && _ov[id].manualOverride === true) ? '' : 'none';
   document.getElementById('addModalOverlay').classList.add('open');
   document.body.classList.add('modal-open');
   document.body.style.overflow = 'hidden';
+}
+
+/* Clears the manual override for the activity currently open in the edit
+   modal, restoring Pace-Editor control. Recomputes difficulty from the
+   current form values so the user sees the auto result immediately. */
+function resetDiffToAuto() {
+  if (!editingId) return;
+  clearActivityOverride(editingId);
+  const dist  = parseFloat(document.getElementById('formDistance').value) || 0;
+  const h     = parseInt(document.getElementById('formHours').value)   || 0;
+  const m     = parseInt(document.getElementById('formMinutes').value) || 0;
+  const s     = parseInt(document.getElementById('formSeconds').value) || 0;
+  const elev  = parseInt(document.getElementById('formElevation').value) || 0;
+  const secs  = h*3600 + m*60 + s;
+  const autoDiff = (dist && secs) ? autoDifficulty(selectedType, dist, secs, elev) : selectedDiff;
+  selectedDiff = autoDiff;
+  document.querySelectorAll('.diff-opt').forEach(b => {
+    b.classList.toggle('selected', b.dataset.val === autoDiff);
+  });
+  diffUserOverride = false;
+  document.getElementById('diffAutoBadge').style.display = '';
+  var btn = document.getElementById('diffResetBtn');
+  if (btn) btn.style.display = 'none';
+  // Also reflect the change live on the current activity object so the log
+  // re-renders correctly if the user cancels instead of saving.
+  const idx = db.activities.findIndex(a => a.id === editingId);
+  if (idx !== -1) {
+    db.activities[idx].difficulty = autoDiff;
+    delete db.activities[idx]._userEdited;
+  }
+  saveData(db);
+  if (typeof renderAll === 'function') renderAll();
+  if (typeof showToast === 'function') showToast('Back to automatic — Pace Editor now controls this run', 'success');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -11227,6 +11421,7 @@ function logOut() {
   localStorage.removeItem('strava_athlete');
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(RACES_KEY);
+  localStorage.removeItem(ACTIVITY_OVERRIDES_KEY);
   currentUser = null;
   closeUserMenu();
   closeProfile();
@@ -17887,7 +18082,7 @@ BADGE_DEFS.push(
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Distance</div><div class="adv-hm-act-stat-val">'+a.distance.toFixed(2)+' km</div></div>'
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Duration</div><div class="adv-hm-act-stat-val">'+fmtDur(a.duration||0)+'</div></div>'
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">'+paceLabel+'</div><div class="adv-hm-act-stat-val">'+paceOrSpeed+'</div></div>'
-            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(a.calories||0)+' kcal</div></div>'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()+'</div></div>'
             +(a.steps ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Steps</div><div class="adv-hm-act-stat-val">'+a.steps.toLocaleString()+'</div></div>' : '')
             +(a.avgHR ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Heart Rate</div><div class="adv-hm-act-stat-val">'+a.avgHR+' bpm</div></div>' : '')
             +((a.elevation||0)>0 ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Elevation</div><div class="adv-hm-act-stat-val">'+a.elevation+' m</div></div>' : '')
@@ -19438,6 +19633,20 @@ BADGE_DEFS.push(
 
   /* ── Convert a single Strava activity ───────────────────── */
   function convertActivity(sa) {
+    // Debug: inspect the raw Strava object shape. Toggle with
+    //   window._debugStravaActivity = false
+    // to mute. Defaults to logging only the first object per batch.
+    if (window._debugStravaActivity !== false && !window._debugStravaActivityLogged) {
+      try {
+        console.log('[Strava] raw activity object (first of batch):', sa);
+        console.log('[Strava] calorie-relevant fields →',
+          'calories:', sa.calories,
+          'kilojoules:', sa.kilojoules,
+          'has_kudoed:', sa.has_kudoed,
+          'has_heartrate:', sa.has_heartrate);
+        window._debugStravaActivityLogged = true;
+      } catch(_){}
+    }
     // Prefer sport_type (newer field), fall back to type
     var type = mapType(sa.sport_type || sa.type || '');
     if (!type) return { ok: false, reason: 'unsupported type: ' + (sa.sport_type || sa.type || '?'), sa: sa };
@@ -19458,9 +19667,17 @@ BADGE_DEFS.push(
     var elev  = Math.round(sa.total_elevation_gain || 0);
     var steps = type === 'run'  ? Math.round(distKm * 1300)
               : type === 'walk' ? Math.round(distKm * 1400) : 0;
-    var cals  = type === 'run'   ? Math.round(distKm * 60)
-              : type === 'walk'  ? Math.round(distKm * 45)
-              : /* cycle */        Math.round(distKm * 30);
+    // Calories: STRICTLY use Strava's raw value. No MET/distance formulas.
+    // The /athlete/activities endpoint returns `calories` only for detailed
+    // fetches; summary rides expose `kilojoules` (already an energy measure
+    // from the power meter, reported in kcal-equivalents by Strava itself).
+    // Anything else stays 0 so the UI can render 'N/A'.
+    var cals = 0;
+    if (typeof sa.calories === 'number' && sa.calories > 0) {
+      cals = Math.round(sa.calories);
+    } else if (type === 'cycle' && typeof sa.kilojoules === 'number' && sa.kilojoules > 0) {
+      cals = Math.round(sa.kilojoules); // Strava's own ride energy value
+    }
     var diff  = autoDifficulty(type, distKm, durSecs, elev);
 
     // Strava ID — stored raw so duplicate checks are exact
@@ -20071,6 +20288,22 @@ async function fetchStravaPage(token, page) {
   return resp.json();
 }
 
+/* DetailedActivity fetch — the only Strava endpoint that returns `calories`
+   for runs/walks. Summary endpoint omits it. We call this in a capped,
+   concurrency-limited loop after the bulk import so recent activities get
+   real calorie values without blowing through the 200 req / 15-min rate
+   limit. Returns null on any failure so the caller can continue. */
+async function fetchStravaActivityDetail(token, stravaId) {
+  try {
+    var resp = await fetch(
+      'https://www.strava.com/api/v3/activities/' + stravaId,
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch (_) { return null; }
+}
+
 async function fetchAllStravaActivities(token) {
   var all = [];
   for (var page = 1; page <= 10; page++) {
@@ -20136,6 +20369,16 @@ async function importFromStrava(tokenData) {
   var savedBucketList  = (db && db.bucketList)       ? JSON.parse(JSON.stringify(db.bucketList))       : [];
   var savedTips        = (db && db.savedTips)        ? JSON.parse(JSON.stringify(db.savedTips))        : [];
   var savedRhr         = (db && db.rhr)              ? JSON.parse(JSON.stringify(db.rhr))              : [];
+  // Manually-added activities (not from Strava) must survive re-import.
+  // The isolated activity-overrides key (ACTIVITY_OVERRIDES_KEY) is never
+  // wiped here — it will be re-applied after the Strava import below.
+  var savedManualActs  = (db && db.activities)
+    ? JSON.parse(JSON.stringify(
+        db.activities.filter(function(a){
+          return a && a.source !== 'strava' && a.source !== 'demo';
+        })
+      ))
+    : [];
 
   localStorage.removeItem(STORAGE_KEY);
 
@@ -20149,8 +20392,9 @@ async function importFromStrava(tokenData) {
 
     if (raw.length === 0) {
       showStravaBanner('Welcome ' + name.trim() + '! No activities found on Strava.', 'info');
-      db = { activities: [], settings: savedSettings };
-      // Preserve all non-activity user data even when Strava returns zero activities.
+      // Preserve all non-activity user data AND manually-added activities
+      // even when Strava returns zero activities.
+      db = { activities: savedManualActs.slice(), settings: savedSettings };
       db.challenges     = savedChallenges.length  ? savedChallenges  : [];
       db.races          = savedRaces.length       ? savedRaces       : [];
       db.completedRaces = savedCompRaces.length   ? savedCompRaces   : [];
@@ -20173,8 +20417,44 @@ async function importFromStrava(tokenData) {
 
     console.log('[Import] Converted:', imported.length, 'Skipped:', skipped);
 
-    // ── Rebuild db: fresh activities + preserved settings ──
-    db = { activities: imported, settings: savedSettings };
+    // ── Hydrate calories from DetailedActivity for recent activities ──
+    // Strava's SummaryActivity omits `calories` for runs/walks; only the
+    // detail endpoint has it. We cap at 60 most-recent activities and fire
+    // 5 requests in parallel to stay safely under the 200 req / 15-min
+    // rate limit even for users with 2000+ activities.
+    try {
+      var needDetail = imported
+        .filter(function(a){ return a.stravaId && (!a.calories || a.calories === 0); })
+        .sort(function(a,b){ return b.date.localeCompare(a.date); })
+        .slice(0, 60);
+      if (needDetail.length) {
+        showStravaBanner('Hydrating calories for ' + needDetail.length + ' recent activities…', 'info');
+        var BATCH = 5, hydrated = 0;
+        for (var i = 0; i < needDetail.length; i += BATCH) {
+          var batch = needDetail.slice(i, i + BATCH);
+          await Promise.all(batch.map(function(a) {
+            return fetchStravaActivityDetail(token, a.stravaId).then(function(det) {
+              if (!det) return;
+              if (typeof det.calories === 'number' && det.calories > 0) {
+                a.calories = Math.round(det.calories);
+                hydrated++;
+              } else if (a.type === 'cycle' && typeof det.kilojoules === 'number' && det.kilojoules > 0) {
+                a.calories = Math.round(det.kilojoules);
+                hydrated++;
+              }
+            });
+          }));
+        }
+        console.log('[Import] Hydrated calories on ' + hydrated + '/' + needDetail.length + ' activities');
+      }
+    } catch (hydrationErr) {
+      console.warn('[Import] Detail hydration failed (rate limit or network):', hydrationErr);
+    }
+
+    // ── Rebuild db: fresh Strava activities + manual activities + user overrides ──
+    // Order matters: apply overrides LAST so edits beat auto-classified Strava data.
+    var mergedActivities = applyActivityOverrides(imported.concat(savedManualActs));
+    db = { activities: mergedActivities, settings: savedSettings };
     if (!db.settings.goals) db.settings.goals = { runKm:30, walkKm:15, cycleKm:80, stepsKDay:10, activities:5 };
     db.challenges     = savedChallenges.length  ? savedChallenges  : [];
     db.races          = savedRaces.length        ? savedRaces        : [];
