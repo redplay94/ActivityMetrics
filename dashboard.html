@@ -945,9 +945,29 @@ body.modal-open header {
   cursor: pointer;
 }
 .pr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-.pr-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000001; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-detail-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);
+  z-index:1000001;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  opacity:0; transition:opacity .2s ease;
+}
 .pr-detail-overlay.open { opacity:1; }
-.pr-detail-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:400px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
+.pr-detail-modal {
+  background:var(--bg2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px 24px;
+  max-width:400px; width:100%;
+  box-shadow:0 16px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04) inset;
+  position:relative;
+  z-index:1000;
+  transform:translateY(12px);
+  transition:transform .2s ease;
+}
 .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0); }
 .pr-detail-close { position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:var(--radius-sm); background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background var(--transition); }
 .pr-detail-close:hover { background:var(--border); }
@@ -967,9 +987,29 @@ body.modal-open header {
 .pr-edit-btn svg { width:12px; height:12px; color:var(--text-muted); }
 .pr-card.new-pr .pr-edit-btn { top:8px; right:40px; }
 @media(max-width:768px){ .pr-edit-btn { opacity:1; } }
-.pr-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); z-index:1000002; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .2s ease; }
+.pr-edit-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);
+  z-index:1000002;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  opacity:0; transition:opacity .2s ease;
+}
 .pr-edit-overlay.open { opacity:1; }
-.pr-edit-modal { background:var(--bg1); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px 24px; max-width:420px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); position:relative; transform:translateY(12px); transition:transform .2s ease; }
+.pr-edit-modal {
+  background:var(--bg2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px 24px;
+  max-width:420px; width:100%;
+  box-shadow:0 16px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04) inset;
+  position:relative;
+  z-index:1000;
+  transform:translateY(12px);
+  transition:transform .2s ease;
+}
 .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0); }
 .pr-edit-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
 .pr-edit-header-icon { font-size:1.6rem; }
@@ -2865,6 +2905,62 @@ select.vo2-input { cursor:pointer; }
 .ba-empty-title{font-weight:700;font-size:.95rem;margin-bottom:6px;}
 .ba-empty-sub{font-size:.82rem;color:var(--text-muted);}
 .ba-modal{max-width:620px;}
+
+/* ── Add-Best Modal · Prefill block ───────────────────────────── */
+.ba-prefill {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  margin-bottom:14px;
+}
+.ba-prefill-head {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; margin-bottom:8px;
+}
+.ba-pf-clear-btn {
+  font-size:.72rem; font-weight:600;
+  padding:4px 10px; border-radius:99px;
+  background:transparent; color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+}
+.ba-pf-clear-btn:hover { color:var(--text); border-color:var(--text-muted); background:var(--bg2); }
+.ba-pf-filters {
+  display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;
+}
+.ba-pf-chip {
+  font-size:.7rem; font-weight:600;
+  padding:5px 10px; border-radius:99px;
+  background:var(--bg2); color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all var(--transition);
+  white-space:nowrap;
+}
+.ba-pf-chip:hover { color:var(--text); }
+.ba-pf-chip.selected {
+  background:rgba(56,189,248,.15);
+  color:#38bdf8;
+  border-color:rgba(56,189,248,.4);
+}
+.ba-pf-select {
+  width:100%;
+  max-width:100%;
+}
+.ba-pf-hint {
+  margin-top:6px;
+  font-size:.68rem; color:var(--text-dim);
+  font-style:italic;
+}
+@media (max-width:480px) {
+  .ba-prefill { padding:10px 12px; }
+  .ba-prefill-head { flex-wrap:wrap; }
+  .ba-pf-clear-btn { font-size:.68rem; padding:3px 8px; }
+  .ba-pf-chip { font-size:.66rem; padding:4px 8px; }
+  .ba-pf-select { font-size:.82rem; }
+}
 .ba-photo-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg3);}
 .ba-photo-upload-area:hover,.ba-photo-upload-area.drag-over{border-color:var(--cycle);background:rgba(59,130,246,.06);}
 .ba-photo-upload-icon{font-size:1.8rem;margin-bottom:6px;}
@@ -4785,49 +4881,55 @@ header { padding: 0 !important; z-index: 600 !important; }
   .stats-range-actions { margin-top:20px; }
   .stats-range-actions button { min-height:46px; border-radius:12px; font-size:.85rem; }
 
-  /* ── PR Detail Modal: Full-Screen on Mobile ── */
+  /* ── PR Detail Modal: Centered, Solid, Readable on Mobile ── */
   .pr-detail-overlay {
     z-index:1000010 !important;
-    background:rgba(10,10,10,.92) !important;
-    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
-    align-items:flex-end !important; padding:0 !important;
+    background:rgba(0,0,0,.7) !important;
+    backdrop-filter:blur(6px) !important; -webkit-backdrop-filter:blur(6px) !important;
+    align-items:center !important; justify-content:center !important;
+    padding:20px !important;
   }
   .pr-detail-modal {
-    max-width:100% !important; width:100% !important;
-    border-radius:24px 24px 0 0 !important;
-    padding:28px 20px 30px !important;
-    background:rgba(22,27,39,.82) !important;
-    border:1px solid rgba(255,255,255,.08) !important;
-    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
-    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
-    max-height:90vh; overflow-y:auto;
-    transform:translateY(100%) !important;
-    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+    max-width:95vw !important; width:100% !important;
+    border-radius:16px !important;
+    padding:26px 22px 22px !important;
+    background:var(--bg2) !important;
+    color:var(--text) !important;
+    border:1px solid var(--border) !important;
+    box-shadow:0 24px 60px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.05) inset !important;
+    max-height:88vh; overflow-y:auto;
+    transform:translateY(12px) !important;
+    transition:transform .25s ease !important;
+    z-index:1000 !important;
   }
   .pr-detail-overlay.open .pr-detail-modal { transform:translateY(0) !important; }
   .pr-detail-close {
     width:36px !important; height:36px !important; border-radius:50% !important;
-    background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.1) !important;
+    background:var(--bg3) !important; border:1px solid var(--border) !important;
   }
+  .pr-detail-value, .pr-detail-meta-val { color:var(--text) !important; }
+  .pr-detail-title, .pr-detail-meta-label { color:var(--text-muted) !important; }
 
-  /* ── PR Edit Modal: Full-Screen on Mobile ── */
+  /* ── PR Edit Modal: Centered, Solid, Readable on Mobile ── */
   .pr-edit-overlay {
     z-index:1000020 !important;
-    background:rgba(10,10,10,.92) !important;
-    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
-    align-items:flex-end !important; padding:0 !important;
+    background:rgba(0,0,0,.7) !important;
+    backdrop-filter:blur(6px) !important; -webkit-backdrop-filter:blur(6px) !important;
+    align-items:center !important; justify-content:center !important;
+    padding:20px !important;
   }
   .pr-edit-modal {
-    max-width:100% !important; width:100% !important;
-    border-radius:24px 24px 0 0 !important;
-    padding:28px 20px 30px !important;
-    background:rgba(22,27,39,.82) !important;
-    border:1px solid rgba(255,255,255,.08) !important;
-    box-shadow:0 -12px 60px rgba(0,0,0,.5) !important;
-    backdrop-filter:blur(16px) !important; -webkit-backdrop-filter:blur(16px) !important;
-    max-height:92vh; overflow-y:auto;
-    transform:translateY(100%) !important;
-    transition:transform .35s cubic-bezier(.4,0,.2,1) !important;
+    max-width:95vw !important; width:100% !important;
+    border-radius:16px !important;
+    padding:26px 22px 22px !important;
+    background:var(--bg2) !important;
+    color:var(--text) !important;
+    border:1px solid var(--border) !important;
+    box-shadow:0 24px 60px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.05) inset !important;
+    max-height:90vh; overflow-y:auto;
+    transform:translateY(12px) !important;
+    transition:transform .25s ease !important;
+    z-index:1000 !important;
   }
   .pr-edit-overlay.open .pr-edit-modal { transform:translateY(0) !important; }
   .pr-edit-close {
@@ -17457,7 +17559,26 @@ function baOpenModal(type, id) {
   baPhotoQueue = [...existingPhotos];
   const photosWarnHTML = baTotalPhotos() >= BA_MAX_PHOTOS - 5 ?
     `<div class="ba-photo-storage-warn">⚠️ Approaching photo limit (${baTotalPhotos()}/${BA_MAX_PHOTOS})</div>` : '';
+  const defaultFilter = (type === 'hike') ? 'walk' : (type === 'ride') ? 'cycle' : 'run';
+  const prefillHTML = `
+    <div class="ba-prefill" id="baPrefillBox">
+      <div class="ba-prefill-head">
+        <label class="form-label" style="margin:0">Select from Activity <span class="auto-badge">Optional</span></label>
+        <button type="button" class="ba-pf-clear-btn" onclick="baPrefillClear()" title="Clear fields">↺ Clear</button>
+      </div>
+      <div class="ba-pf-filters" id="baPfFilters">
+        <button type="button" class="ba-pf-chip ${defaultFilter==='run'?'selected':''}"   data-tf="run"   onclick="baPrefillFilter('run')">🏃 Run</button>
+        <button type="button" class="ba-pf-chip ${defaultFilter==='walk'?'selected':''}"  data-tf="walk"  onclick="baPrefillFilter('walk')">🥾 Hike</button>
+        <button type="button" class="ba-pf-chip ${defaultFilter==='cycle'?'selected':''}" data-tf="cycle" onclick="baPrefillFilter('cycle')">🚴 Cycle</button>
+        <button type="button" class="ba-pf-chip"                                          data-tf="all"   onclick="baPrefillFilter('all')">All</button>
+      </div>
+      <select class="form-select ba-pf-select" id="baPrefillSelect" onchange="baPrefillPick()">
+        <option value="">— Pick an activity to auto-fill —</option>
+      </select>
+      <div class="ba-pf-hint">Selecting an activity fills the fields below — you can still edit them.</div>
+    </div>`;
   bodyEl.innerHTML = `
+    ${prefillHTML}
     <div class="form-group"><label class="form-label">Activity Name / Title *</label><input class="form-input" id="baActName" value="${escHtml(v('name'))}" placeholder="e.g. My First Half Marathon"></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="baActDate" value="${v('date')}"></div>
@@ -17500,6 +17621,7 @@ function baOpenModal(type, id) {
       <div class="ba-photo-previews" id="baPhotoPreviews">${existingPhotos.map((p,i)=>`<div class="ba-photo-preview-wrap" data-idx="${i}"><img class="ba-photo-preview" src="${p}" alt=""><div class="ba-photo-preview-del" onclick="baRemovePreview(${i})">✕</div></div>`).join('')}</div>
     </div>`;
   if (existing?.distance && existing?.duration) baCalcPace();
+  baBuildPrefillOptions(defaultFilter);
   overlay.classList.add('open');
   document.body.classList.add('modal-open');
 }
@@ -17509,6 +17631,66 @@ function baCloseModal() {
   document.body.classList.remove('modal-open');
   baEditingId = null; baEditingType = null; baPhotoQueue = [];
 }
+
+/* ── Prefill from db.activities ────────────────────────────────── */
+function baBuildPrefillOptions(filter) {
+  const sel = document.getElementById('baPrefillSelect');
+  if (!sel) return;
+  const all = (typeof db !== 'undefined' && db && Array.isArray(db.activities)) ? db.activities.slice() : [];
+  const list = all
+    .filter(a => filter === 'all' ? true : a.type === filter)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const opts = ['<option value="">— Pick an activity to auto-fill —</option>']
+    .concat(list.map(a => {
+      const dist = (typeof a.distance === 'number') ? a.distance.toFixed(1) + ' km' : '—';
+      const name = a.name || (a.type ? a.type[0].toUpperCase() + a.type.slice(1) : 'Activity');
+      const label = `${a.date || '—'} · ${name} · ${dist}`;
+      return `<option value="${escHtml(a.id)}">${escHtml(label)}</option>`;
+    }));
+  sel.innerHTML = opts.join('');
+  sel.value = '';
+}
+
+function baPrefillFilter(tf) {
+  document.querySelectorAll('#baPfFilters .ba-pf-chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.tf === tf);
+  });
+  baBuildPrefillOptions(tf);
+}
+
+function baPrefillPick() {
+  const sel = document.getElementById('baPrefillSelect');
+  if (!sel || !sel.value) return;
+  const act = (db && Array.isArray(db.activities))
+    ? db.activities.find(a => String(a.id) === String(sel.value))
+    : null;
+  if (!act) return;
+  populateFields(act);
+}
+
+function baPrefillClear() {
+  const ids = ['baActName','baActDate','baActDist','baActDur','baActPace','baActElev','baActHR','baActLocation'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const sel = document.getElementById('baPrefillSelect');
+  if (sel) sel.value = '';
+  showToast('Fields cleared', 'success');
+}
+
+function populateFields(activity) {
+  if (!activity) return;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val != null && val !== '') el.value = val; };
+  setVal('baActName', activity.name || '');
+  setVal('baActDate', activity.date || '');
+  if (typeof activity.distance === 'number') setVal('baActDist', activity.distance);
+  if (typeof activity.duration === 'number' && typeof baSecToDur === 'function') setVal('baActDur', baSecToDur(activity.duration));
+  if (typeof activity.elevation === 'number') setVal('baActElev', activity.elevation);
+  if (activity.avgHr) setVal('baActHR', activity.avgHr);
+  if (typeof baCalcPace === 'function') baCalcPace();
+}
+window.populateFields = populateFields;
+window.baPrefillFilter = baPrefillFilter;
+window.baPrefillPick   = baPrefillPick;
+window.baPrefillClear  = baPrefillClear;
 
 function baSelectDiff(el, val) {
   el.closest('#baDiffSelector').querySelectorAll('.diff-opt').forEach(o => {
