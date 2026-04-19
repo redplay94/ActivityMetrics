@@ -1892,6 +1892,44 @@ body.modal-open header {
 .tip-accordion-content { padding:14px; border-top:1px solid var(--border); font-size:.82rem; color:var(--text-muted); line-height:1.75; }
 .no-tips-found { padding:28px; text-align:center; color:var(--text-muted); font-size:.85rem; }
 
+/* ── Warning / Callout Tip (Overtraining, etc.) ───────────────── */
+.tip-accordion.tip-warning {
+  background:linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.02));
+  border:1px solid rgba(239,68,68,.45);
+  border-left:4px solid #ef4444;
+  box-shadow:0 2px 14px rgba(239,68,68,.12);
+}
+.tip-accordion.tip-warning:hover { box-shadow:0 4px 18px rgba(239,68,68,.22); }
+.tip-accordion.tip-warning .tip-accordion-header:hover { background:rgba(239,68,68,.08); }
+.tip-accordion.tip-warning .tip-accordion-icon { color:#ef4444; filter:drop-shadow(0 0 6px rgba(239,68,68,.45)); }
+.tip-accordion.tip-warning .tip-accordion-title {
+  display:inline-flex; align-items:center; gap:8px;
+  color:#fca5a5; font-weight:700;
+  flex-wrap:wrap;
+}
+.tip-accordion.tip-warning .tip-accordion-preview { color:#fecaca; white-space:normal; }
+.tip-accordion.tip-warning .tip-accordion-content {
+  color:#fde2e2;
+  background:rgba(239,68,68,.05);
+  border-top:1px solid rgba(239,68,68,.3);
+}
+.tip-accordion.tip-warning .tip-accordion-content b { color:#fff; }
+.tip-warn-badge {
+  display:inline-block;
+  font-size:.58rem; font-weight:800; letter-spacing:.8px;
+  text-transform:uppercase;
+  padding:2px 7px; border-radius:99px;
+  background:#ef4444; color:#fff;
+  line-height:1.4;
+  flex-shrink:0;
+}
+@media (max-width:480px) {
+  .tip-accordion.tip-warning .tip-accordion-header { padding:12px; }
+  .tip-accordion.tip-warning .tip-accordion-preview { font-size:.7rem; line-height:1.35; }
+  .tip-accordion.tip-warning .tip-accordion-content { padding:12px; font-size:.78rem; line-height:1.65; word-wrap:break-word; overflow-wrap:anywhere; }
+  .tip-warn-badge { font-size:.55rem; padding:1px 6px; }
+}
+
 /* ══════════════════════════════════════════════════════════════
    MY RACES PAGE
 ══════════════════════════════════════════════════════════════ */
@@ -12560,6 +12598,9 @@ const RUNNING_TIPS = [
   { id:'iv3', cat:'Interval Training', icon:'📏', title:'Start With Short Intervals',
     preview:'New to speed work? Begin with 200m or 400m repeats',
     body:'If you\'re new to speed work, start with short intervals: 200m or 400m repeats. As your fitness improves, progress to 800m and 1000m repeats. Only experienced runners should attempt mile repeats. Short intervals are less taxing on the body and easier to maintain correct form throughout.' },
+  { id:'iv4', cat:'Interval Training', icon:'⚠️', warning:true, title:'Pulse Check (Overtraining Warning)',
+    preview:'Unusually low heart rate at a hard pace is a classic sign of overtraining — stop immediately',
+    body:'If you notice that your heart rate remains unusually low during an interval at a pace that typically gets your heart rate much higher, this is a classic sign of extreme fatigue or overtraining. Your body is struggling to mobilize the necessary effort. <b>Tip:</b> If this happens, don\'t push through — stop the training immediately. It is better to rest and recover than to risk injury or burnout.' },
 
   { id:'ip1', cat:'Injury Prevention', icon:'👂', title:'Listen to Your Body',
     preview:'Sharp pain is your body\'s emergency signal — stop immediately',
@@ -12593,8 +12634,85 @@ const RUNNING_TIPS = [
   { id:'mg3', cat:'Mental Game', icon:'🔥', title:'Embrace the Discomfort',
     preview:'Discomfort is where growth happens — learn to tell it from pain',
     body:'Running is supposed to be uncomfortable sometimes. That discomfort is where growth happens. Learn to distinguish between the discomfort of effort (good) and the pain of injury (bad). Sit with the hard moments during training, and race day will feel comparatively manageable. Comfort never built a better runner.' },
+
+  /* ── Diminishing Returns (The Law of Returns) ─────────────── */
+  { id:'dr1', cat:'Diminishing Returns', icon:'🚀', title:'0–30 km/week: Massive Returns',
+    preview:'The first 30 km/week delivers the biggest gains per hour of training',
+    body:'In the 0 to 30 km per week range you get massive progress: weight loss, better sleep, and rapid cardiovascular improvements. This is the highest return on investment per hour of training. For beginners or runners coming back from a break, this is where consistency pays off fastest.' },
+  { id:'dr2', cat:'Diminishing Returns', icon:'📈', title:'80–100 km/week: Marginal Gains',
+    preview:'High mileage still works, but gains shrink — expect to grind for a 30s PB',
+    body:'At 80 to 100 km per week, progress continues but slows down. Significant extra effort is required for marginal gains — for example, shaving 30 seconds off a 10k PB. The return per hour drops, and recovery becomes as important as the mileage itself.' },
+  { id:'dr3', cat:'Diminishing Returns', icon:'⛔', title:'140+ km/week: Point of Diminishing Returns',
+    preview:'For most amateurs, 140+ km/week means higher injury risk for 1% improvement',
+    body:'Beyond 140 km per week, the fitness curve for most amateurs flattens or even drops. You risk injury and burnout for potentially only a 1 percent improvement. Unless you are a professional with dedicated recovery resources, more volume is not more fitness.' },
+
+  /* ── Easy Running & Adaptations ───────────────────────────── */
+  { id:'er1', cat:'Easy Running & Adaptations', icon:'🫀', title:'Eccentric Hypertrophy of the Heart',
+    preview:'Easy running stretches the left ventricle — fast running only thickens the wall',
+    body:'Running at low intensity allows the heart to fill completely with blood, stretching the left ventricle and increasing stroke volume. This is eccentric hypertrophy. Fast running mostly thickens the muscle wall, which is less efficient for endurance. For distance runners, volume at low intensity builds the most valuable cardiac adaptation.' },
+  { id:'er2', cat:'Easy Running & Adaptations', icon:'🔋', title:'Mitochondrial Biogenesis',
+    preview:'Easy runs build mitochondria — more mitochondria means more energy',
+    body:'Easy runs stimulate the creation and repair of mitochondria, the energy factories inside your muscle cells. More mitochondria equals more energy produced at every pace. This is why seasoned runners can hold a conversational pace that would feel hard to a beginner — their cells are literally built to produce more ATP.' },
+  { id:'er3', cat:'Easy Running & Adaptations', icon:'♻️', title:'Lactate Clearance',
+    preview:'Slow muscle fibers recycle lactate from fast fibers — volume trains clearance',
+    body:'Mitochondria in slow (Type I) muscle fibers recycle lactate produced by fast (Type II) fibers. Better mitochondria means your body clears lactate faster and you can sustain hard efforts longer. Low-intensity volume directly trains the system that lets you run fast later.' },
+  { id:'er4', cat:'Easy Running & Adaptations', icon:'🌿', title:'The Zone 2 Rule',
+    preview:'If you finish feeling fresher than when you started, you nailed Zone 2',
+    body:'In true Zone 2 you should feel like you could run for hours, and you should feel fresher after the run than before it started. If you are gasping for air or sore the next day, you went too hard. Running by feel is a reliable guide: easy means easy.' },
+
+  /* ── Threshold (LTHR) Training ────────────────────────────── */
+  { id:'th1', cat:'Threshold Training', icon:'🏭', title:'The Chimney Concept',
+    preview:'Lactate clears like smoke through a chimney — threshold is the balance point',
+    body:'Your body clears lactate like smoke through a chimney. The lactate threshold is the point where production equals clearance — push harder and lactate accumulates; ease back and it clears faster than it builds. Training at this line raises the ceiling of what feels sustainable.' },
+  { id:'th2', cat:'Threshold Training', icon:'🧠', title:'Threshold Builds Race Toughness',
+    preview:'Threshold training rehearses the heavy-legs feeling of the final kilometers',
+    body:'Threshold training prepares you for the specific heavy-legs pain of the final kilometers of a half-marathon or 10k. It is not just a physiological adaptation — it is mental practice for holding a hard, sustainable effort when the body wants to slow down. No other workout rehearses that sensation as well.' },
+  { id:'th3', cat:'Threshold Training', icon:'🚫', title:'Never Race Your Threshold Session',
+    preview:'If you cannot imagine repeating the interval, you turned threshold into a race',
+    body:'Golden rule: never turn a threshold session into a race. If you are too exhausted after an interval to imagine repeating it, you went too fast and crossed into the anaerobic zone. Controlled, repeatable effort is the entire point of the workout — leave something in the tank.' },
+
+  /* ── VO2 Max & Speed ──────────────────────────────────────── */
+  { id:'vo1', cat:'VO2 Max & Speed', icon:'⏱️', title:'The Billat 30-30',
+    preview:'30s at 3k pace / 30s very easy keeps you in the oxygen zone longer',
+    body:'The Billat 30-30 is a classic VO2 Max workout: 30 seconds fast (roughly 3k race pace) followed by 30 seconds of very easy jog. The short rest lets muscles take micro-breaks while heart rate stays elevated, which means more total time spent in the high-oxygen zone than a traditional long-interval session.' },
+  { id:'vo2', cat:'VO2 Max & Speed', icon:'🏔️', title:'Hill Sprints for Economy',
+    preview:'8–10s max hill sprints recruit fast-twitch fibers without the impact',
+    body:'Hill sprints — 8 to 10 seconds at maximum effort, uphill, walk back to recover — performed at the end of a long run recruit sleeping fast-twitch fibers and improve running economy. The incline reduces joint impact while still demanding max force output. A rare combination: speed work with low injury risk.' },
+  { id:'vo3', cat:'VO2 Max & Speed', icon:'🩺', title:'Skip VO2 Max on Tired Legs',
+    preview:'High resting HR or bad sleep = skip the VO2 session. Forced quality becomes junk',
+    body:'If your resting heart rate is elevated or you slept poorly, skip the VO2 Max session. Forcing a hard quality workout on tired legs leads to negative returns — you accumulate fatigue without the stimulus, and you compromise the next real session. Swap it for an easy run or a rest day.' },
+
+  /* ── Recovery & Hormesis ──────────────────────────────────── */
+  { id:'rh1', cat:'Recovery & Hormesis', icon:'⚒️', title:'Training Is Organized Destruction',
+    preview:'Fitness comes from repair, not from the run itself — that is hormesis',
+    body:'Training is organized destruction. The run breaks you down; you get stronger only when your body repairs the stress. This is hormesis: a controlled dose of stress triggering adaptation. Phase 1 is training, Phase 2 is recovery, Phase 3 is supercompensation. Skip the last two phases and there is no fitness gain.' },
+  { id:'rh2', cat:'Recovery & Hormesis', icon:'🔄', title:'Do Not Short-Circuit Supercompensation',
+    preview:'Stacking hard sessions without recovery turns training into chronic stress',
+    body:'If you do not allow enough time for supercompensation — typically 24 to 72 hours depending on the session — your fitness will plateau or decline. Stacking hard days without recovery is not ambition; it is chronic stress. You end up fatigued, not fitter.' },
+  { id:'rh3', cat:'Recovery & Hormesis', icon:'😴', title:'Sleep Is Your Real Training Tool',
+    preview:'7–8 hours of sleep is the only window where real supercompensation happens',
+    body:'Sleep of 7 to 8 hours is your most powerful training tool. It is the only window where real supercompensation happens — growth hormone peaks, muscles repair, and the nervous system resets. No supplement, no shoe, no recovery shake comes close to what a full night of sleep delivers for adaptation.' },
+
+  /* ── Trail & Ultra Specifics ──────────────────────────────── */
+  { id:'tu1', cat:'Trail & Ultra', icon:'⛰️', title:'Train the Eccentric Descent',
+    preview:'Descents hammer the quads eccentrically — train them with slow Bulgarian splits',
+    body:'On descents, your quads work eccentrically — lengthening under load. This is what causes the deep soreness and quad failure in long trail races. Train this pattern specifically with slow Bulgarian split squats (3 to 4 second descent phase) and plyometrics. Runners who skip eccentric work pay for it on every downhill.' },
+  { id:'tu2', cat:'Trail & Ultra', icon:'🔁', title:'Back-to-Back Long Runs',
+    preview:'Run two long days in a row to rehearse the exhausted state of an ultra',
+    body:'Simulate the end of an ultra by running two long days in a row — for example, 25 km trail on Saturday and 15 to 20 km road on Sunday. This teaches your muscles, your nervous system, and your fueling strategy how to work in an already-exhausted state. It is a more useful stimulus than a single extra-long run.' },
+  { id:'tu3', cat:'Trail & Ultra', icon:'🎒', title:'Add Rucking for Structural Strength',
+    preview:'Rucking builds diesel leg strength and core stability with low impact',
+    body:'Walking with a weighted backpack (10 to 15 percent of body weight) builds diesel leg strength, core stability, and structural resilience with very low impact. It is especially useful for trail and ultra runners because it trains the posterior chain and postural muscles without the pounding of a long run.' },
+
+  /* ── Mobility ─────────────────────────────────────────────── */
+  { id:'mb1', cat:'Mobility', icon:'🦴', title:'Hip Mobility Is the Foundation',
+    preview:'Tight hips send stress up to the lower back and down to the knees',
+    body:'Hip mobility is essential — tight hips force the lower back and knees to compensate, which is where most overuse injuries start. Focus on 90/90 stretches, deep squat holds, and hip flexor work. Five minutes a day of targeted hip mobility often eliminates chronic pain that stretching quads and calves never touches.' },
+  { id:'mb2', cat:'Mobility', icon:'🦶', title:'Ankle Mobility and the Knee-to-Wall Test',
+    preview:'Poor ankle dorsiflexion causes shin splints and weakens uphill running',
+    body:'Ankle mobility is vital for uphill running and for preventing shin splints. Use the knee-to-wall test: kneel facing a wall and try to touch your knee to the wall without lifting your heel. If you cannot, you likely have a dorsiflexion deficit — daily calf stretches and soleus work will fix it over a few weeks.' },
 ];
-const TIP_CATEGORIES = ['Race Day','Training Principles','Interval Training','Injury Prevention','Nutrition & Hydration','Mental Game'];
+const TIP_CATEGORIES = ['Race Day','Training Principles','Diminishing Returns','Easy Running & Adaptations','Threshold Training','Interval Training','VO2 Max & Speed','Recovery & Hormesis','Trail & Ultra','Mobility','Injury Prevention','Nutrition & Hydration','Mental Game'];
 
 /* ── Utility helpers ── */
 function getRunActivitiesLast(days) {
@@ -13382,12 +13500,14 @@ function toggleTipAccordion(id) {
 }
 function tipAccordionHtml(t, saved) {
   const isSaved = saved.includes(t.id);
+  const warnCls = t.warning ? ' tip-warning' : '';
+  const warnBadge = t.warning ? '<span class="tip-warn-badge">Warning</span>' : '';
   return `
-    <div class="tip-accordion" id="tip-${t.id}">
+    <div class="tip-accordion${warnCls}" id="tip-${t.id}">
       <div class="tip-accordion-header" onclick="toggleTipAccordion('${t.id}')">
         <span class="tip-accordion-icon">${t.icon}</span>
         <div class="tip-accordion-mid">
-          <div class="tip-accordion-title">${t.title}</div>
+          <div class="tip-accordion-title">${t.title}${warnBadge}</div>
           <div class="tip-accordion-preview">${t.preview}</div>
         </div>
         <button class="tip-fav-btn ${isSaved?'saved':''}" title="${isSaved?'Remove from saved':'Save tip'}"
