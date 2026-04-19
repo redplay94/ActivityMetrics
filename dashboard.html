@@ -9331,6 +9331,38 @@ function filterActivitiesForStats() {
   return db.activities.filter(a => statsType === 'all' || a.type === statsType);
 }
 
+/* Date-range filter keyed to the same period semantics the other stats
+   charts use, so Difficulty Breakdown stays visually consistent with them:
+     'week'  → last 7 days (rolling)
+     'month' → last 30 days (rolling)
+     'year'  → last 12 months (rolling)
+     'all'   → every activity
+   Uses the canonical a.date string ('YYYY-MM-DD'), which the Strava import
+   already extracts from start_date_local — no Date() parsing required. */
+function filterActivitiesByPeriod(activities, period) {
+  if (!Array.isArray(activities) || !activities.length) return [];
+  if (!period || period === 'all') return activities.slice();
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (period === 'week') {
+    const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 6);
+    const cutoffStr = fmtDate(cutoff);
+    return activities.filter(a => a.date && a.date >= cutoffStr);
+  }
+  if (period === 'month') {
+    const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 29);
+    const cutoffStr = fmtDate(cutoff);
+    return activities.filter(a => a.date && a.date >= cutoffStr);
+  }
+  if (period === 'year') {
+    const cutoff = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    const cutoffStr = fmtDate(cutoff);
+    return activities.filter(a => a.date && a.date >= cutoffStr);
+  }
+  return activities.slice();
+}
+window.filterActivitiesByPeriod = filterActivitiesByPeriod;
+
 function groupBy(acts, labels, groupFn, keyFn, aggFn) {
   const map = {};
   labels.forEach(l => { map[l] = []; });
@@ -9591,7 +9623,24 @@ function renderCharts() {
     walk:  {easy:0,medium:0,hard:0},
     cycle: {easy:0,medium:0,hard:0},
   };
-  db.activities.forEach(a => { if(diffCount[a.type]) diffCount[a.type][a.difficulty]++; });
+  // Respect both period (Week/Month/Year/All) and type (Run/Walk/Cycle/All)
+  // filters, and use getIntensity() so overrides + elevation rules apply.
+  const diffSource = filterActivitiesByPeriod(db.activities, statsTime)
+    .filter(a => statsType === 'all' || a.type === statsType);
+  diffSource.forEach(a => {
+    if (!diffCount[a.type]) return;
+    const lvl = getIntensity(a);
+    if (diffCount[a.type][lvl] !== undefined) diffCount[a.type][lvl]++;
+  });
+  // Keep the chart subtitle in sync with the selected period
+  const diffHintEl = document.querySelector('#chartCardDifficulty .chart-hint');
+  if (diffHintEl) {
+    diffHintEl.textContent =
+      statsTime === 'week'  ? 'last 7 days · count per type'  :
+      statsTime === 'month' ? 'last 30 days · count per type' :
+      statsTime === 'year'  ? 'last 12 months · count per type' :
+                              'all time · count per type';
+  }
   chartInstances['difficulty'] = new Chart(document.getElementById('chartDifficulty'), {
     type:'bar',
     data:{ labels:['Run','Walk/Hike','Cycle'],
