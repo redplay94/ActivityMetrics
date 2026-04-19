@@ -1118,16 +1118,46 @@ body.modal-open header {
 .ch-tab.active { background:var(--bg2); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,.2); }
 .challenges-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
 @media(max-width:480px){ .challenges-grid { grid-template-columns:1fr; } }
-.challenge-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--card-shadow); transition:transform var(--transition); }
+.challenge-card { position:relative; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--card-shadow); transition:transform var(--transition); }
 .challenge-card:hover { transform:translateY(-2px); }
 .challenge-card.failed { opacity:.65; border-color:rgba(239,68,68,.3); }
 .challenge-card.completed { border-color:rgba(34,197,94,.35); }
-.ch-card-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; }
+.ch-card-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; padding-right:28px; }
+.ch-title-wrap { min-width:0; flex:1 1 auto; }
 .ch-type-icon { width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ch-type-icon svg { width:18px; height:18px; }
-.ch-name { font-size:.88rem; font-weight:700; line-height:1.3; }
+.ch-name { font-size:.88rem; font-weight:700; line-height:1.3; word-break:break-word; }
 .ch-meta { font-size:.63rem; color:var(--text-muted); margin-top:2px; }
-.ch-badges { display:flex; gap:4px; flex-wrap:wrap; margin-left:auto; flex-shrink:0; }
+.ch-badges { display:flex; gap:4px; flex-wrap:wrap; margin-left:auto; flex-shrink:0; align-items:center; }
+.ch-freq-badge {
+  display:inline-flex; align-items:center;
+  font-size:.6rem; font-weight:700; letter-spacing:.3px;
+  text-transform:uppercase;
+  padding:3px 7px; border-radius:99px;
+  background:var(--bg3); color:var(--text-muted);
+  border:1px solid var(--border);
+}
+.ch-freq-badge.single  { background:rgba(148,163,184,.15); color:#94a3b8; border-color:rgba(148,163,184,.35); }
+.ch-freq-badge.weekly  { background:rgba(56,189,248,.15);  color:#38bdf8; border-color:rgba(56,189,248,.35); }
+.ch-freq-badge.monthly { background:rgba(249,115,22,.15);  color:#f97316; border-color:rgba(249,115,22,.35); }
+.ch-freq-badge.yearly  { background:rgba(168,85,247,.15);  color:#a855f7; border-color:rgba(168,85,247,.35); }
+.ch-delete-btn {
+  position:absolute; top:10px; right:10px;
+  width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:var(--radius-sm);
+  background:transparent; color:var(--text-muted);
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:all var(--transition);
+  z-index:2;
+}
+.ch-delete-btn:hover { color:#ef4444; background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.35); }
+.ch-delete-btn svg { width:14px; height:14px; }
+@media (max-width:480px) {
+  .ch-card-header { flex-wrap:wrap; }
+  .ch-badges { margin-left:46px; width:100%; margin-top:4px; }
+}
 .ch-progress-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; font-size:.72rem; }
 .ch-progress-val { font-weight:700; }
 .ch-progress-pct { color:var(--text-muted); }
@@ -1144,6 +1174,20 @@ body.modal-open header {
 .ch-completed-info { font-size:.63rem; color:var(--text-muted); margin-top:6px; }
 .ch-retry-btn { font-size:.68rem; padding:3px 10px; border-radius:99px; background:var(--bg3); border:1px solid var(--border); color:var(--text-muted); transition:all var(--transition); margin-top:6px; }
 .ch-retry-btn:hover { color:var(--text); border-color:var(--text-muted); }
+.ch-auto-progress {
+  margin-top:6px;
+  font-size:.72rem;
+  color:var(--text-muted);
+  line-height:1.35;
+  word-wrap:break-word;
+  overflow-wrap:anywhere;
+}
+.ch-auto-progress b { color:var(--text); font-weight:700; }
+.ch-auto-window { color:var(--text-dim); font-size:.68rem; margin-left:2px; }
+@media (max-width:480px) {
+  .ch-auto-progress { font-size:.68rem; }
+  .ch-auto-window   { display:block; margin-left:0; margin-top:1px; }
+}
 .challenges-empty { padding:32px; text-align:center; color:var(--text-muted); font-size:.85rem; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); }
 .templates-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(195px,1fr)); gap:8px; }
 .template-card { background:var(--bg3); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; cursor:pointer; transition:all var(--transition); }
@@ -6346,6 +6390,16 @@ header { padding: 0 !important; z-index: 600 !important; }
         <label class="form-label" for="chEndDate">End Date</label>
         <input type="date" class="form-input" id="chEndDate">
       </div>
+      <!-- Frequency Type -->
+      <div class="form-group">
+        <label class="form-label" for="chFrequency">Type</label>
+        <select class="form-select" id="chFrequency">
+          <option value="single">Single Activity</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
       <!-- Difficulty -->
       <div class="form-group">
         <div class="form-label">Difficulty <span class="auto-badge" id="chDiffHint"></span></div>
@@ -10844,6 +10898,8 @@ function openChallengeModal() {
   document.getElementById('chTimeframe').value = 'month';
   document.getElementById('chEndDate').value = '';
   document.getElementById('chEndDateRow').style.display = 'none';
+  const freqEl = document.getElementById('chFrequency');
+  if (freqEl) freqEl.value = 'monthly';
   document.querySelectorAll('.ch-diff-opt').forEach(b => b.classList.toggle('selected', b.dataset.val === 'medium'));
   document.getElementById('chDiffHint').textContent = '';
   document.getElementById('challengeModalOverlay').classList.add('open');
@@ -10931,12 +10987,15 @@ function saveChallenge() {
     else end.setDate(end.getDate()+30);
     endDate = fmtDate(end);
   }
+  const freqEl = document.getElementById('chFrequency');
+  const frequency = (freqEl && freqEl.value) ? freqEl.value : 'single';
   const ch = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     name, target, endDate,
     type:      document.getElementById('chType').value,
     actType:   document.getElementById('chActType').value,
     timeframe,
+    frequency,
     difficulty: selectedChallengeDiff,
     startDate:  fmtDate(new Date()),
     status:     'active',
@@ -10951,24 +11010,78 @@ function saveChallenge() {
   showToast('Challenge started! 🔥', 'success');
 }
 
-function computeChallengeProgress(ch) {
-  const acts = db.activities.filter(a => a.date >= ch.startDate && a.date <= ch.endDate && (ch.actType==='any' || a.type===ch.actType));
-  if (ch.type==='distance')  return acts.reduce((s,a)=>s+a.distance,0);
-  if (ch.type==='count')     return acts.length;
-  if (ch.type==='elevation') return acts.reduce((s,a)=>s+(a.elevation||0),0);
-  if (ch.type==='steps')     return acts.reduce((s,a)=>s+(a.steps||0),0);
-  if (ch.type==='streak') {
-    const ad = new Set(acts.map(a=>a.date));
-    const start = new Date(ch.startDate+'T00:00:00');
+/**
+ * calculateProgress(challenge)
+ *  - For 'yearly':  sums activities in the current calendar year.
+ *  - For 'monthly': sums activities in the current calendar month+year.
+ *  - Otherwise:     falls back to the ch.startDate → ch.endDate window.
+ *
+ * Elevation uses `getElevationMeters(a)` which reads the canonical
+ * `a.elevation` field (populated from Strava's `total_elevation_gain`).
+ * Scans the full `db.activities` array — UI filters are ignored here.
+ */
+function calculateProgress(ch) {
+  if (!ch) return 0;
+  const all  = (db && db.activities) ? db.activities : [];
+  const freq = ch.frequency;
+
+  if (freq === 'yearly' || freq === 'monthly') {
+    const now = new Date();
+    const curY = now.getFullYear();
+    const curM = now.getMonth();
+    const inWindow = (dateStr) => {
+      if (!dateStr || typeof dateStr !== 'string') return false;
+      const p = dateStr.split('-');
+      if (p.length < 3) return false;
+      const y = parseInt(p[0], 10);
+      const m = parseInt(p[1], 10) - 1;
+      if (y !== curY) return false;
+      if (freq === 'monthly' && m !== curM) return false;
+      return true;
+    };
+    const acts = all.filter(a =>
+      inWindow(a.date) && (ch.actType === 'any' || !ch.actType || a.type === ch.actType)
+    );
+    if (ch.type === 'distance')  return acts.reduce((s,a) => s + (a.distance || 0), 0);
+    if (ch.type === 'count')     return acts.length;
+    if (ch.type === 'elevation') return acts.reduce((s,a) => s + getElevationMeters(a), 0);
+    if (ch.type === 'steps')     return acts.reduce((s,a) => s + (a.steps || 0), 0);
+    if (ch.type === 'streak') {
+      const ad = new Set(acts.map(a => a.date));
+      let mx = 0, cur = 0;
+      const start = new Date(curY, freq === 'monthly' ? curM : 0, 1);
+      const end   = new Date();
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (ad.has(fmtDate(d))) { cur++; mx = Math.max(mx, cur); } else cur = 0;
+      }
+      return mx;
+    }
+    return 0;
+  }
+
+  // Single-activity / legacy window-based path
+  const acts = all.filter(a => a.date >= ch.startDate && a.date <= ch.endDate && (ch.actType === 'any' || a.type === ch.actType));
+  if (ch.type === 'distance')  return acts.reduce((s,a) => s + (a.distance || 0), 0);
+  if (ch.type === 'count')     return acts.length;
+  if (ch.type === 'elevation') return acts.reduce((s,a) => s + getElevationMeters(a), 0);
+  if (ch.type === 'steps')     return acts.reduce((s,a) => s + (a.steps || 0), 0);
+  if (ch.type === 'streak') {
+    const ad = new Set(acts.map(a => a.date));
+    const start = new Date(ch.startDate + 'T00:00:00');
     const end   = new Date(Math.min(new Date(ch.endDate).getTime(), Date.now()));
-    let mx=0, cur=0;
-    for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
-      if (ad.has(fmtDate(d))) { cur++; mx=Math.max(mx,cur); } else cur=0;
+    let mx = 0, cur = 0;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      if (ad.has(fmtDate(d))) { cur++; mx = Math.max(mx, cur); } else cur = 0;
     }
     return mx;
   }
   return 0;
 }
+window.calculateProgress = calculateProgress;
+
+// Back-compat alias — all existing callers (card renderer, status check,
+// badge awarder) automatically pick up the new yearly/monthly behavior.
+function computeChallengeProgress(ch) { return calculateProgress(ch); }
 
 function getChallengeStatus(ch) {
   const today = fmtDate(new Date());
@@ -11006,6 +11119,18 @@ function updateChallengeStatuses() {
   });
   if (changed) { saveData(db); checkAndAwardBadges(); }
 }
+
+function deleteChallenge(id) {
+  if (!db.challenges) return;
+  const ch = db.challenges.find(c => c.id === id);
+  if (!ch) return;
+  if (!confirm(`Delete challenge "${ch.name}"? This cannot be undone.`)) return;
+  db.challenges = db.challenges.filter(c => c.id !== id);
+  saveData(db);
+  renderChallenges();
+  showToast('Challenge deleted', 'success');
+}
+window.deleteChallenge = deleteChallenge;
 
 function retryChallenge(id) {
   const ch = db.challenges.find(c=>c.id===id);
@@ -11047,20 +11172,47 @@ function buildChallengeCard(ch) {
     ? `<div class="ch-completed-info">✓ Completed ${new Date(ch.completedDate+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : '';
   const retryBtn = ch.status==='failed'
     ? `<button class="ch-retry-btn" onclick="retryChallenge('${ch.id}')">↺ Retry</button>` : '';
+  const freqLabels = { single: 'Single', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' };
+  const freqKey = ch.frequency || 'single';
+  const freqBadge = `<span class="ch-freq-badge ${freqKey}">${freqLabels[freqKey] || cap(freqKey)}</span>`;
+  const deleteBtn = `<button class="ch-delete-btn" onclick="deleteChallenge('${ch.id}')" title="Delete challenge" aria-label="Delete challenge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+    </button>`;
   return `<div class="challenge-card ${ch.status==='failed'?'failed':ch.status==='completed'?'completed':''}">
+    ${deleteBtn}
     <div class="ch-card-header">
       <div class="ch-type-icon" style="background:${typeBg};color:${typeColor}">${typeIcon}</div>
-      <div>
+      <div class="ch-title-wrap">
         <div class="ch-name">${ch.name}</div>
         <div class="ch-meta">${ch.actType==='any'?'Any activity':cap(ch.actType)} · ${ch.unit}</div>
       </div>
-      <div class="ch-badges"><span class="difficulty-badge ${ch.difficulty}">${cap(ch.difficulty)}</span></div>
+      <div class="ch-badges">${freqBadge}<span class="difficulty-badge ${ch.difficulty}">${cap(ch.difficulty)}</span></div>
     </div>
     <div class="ch-progress-row">
       <span class="ch-progress-val">${currentDisp} / ${targetDisp} ${ch.unit}</span>
       <span class="ch-progress-pct">${pct.toFixed(0)}%</span>
     </div>
     <div class="ch-progress-wrap"><div class="ch-progress-fill" style="width:${pct}%;background:${typeColor}"></div></div>
+    ${(freqKey === 'yearly' || freqKey === 'monthly') ? (function(){
+      const windowLabel = freqKey === 'yearly'
+        ? 'This Year'
+        : new Date().toLocaleString('en-US',{month:'long'});
+      const cur = ch.type === 'distance'
+        ? current.toFixed(2) + ' km'
+        : ch.type === 'elevation'
+          ? Math.round(current).toLocaleString() + ' m'
+          : ch.type === 'steps'
+            ? Math.round(current).toLocaleString()
+            : Math.round(current);
+      const tgt = ch.type === 'distance'
+        ? Number(ch.target).toFixed(0) + ' km'
+        : ch.type === 'elevation'
+          ? Number(ch.target).toLocaleString() + ' m'
+          : ch.type === 'steps'
+            ? Number(ch.target).toLocaleString()
+            : ch.target;
+      return `<div class="ch-auto-progress">Current Progress: <b>${cur}</b> / ${tgt} <span class="ch-auto-window">(${windowLabel})</span></div>`;
+    })() : ''}
     <div class="ch-footer">
       <span class="ch-days-remaining">${ch.status==='completed'?'Done':ch.status==='failed'?'Expired':`${daysLeft} days left`}</span>
       <span class="ch-status ${status}">${statusLabel}</span>
