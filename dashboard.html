@@ -8145,21 +8145,53 @@ function calculateIntensityFromPace(activity) {
   return autoDifficulty(activity.type, activity.distance, activity.duration, activity.elevation || 0);
 }
 
+/* Elevation-first classifier. Climbing dominates perceived effort, so an
+   activity with serious elevation gain is never "Easy" no matter the pace.
+   Returns null if the thresholds don't apply, so the caller falls through
+   to pace-based classification. */
+const ELEV_HARD_M   = 600;
+const ELEV_MEDIUM_M = 200;
+function getElevationMeters(activity) {
+  if (!activity) return 0;
+  // Our canonical field is `elevation` (set by convertActivity from
+  // sa.total_elevation_gain). Fall back to raw Strava fields for safety
+  // in case an activity object is passed in before conversion.
+  var m = activity.elevation;
+  if (typeof m !== 'number') m = activity.total_elevation_gain;
+  if (typeof m !== 'number') m = activity.elev_gain;
+  return typeof m === 'number' && !isNaN(m) ? m : 0;
+}
+function classifyByElevation(activity) {
+  var m = getElevationMeters(activity);
+  if (m >= ELEV_HARD_M)   return 'hard';
+  if (m >= ELEV_MEDIUM_M) return 'medium';
+  return null;
+}
+
 /* CANONICAL intensity read. Strict precedence:
-     1. If overrides[id].manualOverride === true → return the saved category
-     2. Otherwise → fall back to the Pace Editor classifier
+     1. overrides[id].manualOverride === true → user's saved category
+     2. Elevation rule:  >=600 m → Hard, >=200 m → Medium
+     3. Otherwise → Pace Editor classifier
    Every UI site that renders a difficulty badge must use this function so
    there is exactly one place where priority is decided. */
 function getIntensity(activity) {
   if (!activity) return 'medium';
+  // 1. Manual override (highest priority — never touched by auto logic)
   var overrides;
   try { overrides = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY) || '{}') || {}; }
   catch { overrides = {}; }
   var rec = overrides[activity.id];
   if (rec && rec.manualOverride === true && rec.difficulty) {
-    if (window._debugIntensity) console.log('[getIntensity] using override for:', activity.id, '→', rec.difficulty);
+    if (window._debugIntensity) console.log('[getIntensity] override for:', activity.id, '→', rec.difficulty);
     return rec.difficulty;
   }
+  // 2. Elevation-dominated classification — climbing beats pace
+  var byElev = classifyByElevation(activity);
+  if (byElev) {
+    if (window._debugIntensity) console.log('[getIntensity] elevation rule for:', activity.id, '(', getElevationMeters(activity), 'm ) →', byElev);
+    return byElev;
+  }
+  // 3. Fall back to pace-based classification
   return calculateIntensityFromPace(activity);
 }
 // Expose globally for inline handlers and DevTools inspection.
@@ -8383,12 +8415,12 @@ function autoDifficulty(type, dist, secs, elev) {
   return 'medium';
 }
 
-/* ── Re-classify ALL run difficulties using current paceTargets ──
+/* ── Re-classify ALL activity difficulties using the elevation-first rule ──
    Precedence (highest wins):
      1. overrides[id].manualOverride === true → user's choice is locked in
-     2. autoDifficulty(pace, type, elev)      → recomputed on every pace change
-   This is the single source of truth for intensity. The Pace Editor only
-   affects rule 2; rule 1 is immune until the user hits "Reset to Automatic". */
+     2. Elevation rule  >=600 m → Hard, >=200 m → Medium
+     3. autoDifficulty(pace, type, elev)      → recomputed on every pace change
+   Pace Editor changes only affect rule 3; rules 1 & 2 are immune. */
 function reclassifyAllDifficulties() {
   if (!db || !db.activities) return;
   const ov = loadActivityOverrides();
@@ -8396,7 +8428,7 @@ function reclassifyAllDifficulties() {
   db.activities.forEach(a => {
     if (!a.distance || !a.duration) return;
     if (ov[a.id] && ov[a.id].manualOverride === true) return;
-    const newDiff = autoDifficulty(a.type, a.distance, a.duration, a.elevation || 0);
+    const newDiff = classifyByElevation(a) || autoDifficulty(a.type, a.distance, a.duration, a.elevation || 0);
     if (newDiff !== a.difficulty) {
       a.difficulty = newDiff;
       changed++;
@@ -8404,7 +8436,7 @@ function reclassifyAllDifficulties() {
   });
   if (changed > 0) {
     saveData(db);
-    console.log(`[PaceSync] Reclassified ${changed} activities (manual overrides preserved)`);
+    console.log(`[Reclassify] ${changed} activities updated (elevation-first + pace, manual overrides preserved)`);
   }
   return changed;
 }
@@ -19678,7 +19710,11 @@ BADGE_DEFS.push(
     } else if (type === 'cycle' && typeof sa.kilojoules === 'number' && sa.kilojoules > 0) {
       cals = Math.round(sa.kilojoules); // Strava's own ride energy value
     }
-    var diff  = autoDifficulty(type, distKm, durSecs, elev);
+    // Elevation-first classification: climbing dominates pace.
+    var diff;
+    if (elev >= ELEV_HARD_M)        diff = 'hard';
+    else if (elev >= ELEV_MEDIUM_M) diff = 'medium';
+    else                            diff = autoDifficulty(type, distKm, durSecs, elev);
 
     // Strava ID — stored raw so duplicate checks are exact
     var stravaId = sa.id ? String(sa.id) : '';
