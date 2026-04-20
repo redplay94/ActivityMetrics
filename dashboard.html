@@ -1509,6 +1509,13 @@ body.modal-open header {
 }
 .avatar-pick-item:hover { border-color:var(--text-muted); transform:scale(1.06); }
 .avatar-pick-item.selected { border-color:var(--cycle); background:var(--cycle-dim); box-shadow:0 0 0 2px rgba(59,130,246,.25); }
+.avatar-upload-spinner {
+  display:inline-block; width:10px; height:10px; vertical-align:-1px;
+  border:1.5px solid var(--border); border-top-color:var(--cycle);
+  border-radius:50%; animation:avatarSpin .8s linear infinite;
+  margin-right:4px;
+}
+@keyframes avatarSpin { to { transform:rotate(360deg); } }
 .units-toggle { display:flex; background:var(--bg3); border-radius:var(--radius-sm); padding:3px; border:1px solid var(--border); }
 .units-opt { flex:1; padding:6px 0; text-align:center; border-radius:6px; font-size:.78rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all var(--transition); }
 .units-opt.active { background:var(--bg2); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,.2); }
@@ -11955,7 +11962,70 @@ let countdownInterval = null;
 function loadUser() {
   try { return JSON.parse(localStorage.getItem(USER_KEY)) || null; } catch { return null; }
 }
-function saveUser(u) { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function saveUser(u) {
+  try {
+    localStorage.setItem(USER_KEY, JSON.stringify(u));
+    return true;
+  } catch (err) {
+    var quota = err && (err.name === 'QuotaExceededError' ||
+                        err.code === 22 || err.code === 1014);
+    if (typeof showToast === 'function') {
+      showToast(quota
+        ? 'Storage full — profile photo was too large to save. Try a smaller image.'
+        : 'Could not save profile: ' + (err && err.message || 'unknown error'),
+        'error');
+    }
+    console.error('[saveUser] failed', err);
+    return false;
+  }
+}
+
+/* Reload the current user from durable storage and re-paint every UI
+   slot that shows the avatar / name. Called on page load and right
+   after doLogin so a re-login always rehydrates the saved avatar. */
+function fetchUserProfile() {
+  var u = loadUser();
+  if (!u) return null;
+  currentUser = u;
+  if (typeof renderAuthHeader === 'function') renderAuthHeader();
+  // If the profile page is currently open, refresh the hero too.
+  var profOpen = document.getElementById('profileOverlay')?.classList.contains('open');
+  if (profOpen && typeof renderProfileHero === 'function') renderProfileHero();
+  return u;
+}
+window.fetchUserProfile = fetchUserProfile;
+
+/* ── Avatar image resize ─ crops square from center, scales to
+   `size` px (default 150), encodes as JPEG 0.85. Returns a Promise
+   that resolves to a base64 data URL. Keeps uploads well under the
+   localStorage quota (typically 15–30 KB vs multiple MB raw). */
+function resizeAvatarImage(file, size) {
+  size = size || 150;
+  return new Promise(function(resolve, reject) {
+    if (!file) { reject(new Error('No file')); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var sw = img.width, sh = img.height;
+        var s  = Math.min(sw, sh);
+        var sx = (sw - s) / 2, sy = (sh - s) / 2;
+        var canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+        try {
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        } catch (err) { reject(err); }
+      };
+      img.onerror = function(){ reject(new Error('Image decode failed')); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ reject(new Error('File read failed')); };
+    reader.readAsDataURL(file);
+  });
+}
 
 function getSession() {
   try {
@@ -12008,7 +12078,9 @@ function initAuth() {
       };
     }
   }
-  renderAuthHeader();
+  // Pulls the freshest record from storage (incl. avatar) and repaints.
+  // Safe no-op when no user exists.
+  if (currentUser) fetchUserProfile(); else renderAuthHeader();
 }
 
 function renderAuthHeader() {
@@ -12148,14 +12220,19 @@ function selectSignupAvatar(val, el) {
 }
 function handleSignupAvatarUpload(e) {
   const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    signupUploadedAvatar = ev.target.result;
+  const nameEl = document.getElementById('signupUploadName');
+  if (nameEl) { nameEl.innerHTML = '<span class="avatar-upload-spinner"></span> Resizing ' + escHtml(file.name) + '…'; }
+  resizeAvatarImage(file, 150).then(function(dataUrl) {
+    signupUploadedAvatar = dataUrl;
     signupAvatarValue = null;
     document.querySelectorAll('#signupAvatarGrid .avatar-pick-item').forEach(x => x.classList.remove('selected'));
-    document.getElementById('signupUploadName').textContent = file.name;
-  };
-  reader.readAsDataURL(file);
+    if (nameEl) nameEl.textContent = file.name + ' (150×150)';
+  }).catch(function(err) {
+    console.error('[signup avatar]', err);
+    if (nameEl) nameEl.textContent = '';
+    if (typeof showToast === 'function') showToast('Could not process image. Try another file.', 'error');
+    try { e.target.value = ''; } catch(_) {}
+  });
 }
 function selectSignupUnits(el) {
   document.querySelectorAll('#signupUnitsToggle .units-opt').forEach(x => x.classList.remove('active'));
@@ -12178,7 +12255,8 @@ function doLogin() {
   currentUser = u;
   setSession(email, rem);
   closeAuthModal();
-  renderAuthHeader();
+  // Rehydrate from storage (avatar, etc.) on every login.
+  fetchUserProfile();
   showToast(`Welcome back, ${u.firstName}! 👋`);
 }
 function doSignup() {
@@ -12204,8 +12282,11 @@ function doSignup() {
   showToast(`Welcome to ActivityMetrics, ${first}! 🎉`);
 }
 function logOut() {
+  // Clear only the auth session — keep the user record (incl. avatar)
+  // so re-login restores the profile. Strava token is bound to the
+  // session, so it goes; activities/races are per-user data that also
+  // clears so a different account can sign in clean.
   clearSession();
-  localStorage.removeItem('actmtr_user');
   localStorage.removeItem('userFirstName');
   localStorage.removeItem('strava_athlete');
   localStorage.removeItem(STORAGE_KEY);
@@ -12242,24 +12323,37 @@ function selectEditAvatar(val, el) {
 }
 function handleEditAvatarUpload(e) {
   const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    editUploadedAvatar = ev.target.result;
+  const nameEl = document.getElementById('editUploadName');
+  if (nameEl) { nameEl.innerHTML = '<span class="avatar-upload-spinner"></span> Resizing ' + escHtml(file.name) + '…'; }
+  resizeAvatarImage(file, 150).then(function(dataUrl) {
+    editUploadedAvatar = dataUrl;
     editAvatarValue = null;
     document.querySelectorAll('#editAvatarGrid .avatar-pick-item').forEach(x => x.classList.remove('selected'));
-    document.getElementById('editUploadName').textContent = file.name;
-  };
-  reader.readAsDataURL(file);
+    if (nameEl) nameEl.textContent = file.name + ' (150×150)';
+  }).catch(function(err) {
+    console.error('[avatar upload]', err);
+    if (nameEl) nameEl.textContent = '';
+    if (typeof showToast === 'function') showToast('Could not process image. Try another file.', 'error');
+    // reset the file input so the same file can be re-selected
+    try { e.target.value = ''; } catch(_) {}
+  });
 }
 function saveProfileEdit() {
   if (!currentUser) return;
   const first = document.getElementById('editFirst').value.trim();
   const last  = document.getElementById('editLast').value.trim();
   if (!first || !last) { showToast('Please enter your name.', 'error'); return; }
+  // Snapshot current avatar so a failed save can be rolled back cleanly.
+  const prevAvatar = currentUser.avatar;
   currentUser.firstName = first;
   currentUser.lastName  = last;
   currentUser.avatar    = editUploadedAvatar || editAvatarValue || currentUser.avatar;
-  saveUser(currentUser);
+  if (!saveUser(currentUser)) {
+    // saveUser already toasted a specific error; revert in-memory avatar
+    // so a refresh doesn't briefly show the unsaved one.
+    currentUser.avatar = prevAvatar;
+    return;
+  }
   closeProfileEditModal();
   renderAuthHeader();
   renderProfileHero();
