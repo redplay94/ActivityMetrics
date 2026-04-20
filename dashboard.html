@@ -272,6 +272,61 @@ body.modal-open header {
 .streak-label { font-size: .75rem; color: rgba(255,255,255,.8); }
 .streak-best { font-size: .72rem; background: rgba(0,0,0,.2); color: #fff; padding: 3px 8px; border-radius: 99px; }
 
+/* ─── Metabolic State Card (Dashboard → Performance Profile) ────── */
+.metab-card {
+  background: linear-gradient(135deg, rgba(20,184,166,.14), rgba(13,148,136,.06));
+  border: 1px solid rgba(20,184,166,.35);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 16px; cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.metab-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(20,184,166,.6);
+  box-shadow: 0 6px 22px rgba(20,184,166,.18);
+}
+.metab-card:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.metab-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(20,184,166,.22);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.metab-body { flex: 1; min-width: 0; }
+.metab-label {
+  font-size: .66rem; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 2px;
+}
+.metab-value-row { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.metab-value {
+  font-size: 1.4rem; font-weight: 800; color: var(--text);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.metab-unit { font-size: .68rem; color: var(--text-muted); }
+.metab-trend {
+  font-size: .78rem; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  background: var(--bg3); color: var(--text-muted);
+}
+.metab-trend.up   { background: rgba(239,68,68,.14); color: #ef4444; }
+.metab-trend.down { background: rgba(34,197,94,.14); color: #22c55e; }
+.metab-trend.flat { background: var(--bg3); color: var(--text-muted); }
+.metab-profile { font-size: .76rem; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+.metab-chevron { color: var(--teal); flex-shrink: 0; opacity: .75; }
+.metab-card.empty { background: var(--bg2); border-style: dashed; border-color: var(--border); }
+.metab-card.empty .metab-icon { background: var(--bg3); opacity: .7; }
+.metab-card.empty .metab-label { color: var(--text-muted); }
+.metab-card.empty .metab-value { color: var(--text-dim); }
+.metab-card.empty .metab-chevron { color: var(--text-muted); }
+@media (max-width: 560px) {
+  .metab-card { padding: 10px 12px; gap: 10px; }
+  .metab-icon { width: 34px; height: 34px; font-size: 1.1rem; }
+  .metab-value { font-size: 1.15rem; }
+  .metab-label { font-size: .6rem; }
+  .metab-profile { font-size: .7rem; }
+}
+
 /* ─── Calendar ─────────────────────────────────────────────────── */
 .calendar-card {
   background: var(--bg2);
@@ -1772,6 +1827,15 @@ body.modal-open header {
 .rec-card-body  { font-size:.83rem; color:var(--text-muted); line-height:1.65; }
 .rec-reasoning  { margin-top:14px; padding:10px 14px; background:var(--bg3); border-radius:var(--radius-sm); font-size:.73rem; color:var(--text-muted); line-height:1.5; }
 .rec-reasoning strong { color:var(--text); }
+.rec-card-metab {
+  background:linear-gradient(135deg,rgba(20,184,166,.12),rgba(13,148,136,.04));
+  border-color:rgba(20,184,166,.35);
+  transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);
+}
+.rec-card-metab:hover { transform:translateY(-1px); border-color:rgba(20,184,166,.6); box-shadow:0 6px 22px rgba(20,184,166,.18); }
+.rec-card-metab:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+.rec-card-metab .rec-card-label { color:var(--teal); }
+.rec-card-metab .rec-card-body strong { color:var(--text); }
 
 .recovery-card { background:var(--card-glass); border:1px solid var(--card-glass-border); border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
 .recovery-status-row { display:flex; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
@@ -2396,41 +2460,6 @@ body.modal-open header {
 }
 .calendar-overlay.open { transform:none; }
 .calendar-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
-.friends-overlay {
-  position:fixed; left:0; right:0; bottom:0; z-index:500;
-  background:var(--bg); overflow-y:auto;
-  transform:translateX(100%);
-  transition:transform .35s cubic-bezier(.4,0,.2,1);
-}
-.friends-overlay.open { transform:none; }
-.friends-page-content { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
-/* ── Friends inner modals (Add Friend & Leaderboard) ── */
-.friends-inner-modal-overlay{
-  position:absolute;inset:0;z-index:10;
-  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
-  display:flex;align-items:center;justify-content:center;
-  padding:16px;
-  opacity:0;pointer-events:none;
-  transition:opacity .2s ease;
-}
-.friends-inner-modal-overlay.open{opacity:1;pointer-events:all}
-.friends-inner-modal{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--radius);box-shadow:0 24px 64px rgba(0,0,0,.6);
-  width:92%;max-width:560px;max-height:85vh;overflow-y:auto;
-  transform:translateY(20px) scale(.97);
-  transition:transform .25s ease;
-}
-.friends-inner-modal-overlay.open .friends-inner-modal{transform:none}
-@media(max-width:700px){
-  .friends-inner-modal-overlay{align-items:flex-end;padding:0}
-  .friends-inner-modal{
-    border-radius:16px 16px 0 0;max-height:90vh;
-    width:100%;max-width:100%!important;
-    transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
-  }
-  .friends-inner-modal-overlay.open .friends-inner-modal{transform:translateY(0)}
-}
 .calendar-back-btn {
   display:flex; align-items:center; gap:8px;
   padding:16px 0 12px; font-size:.85rem; font-weight:600;
@@ -2950,6 +2979,115 @@ select.pace-input { text-align:left; cursor:pointer; }
 }
 .vo2-overlay.open { display:block; }
 .vo2-page { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
+
+/* ─── Performance Profile Overlay (VLaMax + VO2 Max + Metabolic Balance) ─── */
+.perf-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0; z-index:700;
+  background:var(--bg); overflow-y:auto;
+  display:none;
+}
+.perf-overlay.open { display:block; }
+.perf-page { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
+.perf-page-title {
+  font-size:1.4rem; font-weight:800; margin-bottom:4px;
+  display:flex; align-items:center; gap:10px;
+}
+.perf-page-title .perf-title-icon { color:var(--teal); }
+.perf-page-sub { font-size:.85rem; color:var(--text-muted); margin-bottom:20px; }
+.perf-section {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px;
+  box-shadow:var(--card-shadow); margin-bottom:16px;
+  scroll-margin-top:100px;
+}
+.perf-section-title {
+  display:flex; align-items:center; gap:8px;
+  font-size:1rem; font-weight:700; margin-bottom:6px;
+}
+.perf-section-sub { font-size:.78rem; color:var(--text-muted); margin-bottom:14px; line-height:1.5; }
+.perf-pb-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  margin-bottom:14px;
+}
+.perf-pb-field { display:flex; flex-direction:column; gap:4px; }
+.perf-pb-field label {
+  font-size:.68rem; font-weight:700; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.6px;
+}
+.perf-pb-field input {
+  background:var(--bg3); border:1.5px solid var(--border); color:var(--text);
+  border-radius:var(--radius-sm); padding:8px 10px; font-size:.9rem;
+  font-variant-numeric:tabular-nums; outline:none;
+  transition:border-color var(--transition);
+}
+.perf-pb-field input:focus { border-color:var(--teal); }
+.perf-pb-field small { font-size:.62rem; color:var(--text-dim); }
+.perf-action-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.perf-result-card {
+  background:var(--bg3); border-radius:var(--radius-sm); padding:14px 16px;
+  border-left:3px solid var(--teal); margin-top:14px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.perf-result-value {
+  font-size:1.6rem; font-weight:800; color:var(--teal);
+  font-variant-numeric:tabular-nums;
+}
+.perf-result-unit { font-size:.72rem; color:var(--text-muted); font-weight:500; margin-left:4px; }
+.perf-result-label { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; }
+.perf-result-note { font-size:.78rem; color:var(--text-muted); line-height:1.5; }
+.perf-explain-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  margin-top:14px;
+}
+.perf-explain-card {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:12px 14px;
+}
+.perf-explain-card.high { border-left:3px solid #ef4444; }
+.perf-explain-card.low  { border-left:3px solid #22c55e; }
+.perf-explain-title { font-size:.82rem; font-weight:700; margin-bottom:6px; }
+.perf-explain-body  { font-size:.74rem; color:var(--text-muted); line-height:1.5; }
+.perf-placeholder {
+  background:var(--bg3); border:1px dashed var(--border);
+  border-radius:var(--radius-sm); padding:26px 16px; text-align:center;
+  color:var(--text-muted); font-size:.82rem;
+}
+.perf-chart-box {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:14px;
+}
+.perf-metabolic-svg { width:100%; height:auto; display:block; }
+.perf-chart-caption {
+  margin-top:10px; font-size:.78rem; color:var(--text-muted);
+  text-align:center; line-height:1.5;
+}
+.perf-chart-caption strong { color:var(--teal); font-variant-numeric:tabular-nums; }
+.perf-chart-link {
+  color:var(--teal); font-weight:600; cursor:pointer;
+  text-decoration:underline; text-decoration-thickness:1px;
+}
+.perf-coach-hint {
+  background:var(--teal-dim); border:1px solid rgba(20,184,166,.3);
+  border-radius:var(--radius-sm); padding:12px 14px; font-size:.8rem;
+  color:var(--teal); line-height:1.5;
+  display:flex; align-items:flex-start; gap:8px;
+}
+.perf-link-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:var(--radius-sm);
+  background:var(--bg3); border:1.5px solid var(--border);
+  color:var(--text); font-size:.82rem; font-weight:600;
+  transition:all var(--transition);
+}
+.perf-link-btn:hover { border-color:var(--teal); color:var(--teal); }
+.perf-link-btn svg { width:13px; height:13px; }
+@media (max-width:760px) {
+  .perf-pb-grid { grid-template-columns:repeat(2,1fr); }
+  .perf-explain-grid { grid-template-columns:1fr; }
+  .perf-page-title { font-size:1.2rem; }
+  .perf-section { padding:16px; }
+  .perf-result-value { font-size:1.35rem; }
+}
 .vo2-page-title {
   display:flex; align-items:center; gap:10px;
   font-size:1.4rem; font-weight:800; margin-bottom:6px;
@@ -3834,219 +3972,17 @@ select.vo2-input { cursor:pointer; }
 }
 
 /* ════════════════════════════════════════════════════════════════
-   FRIENDS SECTION  — accent: teal (#14b8a6)
+   SHARED UTILITIES  — teal accent (Performance Profile), difficulty
+   badges, and modal overlay layering
 ════════════════════════════════════════════════════════════════ */
 :root { --teal:#14b8a6; --teal-dim:rgba(20,184,166,.13); }
-.friends-count-badge{font-size:.72rem;font-weight:500;color:var(--teal);margin-left:4px}
-/* Tab nav */
-.friends-tabs-nav{display:flex;gap:4px;background:var(--bg3);border-radius:var(--radius-sm);padding:4px;margin-bottom:16px;flex-wrap:wrap}
-.friends-tab-btn{flex:1;padding:7px 14px;border-radius:6px;font-size:.8rem;font-weight:600;color:var(--text-muted);transition:all var(--transition);white-space:nowrap;min-width:100px}
-.friends-tab-btn.active{background:var(--bg2);color:var(--teal);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.friends-tab-btn:hover:not(.active){color:var(--text)}
-.friends-tab-panel{display:none}
-.friends-tab-panel.active{display:block}
-/* Toolbar */
-.friends-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.friends-search{flex:1;min-width:140px;background:var(--bg3);border:1.5px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:.82rem;outline:none;transition:border-color var(--transition)}
-.friends-search:focus{border-color:var(--teal)}
-.friends-view-toggle{display:flex;gap:3px;background:var(--bg3);border-radius:var(--radius-sm);padding:3px}
-.view-toggle-btn{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--transition)}
-.view-toggle-btn.active{background:var(--bg2);color:var(--teal)}
-.view-toggle-btn svg{width:14px;height:14px}
-/* Friends grid */
-.friends-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:900px){.friends-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.friends-grid{grid-template-columns:1fr}}
-.friends-grid.list-view{grid-template-columns:1fr}
-/* Friend card */
-.friend-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow);transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);position:relative;cursor:pointer}
-.friend-card:hover{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 6px 24px rgba(20,184,166,.15)}
-.friend-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.friend-avatar{width:48px;height:48px;border-radius:50%;border:2px solid var(--teal);flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;overflow:hidden}
-.friend-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.friend-info{flex:1;min-width:0}
-.friend-name{font-size:.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.friend-username{font-size:.72rem;color:var(--teal);margin-bottom:2px}
-.friend-since{font-size:.65rem;color:var(--text-muted)}
-.friend-status{display:flex;align-items:center;gap:5px;font-size:.7rem;margin-bottom:8px}
-.f-active-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.f-active-dot.green{background:#22c55e}
-.f-active-dot.grey{background:var(--text-dim)}
-.friend-streak{display:flex;align-items:center;gap:4px;font-size:.75rem;font-weight:600;margin-bottom:8px;color:#f97316}
-.friend-week-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.friend-stat-mini{background:var(--bg3);border-radius:6px;padding:6px 8px}
-.friend-stat-mini-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
-.friend-stat-mini-value{font-size:.82rem;font-weight:700;color:var(--teal)}
-.friend-comparison{font-size:.7rem;background:var(--bg3);border-radius:6px;padding:5px 8px;border-left:2px solid var(--teal);color:var(--text-muted)}
-.friend-comparison.ahead{border-left-color:#22c55e;color:#22c55e}
-.friend-comparison.behind{border-left-color:#f97316;color:#f97316}
-.friend-msg-badge{position:absolute;top:-4px;left:10px;background:var(--teal);color:#fff;border-radius:99px;font-size:.55rem;font-weight:700;padding:1px 6px;pointer-events:none}
-/* Friend card menu */
-.friend-dropdown{position:absolute;top:10px;right:10px;z-index:10}
-.friend-menu-btn{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);background:var(--bg3);border:1px solid var(--border);transition:all var(--transition)}
-.friend-menu-btn:hover{color:var(--text);border-color:var(--text-muted)}
-.friend-menu-btn svg{width:14px;height:14px}
-.friend-menu-popup{position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--card-shadow);min-width:165px;z-index:20;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-4px);transition:all .15s ease}
-.friend-menu-popup.open{opacity:1;pointer-events:all;transform:none}
-.friend-menu-item{padding:9px 12px;font-size:.8rem;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text-muted);transition:background var(--transition)}
-.friend-menu-item:hover{background:var(--bg3);color:var(--text)}
-.friend-menu-item.danger:hover{background:rgba(239,68,68,.1);color:#ef4444}
-.friend-menu-item svg{width:13px;height:13px;flex-shrink:0}
-/* List view */
-.friends-grid.list-view .friend-card{padding:12px 16px}
-.friends-grid.list-view .friend-card-top{margin-bottom:0;align-items:center}
-.friends-grid.list-view .friend-week-stats,.friends-grid.list-view .friend-comparison,
-.friends-grid.list-view .friend-streak,.friends-grid.list-view .friend-status{display:none}
-/* Empty state */
-.friends-empty{text-align:center;padding:40px 20px;color:var(--text-muted)}
-.friends-empty-icon{font-size:2.5rem;margin-bottom:10px}
-/* ── Add Friend ── */
-.friends-add-note{background:var(--teal-dim);border:1px solid rgba(20,184,166,.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:.78rem;color:var(--teal);margin-bottom:16px}
-.friends-quick-add{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.friends-quick-btn{padding:7px 13px;border-radius:var(--radius-sm);font-size:.75rem;font-weight:600;background:var(--bg3);border:1.5px solid var(--border);color:var(--text-muted);transition:all var(--transition)}
-.friends-quick-btn:hover{border-color:var(--teal);color:var(--teal)}
-.avatar-picker{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
-.avatar-opt{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid var(--border);cursor:pointer;background:var(--bg3);transition:all var(--transition)}
-.avatar-opt.selected{border-color:var(--teal);background:var(--teal-dim)}
-.avatar-opt:hover:not(.selected){border-color:var(--teal)}
-.avatar-upload-label{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);font-size:.78rem;cursor:pointer;color:var(--text-muted);transition:all var(--transition);background:var(--bg3);margin-top:8px}
-.avatar-upload-label:hover{border-color:var(--teal);color:var(--teal)}
 .btn-teal{background:linear-gradient(135deg,var(--teal),#0d9488);color:#fff;border:none;box-shadow:0 3px 12px rgba(20,184,166,.25)}
 .btn-teal:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(20,184,166,.4)}
-.friends-io-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.recently-added-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin:16px 0 8px}
-.just-added-badge{font-size:.6rem;font-weight:700;background:var(--teal);color:#fff;padding:1px 6px;border-radius:99px;margin-left:6px}
-/* ── Leaderboard ── */
-.lb-toggle-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.lb-toggle-btn{padding:6px 14px;border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;background:var(--bg3);border:1.5px solid var(--border);color:var(--text-muted);transition:all var(--transition)}
-.lb-toggle-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
-.lb-category-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.lb-cat-btn{padding:5px 12px;border-radius:99px;font-size:.75rem;font-weight:600;background:var(--bg3);border:1.5px solid var(--border);color:var(--text-muted);transition:all var(--transition)}
-.lb-cat-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
-.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid transparent;transition:all var(--transition)}
-.lb-row.you-row{border-color:var(--teal);background:var(--teal-dim)}
-.lb-rank{font-size:.9rem;font-weight:800;min-width:28px;text-align:center}
-.lb-rank.gold{color:#fbbf24}
-.lb-rank.silver{color:#9ca3af}
-.lb-rank.bronze{color:#d97706}
-.lb-avatar{width:32px;height:32px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;overflow:hidden;border:1.5px solid var(--border)}
-.lb-avatar img{width:100%;height:100%;object-fit:cover}
-.lb-name-wrap{flex:1;min-width:0}
-.lb-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-you-tag{font-size:.6rem;background:var(--teal);color:#fff;padding:1px 5px;border-radius:99px;margin-left:5px;vertical-align:middle}
-.lb-acts{font-size:.7rem;color:var(--text-muted)}
-.lb-km{font-size:.9rem;font-weight:700;color:var(--teal);min-width:55px;text-align:right}
-.lb-bar-wrap{width:60px}
-.lb-bar-bg{background:var(--bg2);border-radius:99px;height:5px;overflow:hidden}
-.lb-bar-fill{height:100%;background:var(--teal);border-radius:99px;transition:width .5s ease}
-.lb-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.lb-stat-box{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
-.lb-stat-box-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.lb-stat-box-value{font-size:1rem;font-weight:800;color:var(--teal)}
-.lb-rank-summary{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 14px;font-size:.78rem;border-left:3px solid var(--teal);display:flex;gap:16px;flex-wrap:wrap}
-.lb-rank-summary strong{color:var(--teal)}
-@media(max-width:600px){.lb-bar-wrap{display:none}.lb-stats-row{grid-template-columns:1fr 1fr}}
-/* ── Activity Feed ── */
-.friends-feed-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-.friends-feed-title{font-size:.85rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.friends-feed{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
-.feed-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px}
-.feed-avatar{width:30px;height:30px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;overflow:hidden}
-.feed-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.feed-content{flex:1}
-.feed-text{font-size:.78rem;line-height:1.4}
-.feed-text .feed-friend-name{color:var(--teal);font-weight:700}
-.feed-meta{font-size:.65rem;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.feed-kudos-btn{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--text-muted);padding:2px 7px;border-radius:99px;background:var(--bg2);border:1px solid var(--border);transition:all var(--transition)}
-.feed-kudos-btn:hover,.feed-kudos-btn.liked{color:#ef4444;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08)}
-/* ── Friend Profile Modal ── */
-#friendProfileModal .modal{max-width:640px}
-.fp-header{display:flex;align-items:center;gap:16px;padding:20px;border-bottom:1px solid var(--border)}
-.fp-avatar{width:64px;height:64px;border-radius:50%;border:3px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;overflow:hidden;background:var(--bg3)}
-.fp-avatar img{width:100%;height:100%;object-fit:cover}
-.fp-name{font-size:1.1rem;font-weight:800}
-.fp-username{font-size:.75rem;color:var(--teal);margin-bottom:2px}
-.fp-since{font-size:.68rem;color:var(--text-muted)}
-.fp-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 20px;border-bottom:1px solid var(--border)}
-@media(max-width:480px){.fp-stats-grid{grid-template-columns:repeat(2,1fr)}}
-.fp-stat-box{background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center}
-.fp-stat-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.fp-stat-value{font-size:.95rem;font-weight:800;color:var(--teal)}
-.fp-section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);padding:14px 20px 6px}
-.fp-activities{padding:0 20px 8px;display:flex;flex-direction:column;gap:6px}
-.fp-act-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:.78rem}
-.fp-act-type{font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:99px}
-.fp-act-type.run{background:var(--run-dim);color:var(--run)}
-.fp-act-type.hike{background:var(--walk-dim);color:var(--walk)}
-.fp-act-type.cycle{background:var(--cycle-dim);color:var(--cycle)}
-.fp-prs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 20px 16px}
-.fp-pr-box{background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px}
-.fp-pr-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
-.fp-pr-value{font-size:.85rem;font-weight:700}
-.fp-h2h{padding:0 20px 20px}
-.fp-h2h-title{font-size:.82rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.fp-h2h-badge{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px}
-.fp-h2h-badge.winning{background:rgba(34,197,94,.15);color:#22c55e}
-.fp-h2h-badge.losing{background:rgba(239,68,68,.15);color:#ef4444}
-.fp-h2h-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.78rem}
-.fp-h2h-you{flex:1;text-align:right;font-weight:700;color:var(--teal)}
-.fp-h2h-label{flex:1;text-align:center;color:var(--text-muted);font-size:.7rem}
-.fp-h2h-them{flex:1;font-weight:700;color:#f97316}
-.fp-h2h-bars{display:flex;gap:3px;align-items:flex-end;height:80px;margin:10px 0 6px}
-.fp-h2h-month-group{flex:1;display:flex;gap:1px;align-items:flex-end}
-.fp-h2h-bar{flex:1;border-radius:3px 3px 0 0;min-height:2px;transition:height .4s ease}
-.fp-h2h-bar.you{background:var(--teal)}
-.fp-h2h-bar.them{background:#f97316}
-.fp-h2h-legend{display:flex;gap:12px;font-size:.68rem;color:var(--text-muted)}
-.fp-h2h-legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
-@media(max-width:400px){.fp-prs{grid-template-columns:1fr}}
-/* ── Social Badges ── */
-.social-badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
-.social-badge-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center;transition:all var(--transition)}
-.social-badge-card.earned{border-color:var(--teal);background:var(--teal-dim)}
-.social-badge-card.locked{opacity:.5}
-.social-badge-icon{font-size:1.5rem;margin-bottom:4px}
-.social-badge-name{font-size:.72rem;font-weight:700;margin-bottom:2px}
-.social-badge-desc{font-size:.62rem;color:var(--text-muted)}
-.social-badge-tier{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:99px;margin-top:3px;display:inline-block}
-.social-badge-tier.bronze{background:rgba(217,119,6,.15);color:#d97706}
-.social-badge-tier.silver{background:rgba(156,163,175,.15);color:#9ca3af}
-.social-badge-tier.gold{background:rgba(251,191,36,.15);color:#fbbf24}
-.social-badge-tier.platinum{background:rgba(20,184,166,.15);color:var(--teal)}
-/* ── Motivational Messages ── */
-.motiv-list{display:flex;flex-direction:column;gap:6px}
-.motiv-option{padding:9px 12px;background:var(--bg3);border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;font-size:.82rem;transition:all var(--transition)}
-.motiv-option:hover,.motiv-option.selected{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
-.motiv-history{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto}
-.motiv-history-item{font-size:.72rem;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);display:flex;justify-content:space-between;gap:8px}
-.motiv-history-text{color:var(--text-muted);flex:1}
-.motiv-history-date{color:var(--text-dim);flex-shrink:0}
-/* ── Update Stats ── */
-.update-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-@media(max-width:480px){.update-form-grid{grid-template-columns:1fr}}
-/* ── Friend Last Activity Preview on Card ── */
-.friend-last-act{font-size:.72rem;color:var(--text-muted);padding:5px 0;border-top:1px solid var(--border);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.friend-last-act.muted{color:var(--text-dim)}
-/* ── Add Activity Form ── */
-.fa-type-row,.fa-diff-row{display:flex;gap:8px;flex-wrap:wrap}
-.fa-type-btn,.fa-diff-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;font-size:.82rem;background:var(--bg3);transition:all var(--transition);user-select:none}
-.fa-type-btn input,.fa-diff-btn input{display:none}
-.fa-type-btn:has(input:checked){border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
-.fa-diff-btn.diff-easy:has(input:checked){border-color:#22c55e;background:rgba(34,197,94,.12);color:#22c55e}
-.fa-diff-btn.diff-medium:has(input:checked){border-color:#f59e0b;background:rgba(245,158,11,.12);color:#f59e0b}
-.fa-diff-btn.diff-hard:has(input:checked){border-color:#ef4444;background:rgba(239,68,68,.12);color:#ef4444}
-/* ── Full Activity Row in Profile ── */
-.fp-act-full{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
-.fp-act-full-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.fp-act-full-title{font-size:.8rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fp-act-full-stats{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--text-muted)}
-.fp-act-full-stats strong{color:var(--text)}
-/* ── Difficulty Badges ── */
-.fp-diff-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+/* ── Difficulty Badges (shared by Activity Log) ── */
 .diff-easy{background:rgba(34,197,94,.15);color:#22c55e}
 .diff-medium{background:rgba(245,158,11,.15);color:#f59e0b}
 .diff-hard{background:rgba(239,68,68,.15);color:#ef4444}
-/* ── Friend Modal Overlay Fixes ─────────────────────────────── */
+/* ── Modal Overlay Z-Index Layering ─────────────────────────── */
 /* Raise all modal overlays above nav-section-overlay (z-index:500) and header */
 .modal-overlay{z-index:1000!important}
 /* Best Activity modal & detail must sit above profile overlay (z-index:999999) */
@@ -4058,17 +3994,12 @@ select.vo2-input { cursor:pointer; }
 #bucketModalOverlay{z-index:1000001!important}
 /* Desktop sizing per spec */
 .modal{max-width:700px;max-height:85vh}
-#friendProfileModal .modal{max-width:700px}
 /* Mobile: full-width slide-up panel */
 @media(max-width:700px){
   .modal-overlay{align-items:flex-end;padding:0}
   .modal-overlay .modal{border-radius:16px 16px 0 0;max-height:90vh;width:100%;max-width:100%!important;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
   .modal-overlay.open .modal{transform:translateY(0)}
 }
-/* Leaderboard rows clickable */
-.lb-row:not(.you-row){cursor:pointer}
-.lb-row:not(.you-row):hover{background:var(--bg2);border-color:var(--border)}
-
 /* ─── Strava Import ────────────────────────────────────────── */
 .strava-nav-btn {
   display:flex; align-items:center; gap:6px;
@@ -4685,7 +4616,6 @@ header { padding: 0 !important; z-index: 600 !important; }
 .hg-preview.hg-pcalc{color:#06b6d4}.hg-preview.hg-pcalc::before{background:#06b6d4}
 .hg-preview.hg-vo2{color:#ec4899}.hg-preview.hg-vo2::before{background:#ec4899}
 .hg-preview.hg-badge{color:#eab308}.hg-preview.hg-badge::before{background:#eab308}
-.hg-preview.hg-friends{color:#14b8a6}.hg-preview.hg-friends::before{background:#14b8a6}
 
 /* Heart Rate zone bar visual */
 .hg-hr-bar{
@@ -5151,60 +5081,6 @@ header { padding: 0 !important; z-index: 600 !important; }
 
   /* BA detail overlay also full-screen */
   .ba-detail-overlay { z-index:1000002 !important; }
-
-  /* ── Friends Leaderboard: Mobile Centering & Polish ── */
-  #leaderboardModalOverlay {
-    position:fixed !important; inset:0 !important;
-    z-index:1000000 !important;
-    background:rgba(10,10,10,.92) !important;
-    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
-    display:flex !important; align-items:center !important; justify-content:center !important;
-    padding:12px !important;
-  }
-  #leaderboardModalOverlay .friends-inner-modal {
-    width:95% !important; max-width:100% !important;
-    max-height:80vh !important;
-    border-radius:20px !important;
-    background:rgba(22,27,39,.72) !important;
-    border:1px solid rgba(255,255,255,.08) !important;
-    box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset !important;
-    backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important;
-    overflow-y:auto;
-    transform:none !important;
-  }
-  #leaderboardModalOverlay .modal-header {
-    position:sticky; top:0; z-index:3;
-    background:rgba(22,27,39,.95);
-    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    padding:18px 20px 14px;
-    border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  #leaderboardModalOverlay .modal-title { font-size:.95rem; }
-  #leaderboardModalOverlay .modal-body { padding:16px !important; }
-  #leaderboardModalOverlay #lbList {
-    max-height:52vh; overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    margin-bottom:20px;
-  }
-
-  /* Tighter leaderboard rows on mobile */
-  #leaderboardModalOverlay .lb-row {
-    gap:8px; padding:10px;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:12px;
-  }
-  #leaderboardModalOverlay .lb-row.you-row {
-    background:var(--teal-dim);
-    border-color:var(--teal);
-  }
-  #leaderboardModalOverlay .lb-rank { min-width:26px; font-size:.85rem; }
-  #leaderboardModalOverlay .lb-name { font-size:.82rem; }
-  #leaderboardModalOverlay .lb-km { font-size:.82rem; min-width:50px; }
-  #leaderboardModalOverlay .lb-avatar { width:30px; height:30px; }
-  #leaderboardModalOverlay .lb-toggle-row { justify-content:center; }
-  #leaderboardModalOverlay .lb-category-row { justify-content:center; }
-  #leaderboardModalOverlay .lb-rank-summary { margin-bottom:12px; font-size:.76rem; }
 
   /* ── Monthly Distance Breakdown: Compact & Interactive ── */
   /* Vertical spacing for the whole section */
@@ -5823,6 +5699,24 @@ header { padding: 0 !important; z-index: 600 !important; }
       </div>
     </div>
   </section>
+
+  <!-- Metabolic State Card (compact, click → Performance Profile) -->
+  <div class="metab-card" id="metabStateCard" role="button" tabindex="0"
+       onclick="openPerfProfilePage('metabolic')"
+       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPerfProfilePage('metabolic');}"
+       aria-label="Open Performance Profile for metabolic analysis">
+    <div class="metab-icon">⚡</div>
+    <div class="metab-body">
+      <div class="metab-label">Metabolic State</div>
+      <div class="metab-value-row">
+        <span class="metab-value" id="metabStateValue">—</span>
+        <span class="metab-unit">mmol·l⁻¹·s⁻¹</span>
+        <span class="metab-trend" id="metabStateTrend"></span>
+      </div>
+      <div class="metab-profile" id="metabStateProfile">Calculate VLaMax to unlock your metabolic profile →</div>
+    </div>
+    <svg class="metab-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
 
   <!-- Streak Banner -->
   <div class="streak-banner" id="streakBanner">
@@ -7283,56 +7177,6 @@ header { padding: 0 !important; z-index: 600 !important; }
 
 </div>
 
-<!-- ─── Hidden Friends template (used by standalone Friends page) ─── -->
-<div style="display:none" id="friendsSection">
-  <div class="profile-section-title">
-    <svg style="width:18px;height:18px;color:#14b8a6;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Friends
-    <span class="friends-count-badge" id="friendsCountBadge">(0 Friends)</span>
-  </div>
-  <div class="friends-tabs-nav">
-    <button class="friends-tab-btn active" id="friendsBtnMyFriends" onclick="friendsSwitchTab('myFriends')">👥 My Friends</button>
-    <button class="friends-tab-btn" id="friendsBtnAddFriend" onclick="openAddFriendModal()">➕ Add Friend</button>
-    <button class="friends-tab-btn" id="friendsBtnLeaderboard" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-  </div>
-  <div class="friends-tab-panel active" id="friendsTabMyFriends">
-    <div class="friends-toolbar">
-      <input class="friends-search" id="friendsSearch" placeholder="Search friends…" oninput="renderFriendsGrid()" />
-      <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsSortSel" onchange="renderFriendsGrid()">
-        <option value="name">Sort: Name</option>
-        <option value="active">Most Active</option>
-        <option value="streak">Longest Streak</option>
-        <option value="km">Most km This Week</option>
-      </select>
-      <select class="form-select" style="width:auto;padding:7px 10px;font-size:.78rem" id="friendsFilterSel" onchange="renderFriendsGrid()">
-        <option value="all">All Friends</option>
-        <option value="activeWeek">Active This Week</option>
-      </select>
-      <div class="friends-view-toggle">
-        <button class="view-toggle-btn active" id="viewBtnGrid" onclick="friendsSetView('grid')" title="Grid view">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </button>
-        <button class="view-toggle-btn" id="viewBtnList" onclick="friendsSetView('list')" title="List view">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-      </div>
-    </div>
-    <div class="friends-grid" id="friendsGrid"></div>
-  </div>
-  <div class="friends-feed-section" id="friendsFeedSection" style="display:none">
-    <div class="friends-feed-title">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Friend Activity
-    </div>
-    <div class="friends-feed" id="friendsFeed"></div>
-  </div>
-  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-    <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">🏅 Social Badges</div>
-    <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">Earn badges by connecting with the community</div>
-    <div class="social-badges-grid" id="socialBadgesGrid"></div>
-  </div>
-</div>
-
 <!-- ─── Stats Range Modal ─────────────────────────────────── -->
 <div class="stats-range-overlay" id="statsRangeOverlay" onclick="if(event.target===this)closeStatsRangeModal()">
   <div class="stats-range-modal">
@@ -7349,117 +7193,6 @@ header { padding: 0 !important; z-index: 600 !important; }
       <button class="stats-range-reset" onclick="resetStatsRange()">Reset</button>
       <button class="stats-range-cancel" onclick="closeStatsRangeModal()">Cancel</button>
       <button class="stats-range-save" onclick="saveStatsRange()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── Friends: Friend Profile Modal ─────────────────────── -->
-<div class="modal-overlay" id="friendProfileModal" onclick="if(event.target===this)closeFriendProfile()">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="fpModalTitle">Friend Profile</div>
-      <button class="modal-close" onclick="closeFriendProfile()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div id="fpContent" style="overflow-y:auto;max-height:75vh"></div>
-  </div>
-</div>
-
-<!-- ─── Friends: Motivation Modal ─────────────────────────── -->
-<div class="modal-overlay" id="friendMotivModal" onclick="if(event.target===this)closeMotivModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Send Motivation to <span id="motivFriendName"></span></div>
-      <button class="modal-close" onclick="closeMotivModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="form-label" style="margin-bottom:6px">Choose a message</div>
-      <div id="motivMessageList" class="motiv-list"></div>
-      <div id="motivHistory"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeMotivModal()">Cancel</button>
-      <button class="btn btn-teal" onclick="sendMotivMessage()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Send Message
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── Friends: Remove Confirm Modal ─────────────────────── -->
-<div class="modal-overlay" id="friendRemoveModal" onclick="if(event.target===this)cancelRemoveFriend()">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-header">
-      <div class="modal-title">Remove Friend</div>
-      <button class="modal-close" onclick="cancelRemoveFriend()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:.88rem">Remove <strong id="removeFriendName"></strong> from your friends? This cannot be undone.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="cancelRemoveFriend()">Cancel</button>
-      <button class="btn btn-danger" onclick="doRemoveFriend()">Remove Friend</button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── Friends: Add Activity Modal ───────────────────────── -->
-<div class="modal-overlay" id="friendUpdateModal" onclick="if(event.target===this)closeUpdateModal()">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-header">
-      <div class="modal-title">Add Activity — <span id="updFriendName"></span></div>
-      <button class="modal-close" onclick="closeUpdateModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Activity Type</label>
-        <div class="fa-type-row">
-          <label class="fa-type-btn"><input type="radio" name="faType" value="run" checked /><span>🏃 Run</span></label>
-          <label class="fa-type-btn"><input type="radio" name="faType" value="hike" /><span>🥾 Hike</span></label>
-          <label class="fa-type-btn"><input type="radio" name="faType" value="cycle" /><span>🚴 Cycle</span></label>
-        </div>
-      </div>
-      <div class="update-form-grid">
-        <div class="form-group">
-          <label class="form-label">Date *</label>
-          <input class="form-input" type="date" id="faDate" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Distance (km) *</label>
-          <input class="form-input" type="number" id="faDistance" min="0" step="0.01" placeholder="0.0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Duration (h:mm:ss)</label>
-          <input class="form-input" type="text" id="faDuration" placeholder="0:30:00" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Calories</label>
-          <input class="form-input" type="number" id="faCalories" min="0" placeholder="0" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Difficulty</label>
-        <div class="fa-diff-row">
-          <label class="fa-diff-btn diff-easy"><input type="radio" name="faDiff" value="Easy" checked /><span>Easy</span></label>
-          <label class="fa-diff-btn diff-medium"><input type="radio" name="faDiff" value="Medium" /><span>Medium</span></label>
-          <label class="fa-diff-btn diff-hard"><input type="radio" name="faDiff" value="Hard" /><span>Hard</span></label>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeUpdateModal()">Cancel</button>
-      <button class="btn btn-teal" onclick="saveUpdateStats()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Add Activity
-      </button>
     </div>
   </div>
 </div>
@@ -7615,144 +7348,6 @@ header { padding: 0 !important; z-index: 600 !important; }
       </button>
     </div>
     <div class="cal-modal-body" id="calModalBody"></div>
-  </div>
-</div>
-
-<!-- ─── My Friends Overlay ──────────────────────────────── -->
-<div class="friends-overlay" id="friendsOverlay">
-  <div class="nav-overlay-header">
-    <button class="nav-overlay-back" onclick="closeFriendsPage()" title="Back to Dashboard" aria-label="Back to Dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    </button>
-    <div class="nav-overlay-title">My Friends</div>
-    <button class="nav-overlay-close" onclick="closeFriendsPage()" title="Close" aria-label="Close">&times;</button>
-  </div>
-  <div class="friends-page-content">
-    <div class="profile-section" id="friendsSectionStandalone"></div>
-  </div>
-
-  <!-- ─── Add Friend Modal (scoped inside Friends overlay) ─── -->
-  <div class="friends-inner-modal-overlay" id="addFriendModalOverlay" onclick="if(event.target===this)closeAddFriendModal()">
-    <div class="friends-inner-modal">
-      <div class="modal-header">
-        <div class="modal-title">➕ Add Friend</div>
-        <button class="modal-close" onclick="closeAddFriendModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body" style="padding:16px 20px">
-        <div class="friends-add-note">
-          💡 Since ActivityMetrics runs locally, friend data is manually entered. Add your training buddies and track their progress alongside yours!
-        </div>
-        <div class="friends-quick-add">
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('runner')">🏃 Add Training Buddy</button>
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('hiker')">🥾 Add Hiking Partner</button>
-          <button class="friends-quick-btn" onclick="friendsQuickAdd('cyclist')">🚴 Add Cycling Friend</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="form-group">
-            <label class="form-label">Friend's Name *</label>
-            <input class="form-input" id="addFriendName" placeholder="e.g. Marko Petrović" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Username / Nickname *</label>
-            <input class="form-input" id="addFriendUsername" placeholder="e.g. markorun" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Member Since</label>
-            <input class="form-input" type="date" id="addFriendSince" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Profile Picture</label>
-            <div class="avatar-picker" id="addFriendAvatarPicker">
-              <div class="avatar-opt selected" data-av="🏃" onclick="friendsSelectAvatar(this)">🏃</div>
-              <div class="avatar-opt" data-av="🥾" onclick="friendsSelectAvatar(this)">🥾</div>
-              <div class="avatar-opt" data-av="🚴" onclick="friendsSelectAvatar(this)">🚴</div>
-              <div class="avatar-opt" data-av="⛰️" onclick="friendsSelectAvatar(this)">⛰️</div>
-              <div class="avatar-opt" data-av="⭐" onclick="friendsSelectAvatar(this)">⭐</div>
-              <div class="avatar-opt" data-av="⚡" onclick="friendsSelectAvatar(this)">⚡</div>
-            </div>
-            <label class="avatar-upload-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Upload Photo
-              <input type="file" accept="image/*" id="addFriendPhoto" style="display:none" onchange="friendsHandlePhotoUpload(this)" />
-            </label>
-            <div id="addFriendPhotoPreview" style="margin-top:8px;display:none">
-              <img id="addFriendPhotoImg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--teal)" alt="preview" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Favorite Activity</label>
-            <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="run" checked /> 🏃 Run</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="hike" /> 🥾 Hike</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer"><input type="radio" name="addFavType" value="cycle" /> 🚴 Cycle</label>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Weekly Avg (km)</label>
-              <input class="form-input" type="number" id="addFriendWeeklyKm" placeholder="0" min="0" step="0.1" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Current Streak</label>
-              <input class="form-input" type="number" id="addFriendStreak" placeholder="0" min="0" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Total Km (all time)</label>
-              <input class="form-input" type="number" id="addFriendTotalKm" placeholder="0" min="0" step="0.1" />
-            </div>
-          </div>
-          <button class="btn btn-teal" onclick="addFriendSubmit()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Friend
-          </button>
-        </div>
-        <!-- Import / Export -->
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="form-label" style="margin-bottom:8px">Import / Export</div>
-          <div class="friends-io-row">
-            <button class="btn btn-ghost" onclick="friendsImportJSON()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Import from JSON
-            </button>
-            <button class="btn btn-ghost" onclick="friendsExportMyProfile()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-              Export My Profile for Friends
-            </button>
-          </div>
-        </div>
-        <!-- Recently Added -->
-        <div id="recentlyAddedSection"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── Leaderboard Modal (scoped inside Friends overlay) ── -->
-  <div class="friends-inner-modal-overlay" id="leaderboardModalOverlay" onclick="if(event.target===this)closeLeaderboardModal()">
-    <div class="friends-inner-modal">
-      <div class="modal-header">
-        <div class="modal-title">🏆 Leaderboard</div>
-        <button class="modal-close" onclick="closeLeaderboardModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body" style="padding:16px 20px">
-        <div class="lb-toggle-row">
-          <button class="lb-toggle-btn active" id="lbBtnWeekly" onclick="friendsLbSetPeriod('weekly')">📅 This Week</button>
-          <button class="lb-toggle-btn" id="lbBtnMonthly" onclick="friendsLbSetPeriod('monthly')">📆 This Month</button>
-          <button class="lb-toggle-btn" id="lbBtnAlltime" onclick="friendsLbSetPeriod('alltime')">🏅 All Time</button>
-        </div>
-        <div class="lb-category-row">
-          <button class="lb-cat-btn active" id="lbCatAll" onclick="friendsLbSetCat('all')">All</button>
-          <button class="lb-cat-btn" id="lbCatRun" onclick="friendsLbSetCat('run')">🏃 Run</button>
-          <button class="lb-cat-btn" id="lbCatHike" onclick="friendsLbSetCat('hike')">🥾 Hike</button>
-          <button class="lb-cat-btn" id="lbCatCycle" onclick="friendsLbSetCat('cycle')">🚴 Cycle</button>
-        </div>
-        <div id="lbRankSummary"></div>
-        <div id="lbList"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -8463,6 +8058,123 @@ header { padding: 0 !important; z-index: 600 !important; }
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ─── Performance Profile Overlay (VLaMax + VO2 Max + Metabolic Balance) ─── -->
+<div class="perf-overlay" id="perfProfileOverlay">
+  <div class="nav-overlay-header">
+    <button class="nav-overlay-back" onclick="closePerfProfilePage()" title="Back to Dashboard" aria-label="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="nav-overlay-title">Performance Profile</div>
+    <button class="nav-overlay-close" onclick="closePerfProfilePage()" title="Close" aria-label="Close">&times;</button>
+  </div>
+  <div class="perf-page">
+    <div class="perf-page-title">
+      <svg class="perf-title-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Performance Profile
+    </div>
+    <div class="perf-page-sub">Your aerobic capacity (VO2 Max) and anaerobic glycolytic power (VLaMax) — two sides of the same metabolic coin.</div>
+
+    <!-- VLaMax Section -->
+    <section class="perf-section" id="perfSectionVlamax">
+      <div class="perf-section-title">
+        ⚡ VLaMax Calculator
+      </div>
+      <div class="perf-section-sub">
+        VLaMax (mmol/l/s) measures how fast your body can produce lactate — a proxy for anaerobic glycolytic power. Enter any combination of personal-best times below. More inputs = a more accurate estimate.
+      </div>
+      <div class="perf-pb-grid">
+        <div class="perf-pb-field">
+          <label for="pbTime3k">3 km PB</label>
+          <input id="pbTime3k" type="text" placeholder="mm:ss" inputmode="numeric" autocomplete="off" oninput="perfUpdateCalcBtn()">
+          <small>e.g. 11:30</small>
+        </div>
+        <div class="perf-pb-field">
+          <label for="pbTime5k">5 km PB</label>
+          <input id="pbTime5k" type="text" placeholder="mm:ss" inputmode="numeric" autocomplete="off" oninput="perfUpdateCalcBtn()">
+          <small>e.g. 20:45</small>
+        </div>
+        <div class="perf-pb-field">
+          <label for="pbTime10k">10 km PB</label>
+          <input id="pbTime10k" type="text" placeholder="mm:ss" inputmode="numeric" autocomplete="off" oninput="perfUpdateCalcBtn()">
+          <small>e.g. 43:10</small>
+        </div>
+        <div class="perf-pb-field">
+          <label for="pbTimeHM">Half Marathon PB</label>
+          <input id="pbTimeHM" type="text" placeholder="h:mm:ss" inputmode="numeric" autocomplete="off" oninput="perfUpdateCalcBtn()">
+          <small>e.g. 1:35:20</small>
+        </div>
+      </div>
+      <div class="perf-action-row">
+        <button class="btn btn-teal" onclick="calculateVLaMaxFromForm()" id="perfCalcBtn" disabled>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Calculate VLaMax
+        </button>
+        <span id="perfCalcHint" style="font-size:.72rem;color:var(--text-dim)">Enter at least 2 PB times to estimate VLaMax</span>
+      </div>
+
+      <div class="perf-result-card" id="perfVlamaxResult" style="display:none">
+        <div class="perf-result-label">Estimated VLaMax</div>
+        <div>
+          <span class="perf-result-value" id="perfVlamaxValue">—</span>
+          <span class="perf-result-unit">mmol · l⁻¹ · s⁻¹</span>
+        </div>
+        <div class="perf-result-note" id="perfVlamaxNote"></div>
+      </div>
+
+      <div class="perf-explain-grid">
+        <div class="perf-explain-card high">
+          <div class="perf-explain-title">🔥 High VLaMax (&gt; 0.6)</div>
+          <div class="perf-explain-body">
+            Fast glycolytic system. Advantage for 400 m – 3 km and sprint finishes, but raises carb burn at race pace and fatigues the aerobic engine on long efforts. Marathoners usually want to lower this.
+          </div>
+        </div>
+        <div class="perf-explain-card low">
+          <div class="perf-explain-title">🌿 Low VLaMax (&lt; 0.4)</div>
+          <div class="perf-explain-body">
+            Clean, fat-dominant energy economy. Ideal for marathon &amp; ultra: high fat oxidation, stable blood lactate, efficient pacing. 5k/10k specialists may want a touch more.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metabolic Balance Section -->
+    <section class="perf-section" id="perfSectionMetabolic">
+      <div class="perf-section-title">📈 Metabolic Balance</div>
+      <div class="perf-section-sub">
+        The ratio between your aerobic ceiling (VO2 Max) and your glycolytic power (VLaMax) determines your optimal event. The chart below plots both against typical athlete profiles.
+      </div>
+      <div class="perf-placeholder" id="perfMetabolicChart">
+        <div style="font-size:1.6rem;margin-bottom:6px">📊</div>
+        Calculate a VLaMax above to plot your position against the Marathon / Middle-Distance / Sprint archetypes.<br>
+        <span style="font-size:.72rem;color:var(--text-dim)">Add a VO2 Max in the VO2 Max Lab for a full 2-axis metabolic map.</span>
+      </div>
+    </section>
+
+    <!-- VO2 Max Section -->
+    <section class="perf-section" id="perfSectionVo2">
+      <div class="perf-section-title">🫁 VO2 Max</div>
+      <div class="perf-section-sub">
+        Your aerobic engine — the maximal rate of oxygen your body can use. The full lab (estimates, trends, workouts, and normative data) lives in the dedicated page.
+      </div>
+      <div class="perf-action-row">
+        <button class="perf-link-btn" onclick="closePerfProfilePage(); setTimeout(function(){navTo('vo2Overlay');},50);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          Open VO2 Max Lab
+        </button>
+      </div>
+    </section>
+
+    <!-- Coach Integration Hint -->
+    <section class="perf-section" id="perfSectionCoach">
+      <div class="perf-section-title">🧭 Training Coach Integration</div>
+      <div class="perf-coach-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>In Stage 3, the Training Coach will read your VLaMax and bias its recommendations — more Zone 2 to lower a high VLaMax for marathon prep, or more anaerobic intervals to raise a low VLaMax for 5k/10k specialists.</span>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -9279,6 +8991,7 @@ function renderAll() {
   if(typeof advHmInit === 'function') advHmInit();
   if(typeof renderDashWeekly === 'function') renderDashWeekly();
   if(typeof renderRbWidget === 'function') renderRbWidget();
+  if(typeof renderMetabolicStateCard === 'function') renderMetabolicStateCard();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -10025,9 +9738,9 @@ document.addEventListener('keydown', e => {
     else if (document.getElementById('calendarOverlay')?.classList.contains('open')) closeCalendarPage();
     if (document.getElementById('profileOverlay')?.classList.contains('open')) closeProfile();
     if (document.getElementById('racesOverlay')?.classList.contains('open')) closeRacesPage();
-    if (document.getElementById('friendsOverlay')?.classList.contains('open')) closeFriendsPage();
     if (document.getElementById('paceOverlay')?.classList.contains('open')) closePacePage();
     if (document.getElementById('vo2Overlay')?.classList.contains('open')) closeVo2Page();
+    if (document.getElementById('perfProfileOverlay')?.classList.contains('open')) closePerfProfilePage();
   }
 });
 
@@ -12319,10 +12032,6 @@ function renderAuthHeader() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             My Calendar
           </button>
-          <button class="user-dropdown-item" onclick="openFriendsPage();closeUserMenu()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            My Friends
-          </button>
           <button class="user-dropdown-item" onclick="navTo('goalsSection');closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             My Goals
@@ -12334,6 +12043,10 @@ function renderAuthHeader() {
           <button class="user-dropdown-item" onclick="navTo('badgesSection');closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
             My Achievements
+          </button>
+          <button class="user-dropdown-item" onclick="openPerfProfilePage('vlamax');closeUserMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+            VLaMax
           </button>
           <button class="user-dropdown-item" onclick="navTo('vo2Overlay');closeUserMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
@@ -13455,8 +13168,61 @@ function renderCoachRecommendation() {
       <div class="rec-card-title">${icon} ${title}</div>
       <div class="rec-card-body">${body}</div>
       <div class="rec-reasoning"><strong>Based on your data:</strong> ${reasoning}</div>
-    </div>`;
+    </div>${coachVlamaxFocusHtml()}`;
 }
+
+/* ── Coach VLaMax integration ─────────────────────────────────
+   Reads the latest VLaMax (Performance Profile) and emits a
+   follow-up "Metabolic Focus" card with profile-specific guidance:
+     high VLaMax → more Zone 2 to dampen glycolytic bias
+     low  VLaMax → more short intervals to preserve glycolytic power
+     mid         → maintain the current balance
+   Silent (empty string) when no VLaMax has been calculated yet. */
+function coachVlamaxFocusHtml() {
+  var hist;
+  try { hist = JSON.parse(localStorage.getItem('actmtr_vlamax_hist')) || []; }
+  catch { hist = []; }
+  if (!hist.length) return '';
+
+  var last = hist[hist.length - 1];
+  var vlamax = Number(last.vlamax) || 0;
+  if (!vlamax) return '';
+
+  var profile = last.profile || 'balanced';
+  var icon, title, body, tag;
+
+  if (vlamax >= 0.60) {
+    icon = '🌿';
+    title = 'Bias Toward Zone 2';
+    tag = 'Metabolic Focus · High VLaMax';
+    body = 'Your VLaMax of <strong>' + vlamax.toFixed(2) + '</strong> sits on the glycolytic side. For endurance events (HM, marathon, ultra), bias this week toward <strong>2–3 long Zone 2 sessions</strong> (45–90 min at conversational pace). Avoid lactate-heavy workouts back-to-back — they reinforce the fast glycolysis you want to dampen. One threshold or tempo block is plenty.';
+  } else if (vlamax < 0.40) {
+    icon = '⚡';
+    title = 'Add Anaerobic Stimulus';
+    tag = 'Metabolic Focus · Low VLaMax';
+    body = 'Your VLaMax of <strong>' + vlamax.toFixed(2) + '</strong> is strongly endurance-dominant — great for marathon, but 5k/10k pace may feel flat. Sprinkle one short session of <strong>8×200 m or 6×400 m at mile effort</strong>, full recovery. Keep the rest of the week easy; anaerobic stimulus is a single spark, not a regimen.';
+  } else {
+    icon = '⚖️';
+    title = 'Hold the Balance';
+    tag = 'Metabolic Focus · Balanced';
+    body = 'Your VLaMax of <strong>' + vlamax.toFixed(2) + '</strong> is a balanced profile. Current mix works — keep the <strong>80/20 split</strong> (80% easy, 20% quality). One threshold + one VO2 session per week, the rest aerobic. No need to chase either direction unless your goal race demands it.';
+  }
+
+  return '<div class="rec-card rec-card-metab"' +
+           ' role="button" tabindex="0"' +
+           ' onclick="openPerfProfilePage(\'vlamax\')"' +
+           ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openPerfProfilePage(\'vlamax\');}"' +
+           ' style="margin-top:10px;cursor:pointer">' +
+           '<div class="rec-card-label">' +
+             '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>' +
+             tag +
+           '</div>' +
+           '<div class="rec-card-title">' + icon + ' ' + title + '</div>' +
+           '<div class="rec-card-body">' + body + '</div>' +
+           '<div class="rec-reasoning"><strong>Profile:</strong> ' + profile + ' · Tap to open Performance Profile →</div>' +
+         '</div>';
+}
+window.coachVlamaxFocusHtml = coachVlamaxFocusHtml;
 
 /* ── Recovery Monitor ── */
 function renderCoachRecovery() {
@@ -14682,35 +14448,6 @@ function renderTips() {
     const tips = list.filter(t=>t.cat===cat);
     return `<div class="tips-category"><div class="tips-cat-title">${cat} <span style="font-weight:400;opacity:.6">(${tips.length})</span></div>${tips.map(t=>tipAccordionHtml(t,saved)).join('')}</div>`;
   }).join('');
-}
-
-/* ══════════════════════════════════════════════════════════════
-   MY FRIENDS PAGE
-══════════════════════════════════════════════════════════════ */
-function openFriendsPage() {
-  var el = document.getElementById('friendsOverlay');
-  var headerH = document.querySelector('header').offsetHeight || 88;
-  el.style.top = headerH + 'px';
-  el.classList.add('open');
-  _setNavActive('friendsOverlay');
-  var src = document.getElementById('friendsSection');
-  var dst = document.getElementById('friendsSectionStandalone');
-  if (src && dst) {
-    dst.innerHTML = src.innerHTML;
-    // Temporarily detach dashboard section so duplicate child IDs
-    // (friendsGrid, friendsSearch, etc.) don't shadow the overlay copies
-    var placeholder = document.createComment('friends-placeholder');
-    src.parentNode.replaceChild(placeholder, src);
-    if (typeof renderFriendsSection === 'function') renderFriendsSection();
-    // Restore dashboard section
-    placeholder.parentNode.replaceChild(src, placeholder);
-  }
-}
-function closeFriendsPage() {
-  document.getElementById('addFriendModalOverlay')?.classList.remove('open');
-  document.getElementById('leaderboardModalOverlay')?.classList.remove('open');
-  document.getElementById('friendsOverlay').classList.remove('open');
-  _setNavActive('dashboard');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -16376,6 +16113,382 @@ function closeVo2Page(silent) {
   var el = document.getElementById('vo2Overlay');
   el.classList.remove('open');
   if (!silent) { document.body.style.overflow = ''; _setNavActive('dashboard'); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PERFORMANCE PROFILE PAGE (VLaMax + VO2 Max + Metabolic Balance)
+   Stage 1 scaffold — calculator + chart + coach arrive in Stage 2/3.
+══════════════════════════════════════════════════════════════ */
+function openPerfProfilePage(anchor) {
+  closePacePage(true);
+  var el = document.getElementById('perfProfileOverlay');
+  if (!el) return;
+  var headerH = document.querySelector('header').offsetHeight || 88;
+  el.style.top = headerH + 'px';
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _setNavActive('perfProfileOverlay');
+  perfRestoreForm();
+  perfUpdateCalcBtn();
+  // Re-render the most recent result (if any) so returning visits show
+  // the existing VLaMax + chart instead of an empty state.
+  var hist = perfVlamaxLoadHist();
+  if (hist.length) {
+    var last = hist[hist.length - 1];
+    perfRenderResult(last, last.pbTimes || {});
+    perfRenderMetabolicChart(last);
+  }
+  if (anchor) {
+    var targetId = anchor === 'vo2' ? 'perfSectionVo2'
+                : anchor === 'metabolic' ? 'perfSectionMetabolic'
+                : 'perfSectionVlamax';
+    setTimeout(function(){
+      var node = document.getElementById(targetId);
+      if (node) node.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 60);
+  }
+}
+function closePerfProfilePage() {
+  var el = document.getElementById('perfProfileOverlay');
+  if (!el) return;
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+  _setNavActive('dashboard');
+}
+
+/* ── Time parsing ─ accepts "s", "mm:ss", "h:mm:ss" ─ */
+function perfParseTime(str) {
+  if (!str) return 0;
+  var parts = String(str).trim().split(':').map(function(s){ return parseInt(s, 10); });
+  if (parts.some(isNaN)) return 0;
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+}
+function perfFormatTime(sec) {
+  if (!sec || sec <= 0) return '—';
+  var h = Math.floor(sec / 3600);
+  var m = Math.floor((sec % 3600) / 60);
+  var s = Math.floor(sec % 60);
+  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  return m + ':' + String(s).padStart(2,'0');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VLaMax ENGINE (Riegel-exponent proxy)
+
+   Physiological basis: athletes with higher glycolytic power (high
+   VLaMax) slow down MORE as race distance grows. The Riegel exponent
+   b in t = k · d^b captures this decay:
+     b ≈ 1.05 → endurance-dominant profile
+     b ≈ 1.08 → balanced
+     b ≈ 1.12 → sprint/speed-dominant
+
+   We fit b via log-log least-squares over the provided PBs and map
+   it into the typical runner VLaMax range (0.25–0.90 mmol·l⁻¹·s⁻¹).
+   Requires at least 2 valid PBs. More PBs → higher confidence.
+══════════════════════════════════════════════════════════════ */
+function calculateVLaMax(data) {
+  if (!data || typeof data !== 'object') return null;
+  var pts = [];
+  if (data.t3k  > 0) pts.push({ d: 3000,    t: data.t3k  });
+  if (data.t5k  > 0) pts.push({ d: 5000,    t: data.t5k  });
+  if (data.t10k > 0) pts.push({ d: 10000,   t: data.t10k });
+  if (data.tHM  > 0) pts.push({ d: 21097.5, t: data.tHM  });
+  if (pts.length < 2) return null;
+
+  // Log-log least-squares: log(t) = log(k) + b · log(d)
+  var n = pts.length;
+  var xs = pts.map(function(p){ return Math.log(p.d); });
+  var ys = pts.map(function(p){ return Math.log(p.t); });
+  var mx = xs.reduce(function(s,v){return s+v;},0) / n;
+  var my = ys.reduce(function(s,v){return s+v;},0) / n;
+  var num = 0, den = 0;
+  for (var i = 0; i < n; i++) {
+    num += (xs[i] - mx) * (ys[i] - my);
+    den += (xs[i] - mx) * (xs[i] - mx);
+  }
+  var b = den > 0 ? num / den : 1.08;
+
+  // Map b → VLaMax, calibrated against typical athlete profiles:
+  //   b=1.05 → 0.30 (elite endurance)
+  //   b=1.08 → 0.49 (amateur balanced)
+  //   b=1.10 → 0.61 (speed-biased)
+  //   b=1.13 → 0.80 (sprint-biased)
+  var vlamax = 0.30 + (b - 1.05) * 6.25;
+  vlamax = Math.max(0.25, Math.min(0.90, vlamax));
+
+  var profile =
+    vlamax < 0.40 ? 'endurance' :
+    vlamax < 0.55 ? 'balanced'  :
+    vlamax < 0.70 ? 'speed'     :
+                    'sprint';
+
+  var confidence = n >= 4 ? 'high' : n >= 3 ? 'medium' : 'low';
+
+  return {
+    vlamax:     Math.round(vlamax * 100) / 100,
+    riegel:     Math.round(b * 1000) / 1000,
+    profile:    profile,
+    confidence: confidence,
+    pointsUsed: n
+  };
+}
+window.calculateVLaMax = calculateVLaMax;
+
+/* ── VLaMax history (localStorage) ── */
+var VLAMAX_HIST_KEY  = 'actmtr_vlamax_hist';
+var VLAMAX_FORM_KEY  = 'actmtr_vlamax_form';
+function perfVlamaxLoadHist() {
+  try { return JSON.parse(localStorage.getItem(VLAMAX_HIST_KEY)) || []; }
+  catch { return []; }
+}
+function perfVlamaxSaveHist(arr) {
+  try { localStorage.setItem(VLAMAX_HIST_KEY, JSON.stringify(arr)); }
+  catch (e) { /* quota — ignore */ }
+}
+function perfSaveForm(times) {
+  try { localStorage.setItem(VLAMAX_FORM_KEY, JSON.stringify(times)); }
+  catch (e) {}
+}
+function perfRestoreForm() {
+  var saved;
+  try { saved = JSON.parse(localStorage.getItem(VLAMAX_FORM_KEY)); } catch { saved = null; }
+  if (!saved) return;
+  var map = { t3k:'pbTime3k', t5k:'pbTime5k', t10k:'pbTime10k', tHM:'pbTimeHM' };
+  Object.keys(map).forEach(function(k){
+    var el = document.getElementById(map[k]);
+    if (el && !el.value && saved[k]) el.value = perfFormatTime(saved[k]);
+  });
+}
+function perfUpdateCalcBtn() {
+  var ids = ['pbTime3k','pbTime5k','pbTime10k','pbTimeHM'];
+  var validCount = ids.reduce(function(n, id){
+    var el = document.getElementById(id);
+    return n + (el && perfParseTime(el.value) > 0 ? 1 : 0);
+  }, 0);
+  var btn = document.getElementById('perfCalcBtn');
+  if (btn) btn.disabled = validCount < 2;
+  var hint = document.getElementById('perfCalcHint');
+  if (hint) hint.textContent = validCount < 2
+    ? 'Enter at least 2 PB times to estimate VLaMax'
+    : (validCount + ' PB' + (validCount>1?'s':'') + ' loaded — more inputs = higher confidence');
+}
+
+function calculateVLaMaxFromForm() {
+  var data = {
+    t3k:  perfParseTime(document.getElementById('pbTime3k')?.value),
+    t5k:  perfParseTime(document.getElementById('pbTime5k')?.value),
+    t10k: perfParseTime(document.getElementById('pbTime10k')?.value),
+    tHM:  perfParseTime(document.getElementById('pbTimeHM')?.value)
+  };
+  var res = calculateVLaMax(data);
+  if (!res) {
+    if (typeof showToast === 'function') showToast('Enter at least 2 PB times', 'error');
+    return;
+  }
+  perfSaveForm(data);
+  perfRenderResult(res, data);
+  perfRenderMetabolicChart(res);
+  // Persist one entry per day; overwrite if same calendar date.
+  var today = new Date().toISOString().slice(0, 10);
+  var hist = perfVlamaxLoadHist();
+  hist = hist.filter(function(h){ return h.date !== today; });
+  hist.push({
+    date:       today,
+    vlamax:     res.vlamax,
+    riegel:     res.riegel,
+    profile:    res.profile,
+    confidence: res.confidence,
+    pbTimes:    data
+  });
+  perfVlamaxSaveHist(hist);
+  if (typeof renderMetabolicStateCard === 'function') renderMetabolicStateCard();
+  if (typeof renderCoachRecommendation === 'function') renderCoachRecommendation();
+  if (typeof showToast === 'function') {
+    showToast('VLaMax ≈ ' + res.vlamax.toFixed(2) + ' mmol/l/s (' + res.profile + ')', 'success');
+  }
+}
+
+function perfRenderResult(res, data) {
+  var card = document.getElementById('perfVlamaxResult');
+  if (!card) return;
+  card.style.display = '';
+  document.getElementById('perfVlamaxValue').textContent = res.vlamax.toFixed(2);
+  var profileLabel = {
+    endurance: '🌿 Endurance-dominant',
+    balanced:  '⚖️ Balanced',
+    speed:     '⚡ Speed-biased',
+    sprint:    '🔥 Sprint-dominant'
+  }[res.profile];
+  var note = document.getElementById('perfVlamaxNote');
+  if (note) {
+    note.innerHTML =
+      '<strong>' + profileLabel + '</strong>' +
+      ' · Riegel exponent <strong>' + res.riegel.toFixed(3) + '</strong>' +
+      ' · confidence <strong>' + res.confidence + '</strong>' +
+      ' (' + res.pointsUsed + ' PB' + (res.pointsUsed>1?'s':'') + ')';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   METABOLIC BALANCE CHART
+   2-axis SVG scatter plot: VLaMax (x) × VO2 Max (y).
+   Plots the athlete plus archetype markers so the user can see
+   where they sit on the aerobic/glycolytic map.
+══════════════════════════════════════════════════════════════ */
+var PERF_ARCHETYPES = [
+  { name: 'Marathon Elite',  vlamax: 0.30, vo2: 78, icon: '🏃' },
+  { name: 'Half / 10k',      vlamax: 0.45, vo2: 68, icon: '🎯' },
+  { name: '5k / 1500m',      vlamax: 0.60, vo2: 72, icon: '🏆' },
+  { name: '800m Specialist', vlamax: 0.75, vo2: 66, icon: '⚡' },
+  { name: 'Sprinter',        vlamax: 0.85, vo2: 48, icon: '💥' }
+];
+
+function perfLatestVo2() {
+  try {
+    var h = JSON.parse(localStorage.getItem(VO2_KEY)) || [];
+    if (h.length) return Number(h[h.length-1].value) || null;
+  } catch {}
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD METABOLIC STATE CARD
+   Reads VLaMax history, shows the latest value + trend arrow
+   (comparing to the previous entry), and links into the
+   Performance Profile on click. Falls back to a CTA when empty.
+══════════════════════════════════════════════════════════════ */
+function renderMetabolicStateCard() {
+  var card    = document.getElementById('metabStateCard');
+  var valueEl = document.getElementById('metabStateValue');
+  var trendEl = document.getElementById('metabStateTrend');
+  var profEl  = document.getElementById('metabStateProfile');
+  if (!card || !valueEl || !trendEl || !profEl) return;
+
+  var hist = perfVlamaxLoadHist();
+  if (!hist.length) {
+    card.classList.add('empty');
+    valueEl.textContent = '—';
+    trendEl.textContent = '';
+    trendEl.className   = 'metab-trend';
+    profEl.textContent  = 'Calculate VLaMax to unlock your metabolic profile →';
+    return;
+  }
+  card.classList.remove('empty');
+
+  var last = hist[hist.length - 1];
+  var prev = hist.length >= 2 ? hist[hist.length - 2] : null;
+
+  valueEl.textContent = Number(last.vlamax).toFixed(2);
+
+  // Trend arrow vs prior entry. Dead-band ±0.015 counts as flat so
+  // rounding noise doesn't flip direction on tiny day-to-day drift.
+  if (prev) {
+    var delta = last.vlamax - prev.vlamax;
+    var cls, arrow, label;
+    if (delta > 0.015)       { cls = 'up';   arrow = '↑'; label = '+' + delta.toFixed(2); }
+    else if (delta < -0.015) { cls = 'down'; arrow = '↓'; label = delta.toFixed(2);      }
+    else                      { cls = 'flat';arrow = '→'; label = 'stable';               }
+    trendEl.className   = 'metab-trend ' + cls;
+    trendEl.textContent = arrow + ' ' + label;
+  } else {
+    trendEl.className   = 'metab-trend flat';
+    trendEl.textContent = 'new';
+  }
+
+  var profileLabel = {
+    endurance: '🌿 Endurance-dominant',
+    balanced:  '⚖️ Balanced profile',
+    speed:     '⚡ Speed-biased',
+    sprint:    '🔥 Sprint-dominant'
+  }[last.profile] || 'Metabolic profile';
+  profEl.textContent = profileLabel + ' · tap for the full analysis';
+}
+window.renderMetabolicStateCard = renderMetabolicStateCard;
+
+function perfRenderMetabolicChart(res) {
+  var box = document.getElementById('perfMetabolicChart');
+  if (!box) return;
+  var vo2 = perfLatestVo2();
+  var hasVo2 = vo2 != null && vo2 > 0;
+
+  // Plot area (viewBox coordinates)
+  var W = 560, H = 360, pad = { l: 54, r: 18, t: 20, b: 42 };
+  var xMin = 0.20, xMax = 0.95;
+  var yMin = 30,   yMax = 80;
+  var xs = function(v){ return pad.l + (v - xMin) / (xMax - xMin) * (W - pad.l - pad.r); };
+  var ys = function(v){ return H - pad.b - (v - yMin) / (yMax - yMin) * (H - pad.t - pad.b); };
+
+  // Gridlines
+  var gx = '', xTicks = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+  xTicks.forEach(function(v){
+    gx += '<line x1="' + xs(v) + '" y1="' + (pad.t) + '" x2="' + xs(v) + '" y2="' + (H - pad.b) + '" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>';
+    gx += '<text x="' + xs(v) + '" y="' + (H - pad.b + 14) + '" text-anchor="middle" font-size="10" fill="var(--text-muted)">' + v.toFixed(1) + '</text>';
+  });
+  var gy = '', yTicks = [30, 40, 50, 60, 70, 80];
+  yTicks.forEach(function(v){
+    gy += '<line x1="' + pad.l + '" y1="' + ys(v) + '" x2="' + (W - pad.r) + '" y2="' + ys(v) + '" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>';
+    gy += '<text x="' + (pad.l - 8) + '" y="' + (ys(v) + 3) + '" text-anchor="end" font-size="10" fill="var(--text-muted)">' + v + '</text>';
+  });
+
+  // Zone shading — split into 4 quadrants at medians (0.5 VLaMax × 55 VO2)
+  var midX = xs(0.5), midY = ys(55);
+  var quads = ''
+    + '<rect x="' + pad.l + '" y="' + pad.t + '" width="' + (midX - pad.l) + '" height="' + (midY - pad.t) + '" fill="rgba(20,184,166,.06)"/>'
+    + '<rect x="' + midX + '" y="' + pad.t + '" width="' + (W - pad.r - midX) + '" height="' + (midY - pad.t) + '" fill="rgba(251,191,36,.06)"/>'
+    + '<rect x="' + pad.l + '" y="' + midY + '" width="' + (midX - pad.l) + '" height="' + (H - pad.b - midY) + '" fill="rgba(156,163,175,.05)"/>'
+    + '<rect x="' + midX + '" y="' + midY + '" width="' + (W - pad.r - midX) + '" height="' + (H - pad.b - midY) + '" fill="rgba(239,68,68,.06)"/>';
+  var quadLabels = ''
+    + '<text x="' + ((pad.l + midX)/2) + '" y="' + (pad.t + 18) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#14b8a6" opacity="0.85">Marathon / Ultra</text>'
+    + '<text x="' + ((midX + W - pad.r)/2) + '" y="' + (pad.t + 18) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#eab308" opacity="0.85">Middle Distance</text>'
+    + '<text x="' + ((pad.l + midX)/2) + '" y="' + (H - pad.b - 8) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#9ca3af" opacity="0.85">Untrained</text>'
+    + '<text x="' + ((midX + W - pad.r)/2) + '" y="' + (H - pad.b - 8) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#ef4444" opacity="0.85">Sprint / Power</text>';
+
+  // Archetype markers
+  var arch = '';
+  PERF_ARCHETYPES.forEach(function(a){
+    var x = xs(a.vlamax), y = ys(a.vo2);
+    arch += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="var(--text-dim)" opacity="0.55"/>';
+    arch += '<text x="' + (x + 7) + '" y="' + (y + 3) + '" font-size="9" fill="var(--text-muted)">' + a.name + '</text>';
+  });
+
+  // Athlete marker
+  var athlete = '';
+  var vlamaxClamped = Math.max(xMin + 0.01, Math.min(xMax - 0.01, res.vlamax));
+  if (hasVo2) {
+    var vo2Clamped = Math.max(yMin + 1, Math.min(yMax - 1, vo2));
+    var ax = xs(vlamaxClamped), ay = ys(vo2Clamped);
+    athlete =
+      '<circle cx="' + ax + '" cy="' + ay + '" r="14" fill="var(--teal)" opacity="0.15"/>' +
+      '<circle cx="' + ax + '" cy="' + ay + '" r="7"  fill="var(--teal)" stroke="#fff" stroke-width="2"/>' +
+      '<text x="' + ax + '" y="' + (ay - 14) + '" text-anchor="middle" font-size="11" font-weight="800" fill="var(--teal)">YOU</text>';
+  } else {
+    // No VO2 Max on file — plot VLaMax on a 1-D ribbon at the bottom, prompt for VO2.
+    var ax2 = xs(vlamaxClamped), ay2 = H - pad.b - 14;
+    athlete =
+      '<circle cx="' + ax2 + '" cy="' + ay2 + '" r="7" fill="var(--teal)" stroke="#fff" stroke-width="2"/>' +
+      '<text x="' + ax2 + '" y="' + (ay2 - 10) + '" text-anchor="middle" font-size="11" font-weight="800" fill="var(--teal)">YOU</text>';
+  }
+
+  // Axis labels
+  var axisLabels =
+    '<text x="' + ((pad.l + W - pad.r)/2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">VLaMax (mmol·l⁻¹·s⁻¹) →  glycolytic power</text>' +
+    '<text transform="translate(14,' + ((pad.t + H - pad.b)/2) + ') rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">VO2 Max (ml/kg/min) →  aerobic capacity</text>';
+
+  var svg =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" class="perf-metabolic-svg" role="img" aria-label="Metabolic Balance chart">' +
+      quads + gx + gy + quadLabels + arch + athlete + axisLabels +
+    '</svg>';
+
+  var caption = hasVo2
+    ? '<div class="perf-chart-caption">You: VLaMax <strong>' + res.vlamax.toFixed(2) + '</strong> × VO2 Max <strong>' + vo2.toFixed(1) + '</strong> ml/kg/min</div>'
+    : '<div class="perf-chart-caption">VO2 Max not yet calculated. <a class="perf-chart-link" onclick="closePerfProfilePage(); setTimeout(function(){navTo(\'vo2Overlay\');},50);">Open VO2 Max Lab →</a> to complete your metabolic profile.</div>';
+
+  box.classList.remove('perf-placeholder');
+  box.classList.add('perf-chart-box');
+  box.innerHTML = svg + caption;
 }
 function setVo2Tab(tab) {
   vo2CurTab = tab;
@@ -20295,1035 +20408,6 @@ BADGE_DEFS.push(
 
 })();
 
-/* ══════════════════════════════════════════════════════════════
-   FRIENDS SYSTEM
-══════════════════════════════════════════════════════════════ */
-(function() {
-  'use strict';
-
-  const FRIENDS_KEY = 'actmtr_friends';
-  const MAX_FRIENDS = 50;
-
-  /* ── State ── */
-  let friendsView    = 'grid';
-  let lbPeriod       = 'weekly';
-  let lbCat          = 'all';
-  let addFriendSelAv = '🏃';
-  let addFriendPhoto = null;
-  let activeFriendId = null;
-  let motivFriendId  = null;
-  let removeFriendId = null;
-  let feedLikes = {};
-  let feedLiked = {};
-  let updRecentActs  = [];
-
-  /* ── Storage ── */
-  function loadFriends() {
-    try { return JSON.parse(localStorage.getItem(FRIENDS_KEY)) || []; } catch { return []; }
-  }
-  function saveFriends(f) { localStorage.setItem(FRIENDS_KEY, JSON.stringify(f)); }
-  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-  /* ── My Stats ── */
-  function getMyStats() {
-    const empty = { weeklyKm:0,weeklyActivities:0,monthlyKm:0,monthlyActivities:0,
-      totalKm:0,totalActivities:0,streak:0,longestStreak:0,yearKm:0,yearActivities:0,
-      runKm:0,hikeKm:0,cycleKm:0,monthlyDistances:new Array(12).fill(0) };
-    if (!window.db || !db.activities) return empty;
-    const acts = db.activities;
-    const now  = new Date();
-    const year = now.getFullYear();
-    const sow  = new Date(now); sow.setDate(now.getDate()-now.getDay()); sow.setHours(0,0,0,0);
-    const som  = new Date(year, now.getMonth(), 1);
-    const soy  = new Date(year, 0, 1);
-    let wKm=0,wActs=0,mKm=0,mActs=0,tKm=0,yKm=0,yActs=0,rKm=0,hKm=0,cKm=0;
-    const mDist = new Array(12).fill(0);
-    acts.forEach(a => {
-      const d = new Date(a.date+'T00:00:00'), km = a.distance||0;
-      tKm += km;
-      if (d>=sow){wKm+=km;wActs++;}
-      if (d>=som){mKm+=km;mActs++;}
-      if (d>=soy){yKm+=km;yActs++;mDist[d.getMonth()]+=km;}
-      if (a.type==='run') rKm+=km;
-      else if (a.type==='walk') hKm+=km;
-      else if (a.type==='cycle') cKm+=km;
-    });
-    const days = new Set(acts.map(a=>a.date));
-    let streak=0;
-    for(let i=0;i<365;i++){const d=new Date(now);d.setDate(d.getDate()-i);if(days.has(fmtDate(d)))streak++;else break;}
-    let longest=0,cur=0,prev=null;
-    [...days].sort().forEach(ds=>{
-      if(!prev){cur=1;}else{
-        const diff=(new Date(ds+'T00:00:00')-new Date(prev+'T00:00:00'))/86400000;
-        cur = diff===1 ? cur+1 : 1;
-      }
-      longest=Math.max(longest,cur); prev=ds;
-    });
-    return {weeklyKm:wKm,weeklyActivities:wActs,monthlyKm:mKm,monthlyActivities:mActs,
-      totalKm:tKm,totalActivities:acts.length,streak,longestStreak:longest,
-      yearKm:yKm,yearActivities:yActs,runKm:rKm,hikeKm:hKm,cycleKm:cKm,monthlyDistances:mDist};
-  }
-
-  /* ── Avatar helpers ── */
-  function fAvHtml(av,sz){
-    sz=sz||48;
-    if(!av)return '🏃';
-    if(av.startsWith('data:'))return `<img src="${av}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover" alt="">`;
-    return av;
-  }
-
-  /* ── Relative time ── */
-  function relTime(ds){
-    if(!ds)return 'Unknown';
-    const diff=Math.floor((Date.now()-new Date(ds+'T00:00:00'))/86400000);
-    if(diff===0)return 'Active today';
-    if(diff===1)return 'Yesterday';
-    if(diff<7)return diff+' days ago';
-    if(diff<30)return Math.floor(diff/7)+' weeks ago';
-    return Math.floor(diff/30)+' months ago';
-  }
-  function isActiveThisWeek(ds){
-    if(!ds)return false;
-    const sow=new Date();sow.setDate(sow.getDate()-sow.getDay());sow.setHours(0,0,0,0);
-    return new Date(ds+'T00:00:00')>=sow;
-  }
-
-  /* ── Main render ── */
-  window.renderFriendsSection = function(){
-    renderFriendsGrid();
-    renderLeaderboard();
-    renderFriendFeed();
-    renderRecentlyAdded();
-    renderSocialBadges();
-    updateFriendsCount();
-  };
-
-  function updateFriendsCount(){
-    const n=loadFriends().length;
-    const el=document.getElementById('friendsCountBadge');
-    if(el)el.textContent=`(${n} ${n===1?'Friend':'Friends'})`;
-  }
-
-  /* ── Tab switching (myFriends only — addFriend & leaderboard are modals now) ── */
-  window.friendsSwitchTab = function(tab){
-    if(tab==='myFriends') renderFriendsGrid();
-  };
-
-  /* ── Add Friend Modal ── */
-  window.openAddFriendModal = function(){
-    document.getElementById('addFriendModalOverlay')?.classList.add('open');
-    renderRecentlyAdded();
-  };
-  window.closeAddFriendModal = function(){
-    document.getElementById('addFriendModalOverlay')?.classList.remove('open');
-    renderFriendsGrid();
-    updateFriendsCount();
-  };
-
-  /* ── Leaderboard Modal ── */
-  window.openLeaderboardModal = function(){
-    document.getElementById('leaderboardModalOverlay')?.classList.add('open');
-    document.body.classList.add('modal-open');
-    renderLeaderboard();
-  };
-  window.closeLeaderboardModal = function(){
-    document.getElementById('leaderboardModalOverlay')?.classList.remove('open');
-    document.body.classList.remove('modal-open');
-  };
-
-  window.friendsSetView = function(view){
-    friendsView=view;
-    const g=document.getElementById('friendsGrid');
-    if(g)g.classList.toggle('list-view',view==='list');
-    document.getElementById('viewBtnGrid')?.classList.toggle('active',view==='grid');
-    document.getElementById('viewBtnList')?.classList.toggle('active',view==='list');
-  };
-
-  /* ── Render friends grid ── */
-  window.renderFriendsGrid = function(){
-    const el=document.getElementById('friendsGrid');
-    if(!el)return;
-    let friends=loadFriends();
-    const q=(document.getElementById('friendsSearch')?.value||'').toLowerCase();
-    if(q)friends=friends.filter(f=>f.name.toLowerCase().includes(q)||f.username.toLowerCase().includes(q));
-    // Pre-compute stats for filtering/sorting
-    const withStats=friends.map(f=>({f,cs:calcFriendStats(f)}));
-    const filter=document.getElementById('friendsFilterSel')?.value||'all';
-    const filtered=filter==='activeWeek'?withStats.filter(({cs})=>isActiveThisWeek(cs.lastActive)):withStats;
-    const sort=document.getElementById('friendsSortSel')?.value||'name';
-    filtered.sort((a,b)=>{
-      if(sort==='name')return a.f.name.localeCompare(b.f.name);
-      if(sort==='active')return b.cs.weeklyActivities-a.cs.weeklyActivities;
-      if(sort==='streak')return b.cs.streak-a.cs.streak;
-      if(sort==='km')return b.cs.weeklyKm-a.cs.weeklyKm;
-      return 0;
-    });
-    friends=filtered.map(({f})=>f);
-    if(!friends.length){
-      el.innerHTML=`<div class="friends-empty" style="grid-column:1/-1">
-        <div class="friends-empty-icon">👥</div>
-        <div>${q?'No friends match your search.':'No friends yet! Switch to <strong>Add Friend</strong> tab to add your training buddies.'}</div>
-      </div>`;
-      el.classList.remove('list-view');
-      return;
-    }
-    const my=getMyStats();
-    el.innerHTML=friends.map(f=>buildFriendCard(f,my.weeklyKm)).join('');
-    el.classList.toggle('list-view',friendsView==='list');
-  };
-
-  function buildFriendCard(f,myWkKm){
-    const cs=calcFriendStats(f);
-    const wkKm=cs.weeklyKm, wkActs=cs.weeklyActivities;
-    const streak=cs.streak, lastActive=cs.lastActive||'';
-    const isActive=isActiveThisWeek(lastActive);
-    const diff=wkKm-myWkKm;
-    const favIcon=f.favoriteType==='run'?'🏃':f.favoriteType==='hike'?'🥾':'🚴';
-    const unread=(f.messages||[]).filter(m=>!m.read).length;
-    const since=f.memberSince?new Date(f.memberSince+'T00:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}):'';
-    let comp='';
-    if(Math.abs(diff)>0.05){
-      const cls=diff>0?'behind':'ahead';
-      comp=`<div class="friend-comparison ${cls}">${diff>0?`${f.name.split(' ')[0]} ran ${diff.toFixed(1)} km more this week`:`You're ahead by ${Math.abs(diff).toFixed(1)} km this week`}</div>`;
-    }
-    // Last activity preview line
-    const acts=f.activities||[];
-    const lastAct=acts.length?[...acts].sort((a,b)=>b.date.localeCompare(a.date))[0]:null;
-    const typeLabel={run:'run',hike:'hike',walk:'hike',cycle:'ride'};
-    const lastActHtml=lastAct
-      ?`<div class="friend-last-act">Last: ${(lastAct.distance||0).toFixed(1)} km ${typeLabel[lastAct.type]||'run'}${lastAct.date?' — '+relTime(lastAct.date):''}</div>`
-      :`<div class="friend-last-act muted">No recent activities</div>`;
-    return `<div class="friend-card" id="fcard_${f.id}" onclick="openFriendProfile('${f.id}')">
-      ${unread?`<div class="friend-msg-badge">💬 ${unread}</div>`:''}
-      <div class="friend-dropdown" onclick="event.stopPropagation()">
-        <button class="friend-menu-btn" onclick="toggleFriendMenu('${f.id}')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-        </button>
-        <div class="friend-menu-popup" id="fmenu_${f.id}">
-          <div class="friend-menu-item" onclick="openFriendProfile('${f.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>View Profile
-          </div>
-          <div class="friend-menu-item" onclick="openFriendProfile('${f.id}',true)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Compare Stats
-          </div>
-          <div class="friend-menu-item" onclick="openMotivModal('${f.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Send Motivation
-          </div>
-          <div class="friend-menu-item" onclick="openUpdateStatsModal('${f.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Activity
-          </div>
-          <div class="friend-menu-item danger" onclick="confirmRemoveFriend('${f.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Remove Friend
-          </div>
-        </div>
-      </div>
-      <div class="friend-card-top">
-        <div class="friend-avatar">${fAvHtml(f.avatar)}</div>
-        <div class="friend-info">
-          <div class="friend-name">${escHtml(f.name)}</div>
-          <div class="friend-username">@${escHtml(f.username)} ${favIcon}</div>
-          ${since?`<div class="friend-since">Member since ${since}</div>`:''}
-        </div>
-      </div>
-      <div class="friend-status">
-        <span class="f-active-dot ${isActive?'green':'grey'}"></span>
-        <span>${isActive?'Active this week':(lastActive?relTime(lastActive):'No data')}</span>
-      </div>
-      ${streak?`<div class="friend-streak">🔥 ${streak}-day streak</div>`:''}
-      ${lastActHtml}
-      <div class="friend-week-stats">
-        <div class="friend-stat-mini"><div class="friend-stat-mini-label">This week km</div><div class="friend-stat-mini-value">${wkKm.toFixed(1)}</div></div>
-        <div class="friend-stat-mini"><div class="friend-stat-mini-label">Activities</div><div class="friend-stat-mini-value">${wkActs}</div></div>
-      </div>
-      ${comp}
-    </div>`;
-  }
-
-  /* ── Friend menu ── */
-  window.toggleFriendMenu = function(id){
-    document.querySelectorAll('.friend-menu-popup').forEach(el=>{if(el.id!=='fmenu_'+id)el.classList.remove('open');});
-    document.getElementById('fmenu_'+id)?.classList.toggle('open');
-  };
-  document.addEventListener('click',function(e){
-    if(!e.target.closest('.friend-dropdown'))
-      document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-  });
-
-  /* ── Friend Profile Modal ── */
-  window.openFriendProfile = function(id,scrollH2H){
-    activeFriendId=id;
-    document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-    const friends=loadFriends();
-    const f=friends.find(x=>x.id===id);
-    if(!f)return;
-    if(scrollH2H){f._compareCount=(f._compareCount||0)+1;saveFriends(friends);}
-    const modal=document.getElementById('friendProfileModal');
-    if(!modal)return;
-    document.getElementById('fpModalTitle').textContent=f.name;
-    document.getElementById('fpContent').innerHTML=buildFriendProfileHtml(f,getMyStats());
-    modal.classList.add('open');
-    if(scrollH2H)setTimeout(()=>document.getElementById('fpH2HSection')?.scrollIntoView({behavior:'smooth',block:'center'}),300);
-    checkSocialBadges();
-  };
-  window.closeFriendProfile=function(){
-    document.getElementById('friendProfileModal')?.classList.remove('open');
-    activeFriendId=null;
-  };
-
-  function buildFriendProfileHtml(f,my){
-    const cs=calcFriendStats(f);
-    const since=f.memberSince?new Date(f.memberSince+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'Unknown';
-    const fav=f.favoriteType==='run'?'🏃 Running':f.favoriteType==='hike'?'🥾 Hiking':'🚴 Cycling';
-    const theirTot=cs.totalKm, myTot=my.totalKm;
-    const iWin=myTot>=theirTot;
-    // Latest activities (last 10, newest first)
-    const tLabel={run:'Run',hike:'Hike',walk:'Hike',cycle:'Ride'};
-    const tClass={run:'run',hike:'hike',walk:'hike',cycle:'cycle'};
-    const dClass={Easy:'diff-easy',Medium:'diff-medium',Hard:'diff-hard'};
-    const acts=[...(f.activities||[])].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
-    const actsHtml=acts.length?acts.map(a=>{
-      const ds=a.date?new Date(a.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-      const paceStr=a.type==='cycle'?calcSpeed(a.distance,a.duration):calcPace(a.distance,a.duration);
-      return `<div class="fp-act-full">
-        <div class="fp-act-full-top">
-          <span class="fp-act-type ${tClass[a.type]||'run'}">${tLabel[a.type]||'Run'}</span>
-          ${a.title?`<span class="fp-act-full-title">${escHtml(a.title)}</span>`:''}
-          ${a.difficulty?`<span class="fp-diff-badge ${dClass[a.difficulty]||'diff-medium'}">${a.difficulty}</span>`:''}
-          <span style="margin-left:auto;font-size:.68rem;color:var(--text-muted);flex-shrink:0">${ds}</span>
-        </div>
-        <div class="fp-act-full-stats">
-          <span><strong>${(a.distance||0).toFixed(2)}</strong> km</span>
-          ${a.duration?`<span>${a.duration}</span>`:''}
-          ${paceStr?`<span>${paceStr}</span>`:''}
-          ${a.calories?`<span>${a.calories} kcal</span>`:''}
-        </div>
-      </div>`;
-    }).join(''):`<div style="color:var(--text-muted);font-size:.78rem;padding:10px 0">No activities logged yet — use Add Activity to log their workouts.</div>`;
-    // H2H bars — last 6 months
-    const now=new Date();
-    const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const last6=[];
-    for(let i=5;i>=0;i--){const mi=(now.getMonth()-i+12)%12;last6.push({label:MN[mi],me:(my.monthlyDistances||[])[mi]||0,them:(cs.monthlyDistances||[])[mi]||0});}
-    const maxB=Math.max(...last6.map(m=>Math.max(m.me,m.them)),1);
-    const barsHtml=last6.map(m=>`<div class="fp-h2h-month-group"><div class="fp-h2h-bar you" style="height:${Math.round(m.me/maxB*70)}px"></div><div class="fp-h2h-bar them" style="height:${Math.round(m.them/maxB*70)}px"></div></div>`).join('');
-    const labsHtml=last6.map(m=>`<span style="flex:1;text-align:center;font-size:.55rem;color:var(--text-dim)">${m.label}</span>`).join('');
-    const fname=f.name.split(' ')[0];
-    return `
-      <div class="fp-header">
-        <div class="fp-avatar">${fAvHtml(f.avatar,64)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="fp-name">${escHtml(f.name)}</div>
-          <div class="fp-username">@${escHtml(f.username)}</div>
-          <div class="fp-since">Member since ${since} · ${fav}</div>
-        </div>
-      </div>
-      <div class="fp-stats-grid">
-        <div class="fp-stat-box"><div class="fp-stat-label">Year km</div><div class="fp-stat-value">${cs.yearKm.toFixed(1)}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Year Activities</div><div class="fp-stat-value">${cs.yearActivities}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Current Streak</div><div class="fp-stat-value">${cs.streak} 🔥</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Longest Streak</div><div class="fp-stat-value">${cs.longestStreak} days</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Total km</div><div class="fp-stat-value">${theirTot.toFixed(0)}</div></div>
-        <div class="fp-stat-box"><div class="fp-stat-label">Avg Weekly km</div><div class="fp-stat-value">${cs.avgWeeklyKm.toFixed(1)}</div></div>
-      </div>
-      <div class="fp-section-title" style="display:flex;align-items:center;justify-content:space-between;padding-right:20px">
-        Latest Activities
-        <button class="btn btn-teal" style="font-size:.72rem;padding:5px 12px" onclick="openUpdateStatsModal('${f.id}')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Activity for ${escHtml(fname)}
-        </button>
-      </div>
-      <div class="fp-activities" style="display:flex;flex-direction:column;gap:6px;padding:0 20px 12px">${actsHtml}</div>
-      <div id="fpH2HSection" class="fp-h2h">
-        <div class="fp-h2h-title">
-          You vs ${escHtml(fname)}
-          <span class="fp-h2h-badge ${iWin?'winning':'losing'}">${iWin?"You're ahead!":fname+" is ahead!"}</span>
-        </div>
-        <div class="fp-h2h-row">
-          <div class="fp-h2h-you">${myTot.toFixed(0)} km</div>
-          <div class="fp-h2h-label">Total km</div>
-          <div class="fp-h2h-them">${theirTot.toFixed(0)} km</div>
-        </div>
-        <div class="fp-h2h-row">
-          <div class="fp-h2h-you">${my.streak} 🔥</div>
-          <div class="fp-h2h-label">Streak</div>
-          <div class="fp-h2h-them">${cs.streak} 🔥</div>
-        </div>
-        <div class="fp-h2h-row">
-          <div class="fp-h2h-you">${my.totalActivities} acts</div>
-          <div class="fp-h2h-label">Activities</div>
-          <div class="fp-h2h-them">${cs.totalActivities} acts</div>
-        </div>
-        <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:2px">Monthly km — last 6 months</div>
-        <div class="fp-h2h-bars">${barsHtml}</div>
-        <div style="display:flex">${labsHtml}</div>
-        <div class="fp-h2h-legend">
-          <span><span class="fp-h2h-legend-dot" style="background:var(--teal)"></span>You</span>
-          <span><span class="fp-h2h-legend-dot" style="background:#f97316"></span>${escHtml(fname)}</span>
-        </div>
-      </div>`;
-  }
-
-  /* ── Compute friend stats dynamically from activities array ── */
-  function calcFriendStats(f){
-    const acts=f.activities||[];
-    const now=new Date();
-    const sow=new Date(now);sow.setDate(now.getDate()-now.getDay());sow.setHours(0,0,0,0);
-    const som=new Date(now.getFullYear(),now.getMonth(),1);
-    const soy=new Date(now.getFullYear(),0,1);
-    let wKm=0,wActs=0,mKm=0,mActs=0,tKm=0,yKm=0,yActs=0,rKm=0,hKm=0,cKm=0;
-    const mDist=new Array(12).fill(0);
-    const days=new Set();
-    acts.forEach(a=>{
-      const d=new Date(a.date+'T00:00:00'),km=a.distance||0;
-      tKm+=km; days.add(a.date);
-      if(d>=sow){wKm+=km;wActs++;}
-      if(d>=som){mKm+=km;mActs++;}
-      if(d>=soy){yKm+=km;yActs++;mDist[d.getMonth()]+=km;}
-      if(a.type==='run')rKm+=km;
-      else if(a.type==='hike'||a.type==='walk')hKm+=km;
-      else if(a.type==='cycle')cKm+=km;
-    });
-    // Current streak
-    let streak=0;
-    const today=fmtDate(now);
-    let cd=new Date(now);
-    if(!days.has(today))cd.setDate(cd.getDate()-1);
-    while(days.has(fmtDate(cd))){streak++;cd.setDate(cd.getDate()-1);}
-    // Longest streak
-    let longest=0,cur=0,prev=null;
-    [...days].sort().forEach(ds=>{
-      if(!prev){cur=1;}else{
-        const diff=(new Date(ds+'T00:00:00')-new Date(prev+'T00:00:00'))/86400000;
-        cur=diff===1?cur+1:1;
-      }
-      longest=Math.max(longest,cur);prev=ds;
-    });
-    // Avg weekly km (total / weeks since first activity)
-    let avgWeeklyKm=0;
-    if(acts.length){
-      const sorted=[...acts].sort((a,b)=>a.date.localeCompare(b.date));
-      const firstDate=new Date(sorted[0].date+'T00:00:00');
-      const weeks=Math.max(1,Math.ceil((now-firstDate)/604800000));
-      avgWeeklyKm=tKm/weeks;
-    }
-    const lastActive=acts.length?[...acts].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'';
-    return {
-      weeklyKm:wKm,weeklyActivities:wActs,monthlyKm:mKm,monthlyActivities:mActs,
-      totalKm:tKm,totalActivities:acts.length,streak,longestStreak:longest,
-      yearKm:yKm,yearActivities:yActs,runKm:rKm,hikeKm:hKm,cycleKm:cKm,
-      monthlyDistances:mDist,lastActive,avgWeeklyKm
-    };
-  }
-
-  /* ── Pace / Speed helpers ── */
-  function calcPace(distKm,dur){
-    if(!distKm||!dur)return'';
-    const p=dur.split(':').map(Number);
-    const s=p.length===3?p[0]*3600+p[1]*60+(p[2]||0):p.length===2?p[0]*60+p[1]:0;
-    if(!s||!distKm)return'';
-    const mpk=s/60/distKm;
-    const m=Math.floor(mpk),sec=Math.round((mpk-m)*60);
-    return`${m}:${sec.toString().padStart(2,'0')} /km`;
-  }
-  function calcSpeed(distKm,dur){
-    if(!distKm||!dur)return'';
-    const p=dur.split(':').map(Number);
-    const s=p.length===3?p[0]*3600+p[1]*60+(p[2]||0):p.length===2?p[0]*60+p[1]:0;
-    if(!s||!distKm)return'';
-    return`${(distKm/(s/3600)).toFixed(1)} km/h`;
-  }
-
-  /* ── Add Friend ── */
-  window.friendsSelectAvatar = function(el){
-    addFriendSelAv=el.dataset.av;
-    addFriendPhoto=null;
-    document.querySelectorAll('#addFriendAvatarPicker .avatar-opt').forEach(o=>o.classList.remove('selected'));
-    el.classList.add('selected');
-    document.getElementById('addFriendPhotoPreview').style.display='none';
-  };
-  window.friendsHandlePhotoUpload = function(input){
-    const file=input.files?.[0];
-    if(!file)return;
-    const reader=new FileReader();
-    reader.onload=function(e){
-      const img=new Image();
-      img.onload=function(){
-        const c=document.createElement('canvas');
-        const mx=200;
-        let w=img.width,h=img.height;
-        if(w>h){if(w>mx){h=h*mx/w;w=mx;}}else{if(h>mx){w=w*mx/h;h=mx;}}
-        c.width=w;c.height=h;
-        c.getContext('2d').drawImage(img,0,0,w,h);
-        addFriendPhoto=c.toDataURL('image/jpeg',0.7);
-        addFriendSelAv=null;
-        document.querySelectorAll('#addFriendAvatarPicker .avatar-opt').forEach(o=>o.classList.remove('selected'));
-        const prev=document.getElementById('addFriendPhotoPreview');
-        const pi=document.getElementById('addFriendPhotoImg');
-        if(prev&&pi){pi.src=addFriendPhoto;prev.style.display='';}
-      };
-      img.src=e.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
-  window.friendsQuickAdd = function(type){
-    const T={
-      runner:{name:'Training Buddy',username:'trainingbuddy',fav:'run',wkKm:30,streak:5,tot:250},
-      hiker: {name:'Hiking Partner',username:'hikingpartner',fav:'hike',wkKm:15,streak:3,tot:180},
-      cyclist:{name:'Cycling Friend',username:'cyclingfriend',fav:'cycle',wkKm:60,streak:7,tot:500}
-    }[type];
-    if(!T)return;
-    document.getElementById('addFriendName').value=T.name;
-    document.getElementById('addFriendUsername').value=T.username;
-    document.getElementById('addFriendWeeklyKm').value=T.wkKm;
-    document.getElementById('addFriendStreak').value=T.streak;
-    document.getElementById('addFriendTotalKm').value=T.tot;
-    const r=document.querySelector(`input[name="addFavType"][value="${T.fav}"]`);
-    if(r)r.checked=true;
-    const avMap={run:'🏃',hike:'🥾',cycle:'🚴'};
-    const av=avMap[T.fav];
-    document.querySelectorAll('#addFriendAvatarPicker .avatar-opt').forEach(o=>o.classList.toggle('selected',o.dataset.av===av));
-    addFriendSelAv=av;addFriendPhoto=null;
-  };
-  window.addFriendSubmit = function(){
-    const name=(document.getElementById('addFriendName')?.value||'').trim();
-    const username=(document.getElementById('addFriendUsername')?.value||'').trim();
-    if(!name||!username){alert('Name and username are required.');return;}
-    const friends=loadFriends();
-    if(friends.length>=MAX_FRIENDS){alert('Maximum 50 friends reached.');return;}
-    if(friends.some(f=>f.username.toLowerCase()===username.toLowerCase())){alert('A friend with this username already exists.');return;}
-    const fav=document.querySelector('input[name="addFavType"]:checked')?.value||'run';
-    const wkKm=parseFloat(document.getElementById('addFriendWeeklyKm')?.value)||0;
-    const streak=parseInt(document.getElementById('addFriendStreak')?.value)||0;
-    const tot=parseFloat(document.getElementById('addFriendTotalKm')?.value)||0;
-    const since=document.getElementById('addFriendSince')?.value||fmtDate(new Date());
-    const nf={
-      id:genId(),name,username,
-      avatar:addFriendPhoto||addFriendSelAv||'🏃',
-      memberSince:since,dateAdded:fmtDate(new Date()),
-      favoriteType:fav,messages:[],_compareCount:0,activities:[],
-      stats:{
-        weeklyKm:wkKm,weeklyActivities:Math.max(1,Math.round(wkKm/8)),
-        monthlyKm:wkKm*4,monthlyActivities:Math.max(1,Math.round(wkKm/8))*4,
-        totalKm:tot,totalActivities:Math.max(1,Math.round(tot/8)),
-        streak,longestStreak:streak,avgWeeklyKm:wkKm,
-        yearKm:wkKm*40,yearActivities:Math.max(1,Math.round(wkKm/8))*40,
-        lastActive:fmtDate(new Date()),personalRecords:{},recentActivities:[],
-        monthlyDistances:new Array(12).fill(+(wkKm*4/12).toFixed(1)),
-        runKm:fav==='run'?tot*.7:tot*.1,hikeKm:fav==='hike'?tot*.7:tot*.1,cycleKm:fav==='cycle'?tot*.7:tot*.1
-      }
-    };
-    friends.push(nf);saveFriends(friends);
-    // Reset form
-    ['addFriendName','addFriendUsername','addFriendWeeklyKm','addFriendStreak','addFriendTotalKm','addFriendSince'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    addFriendPhoto=null;addFriendSelAv='🏃';
-    document.querySelectorAll('#addFriendAvatarPicker .avatar-opt').forEach((o,i)=>o.classList.toggle('selected',i===0));
-    document.getElementById('addFriendPhotoPreview').style.display='none';
-    updateFriendsCount();renderRecentlyAdded();renderSocialBadges();
-    const btn=document.querySelector('[onclick="addFriendSubmit()"]');
-    if(btn){const orig=btn.innerHTML;btn.innerHTML='✓ Friend Added!';btn.style.background='linear-gradient(135deg,#22c55e,#16a34a)';setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2000);}
-    checkSocialBadges();
-  };
-
-  /* ── Remove Friend ── */
-  window.confirmRemoveFriend = function(id){
-    removeFriendId=id;
-    document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-    const f=loadFriends().find(x=>x.id===id);
-    const el=document.getElementById('removeFriendName');
-    if(el&&f)el.textContent=f.name;
-    document.getElementById('friendRemoveModal')?.classList.add('open');
-  };
-  window.doRemoveFriend = function(){
-    if(!removeFriendId)return;
-    saveFriends(loadFriends().filter(f=>f.id!==removeFriendId));
-    removeFriendId=null;
-    document.getElementById('friendRemoveModal')?.classList.remove('open');
-    renderFriendsGrid();updateFriendsCount();renderLeaderboard();renderFriendFeed();renderSocialBadges();
-  };
-  window.cancelRemoveFriend = function(){
-    removeFriendId=null;
-    document.getElementById('friendRemoveModal')?.classList.remove('open');
-  };
-
-  /* ── Add Activity Modal (replaces old Update Stats) ── */
-  window.openUpdateStatsModal = function(id){
-    document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-    activeFriendId=id;
-    const f=loadFriends().find(x=>x.id===id);
-    if(!f)return;
-    const modal=document.getElementById('friendUpdateModal');
-    if(!modal)return;
-    document.getElementById('updFriendName').textContent=f.name;
-    // Reset form to defaults
-    const typeRun=document.querySelector('input[name="faType"][value="run"]');
-    if(typeRun)typeRun.checked=true;
-    const diffEasy=document.querySelector('input[name="faDiff"][value="Easy"]');
-    if(diffEasy)diffEasy.checked=true;
-    const faDate=document.getElementById('faDate');
-    if(faDate)faDate.value=fmtDate(new Date());
-    const faDistance=document.getElementById('faDistance');
-    if(faDistance)faDistance.value='';
-    const faDuration=document.getElementById('faDuration');
-    if(faDuration)faDuration.value='';
-    const faCalories=document.getElementById('faCalories');
-    if(faCalories)faCalories.value='';
-    modal.classList.add('open');
-  };
-  window.saveUpdateStats = function(){
-    if(!activeFriendId)return;
-    const dist=parseFloat(document.getElementById('faDistance')?.value)||0;
-    if(!dist){alert('Please enter a distance.');return;}
-    const date=document.getElementById('faDate')?.value||fmtDate(new Date());
-    const type=document.querySelector('input[name="faType"]:checked')?.value||'run';
-    const duration=(document.getElementById('faDuration')?.value||'').trim();
-    const calories=parseInt(document.getElementById('faCalories')?.value)||0;
-    const difficulty=document.querySelector('input[name="faDiff"]:checked')?.value||'Medium';
-    const friends=loadFriends();
-    const f=friends.find(x=>x.id===activeFriendId);
-    if(!f)return;
-    if(!f.activities)f.activities=[];
-    f.activities.push({
-      id:(typeof genId==='function'?genId():'act_'+Date.now()),
-      type,date,distance:dist,duration,calories,difficulty,title:''
-    });
-    saveFriends(friends);
-    document.getElementById('friendUpdateModal')?.classList.remove('open');
-    renderFriendsGrid();renderLeaderboard();renderFriendFeed();
-  };
-  window.closeUpdateModal = function(){document.getElementById('friendUpdateModal')?.classList.remove('open');};
-
-  /* ── Motivation ── */
-  const MOTIV_PRESETS=[
-    "Keep pushing! You're doing great! 💪",
-    "Nice run! Let's see who runs more this week! 🏃",
-    "Don't skip today's workout! 🔥",
-    "New PB? That's awesome! 🎉",
-    "See you on the leaderboard! 🏆"
-  ];
-  let selMotivMsg=MOTIV_PRESETS[0];
-
-  window.openMotivModal = function(id){
-    motivFriendId=id;
-    document.querySelectorAll('.friend-menu-popup').forEach(el=>el.classList.remove('open'));
-    const friends=loadFriends();
-    const f=friends.find(x=>x.id===id);
-    const modal=document.getElementById('friendMotivModal');
-    if(!modal)return;
-    document.getElementById('motivFriendName').textContent=f?f.name:'Friend';
-    selMotivMsg=MOTIV_PRESETS[0];
-    const listEl=document.getElementById('motivMessageList');
-    if(listEl){
-      listEl.innerHTML=MOTIV_PRESETS.map((msg,i)=>`
-        <div class="motiv-option ${i===0?'selected':''}" onclick="selMotivOption(this,'${escHtml(msg)}')">${escHtml(msg)}</div>
-      `).join('')+`
-        <div class="form-group" style="margin-top:10px">
-          <label class="form-label">Custom Message</label>
-          <textarea class="form-textarea" id="motivCustomText" placeholder="Write your own message…" rows="2"></textarea>
-        </div>`;
-    }
-    const histEl=document.getElementById('motivHistory');
-    if(histEl&&f){
-      const msgs=(f.messages||[]).slice(-5).reverse();
-      histEl.innerHTML=msgs.length?`<div class="form-label" style="margin-top:12px;margin-bottom:6px">Message History</div><div class="motiv-history">${msgs.map(m=>`<div class="motiv-history-item"><span class="motiv-history-text">${escHtml(m.text)}</span><span class="motiv-history-date">${m.date?new Date(m.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</span></div>`).join('')}</div>`:'';
-    }
-    modal.classList.add('open');
-  };
-  window.selMotivOption = function(el,msg){
-    document.querySelectorAll('.motiv-option').forEach(o=>o.classList.remove('selected'));
-    el.classList.add('selected');selMotivMsg=msg;
-    const ct=document.getElementById('motivCustomText');if(ct)ct.value='';
-  };
-  window.sendMotivMessage = function(){
-    if(!motivFriendId)return;
-    const custom=(document.getElementById('motivCustomText')?.value||'').trim();
-    const msg=custom||selMotivMsg;
-    if(!msg)return;
-    const friends=loadFriends();
-    const f=friends.find(x=>x.id===motivFriendId);
-    if(!f)return;
-    f.messages=f.messages||[];
-    f.messages.push({text:msg,date:fmtDate(new Date()),read:false});
-    saveFriends(friends);
-    document.getElementById('friendMotivModal')?.classList.remove('open');
-    renderFriendsGrid();checkSocialBadges();
-  };
-  window.closeMotivModal = function(){document.getElementById('friendMotivModal')?.classList.remove('open');motivFriendId=null;};
-
-  /* ── Import / Export ── */
-  window.friendsImportJSON = function(){
-    const json=prompt('Paste friend JSON data (single object or array):');
-    if(!json)return;
-    try{
-      let data=JSON.parse(json);
-      if(!Array.isArray(data))data=[data];
-      const friends=loadFriends();
-      let added=0;
-      data.forEach(f=>{
-        if(!f.name||!f.username)return;
-        if(friends.some(x=>x.username.toLowerCase()===f.username.toLowerCase()))return;
-        if(friends.length>=MAX_FRIENDS)return;
-        f.id=f.id||genId();f.dateAdded=f.dateAdded||fmtDate(new Date());
-        f.messages=f.messages||[];f.stats=f.stats||{};
-        friends.push(f);added++;
-      });
-      saveFriends(friends);
-      alert(`Imported ${added} friend(s)!`);
-      renderFriendsSection();
-    }catch{alert('Invalid JSON. Please check the data and try again.');}
-  };
-  window.friendsExportMyProfile = function(){
-    const my=getMyStats();
-    const u=typeof currentUser!=='undefined'&&currentUser?currentUser:null;
-    const profile={
-      name:u?`${u.firstName} ${u.lastName}`:'ActivityMetrics User',
-      username:u?(u.firstName+(u.lastName||'').slice(0,3)).toLowerCase():'actmtruser',
-      avatar:u?.avatar||'🏃',
-      memberSince:u?.memberSince||fmtDate(new Date()),
-      favoriteType:'run',
-      stats:{
-        weeklyKm:+my.weeklyKm.toFixed(1),weeklyActivities:my.weeklyActivities,
-        monthlyKm:+my.monthlyKm.toFixed(1),monthlyActivities:my.monthlyActivities,
-        totalKm:+my.totalKm.toFixed(1),totalActivities:my.totalActivities,
-        streak:my.streak,longestStreak:my.longestStreak,avgWeeklyKm:+my.weeklyKm.toFixed(1),
-        yearKm:+my.yearKm.toFixed(1),yearActivities:my.yearActivities,
-        lastActive:fmtDate(new Date()),
-        monthlyDistances:my.monthlyDistances.map(x=>+x.toFixed(1)),
-        runKm:+my.runKm.toFixed(1),hikeKm:+my.hikeKm.toFixed(1),cycleKm:+my.cycleKm.toFixed(1),
-        personalRecords:{}
-      }
-    };
-    const json=JSON.stringify(profile,null,2);
-    if(navigator.clipboard){navigator.clipboard.writeText(json).then(()=>alert('Profile JSON copied to clipboard! Share with your friends so they can add you.'));}
-    else{prompt('Copy this JSON and share it with your friends:',json);}
-  };
-
-  /* ── Recently Added ── */
-  function renderRecentlyAdded(){
-    const el=document.getElementById('recentlyAddedSection');
-    if(!el)return;
-    const friends=loadFriends();
-    const recent=[...friends].sort((a,b)=>(b.dateAdded||'').localeCompare(a.dateAdded||'')).slice(0,3);
-    if(!recent.length){el.innerHTML='';return;}
-    el.innerHTML=`<div class="recently-added-label">Recently Added</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        ${recent.map(f=>`<div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 12px">
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.9rem;overflow:hidden;border:1.5px solid var(--teal)">${fAvHtml(f.avatar,32)}</div>
-          <div style="flex:1"><span style="font-size:.82rem;font-weight:600">${escHtml(f.name)}</span><span class="just-added-badge">Just added!</span></div>
-          <button class="btn btn-ghost" style="padding:4px 10px;font-size:.72rem" onclick="openFriendProfile('${f.id}')">View</button>
-        </div>`).join('')}
-      </div>`;
-  }
-
-  /* ── Leaderboard ── */
-  window.friendsLbSetPeriod = function(period){
-    lbPeriod=period;
-    ['Weekly','Monthly','Alltime'].forEach(p=>document.getElementById('lbBtn'+p)?.classList.toggle('active',p.toLowerCase()===period));
-    renderLeaderboard();
-  };
-  window.friendsLbSetCat = function(cat){
-    lbCat=cat;
-    ['All','Run','Hike','Cycle'].forEach(c=>document.getElementById('lbCat'+c)?.classList.toggle('active',c.toLowerCase()===cat));
-    renderLeaderboard();
-  };
-
-  function getKmForPeriod(stats,period,cat){
-    const s=stats||{};
-    const base=period==='weekly'?s.weeklyKm||0:period==='monthly'?s.monthlyKm||0:s.totalKm||0;
-    if(cat==='all')return base;
-    const tot=s.totalKm||1;
-    const frac=period==='weekly'?s.weeklyKm||0:period==='monthly'?s.monthlyKm||0:s.totalKm||0;
-    const catKm=cat==='run'?s.runKm||0:cat==='hike'?s.hikeKm||0:s.cycleKm||0;
-    return tot>0?frac*(catKm/tot):0;
-  }
-
-  function renderLeaderboard(){
-    const el=document.getElementById('lbList');
-    const summEl=document.getElementById('lbRankSummary');
-    if(!el)return;
-    const friends=loadFriends();
-    const my=getMyStats();
-    const u=typeof currentUser!=='undefined'&&currentUser?currentUser:null;
-    const myName=u?`${u.firstName} ${u.lastName}`:'You';
-    const myAv=u?.avatar||'🏃';
-    const entries=[];
-    // My entry
-    const myStats2={totalKm:my.totalKm,weeklyKm:my.weeklyKm,monthlyKm:my.monthlyKm,runKm:my.runKm,hikeKm:my.hikeKm,cycleKm:my.cycleKm};
-    const myKm=getKmForPeriod(myStats2,lbPeriod,lbCat);
-    const myActs=lbPeriod==='weekly'?my.weeklyActivities:lbPeriod==='monthly'?my.monthlyActivities:my.totalActivities;
-    entries.push({id:'me',name:myName,avatar:myAv,km:myKm,acts:myActs,isMe:true});
-    friends.forEach(f=>{
-      const cs=calcFriendStats(f);
-      const km=getKmForPeriod(cs,lbPeriod,lbCat);
-      const acts=lbPeriod==='weekly'?cs.weeklyActivities:lbPeriod==='monthly'?cs.monthlyActivities:cs.totalActivities;
-      entries.push({id:f.id,name:f.name,avatar:f.avatar,km,acts,isMe:false});
-    });
-    entries.sort((a,b)=>b.km-a.km);
-    if(!entries.length){el.innerHTML='<div class="friends-empty">No data yet. Add friends to see the leaderboard!</div>';return;}
-    const maxKm=Math.max(...entries.map(e=>e.km),1);
-    const myRank=entries.findIndex(e=>e.isMe)+1;
-    const total=entries.length;
-    if(summEl){
-      const ahead=myRank>1?entries[myRank-2]:null;
-      const diff=ahead?(ahead.km-myKm).toFixed(1):0;
-      summEl.innerHTML=`<div class="lb-rank-summary">
-        <span>📍 Your rank: <strong>#${myRank} of ${total}</strong></span>
-        ${ahead?`<span>💨 Need <strong>${diff} km</strong> more to beat ${escHtml(ahead.name.split(' ')[0])}</span>`:'<span>👑 <strong>You are #1!</strong> 🎉</span>'}
-      </div>`;
-    }
-    el.innerHTML=entries.map((e,i)=>{
-      const rank=i+1;
-      const rl=rank===1?'👑':rank===2?'🥈':rank===3?'🥉':rank;
-      const rc=rank===1?'gold':rank===2?'silver':rank===3?'bronze':'';
-      const bp=Math.round((e.km/maxKm)*100);
-      return `<div class="lb-row ${e.isMe?'you-row':''}">
-        <div class="lb-rank ${rc}">${rl}</div>
-        <div class="lb-avatar">${fAvHtml(e.avatar,32)}</div>
-        <div class="lb-name-wrap">
-          <div class="lb-name">${escHtml(e.name)}${e.isMe?'<span class="lb-you-tag">You</span>':''}${rank<=3?' 🔥':''}</div>
-          <div class="lb-acts">${e.acts} activities</div>
-        </div>
-        <div class="lb-km">${e.km.toFixed(1)} km</div>
-        <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${bp}%"></div></div></div>
-      </div>`;
-    }).join('');
-  }
-
-  /* ── Friend Activity Feed ── */
-  function renderFriendFeed(){
-    const el=document.getElementById('friendsFeed');
-    const sec=document.getElementById('friendsFeedSection');
-    if(!el)return;
-    const friends=loadFriends();
-    if(!friends.length){if(sec)sec.style.display='none';return;}
-    const feedItems=[];
-    friends.forEach(f=>{
-      (f.activities||[]).forEach((a,i)=>feedItems.push({f,a,key:f.id+'_'+i}));
-    });
-    feedItems.sort((a,b)=>(b.a.date||'0').localeCompare(a.a.date||'0'));
-    const shown=feedItems.slice(0,20);
-    if(!shown.length){
-      if(sec)sec.style.display='none';return;
-    }
-    if(sec)sec.style.display='';
-    const icon={run:'🏃',hike:'🥾',walk:'🥾',cycle:'🚴'};
-    const verb={run:'ran',hike:'hiked',walk:'hiked',cycle:'rode'};
-    el.innerHTML=shown.map(({f,a,key})=>{
-      const likes=feedLikes[key]||0;
-      const liked=feedLiked[key]||false;
-      const ds=a.date?relTime(a.date):'';
-      return `<div class="feed-item">
-        <div class="feed-avatar">${fAvHtml(f.avatar,30)}</div>
-        <div class="feed-content">
-          <div class="feed-text"><span class="feed-friend-name">${escHtml(f.name)}</span> ${verb[a.type]||'ran'} ${icon[a.type]||'🏃'} <strong>${(a.distance||0).toFixed(1)} km</strong>${a.duration?` — ${a.duration}`:''}</div>
-          <div class="feed-meta">
-            <span>${ds}</span>
-            <span class="activity-type-badge ${a.type==='hike'?'walk':a.type||'run'}" style="font-size:.6rem">${a.type||'run'}</span>
-            ${a.difficulty?`<span class="fp-diff-badge ${a.difficulty==='Easy'?'diff-easy':a.difficulty==='Hard'?'diff-hard':'diff-medium'}">${a.difficulty}</span>`:''}
-            <button class="feed-kudos-btn ${liked?'liked':''}" onclick="feedToggleLike('${key}',this)">❤️${likes>0?' '+likes:''} Kudos</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  window.feedToggleLike = function(key,btn){
-    feedLiked[key]=!feedLiked[key];
-    feedLikes[key]=(feedLikes[key]||0)+(feedLiked[key]?1:-1);
-    if(feedLikes[key]<0)feedLikes[key]=0;
-    btn.classList.toggle('liked',feedLiked[key]);
-    const n=feedLikes[key];
-    btn.innerHTML=`❤️${n>0?' '+n:''} Kudos`;
-  };
-
-  /* ── Social Badges ── */
-  const SOCIAL_BADGES=[
-    {id:'soc_first',  tier:'bronze',  icon:'🤝',name:'Social Runner',      desc:'Add your first friend',              check:f=>f.length>=1},
-    {id:'soc_5',      tier:'silver',  icon:'👥',name:'Squad Goals',         desc:'Have 5 friends',                     check:f=>f.length>=5},
-    {id:'soc_10',     tier:'gold',    icon:'🏘️',name:'Community Builder',   desc:'Have 10 friends',                    check:f=>f.length>=10},
-    {id:'soc_20',     tier:'platinum',icon:'🌟',name:'Social Butterfly',    desc:'Have 20 friends',                    check:f=>f.length>=20},
-    {id:'soc_lb1',    tier:'gold',    icon:'👑',name:'Leaderboard King',    desc:'Reach #1 on weekly leaderboard',     check:null},
-    {id:'soc_lb4',    tier:'platinum',icon:'🏆',name:'Consistent Champion', desc:'Stay #1 for 4 consecutive weeks',    check:null},
-    {id:'soc_motiv',  tier:'silver',  icon:'💬',name:'Motivator',           desc:'Send 10 motivational messages',      check:null},
-    {id:'soc_rival',  tier:'silver',  icon:'⚔️',name:'Rival',               desc:'Compare stats with friends 10 times',check:null},
-  ];
-
-  function computeSocialEarned(friends){
-    const my=getMyStats();
-    let totalMsgs=0,totalComp=0;
-    friends.forEach(f=>{totalMsgs+=(f.messages||[]).length;totalComp+=(f._compareCount||0);});
-    const all=[{km:my.weeklyKm,isMe:true},...friends.map(f=>({km:f.stats?.weeklyKm||0,isMe:false}))];
-    all.sort((a,b)=>b.km-a.km);
-    const isNo1=all.length>0&&all[0].isMe;
-    return {
-      soc_first:friends.length>=1,soc_5:friends.length>=5,
-      soc_10:friends.length>=10,soc_20:friends.length>=20,
-      soc_lb1:isNo1,soc_lb4:false,
-      soc_motiv:totalMsgs>=10,soc_rival:totalComp>=10
-    };
-  }
-
-  function renderSocialBadges(){
-    const el=document.getElementById('socialBadgesGrid');
-    if(!el)return;
-    const friends=loadFriends();
-    const earned=computeSocialEarned(friends);
-    el.innerHTML=SOCIAL_BADGES.map(b=>{
-      const e=earned[b.id];
-      return `<div class="social-badge-card ${e?'earned':'locked'}">
-        <div class="social-badge-icon">${b.icon}</div>
-        <div class="social-badge-name">${b.name}</div>
-        <div class="social-badge-desc">${b.desc}</div>
-        <div class="social-badge-tier ${b.tier}">${b.tier.charAt(0).toUpperCase()+b.tier.slice(1)}</div>
-      </div>`;
-    }).join('');
-  }
-
-  function checkSocialBadges(){renderSocialBadges();updateFriendsCount();}
-
-  /* ── Migrate existing friends: move recentActivities → activities ── */
-  (function migrateFriendActivities(){
-    let friends=loadFriends();
-    let changed=false;
-    friends.forEach(f=>{
-      if(!f.activities){
-        // Seed from stats.recentActivities if present, otherwise empty
-        const legacy=(f.stats&&f.stats.recentActivities)||[];
-        f.activities=legacy.map(function(a,i){return{
-          id:'leg_'+f.id+'_'+i,
-          type:a.type||'run',
-          date:a.date||fmtDate(new Date()),
-          distance:a.distance||0,
-          duration:a.duration||'',
-          calories:0,
-          difficulty:'Medium',
-          title:''
-        };});
-        changed=true;
-      }
-    });
-    if(changed)saveFriends(friends);
-  })();
-
-  /* ── Hook into profile open ── */
-  const _origOpenProfile=window.openProfile;
-  if(typeof _origOpenProfile==='function'){
-    window.openProfile=function(){
-      _origOpenProfile.apply(this,arguments);
-      setTimeout(renderFriendsSection,100);
-    };
-  }
-  window.friendsInit=function(){renderFriendsSection();};
-
-  document.addEventListener('DOMContentLoaded',function(){updateFriendsCount();});
-})();
-
-/* ══════════════════════════════════════════════════════════════
-   FRIEND MODAL BEHAVIOR FIXES
-   - Modals open on top of profile overlay (z-index handled in CSS)
-   - Body scroll locked while any friend modal is open
-   - openUpdateStatsModal stacks on top of friendProfileModal
-   - Escape key closes topmost friend modal first
-   - Leaderboard rows open friend profile on click
-══════════════════════════════════════════════════════════════ */
-(function(){
-  /* Helper: sync body scroll based on open modals */
-  function _fmScroll(){
-    var ids=['friendProfileModal','friendMotivModal','friendRemoveModal','friendUpdateModal'];
-    var anyFm=ids.some(function(id){return document.getElementById(id)?.classList.contains('open');});
-    var profOpen=document.getElementById('profileOverlay')?.classList.contains('open');
-    document.body.style.overflow=(anyFm||profOpen)?'hidden':'';
-  }
-
-  /* Wrap openFriendProfile */
-  var _o_ofp=window.openFriendProfile;
-  window.openFriendProfile=function(){_o_ofp&&_o_ofp.apply(this,arguments);_fmScroll();};
-
-  /* Wrap closeFriendProfile */
-  var _o_cfp=window.closeFriendProfile;
-  window.closeFriendProfile=function(){_o_cfp&&_o_cfp.apply(this,arguments);_fmScroll();};
-
-  /* Wrap openMotivModal */
-  var _o_omm=window.openMotivModal;
-  window.openMotivModal=function(){_o_omm&&_o_omm.apply(this,arguments);_fmScroll();};
-
-  /* Wrap closeMotivModal */
-  var _o_cmm=window.closeMotivModal;
-  window.closeMotivModal=function(){_o_cmm&&_o_cmm.apply(this,arguments);_fmScroll();};
-
-  /* Wrap confirmRemoveFriend */
-  var _o_crf=window.confirmRemoveFriend;
-  window.confirmRemoveFriend=function(){_o_crf&&_o_crf.apply(this,arguments);_fmScroll();};
-
-  /* Wrap cancelRemoveFriend */
-  var _o_xrf=window.cancelRemoveFriend;
-  window.cancelRemoveFriend=function(){_o_xrf&&_o_xrf.apply(this,arguments);_fmScroll();};
-
-  /* Wrap doRemoveFriend */
-  var _o_drf=window.doRemoveFriend;
-  window.doRemoveFriend=function(){_o_drf&&_o_drf.apply(this,arguments);_fmScroll();};
-
-  /* Wrap closeUpdateModal */
-  var _o_cum=window.closeUpdateModal;
-  window.closeUpdateModal=function(){_o_cum&&_o_cum.apply(this,arguments);_fmScroll();};
-
-  /* Wrap openUpdateStatsModal:
-     Original closes friendProfileModal before opening updateModal.
-     Fix: restore profileModal after original runs so both stack. */
-  window._fmLastFriendId=null;
-  var _o_usm=window.openUpdateStatsModal;
-  window.openUpdateStatsModal=function(id){
-    window._fmLastFriendId=id;
-    var profWas=document.getElementById('friendProfileModal')?.classList.contains('open');
-    _o_usm&&_o_usm.call(this,id);
-    if(profWas)document.getElementById('friendProfileModal')?.classList.add('open');
-    _fmScroll();
-  };
-
-  /* Wrap saveUpdateStats: refresh profile content with updated stats after save */
-  var _o_sus=window.saveUpdateStats;
-  window.saveUpdateStats=function(){
-    var profOpen=document.getElementById('friendProfileModal')?.classList.contains('open');
-    var fid=window._fmLastFriendId;
-    _o_sus&&_o_sus.apply(this,arguments);
-    if(profOpen&&fid&&window.openFriendProfile)window.openFriendProfile(fid);
-    _fmScroll();
-  };
-
-  /* Escape key: close topmost friend modal first.
-     Uses capture phase so it runs before the existing bubble-phase handler
-     (which would otherwise close the profile overlay instead). */
-  document.addEventListener('keydown',function(e){
-    if(e.key!=='Escape')return;
-    var order=['friendUpdateModal','friendRemoveModal','friendMotivModal','friendProfileModal'];
-    for(var i=0;i<order.length;i++){
-      if(document.getElementById(order[i])?.classList.contains('open')){
-        e.stopPropagation();
-        if(order[i]==='friendUpdateModal')window.closeUpdateModal&&window.closeUpdateModal();
-        else if(order[i]==='friendRemoveModal')window.cancelRemoveFriend&&window.cancelRemoveFriend();
-        else if(order[i]==='friendMotivModal')window.closeMotivModal&&window.closeMotivModal();
-        else if(order[i]==='friendProfileModal')window.closeFriendProfile&&window.closeFriendProfile();
-        return;
-      }
-    }
-  },true);
-
-  /* Leaderboard rows: click any non-"You" row to open that friend's profile */
-  document.addEventListener('click',function(e){
-    var row=e.target.closest('.lb-row:not(.you-row)');
-    if(!row)return;
-    var nameNode=row.querySelector('.lb-name');
-    if(!nameNode)return;
-    /* lb-name contains text + optional "You" badge span; grab just the text node */
-    var nm='';
-    nameNode.childNodes.forEach(function(n){if(n.nodeType===3)nm+=n.textContent;});
-    nm=nm.trim();
-    if(!nm)return;
-    try{
-      var friends=JSON.parse(localStorage.getItem('actmtr_friends')||'[]');
-      var f=friends.find(function(fr){return fr.name===nm;});
-      if(f&&window.openFriendProfile)window.openFriendProfile(f.id);
-    }catch(ex){}
-  });
-})();
 
 /* ══════════════════════════════════════════════════════════════
    STRAVA IMPORT
@@ -21782,6 +20866,7 @@ var NAV_SECTION_TITLES = {
   coachSection:      'Running Coach',
   paceOverlay:       'Pace Calculator',
   vo2Overlay:        'VO2 Max Lab',
+  perfProfileOverlay:'Performance Profile',
   badgesSection:     'Achievements',
   challengesSection: 'Challenges',
   advHeatmapSection: 'Activity Heatmap',
@@ -21795,9 +20880,9 @@ function _closeAllStandaloneOverlays() {
   if (document.getElementById('profileOverlay')?.classList.contains('open'))  closeProfile();
   if (document.getElementById('racesOverlay')?.classList.contains('open'))    closeRacesPage();
   if (document.getElementById('calendarOverlay')?.classList.contains('open')) closeCalendarPage();
-  if (document.getElementById('friendsOverlay')?.classList.contains('open'))  closeFriendsPage();
   if (document.getElementById('paceOverlay')?.classList.contains('open'))     closePacePage();
   if (document.getElementById('vo2Overlay')?.classList.contains('open'))      closeVo2Page();
+  if (document.getElementById('perfProfileOverlay')?.classList.contains('open')) closePerfProfilePage();
   var zmModal = document.getElementById('hrZoneModal');
   if (zmModal?.classList.contains('open')) zmModal.classList.remove('open');
 }
@@ -21924,7 +21009,7 @@ function _navReturnSection() {
   _navSectionOrigNext   = null;
 }
 
-var _pillSections = ['profileOverlay','calendarOverlay','friendsOverlay','goalsSection','challengesSection','badgesSection','vo2Overlay'];
+var _pillSections = ['profileOverlay','calendarOverlay','goalsSection','challengesSection','badgesSection','vo2Overlay','perfProfileOverlay'];
 
 function _setNavActive(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -23400,7 +22485,7 @@ function pewSync() {
    HELP GUIDES — VISUAL WALKTHROUGH
 ══════════════════════════════════════════════════════════════ */
 var _hgStep = 0;
-var _hgTotal = 9;
+var _hgTotal = 8;
 
 function helpGuidesOpen() {
   _hgStep = 0;
@@ -23788,20 +22873,6 @@ function mobLogRestDay() {
               Locked badges show their requirements so you always know what to aim for. Newly unlocked badges trigger a <strong>celebration toast</strong> — collect them all to complete your trophy wall!
             </div>
             <div class="hg-tip">Check the Achievements section regularly — some badges have hidden criteria that reward long-term consistency.</div>
-          </div>
-        </div>
-        <!-- Slide 9: My Friends -->
-        <div class="hg-slide">
-          <div class="hg-slide-inner">
-            <div class="hg-preview hg-friends">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div class="hg-slide-title">My Friends — Social &amp; Leaderboard</div>
-            <div class="hg-slide-desc">
-              Add friends to compare <strong>weekly and monthly stats</strong> on a shared leaderboard. See who's logging the most distance, maintaining the longest streak, or crushing the most challenges.<br><br>
-              The social feed shows recent activity from your friends so you can cheer each other on. A little friendly competition goes a long way for motivation!
-            </div>
-            <div class="hg-tip">Invite training partners by sharing your profile link — accountability partners boost consistency by up to 65%.</div>
           </div>
         </div>
       </div>
