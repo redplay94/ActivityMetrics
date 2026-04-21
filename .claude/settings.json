@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(awk 'NR==20296,NR==20302' /c/Users/filip/activitymetrics/dashboard.html)",
+      "Bash(awk 'NR==14684,NR==14692' /c/Users/filip/activitymetrics/dashboard.html)",
+      "Bash(awk '/<!-- ─── My Friends Overlay/{s=NR} /^<\\\\/div>$/{if\\(s\\)print NR; s=\"\"}' /c/Users/filip/activitymetrics/dashboard.html)",
+      "Bash(awk '/<!-- ─── My Friends Overlay/,/^<\\\\/div>$/ {print NR}' /c/Users/filip/activitymetrics/dashboard.html)"
+    ]
+  }
+}
