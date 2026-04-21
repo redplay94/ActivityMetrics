@@ -889,6 +889,15 @@ body.modal-open header {
 .chart-title  { font-size: .85rem; font-weight: 700; letter-spacing: -0.02em; }
 .chart-hint   { font-size: .68rem; color: var(--text-muted); }
 .chart-container { position: relative; }
+/* Horizontal-scroll mode for charts that show many categories (e.g. Year
+   filter = 12 monthly buckets). The container scrolls; the inner wrap
+   carries a min-width so every tick has breathing room on mobile. */
+.chart-canvas-wrap { position: relative; width: 100%; height: 100%; }
+.chart-container.year-scroll {
+  overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.chart-container.year-scroll .chart-canvas-wrap { min-width: 680px; height: 100%; }
 .chart-skel {
   display: flex; align-items: flex-end; gap: 6px;
   height: 200px; padding: 0 4px;
@@ -975,6 +984,8 @@ body.modal-open header {
 .log-stress-pill.s-mid  { background: rgba(234,179,8,.14);  color: #eab308; border-color: rgba(234,179,8,.35); }
 .log-stress-pill.s-high { background: rgba(249,115,22,.14); color: #f97316; border-color: rgba(249,115,22,.4);  }
 .log-stress-pill.s-peak { background: rgba(239,68,68,.16);  color: #ef4444; border-color: rgba(239,68,68,.45);  }
+.log-stress-hot { margin-left: 4px; font-size: .85em; line-height: 1; filter: drop-shadow(0 0 3px rgba(239,68,68,.55)); }
+.log-stress-batt .log-stress-hot { margin-left: 3px; font-size: .78rem; }
 
 /* ─── Body Stress battery (mobile, inline in Type cell) ──────── */
 .log-stress-batt {
@@ -5930,14 +5941,16 @@ header { padding: 0 !important; z-index: 600 !important; }
     <div class="charts-grid" style="margin-bottom:12px">
       <div class="chart-card" id="chartCardCalories">
         <div class="chart-header"><div class="chart-title">Calories Burned</div><div class="chart-hint">stacked by type</div></div>
-        <div class="chart-container" style="height:210px">
+        <div class="chart-container" id="chartCaloriesContainer" style="height:210px">
           <div class="chart-skel" id="skelCalories">
             <div class="chart-skel-bar" style="height:50%"></div><div class="chart-skel-bar" style="height:70%"></div>
             <div class="chart-skel-bar" style="height:45%"></div><div class="chart-skel-bar" style="height:85%"></div>
             <div class="chart-skel-bar" style="height:60%"></div><div class="chart-skel-bar" style="height:40%"></div>
             <div class="chart-skel-bar" style="height:75%"></div>
           </div>
-          <canvas id="chartCalories" style="display:none"></canvas>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartCalories" style="display:none"></canvas>
+          </div>
         </div>
       </div>
       <div class="chart-card" id="chartCardPace">
@@ -8615,14 +8628,17 @@ window.calculateIntensityFromPace = calculateIntensityFromPace;
 //   window._debugIntensity = true
 window._debugIntensity = window._debugIntensity === undefined ? true : window._debugIntensity;
 
-/* CANONICAL calorie read for display. Strict precedence:
-     1. overrides[id].manualOverride === true && rec.calories > 0 → user's saved value
-     2. activity.calories (raw Strava value, or manually entered for non-Strava)
-     3. If Strava-sourced and still 0/missing → return null so UI renders 'N/A'
-   No formulas, no MET math, no distance multipliers. */
+/* CANONICAL calorie read for display. Always returns a number — never
+   null — so the UI can render every row without N/A. Precedence:
+     1. overrides[id].manualOverride === true && rec.calories > 0
+     2. activity.calories / .kilocalories / .kcal (Strava-raw or manual)
+     3. MET-based estimate from duration + type (estimateCals)
+     4. Distance × weight × type-coefficient fallback (if no duration)
+     5. 0 (degenerate: no duration AND no distance)
+   Whether the returned number came from a real source or an estimate is
+   exposed via calorieIsEstimated(a) so the UI can prepend "~". */
 function displayCalories(activity) {
-  if (!activity) return null;
-  // 1. Manual override wins (user edited in the modal)
+  if (!activity) return 0;
   try {
     var ov = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY) || '{}') || {};
     var rec = ov[activity.id];
@@ -8630,18 +8646,73 @@ function displayCalories(activity) {
       return rec.calories;
     }
   } catch {}
-  // 2. Direct Strava field (what /activities/{id} returns)
   if (typeof activity.calories === 'number' && activity.calories > 0) return activity.calories;
-  // 3. Defensive aliases — Strava doesn't send these, but some third-party
-  //    exports or future API versions might. Cheap check, safe to keep.
   if (typeof activity.kilocalories === 'number' && activity.kilocalories > 0) return activity.kilocalories;
   if (typeof activity.kcal === 'number' && activity.kcal > 0) return activity.kcal;
-  // 4. Still nothing: explicit N/A for Strava-sourced, otherwise the stored
-  //    value (which may legitimately be 0 for a manual entry).
-  if (activity.source === 'strava') return null;
-  return activity.calories || 0;
+  if (activity.duration > 0) {
+    return estimateCals(activity.type, activity.distance || 0, activity.duration);
+  }
+  if (activity.distance > 0) {
+    // Classic distance × weight × type-coefficient approximation for the
+    // edge case where duration is missing (shouldn't happen for Strava
+    // imports, but can for hand-edited rows). 70 kg reference weight.
+    var coef = { run: 1.0, walk: 0.5, cycle: 0.35 }[activity.type] || 0.8;
+    return Math.round(activity.distance * 70 * coef);
+  }
+  return 0;
 }
 window.displayCalories = displayCalories;
+
+/* Marks whether a rendered calorie value is estimated rather than a
+   real Strava/manual value. True when the activity has no raw calories
+   OR when backfillMissingCalories() wrote an estimate to a.calories and
+   flagged it. Drives the "~" prefix in list/table UIs. */
+function calorieIsEstimated(activity) {
+  if (!activity) return false;
+  try {
+    var ov = JSON.parse(localStorage.getItem(ACTIVITY_OVERRIDES_KEY) || '{}') || {};
+    var rec = ov[activity.id];
+    if (rec && rec.manualOverride === true && typeof rec.calories === 'number' && rec.calories > 0) {
+      return false; // user-confirmed
+    }
+  } catch {}
+  if (activity.caloriesEstimated === true) return true;
+  // If a.calories is 0/missing we'll estimate on-the-fly in displayCalories
+  var c = activity.calories;
+  if (typeof c !== 'number' || c <= 0) return true;
+  return false;
+}
+window.calorieIsEstimated = calorieIsEstimated;
+
+/* Scans every activity in db and fills any missing `calories` with a
+   MET-based estimate, tagging it with `caloriesEstimated=true` so the
+   UI can show a "~" prefix and the Strava import can later overwrite
+   the estimate with a real value. Runs on startup + after every import.
+   Idempotent — only touches rows where calories is 0 or missing. */
+function backfillMissingCalories() {
+  if (!db || !Array.isArray(db.activities) || !db.activities.length) return 0;
+  var filled = 0;
+  db.activities.forEach(function(a) {
+    if (!a) return;
+    if (typeof a.calories === 'number' && a.calories > 0 && !a.caloriesEstimated) return;
+    var est = (a.duration > 0)
+      ? estimateCals(a.type, a.distance || 0, a.duration)
+      : (a.distance > 0
+          ? Math.round(a.distance * 70 * ({ run:1.0, walk:0.5, cycle:0.35 }[a.type] || 0.8))
+          : 0);
+    if (est > 0) {
+      a.calories = est;
+      a.caloriesEstimated = true;
+      filled++;
+    }
+  });
+  if (filled > 0) {
+    saveData(db);
+    console.log('[backfillMissingCalories] filled ' + filled + ' activities with MET estimates');
+  }
+  return filled;
+}
+window.backfillMissingCalories = backfillMissingCalories;
 
 /* ── Pace Settings: isolated storage that survives Strava login wipe ── */
 function loadPaceSettings() {
@@ -8788,6 +8859,25 @@ function estimateCals(type, km, secs) {
   const hours = secs / 3600;
   return Math.round(met * 70 * hours * 1.05);
 }
+
+/* Calories value for STATS AGGREGATION.
+   Strava's SummaryActivity endpoint omits `calories` for runs and walks,
+   and the import only hydrates the 60 most-recent activities via the
+   detail endpoint (rate-limit protection). Older imported activities
+   therefore land with calories=0. For per-row display we still show
+   N/A via displayCalories(), but charts/aggregates would render
+   misleading empty bars for whole months. Fall back to the MET-based
+   estimate from duration + distance + type so the Year view reflects
+   every month in local state, not just the hydrated window. */
+function statsCalories(a) {
+  if (!a) return 0;
+  if (typeof a.calories === 'number' && a.calories > 0) return a.calories;
+  if (typeof a.kilocalories === 'number' && a.kilocalories > 0) return a.kilocalories;
+  if (typeof a.kcal === 'number' && a.kcal > 0) return a.kcal;
+  if (a.duration > 0) return estimateCals(a.type, a.distance || 0, a.duration);
+  return 0;
+}
+window.statsCalories = statsCalories;
 function autoDifficulty(type, dist, secs, elev) {
   const hours = secs / 3600;
   const speed = hours ? dist / hours : 0;
@@ -8946,6 +9036,13 @@ function init() {
   if (!db.races)           { db.races           = []; saveData(db); }
   if (!db.completedRaces)  { db.completedRaces  = []; saveData(db); }
   if (!db.bucketList)      { db.bucketList      = []; saveData(db); }
+
+  // Backfill calories for any activities that arrived from Strava's bulk
+  // endpoint without a `calories` value (runs/walks beyond the 60-item
+  // hydration window). The estimator uses MET × duration × weight, and
+  // each filled row is flagged `caloriesEstimated=true` so the UI can
+  // mark it with "~" and a future Strava detail-hydration can overwrite.
+  if (typeof backfillMissingCalories === 'function') backfillMissingCalories();
 
   // Reclassify activities using saved pace targets before first render
   if (db.settings && db.settings.paceTargets && typeof reclassifyAllDifficulties === 'function') {
@@ -9378,7 +9475,7 @@ function showDayModal(dateStr) {
           <div class="act-stat"><div class="act-stat-label">Distance</div><div class="act-stat-value">${a.distance.toFixed(2)} km</div></div>
           <div class="act-stat"><div class="act-stat-label">Duration</div><div class="act-stat-value">${fmtDuration(a.duration)}</div></div>
           <div class="act-stat"><div class="act-stat-label">${paceLabel}</div><div class="act-stat-value">${paceVal}</div></div>
-          <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()}</div></div>
+          <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); var est=calorieIsEstimated(a); return (est?'<span title="Estimated" style="color:var(--text-muted);cursor:help">~</span>':'')+c+' kcal';})()}</div></div>
           ${a.type !== 'cycle' ? `<div class="act-stat"><div class="act-stat-label">Steps</div><div class="act-stat-value">${(a.steps||0).toLocaleString()}</div></div>` : ''}
           <div class="act-stat"><div class="act-stat-label">Elevation</div><div class="act-stat-value">${a.elevation||0} m</div></div>
           ${hrHtml}
@@ -9434,7 +9531,7 @@ function buildActivityRow(a) {
       <div class="act-stat"><div class="act-stat-label">Distance</div><div class="act-stat-value">${a.distance.toFixed(2)} km</div></div>
       <div class="act-stat"><div class="act-stat-label">Duration</div><div class="act-stat-value">${fmtDuration(a.duration)}</div></div>
       <div class="act-stat"><div class="act-stat-label">${paceLabel}</div><div class="act-stat-value">${paceOrSpeed}</div></div>
-      <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()}</div></div>
+      <div class="act-stat"><div class="act-stat-label">Calories</div><div class="act-stat-value">${(function(){var c=displayCalories(a); var est=calorieIsEstimated(a); return (est?'<span title="Estimated" style="color:var(--text-muted);cursor:help">~</span>':'')+c+' kcal';})()}</div></div>
       ${a.type !== 'cycle' ? `<div class="act-stat"><div class="act-stat-label">Steps</div><div class="act-stat-value">${(a.steps||0).toLocaleString()}</div></div>` : ''}
       <div class="act-stat"><div class="act-stat-label">Elevation</div><div class="act-stat-value">${a.elevation || 0} m</div></div>
     </div>
@@ -9937,10 +10034,19 @@ function renderCharts() {
   const calDatasets = types.map(tp => ({
     label: cap(tp),
     data: groupBy(acts.filter(a=>a.type===tp), labels, groupFn, null,
-      grp => Math.round(grp.reduce((s,a)=>s+a.calories,0))),
+      grp => Math.round(grp.reduce((s,a)=>s+statsCalories(a),0))),
     backgroundColor: calColors[tp]+'cc', borderColor: calColors[tp],
     borderWidth:1, borderRadius:3, stack:'cals',
   }));
+  // Year view renders 12 monthly buckets — Chart.js autoSkip would hide
+  // most labels on narrow viewports, making it look like only the last
+  // quarter has data. Force all ticks visible and enable horizontal
+  // scroll on the container so labels have room on mobile.
+  const calContainer = document.getElementById('chartCaloriesContainer');
+  if (calContainer) calContainer.classList.toggle('year-scroll', statsTime === 'year');
+  const calXTicks = statsTime === 'year'
+    ? { ...xTicks, autoSkip: false, maxRotation: 0, minRotation: 0, font: {size: 10}, callback: (v, i) => xLabels[i] }
+    : xTicks;
   chartInstances['calories'] = new Chart(document.getElementById('chartCalories'), {
     type:'bar', data:{ labels:xLabels, datasets: calDatasets },
     options:{ responsive:true, maintainAspectRatio:false, animation:{duration:700},
@@ -9948,7 +10054,11 @@ function renderCharts() {
         tooltip:{mode:'index',intersect:false,callbacks:{
           footer: items => 'Total: '+items.reduce((s,i)=>s+i.parsed.y,0)+' kcal'
         }}},
-      scales: { ...baseScales, y:{ ...baseScales.y, stacked:true }, x:{ ...baseScales.x, stacked:true } } }
+      scales: {
+        ...baseScales,
+        y: { ...baseScales.y, stacked:true },
+        x: { ...baseScales.x, ticks: calXTicks, stacked:true }
+      } }
   });
 
   /* ── 3. Pace / Speed Trends ─── */
@@ -10260,66 +10370,109 @@ function getLogActivities() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   BODY STRESS (1–100) — Weighted Stress Algorithm
-   Stress = Multiplier × (Distance + AvgHR × Hours × ZoneBoost) / RestFactor
-   Calibrated so a 42 km Trail lands near 95–100 and a 22 km Hike
-   lands near 30–40. Type multiplier classifies Trail vs Road run
-   from elevation-per-km; hike/cycle use their own multipliers.
+   BODY STRESS (1–100) — Intelligent Load & Intensity Algorithm
+
+       Stress = (HRFactor + PaceFactor + DurationFactor) × IntensityMult
+                / RecoveryDecay, clamped to the intensity band.
+
+   Primary driver is heart-rate effort; pace vs. the user's threshold
+   is the secondary driver; duration contributes progressively (linear
+   + quadratic term so long efforts hurt much more than short ones).
+   The intensity label acts as BOTH a weighting multiplier AND a hard
+   band floor/ceiling so the UI category always matches the score:
+     Hard   → 70–100
+     Medium → 40–70
+     Easy   → 0–40
+   Recovery decay divides by hoursSince/12 → less rest = higher score.
 ══════════════════════════════════════════════════════════════ */
-const BODY_STRESS_CALIBRATION = 0.085;
-const TYPE_MULT = { trailRun: 1.5, roadRun: 1.2, hike: 0.6, cycle: 1.0 };
+const BODY_STRESS_CALIB = 0.70;
+const INTENSITY_MULT = { easy: 0.45, medium: 0.70, hard: 0.95 };
+const INTENSITY_BAND = { easy: [0, 40], medium: [40, 70], hard: [70, 100] };
+const DEFAULT_MAX_HR = 190;
+const DEFAULT_THRESHOLD_PACE_SEC = 270;     // 4:30 /km
+const DEFAULT_THRESHOLD_CYCLE_KMH = 30;     // rough threshold speed for cycling
 
-function classifyActivityForStress(a) {
-  const dist = a.distance || 0;
-  const elevPerKm = dist > 0 ? (a.elevation || 0) / dist : 0;
-  if (a.type === 'run')  return elevPerKm >= 15 ? 'trailRun' : 'roadRun';
-  if (a.type === 'walk') return 'hike';
-  return 'cycle';
+function _perfUserMaxHR() {
+  try {
+    if (typeof hrGetSettings === 'function') {
+      const s = hrGetSettings();
+      if (s && s.maxHR && s.maxHR > 100) return s.maxHR;
+    }
+  } catch {}
+  return DEFAULT_MAX_HR;
+}
+function _perfThresholdPaceSec() {
+  try {
+    if (typeof getPaceTargets === 'function') {
+      const pt = getPaceTargets();
+      if (pt && pt.medium) return pt.medium;  // tempo/threshold pace
+      if (pt && pt.hard)   return pt.hard + 20; // interval + ~20s ≈ threshold
+    }
+  } catch {}
+  return DEFAULT_THRESHOLD_PACE_SEC;
 }
 
-/* Zone boost from avgHR/maxHR ratio. Z1–Z2 linear (≤1.0), Z3 mild,
-   Z4–Z5 exponential ramp. Falls back to difficulty when HR missing. */
-function zoneBoostFromHR(a) {
-  if (a.avgHR && a.maxHR && a.maxHR > 0) {
-    const pct = a.avgHR / a.maxHR;
-    if (pct >= 0.90) return 1.60;  // Z5 — exponential
-    if (pct >= 0.80) return 1.30;  // Z4 — exponential-ish
-    if (pct >= 0.70) return 1.10;  // Z3
-    return 1.00;                   // Z1–Z2 linear
+/* Pure function. Takes an activity and the prior activity (for recovery
+   decay); returns 1–100 stress score. Exposed on window for reuse. */
+function calculateActivityStress(a, prevActivity) {
+  if (!a) return 1;
+  const diff     = (typeof getIntensity === 'function') ? getIntensity(a) : (a.difficulty || 'medium');
+  const intMult  = INTENSITY_MULT[diff] || 0.70;
+  const band     = INTENSITY_BAND[diff] || [1, 100];
+
+  // 1. HR Factor — primary driver. (AvgHR / MaxHR) × 1.5 × 100.
+  //    Fallback avgHR derived from difficulty when the activity wasn't HR-logged.
+  const userMaxHR = _perfUserMaxHR();
+  const avgHR     = a.avgHR || (diff === 'hard' ? 165 : diff === 'medium' ? 145 : 125);
+  const hrRatio   = Math.min(1.02, avgHR / userMaxHR);
+  const hrFactor  = hrRatio * 150;                          // max ~153
+
+  // 2. Pace Intensity Factor — (ThresholdPace / AvgPace) × 50. Capped
+  //    at ratio 1.4 so extreme sprints don't dominate. For cycling we
+  //    compare speed to a threshold km/h.
+  const thPaceSec = _perfThresholdPaceSec();
+  let paceFactor = 0;
+  if ((a.type === 'run' || a.type === 'walk') && a.distance > 0 && a.duration > 0) {
+    const avgPaceSec = a.duration / a.distance;
+    const ratio = Math.min(1.4, thPaceSec / avgPaceSec);
+    paceFactor = ratio * 50;
+  } else if (a.type === 'cycle' && a.distance > 0 && a.duration > 0) {
+    const kmh = a.distance / (a.duration / 3600);
+    paceFactor = Math.min(1.4, kmh / DEFAULT_THRESHOLD_CYCLE_KMH) * 50;
   }
-  const diff = getIntensity(a);
-  return diff === 'hard' ? 1.30 : diff === 'medium' ? 1.10 : 1.00;
+
+  // 3. Duration Factor — linear + quadratic, capped at 60. Makes
+  //    2-hour efforts drastically heavier than 30-minute efforts.
+  const hours = (a.duration || 0) / 3600;
+  const durationFactor = Math.min(60, hours * 15 + hours * hours * 8);
+
+  // 4. Recovery Decay — hoursSince / 12 in denominator per spec.
+  //    Clamped [0.5, 4] so same-day back-to-backs don't explode and a
+  //    week of rest doesn't collapse the score.
+  let restDivisor = 2;  // ~24h rest baseline
+  if (prevActivity && prevActivity.date) {
+    const hoursSince = Math.max(1, (new Date(a.date) - new Date(prevActivity.date)) / 3600000);
+    restDivisor = Math.min(4, Math.max(0.5, hoursSince / 12));
+  }
+
+  // 5. Combine and scale to 0–100.
+  const raw = (hrFactor + paceFactor + durationFactor) * intMult / restDivisor;
+  let stress = Math.round(raw * BODY_STRESS_CALIB);
+
+  // 6. Honor intensity band so a 'Hard' row is always ≥70, 'Easy' is
+  //    always ≤40, etc. Matches the user's mental model of the label.
+  stress = Math.max(band[0], Math.min(band[1], stress));
+  return Math.max(1, stress);
 }
+window.calculateActivityStress = calculateActivityStress;
 
 function computeBodyStressMap() {
   const chron = [...db.activities].sort((a,b) => (a.date||'').localeCompare(b.date||''));
   const map = {};
-  let prevDate = null;
+  let prev = null;
   for (const a of chron) {
-    const hours      = (a.duration || 0) / 3600;
-    const distance   = a.distance || 0;
-    const kind       = classifyActivityForStress(a);
-    const multiplier = TYPE_MULT[kind];
-    const zoneBoost  = zoneBoostFromHR(a);
-
-    // Fallback HR from difficulty when avgHR not recorded.
-    const diff       = getIntensity(a);
-    const avgHR      = a.avgHR || (diff === 'hard' ? 165 : diff === 'medium' ? 145 : 125);
-    const hrTerm     = avgHR * hours * zoneBoost;
-
-    // Rest factor: hours since previous activity in the denominator.
-    // Clamped [0.5, 3] so fresh back-to-backs don't blow up and a week
-    // of rest doesn't zero a hard effort.
-    let restFactor = 1;
-    if (prevDate) {
-      const hoursSince = Math.max(1, (new Date(a.date) - new Date(prevDate)) / 3600000);
-      restFactor = Math.min(3, Math.max(0.5, hoursSince / 24));
-    }
-
-    const raw   = multiplier * (distance + hrTerm) / restFactor;
-    const score = Math.round(raw * BODY_STRESS_CALIBRATION);
-    map[a.id] = Math.min(100, Math.max(1, score));
-    prevDate = a.date;
+    map[a.id] = calculateActivityStress(a, prev);
+    prev = a;
   }
   return map;
 }
@@ -10405,7 +10558,8 @@ function renderLog() {
     const stress   = stressMap[a.id] || 1;
     const sClass   = stress <= 30 ? 's-low' : stress <= 70 ? 's-mid' : 's-peak';
     const sLabel   = stress <= 30 ? 'Low' : stress <= 70 ? 'Moderate' : 'High';
-    const stressTitle = `Body Stress ${stress}/100 · ${sLabel} — weighted by type, HR zone, and recovery gap`;
+    const sHot     = stress > 80 ? '<span class="log-stress-hot" title="High stress — prioritise recovery">🔥</span>' : '';
+    const stressTitle = `Body Stress ${stress}/100 · ${sLabel} — HR, pace vs threshold, duration, intensity band, recovery gap`;
     const favOn    = isFav(a);
     const favLabel = a.type==='run' ? 'Best Runs' : a.type==='walk' ? 'Best Hikes' : 'Best Rides';
     return `<tr data-act-row onclick="openEditModal('${a.id}')">
@@ -10414,20 +10568,20 @@ function renderLog() {
         <span style="color:${typeColors[a.type]};font-weight:700;font-size:.78rem">${typeLabels[a.type]}</span>
         <div class="log-stress-batt ${sClass}" title="${stressTitle}">
           <span class="log-stress-batt-shell"><span class="log-stress-batt-fill" style="width:${stress}%"></span></span>
-          <span>${stress}</span>
+          <span>${stress}</span>${sHot}
         </div>
       </td>
       <td><strong>${a.distance.toFixed(2)}</strong> <span style="color:var(--text-muted);font-size:.72rem">km</span></td>
       <td style="font-variant-numeric:tabular-nums">${fmtDuration(a.duration)}</td>
       <td style="color:var(--text-muted)">${paceSpeed}</td>
-      <td>${(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' <span style="color:var(--text-muted);font-size:.72rem">kcal</span>');})()}</td>
+      <td>${(function(){var c=displayCalories(a); var est=calorieIsEstimated(a); var prefix=est?'<span title="Estimated — Strava did not return calories for this activity" style="color:var(--text-muted);cursor:help">~</span>':''; return prefix+'<strong'+(est?' style="color:var(--text-muted)"':'')+'>'+c+'</strong> <span style="color:var(--text-muted);font-size:.72rem">kcal</span>';})()}</td>
       <td>${a.type==='cycle'?'—':(a.steps||0).toLocaleString()}</td>
       <td>${a.elevation||0} <span style="color:var(--text-muted);font-size:.72rem">m</span></td>
       <td class="log-hr-col">${a.avgHR
         ? `<span class="log-hr-val" title="Avg ${a.avgHR} · Max ${a.maxHR||'—'}"><span class="log-hr-icon">❤️</span>${a.avgHR}${a.maxHR ? `<span style="color:var(--text-muted);font-size:.68rem"> / ${a.maxHR}</span>` : ''}</span>`
         : `<span style="color:var(--text-muted)">—</span>`}</td>
       <td><span class="difficulty-badge ${diffClasses[getIntensity(a)]}">${cap(getIntensity(a))}</span></td>
-      <td class="log-stress-col"><span class="log-stress-pill ${sClass}" title="${stressTitle}">${stress}</span></td>
+      <td class="log-stress-col"><span class="log-stress-pill ${sClass}" title="${stressTitle}">${stress}${sHot}</span></td>
       <td onclick="event.stopPropagation()">
         <button class="tbl-btn tbl-fav-btn${favOn?' active':''}" onclick="toggleActivityFavorite('${a.id}',event)" title="${favOn?'Remove from '+favLabel:'Add to '+favLabel}" aria-pressed="${favOn}">
           <svg viewBox="0 0 24 24" fill="${favOn?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -20104,7 +20258,7 @@ BADGE_DEFS.push(
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Distance</div><div class="adv-hm-act-stat-val">'+a.distance.toFixed(2)+' km</div></div>'
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Duration</div><div class="adv-hm-act-stat-val">'+fmtDur(a.duration||0)+'</div></div>'
             +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">'+paceLabel+'</div><div class="adv-hm-act-stat-val">'+paceOrSpeed+'</div></div>'
-            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(function(){var c=displayCalories(a); return c===null?'<span style="color:var(--text-muted)">N/A</span>':(c+' kcal');})()+'</div></div>'
+            +'<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Calories</div><div class="adv-hm-act-stat-val">'+(function(){var c=displayCalories(a); var est=calorieIsEstimated(a); return (est?'<span title="Estimated" style="color:var(--text-muted);cursor:help">~</span>':'')+c+' kcal';})()+'</div></div>'
             +(a.steps ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Steps</div><div class="adv-hm-act-stat-val">'+a.steps.toLocaleString()+'</div></div>' : '')
             +(a.avgHR ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Heart Rate</div><div class="adv-hm-act-stat-val">'+a.avgHR+' bpm</div></div>' : '')
             +((a.elevation||0)>0 ? '<div class="adv-hm-act-stat"><div class="adv-hm-act-stat-label">Elevation</div><div class="adv-hm-act-stat-val">'+a.elevation+' m</div></div>' : '')
@@ -21422,9 +21576,13 @@ async function importFromStrava(tokenData) {
     // detail endpoint has it. We cap at 60 most-recent activities and fire
     // 5 requests in parallel to stay safely under the 200 req / 15-min
     // rate limit even for users with 2000+ activities.
+    // Entries flagged `caloriesEstimated` are included here so that real
+    // Strava values overwrite a prior backfill estimate when possible.
     try {
       var needDetail = imported
-        .filter(function(a){ return a.stravaId && (!a.calories || a.calories === 0); })
+        .filter(function(a){
+          return a.stravaId && (!a.calories || a.calories === 0 || a.caloriesEstimated === true);
+        })
         .sort(function(a,b){ return b.date.localeCompare(a.date); })
         .slice(0, 60);
       if (needDetail.length) {
@@ -21437,9 +21595,11 @@ async function importFromStrava(tokenData) {
               if (!det) return;
               if (typeof det.calories === 'number' && det.calories > 0) {
                 a.calories = Math.round(det.calories);
+                delete a.caloriesEstimated;
                 hydrated++;
               } else if (a.type === 'cycle' && typeof det.kilojoules === 'number' && det.kilojoules > 0) {
                 a.calories = Math.round(det.kilojoules);
+                delete a.caloriesEstimated;
                 hydrated++;
               }
             });
@@ -21468,6 +21628,10 @@ async function importFromStrava(tokenData) {
     if (db.settings.paceTargets && typeof reclassifyAllDifficulties === 'function') {
       reclassifyAllDifficulties();
     }
+
+    // Fill calories for anything Strava didn't hydrate (beyond the 60-item
+    // detail window). Flags estimated rows so they're retryable next import.
+    if (typeof backfillMissingCalories === 'function') backfillMissingCalories();
 
     saveData(db);
     renderAll();
