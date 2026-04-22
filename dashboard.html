@@ -18584,6 +18584,10 @@ function hrBuildModalZoneInputs() {
   const zones = HR_ZONE_MODELS[hrCurrentModel];
   const el    = document.getElementById('hrModalZoneInputs');
   if (!el) return;
+  // Guard: the selected model may not be built yet (e.g. 'manual' restored
+  // from settings before the user has entered valid manual zones). Bail
+  // silently rather than throwing on .map() of undefined.
+  if (!Array.isArray(zones)) return;
   el.innerHTML = zones.map((z,i)=>`
     <div style="display:flex;align-items:center;gap:8px">
       <span style="width:10px;height:10px;border-radius:50%;background:${z.color};flex-shrink:0;display:inline-block"></span>
@@ -18692,11 +18696,24 @@ function hrCheckHRBadges() {
 
 /* ── Init ─────────────────────────────────────────────────── */
 function hrInit() {
+  // Wait for the DB to be hydrated. During the Strava OAuth callback path
+  // init() can fire before db/db.activities exist; running the HR init
+  // against an unready store used to crash downstream .map() calls. Bail
+  // silently — hrInit re-runs when the user opens the HR section, by which
+  // time the store is ready.
+  if (typeof db !== 'object' || db === null || !Array.isArray(db.activities)) return;
+
   const s = hrGetSettings();
 
   // Restore settings
   if (s.formula) { hrCurrentFormula = s.formula; hrSetFormula(s.formula); }
   if (s.model)   { hrCurrentModel   = s.model;   hrSetModel(s.model); }
+
+  // If the restored model isn't registered in HR_ZONE_MODELS (e.g. 'manual'
+  // saved but never fully configured), fall back to a known-good default so
+  // subsequent renders don't see an undefined zone array.
+  if (!Array.isArray(HR_ZONE_MODELS[hrCurrentModel])) hrCurrentModel = 'standard5';
+
   if (s.age)     { const el=document.getElementById('hrAge'); if(el) el.value=s.age; }
   if (s.rhr)     { const el=document.getElementById('hrRestInput'); if(el) el.value=s.rhr; }
   if (s.gender)  { const el=document.getElementById('hrGender'); if(el) el.value=s.gender; }
