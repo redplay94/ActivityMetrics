@@ -1,0 +1,137 @@
+[33med8b974[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mnetifly[m[33m, [m[1;31morigin/netifly[m[33m)[m challenge
+[33mb9596b1[m bug1
+[33m031d8b8[m profile photo
+[33mb33f727[m vlamax
+[33ma6d821c[m log
+[33m6277370[m tips
+[33mb897621[m aicoach
+[33ma08c5e3[m tips
+[33m7dd0881[m best act
+[33m4a48716[m active-challenge
+[33m10d6ea5[m calendar
+[33m59726dc[m Difficulty Breakdown
+[33m15f7150[m elevation-intensity
+[33m10193f6[m CALORIES
+[33mc18b76c[m races-fix
+[33m2289707[m vo2m
+[33m06f5f4a[m pace-edi
+[33mf642266[m HR1
+[33mf7de90f[m pace
+[33m989c279[m coach-plan
+[33m305e571[m some-ch
+[33m0a07dae[m mob-hero
+[33md453d5f[m or connect
+[33mff00e90[m banner
+[33md6d500c[m netifly-up
+[33mf77ea4f[m netifly-save
+[33m85606fe[m[33m ([m[1;31morigin/ending[m[33m, [m[1;32mending[m[33m)[m icons
+[33mede3101[m strava-connect
+[33m7cbf14e[m button1
+[33m6aa3781[m strava-finally
+[33m1fd9da7[m strava2
+[33mb82ed29[m strava
+[33m7ba04ab[m hero
+[33mdd1516f[m[33m ([m[1;31morigin/cosmetics[m[33m, [m[1;32mcosmetics[m[33m)[m anima4
+[33m22632de[m animation3
+[33mb837ec4[m animation2
+[33me0d2333[m shadow
+[33m83a7d5f[m animation
+[33m345ce15[m mobile-3
+[33m6c9aae3[m traka
+[33m6b629ff[m[33m ([m[1;31morigin/final-landing-ch[m[33m, [m[1;32mfinal-landing-ch[m[33m)[m footer
+[33ma8253fc[m SLIKA
+[33ma3a7358[m TEXT-CH
+[33m65a0958[m[33m ([m[1;31morigin/mobile-land2[m[33m, [m[1;32mmobile-land2[m[33m)[m Hello, Filip-fix
+[33md73791a[m[33m ([m[1;31morigin/mobile-landing[m[33m, [m[1;32mmobile-landing[m[33m)[m fix-space
+[33mee0a745[m join-us-gumb
+[33m27cebf5[m[33m ([m[1;31morigin/landing-design[m[33m, [m[1;32mlanding-design[m[33m)[m herp-trio
+[33m80ba914[m new-style
+[33m29c2cb0[m features-design
+[33mdb8d4d5[m contact-form
+[33m7816c73[m login-fix
+[33m0f26b3e[m joinus-fix
+[33m13f23bd[m logout-fix
+[33m088e5cf[m page-change
+[33m2b2976e[m landing-design-fix
+[33ma2b2767[m landing-page
+[33mdb5106d[m[33m ([m[1;31morigin/HR-UXfinal[m[33m, [m[1;32mHR-UXfinal[m[33m)[m hr-fixed
+[33m48bc355[m[33m ([m[1;31morigin/mobile-UX4[m[33m, [m[1;32mmobile-UX4[m[33m)[m hr-form
+[33m9905a19[m razmak-fix
+[33m73e3634[m guides-fix
+[33m8c86b4d[m profile-ux
+[33m39e1199[m month-edits
+[33me46bf9f[m[33m ([m[1;31morigin/mobile-UX3[m[33m, [m[1;32mmobile-UX3[m[33m)[m latest-change
+[33m72edc8a[m modals-fix
+[33m00381a9[m ux-some4
+[33mfc6978c[m[33m ([m[1;31morigin/mobile-UX2[m[33m, [m[1;32mmobile-UX2[m[33m)[m UX-mob-chang
+[33md1467dd[m[33m ([m[1;31morigin/mobile-UX[m[33m, [m[1;32mmobile-UX[m[33m)[m mobile-fixes
+[33ma30392f[m[33m ([m[1;31morigin/Design-change[m[33m, [m[1;32mDesign-change[m[33m)[m glow-edit
+[33m4bac79d[m heatmap-UI
+[33m30a5be0[m dark-mode
+[33md082605[m UI-great
+[33m33cce7e[m UI-good
+[33mecca3c6[m[33m ([m[1;31morigin/UX-changes[m[33m, [m[1;32mUX-changes[m[33m)[m button-change
+[33m3a4618a[m daily-dis-fix
+[33m67ff550[m tekst-micat
+[33me629fc3[m badges-up
+[33m77e3fc7[m hello-white
+[33m3145b8b[m orange-edit
+[33md660adf[m vo2-relocate
+[33mac4209c[m badges-relocate
+[33m1045982[m myraces-change
+[33m9ace3d3[m[33m ([m[1;31morigin/tut-widget[m[33m, [m[1;32mtut-widget[m[33m)[m header-move
+[33m379d290[m header-edit
+[33m313519c[m act-log-edit
+[33m3d682af[m pace-edit
+[33mc04dfb1[m guide-edit
+[33m98a0b4c[m help-guide
+[33m561a744[m[33m ([m[1;31morigin/widgets[m[33m, [m[1;32mwidgets[m[33m, [m[1;32mwidget-adding[m[33m)[m edit-del-race
+[33m750b6d7[m[33m ([m[1;31morigin/buttons-fix[m[33m, [m[1;32mbuttons-fix[m[33m)[m stats-advc
+[33m940dadb[m stats-add
+[33m6f68179[m[33m ([m[1;32mmain[m[33m)[m Add Hvar Trail race and fix buildRaceCard loop
+[33md3d07df[m Merge pull request #22 from redplay94/fix-now
+[33m273416f[m[33m ([m[1;31morigin/fix-now[m[33m, [m[1;32mfix-now[m[33m)[m race-count
+[33mbfaaf1c[m Merge pull request #21 from redplay94/final-edits
+[33m82bc304[m[33m ([m[1;31morigin/final-edits[m[33m, [m[1;31morigin/better-fixes[m[33m, [m[1;32msports-update[m[33m, [m[1;32mfinal-edits[m[33m)[m manual-fix
+[33mf3fbc23[m edit-prof
+[33meee18db[m Merge pull request #20 from redplay94/dash-novosti
+[33mc98b061[m[33m ([m[1;31morigin/dash-novosti[m[33m, [m[1;32mdash-novosti[m[33m)[m streak-fix
+[33m3fc1d3b[m month-distfix
+[33m25eb6d7[m Merge pull request #19 from redplay94/uklonit-profile
+[33mcf3639e[m[33m ([m[1;31morigin/uklonit-profile[m[33m, [m[1;32muklonit-profile[m[33m)[m pr-edit
+[33m81b0d27[m upcom-racefix
+[33m81bd160[m edit-fixed
+[33m23d34b3[m add-bestfix
+[33m33e5ea8[m 3-uklonit
+[33m4e92d45[m Merge pull request #18 from redplay94/profile-changes
+[33m2202101[m[33m ([m[1;31morigin/profile-changes[m[33m, [m[1;32mprofile-changes[m[33m)[m friends-section
+[33m1f5c851[m Merge pull request #17 from redplay94/my-calendar
+[33mbd833e3[m[33m ([m[1;31morigin/my-calendar[m[33m, [m[1;32mmy-calendar[m[33m)[m friends-fix
+[33m90eff83[m fix-cal
+[33m86fd011[m Merge pull request #16 from redplay94/calc-vo2max
+[33m3f8466f[m[33m ([m[1;31morigin/calc-vo2max[m[33m, [m[1;32mcalc-vo2max[m[33m)[m dropdown-menu
+[33mec0fab3[m Merge pull request #15 from redplay94/calc-vo2max
+[33m4bf9574[m profile-header
+[33m0d33e5b[m Merge pull request #14 from redplay94/calc-vo2max
+[33mc60998c[m Merge pull request #13 from redplay94/my-profile
+[33m8e58d6c[m calc-vo2max-added
+[33m4e3e02e[m[33m ([m[1;31morigin/my-profile[m[33m, [m[1;32mmy-profile[m[33m)[m stats-over
+[33m4640988[m Merge pull request #12 from redplay94/badges-new
+[33m79012b8[m[33m ([m[1;31morigin/badges-new[m[33m, [m[1;32mbadges-new[m[33m)[m badges-added
+[33m4d08a7c[m Merge pull request #11 from redplay94/kartice-click
+[33mdf202c7[m[33m ([m[1;31morigin/kartice-click[m[33m, [m[1;32mkartice-click[m[33m)[m dash-izmjena
+[33mba31474[m Merge pull request #10 from redplay94/kartice-click
+[33m5946236[m dates
+[33mf7e4da8[m Merge pull request #9 from redplay94/kartice-click
+[33m681005e[m kartice-edit
+[33m74bbdd8[m[33m ([m[1;31morigin/nove-izmjene2[m[33m, [m[1;32mnove-izmjene2[m[33m)[m hr-change
+[33m5f955ce[m change-model
+[33mc839373[m heart rate change
+[33me56c521[m[33m ([m[1;31morigin/nove-izmjene[m[33m, [m[1;32mnove-izmjene[m[33m)[m dashboard
+[33med7a5fe[m header-menu
+[33m2544c7a[m Add dark-light
+[33m982a69e[m Add advanced bar
+[33m072b75a[m Fix VO2 Max close buttons and center nav bar
+[33m20e6682[m Reorganize header nav and convert sections to overlay panels
+[33m5afa6c1[m Fix heatmap hover tooltip to match click popup
+[33m96df073[m Fix heatmap popup emoji display
