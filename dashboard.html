@@ -11235,6 +11235,25 @@ const BADGE_DEFS = [
   { id:'hm_step_legend',    cat:'consistency', tier:'platinum', icon:'🦵', name:'Step Legend',         desc:'Hit your daily step goal on 100 days in a year',         target:100   },
   { id:'hm_30k_day',        cat:'personal',    tier:'gold',     icon:'🚶', name:'30K Steps Day',       desc:'Reach 30,000 steps in a single day',                     target:30000 },
   { id:'hm_no_rest_year',   cat:'consistency', tier:'diamond',  icon:'💎', name:'No Rest Year',        desc:'Have 300+ active days in a year',                        target:300   },
+  // ── Consistency / cadence ───────────────────────────────────────────
+  { id:'con_night_owl',    cat:'consistency', tier:'bronze',   icon:'🌙', name:'Night Owl',          desc:'Log an activity after 9 PM',                                 target:1     },
+  { id:'con_monthly20',    cat:'consistency', tier:'silver',   icon:'📆', name:'Month of Motion',    desc:'Be active on 20+ days in a single calendar month',           target:20    },
+  { id:'con_perfect_week', cat:'consistency', tier:'gold',     icon:'✅', name:'Perfect Week',       desc:'Log an activity on all 7 days of a single week',             target:7     },
+  { id:'con_comeback',     cat:'consistency', tier:'silver',   icon:'🌱', name:'Comeback Kid',       desc:'Return with an activity after a 14+ day break',              target:1     },
+  // ── Intensity ───────────────────────────────────────────────────────
+  { id:'pb_sub5km',        cat:'personal',    tier:'gold',     icon:'💨', name:'Sub-5 Club',         desc:'Complete a 3+ km run at sub-5:00/km average pace',           target:1     },
+  { id:'pb_fast_cycle',    cat:'personal',    tier:'gold',     icon:'🏎️', name:'Lightning Wheels',   desc:'Cycle 20+ km at 30+ km/h average speed',                     target:1     },
+  { id:'hr_redline',       cat:'special',     tier:'platinum', icon:'🔴', name:'Redline Runner',     desc:'Spend 60+ total minutes in HR Zone 5',                       target:60    },
+  // ── Progress / resilience ───────────────────────────────────────────
+  { id:'streak_200',       cat:'streak',      tier:'legendary',icon:'🐉', name:'Mythic Streak',      desc:'Maintain a 200-day activity streak',                         target:200   },
+  { id:'dist_week_50',     cat:'distance',    tier:'gold',     icon:'🚀', name:'Big Week',           desc:'Log 50+ km of activity in a single calendar week',           target:50    },
+  // ── Sport-specific variety ──────────────────────────────────────────
+  { id:'run_100km',        cat:'distance',    tier:'bronze',   icon:'🎽', name:'Running Rookie',     desc:'Log 100 km of running total',                                target:100   },
+  { id:'run_500km',        cat:'distance',    tier:'gold',     icon:'🏃', name:'Distance Runner',    desc:'Log 500 km of running total',                                target:500   },
+  { id:'walk_50km',        cat:'distance',    tier:'bronze',   icon:'👣', name:'Step by Step',       desc:'Log 50 km of walking total',                                 target:50    },
+  { id:'walk_250km',       cat:'distance',    tier:'silver',   icon:'🥾', name:'Wanderer',           desc:'Log 250 km of walking total',                                target:250   },
+  { id:'cycle_200km',      cat:'distance',    tier:'silver',   icon:'🚲', name:'Saddle Time',        desc:'Log 200 km of cycling total',                                target:200   },
+  { id:'cycle_1000km',     cat:'distance',    tier:'platinum', icon:'🚵', name:'Tour de Life',       desc:'Log 1,000 km of cycling total',                              target:1000  },
 ];
 const BADGE_COLORS = { bronze:'#b4733c', silver:'#a0a0af', gold:'#d4a800', platinum:'#64c8dc', diamond:'#82aaff', legendary:'#f97316' };
 let badgeFilter = 'all';
@@ -11253,7 +11272,7 @@ function computeBadges() {
     const d = new Date(now); d.setDate(d.getDate() - i);
     if (activeDays.has(fmtDate(d))) streak++; else break;
   }
-  [3,7,14,30,60,100].forEach(t => {
+  [3,7,14,30,60,100,200].forEach(t => {
     earned['streak_'+t] = streak >= t ? { date: fmtDate(now), progress: streak, total: t } : null;
   });
 
@@ -11331,6 +11350,112 @@ function computeBadges() {
   const fiveStar = cr.find(r => r.rating >= 5);
   earned['race_5star']     = fiveStar ? { date: fiveStar.date||fmtDate(now), progress:1, total:1 } : null;
 
+  // ── New badges (15): consistency, intensity, progress, sport-specific ──
+
+  // Night Owl — any activity logged after 9 PM
+  const nightActs = acts.filter(a => a.timeOfDay && parseInt(a.timeOfDay.split(':')[0]) >= 21);
+  earned['con_night_owl'] = nightActs.length > 0
+    ? { date: nightActs[0].date, progress:1, total:1 } : null;
+
+  // Month of Motion — 20+ unique active days in any calendar month
+  const monthDaysMap = {};
+  acts.forEach(a => {
+    const ym = (a.date||'').slice(0, 7);
+    if (!ym) return;
+    (monthDaysMap[ym] = monthDaysMap[ym] || new Set()).add(a.date);
+  });
+  let bestMonth = { ym:null, count:0 };
+  Object.entries(monthDaysMap).forEach(([ym, set]) => {
+    if (set.size > bestMonth.count) bestMonth = { ym, count:set.size };
+  });
+  earned['con_monthly20'] = bestMonth.count >= 20
+    ? { date: bestMonth.ym+'-01', progress: bestMonth.count, total: 20 } : null;
+
+  // Perfect Week — activity on all 7 days of a single ISO week
+  const weekDaysMap = {};
+  acts.forEach(a => {
+    if (!a.date) return;
+    const iw = getISOWeek(new Date(a.date+'T00:00:00'));
+    (weekDaysMap[iw] = weekDaysMap[iw] || new Set()).add(a.date);
+  });
+  let bestWeek = { count:0, lastDate:null };
+  Object.entries(weekDaysMap).forEach(([, set]) => {
+    if (set.size > bestWeek.count) {
+      bestWeek = { count:set.size, lastDate:[...set].sort().pop() };
+    }
+  });
+  earned['con_perfect_week'] = bestWeek.count >= 7
+    ? { date: bestWeek.lastDate, progress: 7, total: 7 } : null;
+
+  // Comeback Kid — first activity after a 14+ day gap
+  const uniqDates = [...new Set(acts.map(a => a.date).filter(Boolean))].sort();
+  let comebackDate = null;
+  for (let i = 1; i < uniqDates.length; i++) {
+    const gap = (new Date(uniqDates[i]+'T00:00:00') - new Date(uniqDates[i-1]+'T00:00:00')) / 86400000;
+    if (gap >= 14) { comebackDate = uniqDates[i]; break; }
+  }
+  earned['con_comeback'] = comebackDate
+    ? { date: comebackDate, progress:1, total:1 } : null;
+
+  // Sub-5 Club — run >= 3 km at pace < 300 sec/km
+  const sub5 = runs.filter(a => a.distance >= 3 && a.duration/a.distance < 300);
+  earned['pb_sub5km'] = sub5.length > 0
+    ? { date: sub5.slice().sort((a,b)=>a.date.localeCompare(b.date))[0].date, progress:1, total:1 } : null;
+
+  // Lightning Wheels — cycle >= 20 km at avg >= 30 km/h (pace < 120 sec/km)
+  const fastCy = cycles.filter(a => a.distance >= 20 && a.duration > 0 && a.duration/a.distance < 120);
+  earned['pb_fast_cycle'] = fastCy.length > 0
+    ? { date: fastCy.slice().sort((a,b)=>a.date.localeCompare(b.date))[0].date, progress:1, total:1 } : null;
+
+  // Redline Runner — 60+ total minutes in HR Zone 5
+  let z5Total = 0, z5Date = null;
+  if (typeof hrGetActivityZones === 'function') {
+    acts.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(a => {
+      const zm = hrGetActivityZones(a);
+      if (zm && zm.length >= 5) {
+        z5Total += zm[4] || 0;
+        if (z5Total >= 60 && !z5Date) z5Date = a.date;
+      }
+    });
+  }
+  earned['hr_redline'] = z5Total >= 60
+    ? { date: z5Date || fmtDate(now), progress: Math.round(z5Total), total: 60 } : null;
+
+  // Big Week — 50+ km of activity in a single ISO week
+  const weekDistMap = {};
+  acts.forEach(a => {
+    if (!a.date) return;
+    const iw = getISOWeek(new Date(a.date+'T00:00:00'));
+    weekDistMap[iw] = (weekDistMap[iw] || 0) + (a.distance || 0);
+  });
+  const maxWeekKm = Math.max(0, ...Object.values(weekDistMap));
+  earned['dist_week_50'] = maxWeekKm >= 50
+    ? { date: fmtDate(now), progress: +maxWeekKm.toFixed(1), total: 50 } : null;
+
+  // Sport-specific cumulative distance (run / walk / cycle)
+  const walkActs  = acts.filter(a => a.type === 'walk');
+  const runDist   = runs.reduce((s,a)=>s+(a.distance||0), 0);
+  const walkDist  = walkActs.reduce((s,a)=>s+(a.distance||0), 0);
+  const cycleDist = cycles.reduce((s,a)=>s+(a.distance||0), 0);
+  const awardSportDist = (id, target, list, total) => {
+    if (total >= target) {
+      let running = 0, dateEarned = null;
+      list.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(a => {
+        running += a.distance || 0;
+        if (running >= target && !dateEarned) dateEarned = a.date;
+      });
+      earned[id] = { date: dateEarned, progress: +total.toFixed(1), total: target };
+    } else {
+      earned[id] = null;
+    }
+  };
+  awardSportDist('run_100km',   100,  runs,     runDist);
+  awardSportDist('run_500km',   500,  runs,     runDist);
+  awardSportDist('walk_50km',    50,  walkActs, walkDist);
+  awardSportDist('walk_250km',  250,  walkActs, walkDist);
+  awardSportDist('cycle_200km', 200,  cycles,   cycleDist);
+  awardSportDist('cycle_1000km',1000, cycles,   cycleDist);
+
   return earned;
 }
 
@@ -11379,13 +11504,40 @@ function getISOWeek(d) {
 function getBadgeProgress(def) {
   const acts = db.activities;
   switch(def.id) {
-    case 'streak_3': case 'streak_7': case 'streak_14': case 'streak_30': case 'streak_60': case 'streak_100': {
+    case 'streak_3': case 'streak_7': case 'streak_14': case 'streak_30': case 'streak_60': case 'streak_100': case 'streak_200': {
       const ad = new Set(acts.map(a=>a.date)); let s=0; const n=new Date();
       for(let i=0;i<365;i++){const d=new Date(n);d.setDate(d.getDate()-i);if(ad.has(fmtDate(d)))s++;else break;}
       return { current:s, total:def.target, unit:'days' };
     }
     case 'dist_10': case 'dist_50': case 'dist_100': case 'dist_500': case 'dist_1000':
       return { current:+acts.reduce((s,a)=>s+a.distance,0).toFixed(1), total:def.target, unit:'km' };
+    case 'run_100km': case 'run_500km':
+      return { current:+acts.filter(a=>a.type==='run').reduce((s,a)=>s+(a.distance||0),0).toFixed(1), total:def.target, unit:'km' };
+    case 'walk_50km': case 'walk_250km':
+      return { current:+acts.filter(a=>a.type==='walk').reduce((s,a)=>s+(a.distance||0),0).toFixed(1), total:def.target, unit:'km' };
+    case 'cycle_200km': case 'cycle_1000km':
+      return { current:+acts.filter(a=>a.type==='cycle').reduce((s,a)=>s+(a.distance||0),0).toFixed(1), total:def.target, unit:'km' };
+    case 'con_monthly20': {
+      const md={}; acts.forEach(a=>{const ym=(a.date||'').slice(0,7); if(ym){(md[ym]=md[ym]||new Set()).add(a.date);}});
+      const best = Object.values(md).reduce((m,s)=>Math.max(m,s.size), 0);
+      return { current:best, total:20, unit:'days' };
+    }
+    case 'con_perfect_week': {
+      const wd={}; acts.forEach(a=>{if(!a.date)return; const iw=getISOWeek(new Date(a.date+'T00:00:00')); (wd[iw]=wd[iw]||new Set()).add(a.date);});
+      const best = Object.values(wd).reduce((m,s)=>Math.max(m,s.size), 0);
+      return { current:best, total:7, unit:'days' };
+    }
+    case 'dist_week_50': {
+      const wm={}; acts.forEach(a=>{if(!a.date)return; const iw=getISOWeek(new Date(a.date+'T00:00:00')); wm[iw]=(wm[iw]||0)+(a.distance||0);});
+      return { current:+Math.max(0,...Object.values(wm)).toFixed(1), total:50, unit:'km' };
+    }
+    case 'hr_redline': {
+      let z5=0;
+      if (typeof hrGetActivityZones === 'function') {
+        acts.forEach(a=>{ const zm=hrGetActivityZones(a); if(zm && zm.length>=5) z5 += zm[4]||0; });
+      }
+      return { current:Math.round(z5), total:60, unit:'min' };
+    }
     case 'pb_cals':
       return { current:Math.max(0,...acts.map(a=>a.calories||0)), total:1000, unit:'kcal' };
     case 'pb_marathon': case 'pb_halfm': {
